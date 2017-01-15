@@ -30,7 +30,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			_configuration = configuration;
 		}
 
-		public /*async Task<*/IActionResult/*>*/ Index()
+		public IActionResult Index()
 		{
 			if (_hashesInfo == null || (!_hashesInfo.IsCalculating && _hashesInfo.Count <= 0))
 			{
@@ -49,21 +49,21 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 						}
 
 						_hashesInfo = new HashesInfo { IsCalculating = true };
-						//var bc = new DbContextOptionsBuilder<BloggingContext>();
-						//Startup.ConfigureDBKind(bc, (IConfiguration)conf);
+						var bc = new DbContextOptionsBuilder<BloggingContext>();
+						Startup.ConfigureDBKind(bc, (IConfiguration)conf);
 
-						//using (var db = new BloggingContext(bc.Options))
+						using (var db = new BloggingContext(bc.Options))
 						{
-							//	var alphabet = (from h in db.Hashes
-							//					select h.Key.First()
-							//					).Distinct()
-							//					.OrderBy(o => o);
-							//	var count = db.Hashes.Count();
-							//	var key_length = db.Hashes.Max(x => x.Key.Length);
+							var alphabet = (from h in db.Hashes
+											select h.Key.First()
+											).Distinct()
+											.OrderBy(o => o);
+							var count = db.Hashes.Count();
+							var key_length = db.Hashes.Max(x => x.Key.Length);
 
-							_hashesInfo.Count = /*count*/123456789;
-							_hashesInfo.KeyLength = /*key_length*/5;
-							_hashesInfo.Alphabet = /*string.Concat(alphabet)*/"qwertyuiop";
+							_hashesInfo.Count = count;
+							_hashesInfo.KeyLength = key_length;
+							_hashesInfo.Alphabet = string.Concat(alphabet);
 							_hashesInfo.IsCalculating = false;
 
 							_logger.LogInformation(0, $"###Calculation of initial Hash parameters ended");
@@ -88,7 +88,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			if (!ModelState.IsValid)
 			{
 				if (ajax)
-					return new JsonResult(null);
+					return new JsonResult("error");
 				else
 				{
 					ViewBag.Info = _hashesInfo;
@@ -96,13 +96,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 					return View("Index", null);
 				}
 			}
-
-			//string search = hi.Search;
-			//string shaKind = hi.Kind.ToString();
-
-			//if (string.IsNullOrEmpty(search) || string.IsNullOrEmpty(shaKind))
-			//	return null;
-
+			
 			var logger_tsk = Task.Run(() =>
 			{
 				_logger.LogInformation(0, $"{nameof(hi.Search)} = {hi.Search}, {nameof(hi.Kind)} = {hi.Kind.ToString()}");
@@ -113,11 +107,11 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			switch (hi.Kind)
 			{
 				case KindEnum.MD5:
-					found = _dbaseContext.Hashes.Where(x => x.HashMD5 == hi.Search).ToAsyncEnumerable().FirstOrDefault();
+					found = _dbaseContext.Hashes.Where(x => x.HashMD5 == hi.Search).ToAsyncEnumerable().DefaultIfEmpty(new Hashes { Key = "nothing found" }).FirstOrDefault();
 					break;
 
 				case KindEnum.SHA256:
-					found = _dbaseContext.Hashes.Where(x => x.HashSHA256 == hi.Search).ToAsyncEnumerable().FirstOrDefault();
+					found = _dbaseContext.Hashes.Where(x => x.HashSHA256 == hi.Search).ToAsyncEnumerable().DefaultIfEmpty(new Hashes { Key = "nothing found" }).FirstOrDefault();
 					break;
 
 				default:
