@@ -20,6 +20,8 @@
 			"version": "1.0.0-preview3-final",
 			"type": "build"
 		},
+		"Microsoft.EntityFrameworkCore.Sqlite": "1.1.0",
+		"Microsoft.EntityFrameworkCore.Sqlite.Design": "1.1.0",
 		"Microsoft.Extensions.Configuration.EnvironmentVariables": "1.1.0",
 		"Microsoft.Extensions.Configuration.Json": "1.1.0",
 		"Microsoft.Extensions.Configuration.UserSecrets": "1.1.0",

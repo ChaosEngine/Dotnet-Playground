@@ -55,9 +55,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			//MySQL
 			options.UseMySQL(configuration.GetConnectionString("MySQL"));
 
-			//
-			//TODO: SqlLite ??
-			//
+			//SqlLite
+			//options.UseSqlite("Filename=./Blogging.db");
 		}
 
 		// This method gets called by the runtime. Use this method to add services to the container.
