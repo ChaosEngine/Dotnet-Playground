@@ -6,7 +6,7 @@
 	<form action="@Conf["AppRootPath"]Blogs/ItemAction/@Model.BlogId/false" method="post" class="form-horizontal" role="form" data-id="@Model.BlogId">
 		<div asp-validation-summary="All" class="text-danger"></div>
 		@Html.AntiForgeryToken()
-		<input asp-for="Url" id="inp_@Model.BlogId" splaceholder="Url" class="edit form-control" />
+		<input asp-for="Url" value="@Model.Url" id="inp_@Model.BlogId" splaceholder="Url" class="edit form-control" />
 		<input class="update-case btn btn-default" name="action" type="submit" value="@(BlogActionEnum.Edit)" />
 		<input class="delete-case btn btn-danger" name="action" type="submit" value="@(BlogActionEnum.Delete)"  formnovalidate="formnovalidate" />
 	</form>

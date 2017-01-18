@@ -19,17 +19,6 @@
 				@Html.DisplayFor(modelItem => item.BlogId)
 			</td>
 			<td>
-				@*<div class="form-inline">
-						<span class='displaying'>@Html.DisplayFor(modelItem => item.Url)</span>
-
-						<form action="@Conf["AppRootPath"]Blogs/ItemAction/@item.BlogId/false" method="post" class="form-horizontal" role="form" data-id="@item.BlogId">
-							<div asp-validation-summary="All" class="text-danger"></div>
-							@Html.AntiForgeryToken()
-							<input asp-for="Url" id="inp_@(item.BlogId)" splaceholder="Url" class="edit form-control" />
-							<input class="update-case btn btn-default" name="action" type="submit" value="@(BlogActionEnum.Edit)" />
-							<input class="delete-case btn btn-danger" name="action" type="submit" value="@(BlogActionEnum.Delete)" formnovalidate="formnovalidate" />
-						</form>
-					</div>*@
 				@await Html.PartialAsync("BlogPartial", item)
 			</td>
 		</tr>
@@ -67,7 +56,6 @@
 				method: action == '@(BlogActionEnum.Delete)' ? 'DELETE' : 'POST',
 				url: '@Conf["AppRootPath"]Blogs/ItemAction/' + id + '/true',
 				dataType: 'json',
-				//data: { "id": id, "url": url, "action": '@(BlogActionEnum.Edit)' },
 				data: action == '@(BlogActionEnum.Edit)' ? serialized_form : 'action=' + '@(BlogActionEnum.Delete)',
 				headers: action == '@(BlogActionEnum.Delete)' ? hedrs : null
 			}).done(function (blog, textStatus, jqXHR) {

@@ -41,29 +41,36 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			return View();
 		}
 
-		[HttpPost("Blogs/ItemAction/{id}/{ajax}")]
-		[HttpDelete("Blogs/ItemAction/{id}/{ajax}")]
+		[HttpPost("Blogs/ItemAction/{BlogId}/{ajax}")]
+		[HttpDelete("Blogs/ItemAction/{BlogId}/{ajax}")]
 		[ValidateAntiForgeryToken]
-		public async Task<ActionResult> ItemAction(int id, bool ajax, string url, string action = "")
+		public async Task<ActionResult> ItemAction(Blog blog, bool ajax, string action = "")
 		{
-			/*if (!ModelState.IsValid)
+			if (action == BlogActionEnum.Delete.ToString())
+			{
+				ModelState.Remove("Url");
+			}
+
+			if (!ModelState.IsValid)
 			{
 				if (ajax)
 					return new JsonResult("error");
 				else
 				{
-					return View("Index", null);
+					IEnumerable<Blog> lst = await (GetBlogs().ToList());
+					lst = lst.Where(x => x.BlogId != blog.BlogId).Union(new[] { blog });
+					return View("Index", lst);
 				}
-			}*/
+			}
 
 			ActionResult result;
 			switch (action?.ToLower())
 			{
 				case "edit":
-					result = await Edit(id, url, ajax);
+					result = await Edit(blog.BlogId, blog.Url, ajax);
 					break;
 				case "delete":
-					result = await Delete(id, ajax);
+					result = await Delete(blog.BlogId, ajax);
 					break;
 				default:
 					throw new NotSupportedException($"Unknown {nameof(action)} {action}");
