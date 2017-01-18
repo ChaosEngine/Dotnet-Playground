@@ -8,9 +8,12 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
     {
 		[Required]
         public int PostId { get; set; }
+
 		[Required]
 		public int BlogId { get; set; }
+
         public string Content { get; set; }
+
         public string Title { get; set; }
 
         public virtual Blog Blog { get; set; }

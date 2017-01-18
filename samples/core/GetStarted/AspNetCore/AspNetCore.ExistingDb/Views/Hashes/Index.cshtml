@@ -1,17 +1,17 @@
-﻿@model EFGetStarted.AspNetCore.ExistingDb.Models.Hashes
-@inject  Microsoft.Extensions.Configuration.IConfiguration Conf
+﻿@model Hashes
+@inject Microsoft.Extensions.Configuration.IConfiguration Conf
 @{
 	ViewBag.Title = "MyRainbow rainbow table";
 }
 <h2>Rainbow table trivial example</h2>
 @{
-	if (((EFGetStarted.AspNetCore.ExistingDb.Models.HashesInfo)ViewBag.Info) != null && ((EFGetStarted.AspNetCore.ExistingDb.Models.HashesInfo)ViewBag.Info).IsCalculating == false)
+	if (((HashesInfo)ViewBag.Info) != null && ((HashesInfo)ViewBag.Info).IsCalculating == false)
 	{
 		<p>
-			Search for <strong>@(((EFGetStarted.AspNetCore.ExistingDb.Models.HashesInfo)ViewBag.Info).KeyLength)</strong> character MD5 or SHA256 hash source string. Alphabet is '@(((EFGetStarted.AspNetCore.ExistingDb.Models.HashesInfo)ViewBag.Info).Alphabet)'
+			Search for <strong>@(((HashesInfo)ViewBag.Info).KeyLength)</strong> character MD5 or SHA256 hash source string. Alphabet is '@(((HashesInfo)ViewBag.Info).Alphabet)'
 		</p>
 		<p>
-			Hashes count: <strong>@(((EFGetStarted.AspNetCore.ExistingDb.Models.HashesInfo)ViewBag.Info).Count)</strong>
+			Hashes count: <strong>@(((HashesInfo)ViewBag.Info).Count)</strong>
 			last updated @DateTime.Now.ToString()
 		</p>
 	}
@@ -27,7 +27,7 @@
 			@Html.AntiForgeryToken()
 			@Html.Hidden("ajax", false)
 			<div class="col-md-10">
-				@foreach (EFGetStarted.AspNetCore.ExistingDb.Models.KindEnum knd in Enum.GetValues(typeof(EFGetStarted.AspNetCore.ExistingDb.Models.KindEnum)))
+				@foreach (KindEnum knd in Enum.GetValues(typeof(KindEnum)))
 				{
 					<label class="radio-inline"><input asp-for="Kind" type="radio" id="@("knd" + (int)knd)" name="Kind" value="@knd" />@knd</label>
 					<span asp-validation-for="Kind" class="text-danger"></span>

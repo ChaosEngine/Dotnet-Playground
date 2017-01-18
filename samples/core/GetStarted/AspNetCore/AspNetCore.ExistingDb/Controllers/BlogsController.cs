@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -11,20 +13,27 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 	{
 		private BloggingContext _context;
 		private ILogger<BlogsController> _logger;
-		private IConfiguration _conf;
+		private IConfiguration _configuration;
 
-		public BlogsController(BloggingContext context, ILogger<BlogsController> logger, IConfiguration conf)
+		public BlogsController(BloggingContext context, ILogger<BlogsController> logger, IConfiguration configuration)
 		{
 			_context = context;
 			_logger = logger;
-			_conf = conf;
+			_configuration = configuration;
+		}
+
+		private IAsyncEnumerable<Blog> GetBlogs()
+		{
+			var lst = _context.Blog.ToAsyncEnumerable();
+
+			return lst;
 		}
 
 		public async Task<IActionResult> Index()
 		{
-			var lst = _context.Blog.ToAsyncEnumerable();
+			var lst = await (GetBlogs().ToList());
 
-			return View(await lst.ToList());
+			return View(lst);
 		}
 
 		public IActionResult Create()
@@ -32,16 +41,53 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			return View();
 		}
 
-		[HttpPost]
+		[HttpPost("Blogs/ItemAction/{id}/{ajax}")]
+		[HttpDelete("Blogs/ItemAction/{id}/{ajax}")]
 		[ValidateAntiForgeryToken]
-		public async Task<JsonResult> Edit(int id, string url)
+		public async Task<ActionResult> ItemAction(int id, bool ajax, string url, string action = "")
+		{
+			/*if (!ModelState.IsValid)
+			{
+				if (ajax)
+					return new JsonResult("error");
+				else
+				{
+					return View("Index", null);
+				}
+			}*/
+
+			ActionResult result;
+			switch (action?.ToLower())
+			{
+				case "edit":
+					result = await Edit(id, url, ajax);
+					break;
+				case "delete":
+					result = await Delete(id, ajax);
+					break;
+				default:
+					throw new NotSupportedException($"Unknown {nameof(action)} {action}");
+			}
+			if (ajax)
+			{
+				return result;
+			}
+			else
+			{
+				return RedirectToAction("Index");
+			}
+		}
+
+		//[HttpPost("Blogs/Edit/{id:int}/{ajax:bool}")]
+		//[ValidateAntiForgeryToken]
+		protected async Task<ActionResult> Edit(int id, string url, bool ajax)
 		{
 			var logger_tsk = Task.Run(() =>
 			{
-				_logger.LogInformation(0, $"id = {id} url = {(url ?? "<null>")}");
+				_logger.LogInformation(0, $"id = {id} url = {(url ?? "<null>")} {nameof(ajax)} = {ajax.ToString()}");
 			});
 
-			if (id <= 0 || string.IsNullOrEmpty(url)) return Json("error0");
+			if (id <= 0 || string.IsNullOrEmpty(url)) return BadRequest(ModelState);
 
 			Task<Blog> tsk = _context.Blog.FindAsync(id);
 			Blog blog = await tsk;
@@ -53,19 +99,19 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 				return Json(blog);
 			}
 
-			return Json("error1");
+			return NotFound();
 		}
 
-		[HttpDelete]
-		[ValidateAntiForgeryToken]
-		public async Task<JsonResult> Delete(int id)
+		//[HttpPost("Blogs/Delete/{id:int}/{ajax:bool}")]
+		//[ValidateAntiForgeryToken]
+		protected async Task<ActionResult> Delete(int id, bool ajax)
 		{
 			var logger_tsk = Task.Run(() =>
 			{
-				_logger.LogInformation(2, $"id = {id}");
+				_logger.LogInformation(2, $"id = {id}, {nameof(ajax)} = {ajax.ToString()}");
 			});
 
-			if (id <= 0) return Json("error0");
+			if (id <= 0) return BadRequest(ModelState);
 
 			Task<Blog> tsk = _context.Blog.FindAsync(id);
 			Blog blog = await tsk;
@@ -74,10 +120,10 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 				_context.Remove(blog);
 				await _context.SaveChangesAsync();
 
-				return Json("ok");
+				return /*Ok(*/Json("deleted")/*)*/;
 			}
 			else
-				return Json("error1");
+				return NotFound();
 		}
 
 		[HttpPost]
@@ -91,7 +137,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 			if (ModelState.IsValid)
 			{
-				var appRootPath = _conf["AppRootPath"];
+				var appRootPath = _configuration["AppRootPath"];
 
 				await _context.Blog.AddAsync(blog);
 				await _context.SaveChangesAsync();

@@ -1,21 +1,16 @@
-﻿@model IEnumerable<EFGetStarted.AspNetCore.ExistingDb.Models.Blog>
+﻿@model IEnumerable<Blog>
 @inject  Microsoft.Extensions.Configuration.IConfiguration Conf
 @{
 	ViewBag.Title = "Blogs";
 }
 
-<h2>Blogs</h2>
-
+<h2>@ViewData["Title"]</h2>
 <p>
 	<a href="@Conf["AppRootPath"]Blogs/Create">Create New</a>
 </p>
 
-@Html.AntiForgeryToken()
 <table class="table">
-	<tr>
-		<th>Id</th>
-		<th>Url</th>
-	</tr>
+	<tr><th>Id</th><th>Url</th></tr>
 
 	@foreach (var item in Model)
 	{
@@ -24,68 +19,75 @@
 				@Html.DisplayFor(modelItem => item.BlogId)
 			</td>
 			<td>
-				<div class="form-inline">
-					<span class='displaying'>@Html.DisplayFor(modelItem => item.Url)</span>
-					@Html.TextBox("Url_" + item.BlogId, (string)item.Url, new { @class = "edit form-control" })
-					<button class="update-case btn btn-default" data-id="@item.BlogId">Update</button>
-					<button class="delete-case btn btn-danger" data-id="@item.BlogId">Delete</button>
-				</div>
+				@*<div class="form-inline">
+						<span class='displaying'>@Html.DisplayFor(modelItem => item.Url)</span>
+
+						<form action="@Conf["AppRootPath"]Blogs/ItemAction/@item.BlogId/false" method="post" class="form-horizontal" role="form" data-id="@item.BlogId">
+							<div asp-validation-summary="All" class="text-danger"></div>
+							@Html.AntiForgeryToken()
+							<input asp-for="Url" id="inp_@(item.BlogId)" splaceholder="Url" class="edit form-control" />
+							<input class="update-case btn btn-default" name="action" type="submit" value="@(BlogActionEnum.Edit)" />
+							<input class="delete-case btn btn-danger" name="action" type="submit" value="@(BlogActionEnum.Delete)" formnovalidate="formnovalidate" />
+						</form>
+					</div>*@
+				@await Html.PartialAsync("BlogPartial", item)
 			</td>
 		</tr>
 	}
 </table>
+
 @section scripts
 {
 	<script type="text/javascript">
 		$(function () {
-			$('.update-case').on('click', function (e) {
-				e.preventDefault();
-				tr = $(this).parents('tr:first');
-				var id = $(this).data('id');
-				var url = tr.find('.edit').val();
-				if (url == '' || url == tr.find('span.displaying').text())
-					return;
-
-				var token = $('input[name="__RequestVerificationToken"]').val();
-				var hedrs = { 'RequestVerificationToken': token }
-
-				$.ajax({
-					method: "POST", url: '@Conf["AppRootPath"]Blogs/Edit',
-					data: { "id": id, "url": url },
-					headers: hedrs
-				}).done(function (blog) {
-					if (blog == "error") {
-						alert("error");
-						return;
-					}
-
-					var edit = tr.find('.edit');
-					edit.val(blog.url);
-					var span = tr.find('span.displaying');
-					span.text(blog.url);
-				});
-
-			});
-
-			$('.delete-case').on('click', function (e) {
-				e.preventDefault();
-				tr = $(this).parents('tr:first');
-				var id = $(this).data('id');
-
-				var token = $('input[name="__RequestVerificationToken"]').val();
-				var hedrs = { 'RequestVerificationToken': token }
-
-				$.ajax({
-					method: "DELETE", url: "@Conf["AppRootPath"]Blogs/Delete",
-					data: { "id": id },
-					headers: hedrs
-				}).done(function (result) {
-					//alert("Data deleted: " + result);
-					if (result == 'ok')
-						$(tr).remove();
-				});
-
+			//$('form').validate({
+			$.validator.setDefaults({
+				debug: true,
+				submitHandler: function (form) {
+					FormSubmit(form); return false;
+					//alert('submitted'); return false;
+				}
 			});
 		});
+
+		function FormSubmit(form) {
+			tr = $(form).parents('tr:first');
+			var id = $(form).data('id');
+			var url = $(form).find('#inp_' + id).val();
+			var action = $(form).find("input[type=submit]:focus").val();
+
+			if (action == '@(BlogActionEnum.Edit)' && (url == '' || url == tr.find('span.displaying').text()))
+				return;
+
+			var token = $('input[name="__RequestVerificationToken"]').val();
+			var hedrs = { 'RequestVerificationToken': token }
+			var serialized_form = $(form).serialize();
+
+			$.ajax({
+				method: action == '@(BlogActionEnum.Delete)' ? 'DELETE' : 'POST',
+				url: '@Conf["AppRootPath"]Blogs/ItemAction/' + id + '/true',
+				dataType: 'json',
+				//data: { "id": id, "url": url, "action": '@(BlogActionEnum.Edit)' },
+				data: action == '@(BlogActionEnum.Edit)' ? serialized_form : 'action=' + '@(BlogActionEnum.Delete)',
+				headers: action == '@(BlogActionEnum.Delete)' ? hedrs : null
+			}).done(function (blog, textStatus, jqXHR) {
+				if (blog == "error") {
+					alert("error");
+					return;
+				}
+				else if (blog == "deleted") {
+					$(tr).remove();
+					return;
+				}
+
+				var edit = $(form).find('.edit');
+				edit.val(blog.url);
+				var span = tr.find('span.displaying');
+				span.text(blog.url);
+			}).fail(function (jqXHR, textStatus, errorThrown) {
+				alert("error: " + textStatus + " " + errorThrown);
+			});
+		}
 	</script>
+	@await Html.PartialAsync("_ValidationScriptsPartial")
 }
