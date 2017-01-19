@@ -7,6 +7,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 {
 	public enum BlogActionEnum
 	{
+		Unknown = -1,
 		Edit = 0,
 		Delete = 1
 	}
