@@ -44,13 +44,11 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 		[HttpPost("Blogs/ItemAction/{BlogId}/{ajax}")]
 		[HttpDelete("Blogs/ItemAction/{BlogId}/{ajax}")]
 		[ValidateAntiForgeryToken]
-		public async Task<ActionResult> ItemAction(Blog blog, bool ajax, string action = "")
+		public async Task<ActionResult> ItemAction(Blog blog, bool ajax, BlogActionEnum action = BlogActionEnum.Unknown)
 		{
-			if (action == BlogActionEnum.Delete.ToString())
-			{
-				ModelState.Remove("Url");
-			}
-
+			if (action == BlogActionEnum.Delete)
+				ModelState.Remove(nameof(blog.Url));
+			
 			if (!ModelState.IsValid)
 			{
 				if (ajax)
@@ -59,30 +57,27 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 				{
 					IEnumerable<Blog> lst = await (GetBlogs().ToList());
 					lst = lst.Where(x => x.BlogId != blog.BlogId).Union(new[] { blog });
-					return View("Index", lst);
+					return View(nameof(Index), lst);
 				}
 			}
 
 			ActionResult result;
-			switch (action?.ToLower())
+			switch (action)
 			{
-				case "edit":
+				case BlogActionEnum.Edit:
 					result = await Edit(blog.BlogId, blog.Url, ajax);
 					break;
-				case "delete":
+				case BlogActionEnum.Delete:
 					result = await Delete(blog.BlogId, ajax);
 					break;
+				case BlogActionEnum.Unknown:
 				default:
-					throw new NotSupportedException($"Unknown {nameof(action)} {action}");
+					throw new NotSupportedException($"Unknown {nameof(action)} {action.ToString()}");
 			}
 			if (ajax)
-			{
 				return result;
-			}
 			else
-			{
-				return RedirectToAction("Index");
-			}
+				return RedirectToAction(nameof(Index));
 		}
 
 		//[HttpPost("Blogs/Edit/{id:int}/{ajax:bool}")]
@@ -127,7 +122,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 				_context.Remove(blog);
 				await _context.SaveChangesAsync();
 
-				return /*Ok(*/Json("deleted")/*)*/;
+				return Json("deleted");
 			}
 			else
 				return NotFound();

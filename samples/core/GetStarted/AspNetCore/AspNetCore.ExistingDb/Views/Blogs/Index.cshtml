@@ -40,24 +40,24 @@
 		});
 
 		function FormSubmit(form) {
-			tr = $(form).parents('tr:first');
+			var tr = $(form).parents('tr:first');
 			var id = $(form).data('id');
 			var url = $(form).find('#inp_' + id).val();
 			var action = $(form).find("input[type=submit]:focus").val();
+			var delete_action = '@(BlogActionEnum.Delete)';
 
-			if (action == '@(BlogActionEnum.Edit)' && (url == '' || url == tr.find('span.displaying').text()))
+			if (action != delete_action && (url == '' || url == tr.find('span.displaying').text()))
 				return;
 
-			var token = $('input[name="__RequestVerificationToken"]').val();
-			var hedrs = { 'RequestVerificationToken': token }
+			var hedrs = { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() }
 			var serialized_form = $(form).serialize();
 
 			$.ajax({
-				method: action == '@(BlogActionEnum.Delete)' ? 'DELETE' : 'POST',
+				method: action == delete_action ? 'DELETE' : 'POST',
 				url: '@Conf["AppRootPath"]Blogs/ItemAction/' + id + '/true',
 				dataType: 'json',
-				data: action == '@(BlogActionEnum.Edit)' ? serialized_form : 'action=' + '@(BlogActionEnum.Delete)',
-				headers: action == '@(BlogActionEnum.Delete)' ? hedrs : null
+				data: action == delete_action ? 'action=' + delete_action : serialized_form,
+				headers: action == delete_action ? hedrs : null
 			}).done(function (blog, textStatus, jqXHR) {
 				if (blog == "error") {
 					alert("error");

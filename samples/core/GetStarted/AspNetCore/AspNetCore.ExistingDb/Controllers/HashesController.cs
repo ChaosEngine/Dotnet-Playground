@@ -32,7 +32,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 		public IActionResult Index()
 		{
-			/*if (_hashesInfo == null || (!_hashesInfo.IsCalculating && _hashesInfo.Count <= 0))
+			if (_hashesInfo == null || (!_hashesInfo.IsCalculating && _hashesInfo.Count <= 0))
 			{
 				Task.Factory.StartNew((conf) =>
 				{
@@ -72,7 +72,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 					}
 					return _hashesInfo;
 				}, _configuration);
-			}*/
+			}
 
 			_logger.LogInformation(0, $"###Returning {nameof(_hashesInfo)}.{nameof(_hashesInfo.IsCalculating)} = {(_hashesInfo != null ? _hashesInfo.IsCalculating.ToString() : "null")}");
 
@@ -93,36 +93,21 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 				{
 					ViewBag.Info = _hashesInfo;
 
-					return View("Index", null);
+					return View(nameof(Index), null);
 				}
 			}
-			
+
 			var logger_tsk = Task.Run(() =>
 			{
 				_logger.LogInformation(0, $"{nameof(hi.Search)} = {hi.Search}, {nameof(hi.Kind)} = {hi.Kind.ToString()}");
 			});
 
 			hi.Search = hi.Search.Trim().ToLower();
-			//Task<Hashes> found = _dbaseContext.Hashes.Where(x => (hi.Kind == KindEnum.MD5 && x.HashMD5 == hi.Search) || (hi.Kind == KindEnum.SHA256 && x.HashSHA256 == hi.Search)).ToAsyncEnumerable().DefaultIfEmpty(new Hashes { Key = "nothing found" }).First();
 
 			Task<Hashes> found = (from x in _dbaseContext.Hashes
-								 where ((hi.Kind == KindEnum.MD5 && x.HashMD5 == hi.Search) || (hi.Kind == KindEnum.SHA256 && x.HashSHA256 == hi.Search))
-								 select x)
+								  where ((hi.Kind == KindEnum.MD5 && x.HashMD5 == hi.Search) || (hi.Kind == KindEnum.SHA256 && x.HashSHA256 == hi.Search))
+								  select x)
 								 .ToAsyncEnumerable().DefaultIfEmpty(new Hashes { Key = "nothing found" }).First();
-
-			/*switch (hi.Kind)
-			{
-				case KindEnum.MD5:
-					found = _dbaseContext.Hashes.Where(x => x.HashMD5 == hi.Search).ToAsyncEnumerable().DefaultIfEmpty(new Hashes { Key = "nothing found" }).First();
-					break;
-
-				case KindEnum.SHA256:
-					found = _dbaseContext.Hashes.Where(x => x.HashSHA256 == hi.Search).ToAsyncEnumerable().DefaultIfEmpty(new Hashes { Key = "nothing found" }).First();
-					break;
-
-				default:
-					throw new NotSupportedException("bad kind");
-			}*/
 
 			if (ajax)
 				return new JsonResult(await found);
@@ -130,7 +115,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			{
 				ViewBag.Info = _hashesInfo;
 
-				return View("Index", await found);
+				return View(nameof(Index), await found);
 			}
 		}
 	}
