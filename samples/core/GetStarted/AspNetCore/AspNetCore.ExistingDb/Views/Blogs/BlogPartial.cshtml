@@ -3,11 +3,15 @@
 <div class="form-inline">
 	<span class='displaying'>@Html.DisplayFor(modelItem => Model.Url)</span>
 
-	<form action="@Conf["AppRootPath"]Blogs/ItemAction/@Model.BlogId/false" method="post" class="form-horizontal" role="form" data-id="@Model.BlogId">
+	<form method="post" class="form-horizontal" role="form" data-id="@Model.BlogId">
 		<div asp-validation-summary="All" class="text-danger"></div>
 		@Html.AntiForgeryToken()
 		<input asp-for="Url" value="@Model.Url" id="inp_@Model.BlogId" splaceholder="Url" class="edit form-control" />
-		<input class="update-case btn btn-default" name="action" type="submit" value="@(BlogActionEnum.Edit)" />
-		<input class="delete-case btn btn-danger" name="action" type="submit" value="@(BlogActionEnum.Delete)"  formnovalidate="formnovalidate" />
+		<input name="action" type="submit" value="@(BlogActionEnum.Edit)"
+			   formaction="@Conf["AppRootPath"]Blogs/@(BlogActionEnum.Edit)/@Model.BlogId/false" 
+			   class="update-case btn btn-default" />
+		<input name="action" type="submit" value="@(BlogActionEnum.Delete)"
+			   formaction="@Conf["AppRootPath"]Blogs/@(BlogActionEnum.Delete)/@Model.BlogId/false"
+			   class="delete-case btn btn-danger" formnovalidate="formnovalidate" />
 	</form>
 </div>

@@ -36,7 +36,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				.SetBasePath(env.ContentRootPath)
 				.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
 				.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+#if DEBUG
 				.AddUserSecrets()
+#endif
 				.AddEnvironmentVariables();
 
 			Configuration = builder.Build();
@@ -74,6 +76,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
 		{
 			loggerFactory.AddConsole(Configuration.GetSection("Logging"));
+
+			//app.UseEnvironmentTitleDisplay();
 
 			if (env.IsDevelopment())
 			{

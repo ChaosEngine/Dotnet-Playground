@@ -34,6 +34,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			var lst = await (GetBlogs().ToList());
 
 			return View(lst);
+			//throw new NotImplementedException("blablabla");
 		}
 
 		public IActionResult Create()
@@ -41,8 +42,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			return View();
 		}
 
-		[HttpPost("Blogs/ItemAction/{BlogId}/{ajax}")]
-		[HttpDelete("Blogs/ItemAction/{BlogId}/{ajax}")]
+		[HttpPost("Blogs/Edit/{BlogId}/{ajax}")]
+		[HttpPost("Blogs/Delete/{BlogId}/{ajax}")]
+		[HttpDelete("Blogs/Delete/{BlogId}/{ajax}")]
 		[ValidateAntiForgeryToken]
 		public async Task<ActionResult> ItemAction(Blog blog, bool ajax, BlogActionEnum action = BlogActionEnum.Unknown)
 		{
