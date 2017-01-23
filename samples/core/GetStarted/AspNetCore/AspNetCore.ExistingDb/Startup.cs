@@ -50,14 +50,20 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		/// <param name="configuration"></param>
 		internal static void ConfigureDBKind(DbContextOptionsBuilder options, IConfiguration configuration)
 		{
-			//Sql Server
-			//options.UseSqlServer(configuration.GetConnectionString("SqlServer"));
-
-			//MySQL
-			options.UseMySQL(configuration.GetConnectionString("MySQL"));
-
-			//SqlLite
-			//options.UseSqlite("Filename=./Blogging.db");
+			switch (configuration["DBKind"]?.ToLower())
+			{
+				case "mysql":
+					options.UseMySQL(configuration.GetConnectionString("MySQL"));
+					break;
+				case "sqlserver":
+					options.UseSqlServer(configuration.GetConnectionString("SqlServer"));
+					break;
+				case "sqlite":
+					options.UseSqlite("Filename=./Blogging.db");
+					break;
+				default:
+					throw new NotSupportedException($"Bad DBKind name");
+			}
 		}
 
 		// This method gets called by the runtime. Use this method to add services to the container.
@@ -76,7 +82,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		{
 			loggerFactory.AddConsole(Configuration.GetSection("Logging"));
 
-			app.UseEnvironmentTitleDisplay();
+			//app.UseEnvironmentTitleDisplay();
 
 			if (env.IsDevelopment())
 			{
