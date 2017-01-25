@@ -1,0 +1,9 @@
+FROM microsoft/aspnetcore-build
+
+COPY . /app
+WORKDIR /app
+
+RUN dotnet restore \
+    && dotnet build -c Release \
+    && dotnet publish -c Release -o ./bin/Release/PublishOutput
+
