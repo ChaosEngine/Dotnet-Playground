@@ -3,6 +3,8 @@ FROM microsoft/aspnetcore-build
 COPY . /app
 WORKDIR /app
 
+#VOLUME ["/app/bin/Release/PublishOutput"]
+
 RUN dotnet restore \
     && dotnet build -c Release \
     && dotnet publish -c Release -o ./bin/Release/PublishOutput
