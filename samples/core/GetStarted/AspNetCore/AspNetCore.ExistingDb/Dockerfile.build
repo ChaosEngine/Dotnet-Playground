@@ -3,9 +3,9 @@ FROM microsoft/aspnetcore-build
 COPY . /app
 WORKDIR /app
 
-#VOLUME ["/app/bin/Release/PublishOutput"]
+VOLUME /publish-output
 
 RUN dotnet restore \
     && dotnet build -c Release \
-    && dotnet publish -c Release -o ./bin/Release/PublishOutput
+    && dotnet publish -c Release -o /publish-output
 
