@@ -79,7 +79,11 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			if (ajax)
 				return result;
 			else
-				return RedirectToAction(nameof(Index));
+			{
+				var appRootPath = _configuration["AppRootPath"];
+				var destination_url = appRootPath + "Blogs";
+				return Redirect(destination_url);
+			}
 		}
 
 		//[HttpPost("Blogs/Edit/{id:int}/{ajax:bool}")]
