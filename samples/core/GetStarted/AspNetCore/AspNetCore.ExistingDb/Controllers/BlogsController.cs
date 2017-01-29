@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 {
+	[Route("[controller]")]
 	public class BlogsController : Controller
 	{
 		private BloggingContext _context;
@@ -34,23 +35,24 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			var lst = await (GetBlogs().ToList());
 
 			return View(lst);
-			//throw new NotImplementedException("blablabla");
 		}
 
+		[HttpGet(nameof(Create))]
 		public IActionResult Create()
 		{
 			return View();
 		}
 
-		[HttpPost("Blogs/Edit/{BlogId}/{ajax}")]
-		[HttpPost("Blogs/Delete/{BlogId}/{ajax}")]
-		[HttpDelete("Blogs/Delete/{BlogId}/{ajax}")]
+		//[HttpPost("Blogs/Edit/{BlogId}/{ajax}")]
+		//[HttpPost("Blogs/Delete/{BlogId}/{ajax}")]
+		//[HttpDelete("Blogs/Delete/{BlogId}/{ajax}")]
+		[Route(@"{x:regex(^(" + nameof(Delete) + "|" + nameof(Edit) + ")$)}" + @"/{BlogId}/{ajax}")]
 		[ValidateAntiForgeryToken]
 		public async Task<ActionResult> ItemAction(Blog blog, bool ajax, BlogActionEnum action = BlogActionEnum.Unknown)
 		{
 			if (action == BlogActionEnum.Delete)
 				ModelState.Remove(nameof(blog.Url));
-			
+
 			if (!ModelState.IsValid)
 			{
 				if (ajax)
@@ -134,7 +136,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 				return NotFound();
 		}
 
-		[HttpPost]
+		[HttpPost(nameof(Create))]
 		[ValidateAntiForgeryToken]
 		public async Task<ActionResult> Create(Blog blog)
 		{
