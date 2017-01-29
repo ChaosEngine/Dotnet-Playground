@@ -3,7 +3,11 @@ FROM microsoft/aspnetcore
 ENV ASPNETCORE_URLS http://+:5000
 EXPOSE 5000
 
-COPY publish-output /app
+COPY bin/Release/netcoreapp1.0/publish/ /app
 WORKDIR /app
+
+ENV USER www-data
+RUN	chown -R $USER:$USER /app
+USER "$USER"
 
 ENTRYPOINT ["dotnet", "app.dll"]

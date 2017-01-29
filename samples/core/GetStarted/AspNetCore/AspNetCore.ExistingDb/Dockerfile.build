@@ -9,3 +9,6 @@ RUN dotnet restore \
     && dotnet build -c Release \
     && dotnet publish -c Release -o /publish-output
 
+ENV USER www-data
+RUN	chown -R $USER:$USER /app
+USER "$USER"
