@@ -14,7 +14,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 	}
 
 	[Table("hashes")]//does not work for MySQL, works for SqlServer
-	public partial class Hashes
+	public class ThinHashes
 	{
 		[Key]
 		[Required]
@@ -28,7 +28,23 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		[Required]
 		[Column("hashSHA256", TypeName = "char(64)")]//does not work for MySQL, works for SqlServer
 		public string HashSHA256 { get; set; }
+	}
 
+	[Table("hashes")]//does not work for MySQL, works for SqlServer
+	public partial class Hashes : ThinHashes
+	{
+		/*[Key]
+		[Required]
+		[Column("key", TypeName = "varchar(20)")]//does not work for MySQL, works for SqlServer
+		public string Key { get; set; }
+
+		[Required]
+		[Column("hashMD5", TypeName = "char(32)")]//does not work for MySQL, works for SqlServer
+		public string HashMD5 { get; set; }
+
+		[Required]
+		[Column("hashSHA256", TypeName = "char(64)")]//does not work for MySQL, works for SqlServer
+		public string HashSHA256 { get; set; }*/
 
 		[Required]
 		[HashLength]
@@ -52,7 +68,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 
 	public class HashesInfo
 	{
-		//TODO: implement smart loading, immediate results and delayed loading in the background
 		public int Count { get; set; } = 0;
 		public int KeyLength { get; set; }
 		public string Alphabet { get; set; }

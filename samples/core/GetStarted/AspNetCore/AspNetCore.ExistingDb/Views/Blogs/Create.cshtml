@@ -9,7 +9,7 @@
 	<a href="@Conf["AppRootPath"]Blogs">Blogs</a>
 </p>
 
-<form action="@Conf["AppRootPath"]Blogs/Create" method="post" class="form-horizontal" role="form">
+<form action="@Conf["AppRootPath"]Blogs/@(nameof(EFGetStarted.AspNetCore.ExistingDb.Controllers.BlogsController.Create))" method="post" class="form-horizontal" role="form">
 	@Html.AntiForgeryToken()
     <div class="form-horizontal">
         <div asp-validation-summary="All" class="text-danger"></div>
@@ -22,7 +22,7 @@
         </div>
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Create" class="btn btn-default" />
+                <input type="submit" value="@(nameof(EFGetStarted.AspNetCore.ExistingDb.Controllers.BlogsController.Create))" class="btn btn-default" />
             </div>
         </div>
     </div>

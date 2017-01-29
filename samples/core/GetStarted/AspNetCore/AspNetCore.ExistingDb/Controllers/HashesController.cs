@@ -2,11 +2,14 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MySQL.Data.EntityFrameworkCore.Extensions;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.SqlClient;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
@@ -88,7 +91,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			if (!ModelState.IsValid)
 			{
 				if (ajax)
-					return new JsonResult("error");
+					return Json("error");
 				else
 				{
 					ViewBag.Info = _hashesInfo;
@@ -110,11 +113,91 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 								 .ToAsyncEnumerable().DefaultIfEmpty(new Hashes { Key = "nothing found" }).First();
 
 			if (ajax)
-				return new JsonResult(await found);
+				return Json(await found);
 			else
 			{
 				ViewBag.Info = _hashesInfo;
 
+				return View(nameof(Index), await found);
+			}
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<ActionResult> Autocomplete([Required]string text, bool ajax)
+		{
+			if (!ModelState.IsValid)
+			{
+				if (ajax)
+					return Json("error");
+				else
+				{
+					ViewBag.Info = _hashesInfo;
+					return View(nameof(Index), null);
+				}
+			}
+			var logger_tsk = Task.Run(() =>
+			{
+				_logger.LogInformation(0, $"{nameof(text)} = {text}, {nameof(ajax)} = {ajax.ToString()}");
+			});
+
+			text = text.Trim().ToLower();
+
+
+			Task<List<ThinHashes>> found = null;
+			//var name = typeof(Hashes).GetProperty("HashMD5").GetCustomAttribute<ColumnAttribute>().Name;
+			switch (BloggingContext.ConnectionTypeName)
+			{
+				case "mysqlconnection":
+					found = _dbaseContext.Hashes.FromSql(
+@"SELECT x.SourceKey, x.hashMD5, x.hashSHA256
+FROM Hashes AS x
+WHERE x.hashMD5 like CAST({0} AS CHAR CHARACTER SET utf8)
+UNION ALL
+SELECT x.SourceKey, x.hashMD5, x.hashSHA256
+FROM Hashes AS x
+WHERE x.hashSHA256 like CAST({0} AS CHAR CHARACTER SET utf8)
+LIMIT 20", text + '%')
+						.ToAsyncEnumerable()
+						.Select(x => new ThinHashes { Key = x.Key, HashMD5 = x.HashMD5, HashSHA256 = x.HashSHA256 })
+						.DefaultIfEmpty(new ThinHashes { Key = "nothing found" })
+						.ToList();
+					break;
+
+				case "sqlconnection":
+					found = _dbaseContext.Hashes.FromSql(
+@"SELECT TOP(20) x.[key], x.hashMD5, x.hashSHA256
+FROM hashes AS x
+WHERE x.hashMD5 like cast({0} as varchar)
+UNION ALL
+SELECT x.[key], x.hashMD5, x.hashSHA256
+FROM hashes AS x
+WHERE x.hashSHA256 like cast({0} as varchar)", text + '%')
+						.ToAsyncEnumerable()
+						.Select(x => new ThinHashes { Key = x.Key, HashMD5 = x.HashMD5, HashSHA256 = x.HashSHA256 })
+						.DefaultIfEmpty(new ThinHashes { Key = "nothing found" })
+						.ToList();
+					break;
+
+				case "sqliteconnection":
+					found = (from x in _dbaseContext.Hashes
+							 where (x.HashMD5.StartsWith(text) || x.HashSHA256.StartsWith(text))
+							 select x)
+							 .ToAsyncEnumerable()
+							 .Take(50)
+							 .Select(x => new ThinHashes { Key = x.Key, HashMD5 = x.HashMD5, HashSHA256 = x.HashSHA256 })
+							 .DefaultIfEmpty(new ThinHashes { Key = "nothing found" })
+							 .ToList();
+					break;
+				default:
+					throw new NotSupportedException($"Bad {nameof(BloggingContext.ConnectionTypeName)} name");
+			}
+
+			if (ajax)
+				return Json(await found);
+			else
+			{
+				ViewBag.Info = _hashesInfo;
 				return View(nameof(Index), await found);
 			}
 		}

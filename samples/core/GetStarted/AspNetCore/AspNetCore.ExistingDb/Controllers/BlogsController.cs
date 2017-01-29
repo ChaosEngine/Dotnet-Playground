@@ -56,7 +56,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			if (!ModelState.IsValid)
 			{
 				if (ajax)
-					return new JsonResult("error");
+					return Json("error");
 				else
 				{
 					IEnumerable<Blog> lst = await (GetBlogs().ToList());
