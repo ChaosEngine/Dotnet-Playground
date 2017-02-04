@@ -154,9 +154,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 FROM Hashes AS x
 WHERE x.hashMD5 like CAST({0} AS CHAR CHARACTER SET utf8)
 UNION ALL
-SELECT x.SourceKey, x.hashMD5, x.hashSHA256
-FROM Hashes AS x
-WHERE x.hashSHA256 like CAST({0} AS CHAR CHARACTER SET utf8)
+SELECT y.SourceKey, y.hashMD5, y.hashSHA256
+FROM Hashes AS y
+WHERE y.hashSHA256 like CAST({0} AS CHAR CHARACTER SET utf8)
 LIMIT 20", text + '%')
 						.ToAsyncEnumerable()
 						.Select(x => new ThinHashes { Key = x.Key, HashMD5 = x.HashMD5, HashSHA256 = x.HashSHA256 })
@@ -166,13 +166,15 @@ LIMIT 20", text + '%')
 
 				case "sqlconnection":
 					found = _dbaseContext.Hashes.FromSql(
-@"SELECT TOP(20) x.[key], x.hashMD5, x.hashSHA256
-FROM hashes AS x
-WHERE x.hashMD5 like cast({0} as varchar)
-UNION ALL
-SELECT x.[key], x.hashMD5, x.hashSHA256
-FROM hashes AS x
-WHERE x.hashSHA256 like cast({0} as varchar)", text + '%')
+@"SELECT TOP 20 * FROM (
+	SELECT x.[key], x.hashMD5, x.hashSHA256
+	FROM hashes AS x
+	WHERE x.hashMD5 like cast({0} as varchar)
+	UNION ALL
+	SELECT y.[key], y.hashMD5, y.hashSHA256
+	FROM hashes AS y
+	WHERE y.hashSHA256 like cast({0} as varchar)
+) a", text + '%')
 						.ToAsyncEnumerable()
 						.Select(x => new ThinHashes { Key = x.Key, HashMD5 = x.HashMD5, HashSHA256 = x.HashSHA256 })
 						.DefaultIfEmpty(new ThinHashes { Key = "nothing found" })
