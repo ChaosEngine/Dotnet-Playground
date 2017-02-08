@@ -3,10 +3,10 @@
 <div class="form-inline">
 	<span class='displaying'>@Html.DisplayFor(modelItem => Model.Url)</span>
 
-	<form method="post" class="form-horizontal" role="form" data-id="@Model.BlogId">
+	<form method="post" class="form-horizontal" data-id="@Model.BlogId">
 		<div asp-validation-summary="All" class="text-danger"></div>
 		@Html.AntiForgeryToken()
-		<input asp-for="Url" value="@Model.Url" id="inp_@Model.BlogId" splaceholder="Url" class="edit form-control" />
+		<input asp-for="Url" value="@Model.Url" id="inp_@Model.BlogId" placeholder="Url" class="edit form-control" />
 		<input name="action" type="submit" value="@(BlogActionEnum.Edit)"
 			   formaction="@Conf["AppRootPath"]Blogs/@(BlogActionEnum.Edit)/@Model.BlogId/false" 
 			   class="update-case btn btn-default" />
