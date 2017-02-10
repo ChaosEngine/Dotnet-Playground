@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MySql.Data.MySqlClient;
-using MySQL.Data.EntityFrameworkCore.Extensions;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Models
 {
@@ -21,6 +20,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 				ConnectionTypeName = Database.GetDbConnection().GetType().Name.ToLower();
 				IsMySql = ConnectionTypeName == typeof(MySqlConnection).Name.ToLower();
 			}
+
+			ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 		}
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)

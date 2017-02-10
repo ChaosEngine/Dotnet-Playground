@@ -1,5 +1,5 @@
 {
-    "version": "1.0.0-custom",
+	"version": "1.0.0-custom",
 	"dependencies": {
 		"Microsoft.AspNetCore.Diagnostics": "1.1.0",
 		"Microsoft.AspNetCore.Razor.Tools": {
@@ -32,9 +32,8 @@
 			"type": "platform"
 		},
 		"Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.1.0",
-		"MySql.Data.Core": "7.0.4-IR-191",
-        "MySql.Data.EntityFrameworkCore": "7.0.4-IR-191",
-        "Microsoft.AspNetCore.Mvc": "1.1.1"
+		"Microsoft.AspNetCore.Mvc": "1.1.1",
+		"Pomelo.EntityFrameworkCore.MySql": "1.1.0"
 	},
 
 	"tools": {
@@ -64,7 +63,8 @@
 		"include": [
 			"wwwroot",
 			"Views",
-			"appsettings.json", "appsettings.Production.json",
+			"appsettings.json",
+			"appsettings.Production.json",
 			"web.config"
 		]
 	},

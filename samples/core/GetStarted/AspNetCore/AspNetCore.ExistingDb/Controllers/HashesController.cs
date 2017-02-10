@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -143,42 +144,63 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 			text = text.Trim().ToLower();
 
-
 			Task<List<ThinHashes>> found = null;
-			//var name = typeof(Hashes).GetProperty("HashMD5").GetCustomAttribute<ColumnAttribute>().Name;
+			//var key_pro_name = _dbaseContext.Model.FindEntityType(typeof(Hashes)).FindProperty("Key").GetAnnotations().FirstOrDefault(x => x.Name == "Key").Value;
 			switch (BloggingContext.ConnectionTypeName)
 			{
 				case "mysqlconnection":
-					found = _dbaseContext.Hashes.FromSql(
-@"SELECT x.SourceKey, x.hashMD5, x.hashSHA256
-FROM Hashes AS x
-WHERE x.hashMD5 like CAST({0} AS CHAR CHARACTER SET utf8)
+					/*found = _dbaseContext.Hashes.FromSql(
+$@"SELECT x.SourceKey, x.{nameof(Hashes.HashMD5)}, x.{nameof(Hashes.HashSHA256)}
+FROM {nameof(Hashes)} AS x
+WHERE x.{nameof(Hashes.HashMD5)} like CAST(@text AS CHAR CHARACTER SET utf8)
 UNION ALL
-SELECT y.SourceKey, y.hashMD5, y.hashSHA256
-FROM Hashes AS y
-WHERE y.hashSHA256 like CAST({0} AS CHAR CHARACTER SET utf8)
-LIMIT 20", text + '%')
-						.ToAsyncEnumerable()
-						.Select(x => new ThinHashes { Key = x.Key, HashMD5 = x.HashMD5, HashSHA256 = x.HashSHA256 })
-						.DefaultIfEmpty(new ThinHashes { Key = "nothing found" })
-						.ToList();
+SELECT y.SourceKey, y.{nameof(Hashes.HashMD5)}, y.{nameof(Hashes.HashSHA256)}
+FROM {nameof(Hashes)} AS y
+WHERE y.{nameof(Hashes.HashSHA256)} like CAST(@text AS CHAR CHARACTER SET utf8)
+LIMIT 20",
+					new MySqlParameter
+					{
+						ParameterName = "@text",
+						Value = text + '%'
+					})
+					.ToAsyncEnumerable()
+					.Select(x => new ThinHashes { Key = x.Key, HashMD5 = x.HashMD5, HashSHA256 = x.HashSHA256 })
+					.DefaultIfEmpty(new ThinHashes { Key = "nothing found" })
+					.ToList();*/
+					found = (from x in _dbaseContext.Hashes
+							 where (x.HashMD5.StartsWith(text) || x.HashSHA256.StartsWith(text))
+							 select x)
+							 .ToAsyncEnumerable()
+							 .Take(50)
+							 .Select(x => new ThinHashes { Key = x.Key, HashMD5 = x.HashMD5, HashSHA256 = x.HashSHA256 })
+							 .DefaultIfEmpty(new ThinHashes { Key = "nothing found" })
+							 .ToList();
 					break;
 
 				case "sqlconnection":
 					found = _dbaseContext.Hashes.FromSql(
-@"SELECT TOP 20 * FROM (
-	SELECT x.[key], x.hashMD5, x.hashSHA256
-	FROM hashes AS x
-	WHERE x.hashMD5 like cast({0} as varchar)
+$@"SELECT TOP 20 * FROM (
+	SELECT x.[{nameof(Hashes.Key)}], x.{nameof(Hashes.HashMD5)}, x.{nameof(Hashes.HashSHA256)}
+	FROM {nameof(Hashes)} AS x
+	WHERE x.{nameof(Hashes.HashMD5)} like cast(@text as varchar)
 	UNION ALL
-	SELECT y.[key], y.hashMD5, y.hashSHA256
-	FROM hashes AS y
-	WHERE y.hashSHA256 like cast({0} as varchar)
-) a", text + '%')
+	SELECT y.[{nameof(Hashes.Key)}], y.{nameof(Hashes.HashMD5)}, y.{nameof(Hashes.HashSHA256)}
+	FROM {nameof(Hashes)} AS y
+	WHERE y.{nameof(Hashes.HashSHA256)} like cast(@text as varchar)
+) a", new SqlParameter("@text", text + '%'))
 						.ToAsyncEnumerable()
 						.Select(x => new ThinHashes { Key = x.Key, HashMD5 = x.HashMD5, HashSHA256 = x.HashSHA256 })
 						.DefaultIfEmpty(new ThinHashes { Key = "nothing found" })
 						.ToList();
+
+					/*found = (from x in _dbaseContext.Hashes
+							 where (x.HashMD5.StartsWith(text.Trim()) || x.HashSHA256.StartsWith(text.Trim()))
+							 select x)
+							 .ToAsyncEnumerable()
+							.Take(50)
+							.Select(x => new ThinHashes { Key = x.Key, HashMD5 = x.HashMD5, HashSHA256 = x.HashSHA256 })
+							.DefaultIfEmpty(new ThinHashes { Key = "nothing found" })
+							.ToList();*/
 					break;
 
 				case "sqliteconnection":

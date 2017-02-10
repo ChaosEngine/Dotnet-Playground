@@ -5,7 +5,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MySQL.Data.EntityFrameworkCore.Extensions;
 using System.IO;
 using System;
 using Microsoft.EntityFrameworkCore;
@@ -53,9 +52,12 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			switch (configuration["DBKind"]?.ToLower())
 			{
 				case "mysql":
-					options.UseMySQL(configuration.GetConnectionString("MySQL"));
+				case "mariadb":
+				case "maria":
+					options.UseMySql(configuration.GetConnectionString("MySQL"));
 					break;
 				case "sqlserver":
+				case "mssql":
 					options.UseSqlServer(configuration.GetConnectionString("SqlServer"));
 					break;
 				case "sqlite":
