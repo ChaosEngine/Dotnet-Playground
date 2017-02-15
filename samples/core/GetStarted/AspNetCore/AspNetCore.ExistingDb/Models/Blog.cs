@@ -12,8 +12,25 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		Delete = 1
 	}
 
+	public partial class Post
+	{
+		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+		[Required]
+		public int PostId { get; set; }
+
+		[Required]
+		public int BlogId { get; set; }
+
+		public string Content { get; set; }
+
+		public string Title { get; set; }
+
+		public virtual Blog Blog { get; set; }
+	}
+
 	public partial class Blog
     {
+		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 		[Required]
 		[Key]
 		public int BlogId { get; set; }

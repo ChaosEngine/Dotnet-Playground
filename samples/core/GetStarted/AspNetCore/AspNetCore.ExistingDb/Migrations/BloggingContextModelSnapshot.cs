@@ -28,7 +28,25 @@ namespace AspNetCore.ExistingDb.Migrations
                     b.ToTable("Blog");
                 });
 
-            modelBuilder.Entity("EFGetStarted.AspNetCore.ExistingDb.Models.Hashes", b =>
+            modelBuilder.Entity("EFGetStarted.AspNetCore.ExistingDb.Models.Post", b =>
+                {
+                    b.Property<int>("PostId")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("BlogId");
+
+                    b.Property<string>("Content");
+
+                    b.Property<string>("Title");
+
+                    b.HasKey("PostId");
+
+                    b.HasIndex("BlogId");
+
+                    b.ToTable("Post");
+                });
+
+            modelBuilder.Entity("EFGetStarted.AspNetCore.ExistingDb.Models.ThinHashes", b =>
                 {
                     b.Property<string>("Key")
                         .ValueGeneratedOnAdd()
@@ -48,24 +66,6 @@ namespace AspNetCore.ExistingDb.Migrations
                     b.HasKey("Key");
 
                     b.ToTable("hashes");
-                });
-
-            modelBuilder.Entity("EFGetStarted.AspNetCore.ExistingDb.Models.Post", b =>
-                {
-                    b.Property<int>("PostId")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("BlogId");
-
-                    b.Property<string>("Content");
-
-                    b.Property<string>("Title");
-
-                    b.HasKey("PostId");
-
-                    b.HasIndex("BlogId");
-
-                    b.ToTable("Post");
                 });
 
             modelBuilder.Entity("EFGetStarted.AspNetCore.ExistingDb.Models.Post", b =>

@@ -207,3 +207,5 @@ FakesAssemblies/
 project.lock.json
 samples/**/wwwroot/lib/
 venv
+/samples/core/GetStarted/AspNetCore/AspNetCore.ExistingDb/wwwroot/css/site.min.css
+/samples/core/GetStarted/AspNetCore/AspNetCore.ExistingDb/wwwroot/js/site.min.js

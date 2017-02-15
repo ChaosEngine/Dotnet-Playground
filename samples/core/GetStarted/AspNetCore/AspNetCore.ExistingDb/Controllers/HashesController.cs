@@ -58,12 +58,11 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 						using (var db = new BloggingContext(bc.Options))
 						{
-							var alphabet = (from h in db.Hashes
-											select h.Key.First()
+							var alphabet = (from h in db.ThinHashes select h.Key.First()
 											).Distinct()
 											.OrderBy(o => o);
-							var count = db.Hashes.Count();
-							var key_length = db.Hashes.Max(x => x.Key.Length);
+							var count = db.ThinHashes.Count();
+							var key_length = db.ThinHashes.Max(x => x.Key.Length);
 
 							_hashesInfo.Count = count;
 							_hashesInfo.KeyLength = key_length;
@@ -108,18 +107,18 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 			hi.Search = hi.Search.Trim().ToLower();
 
-			Task<Hashes> found = (from x in _dbaseContext.Hashes
+			Task<ThinHashes> found = (from x in _dbaseContext.ThinHashes
 								  where ((hi.Kind == KindEnum.MD5 && x.HashMD5 == hi.Search) || (hi.Kind == KindEnum.SHA256 && x.HashSHA256 == hi.Search))
 								  select x)
-								 .ToAsyncEnumerable().DefaultIfEmpty(new Hashes { Key = "nothing found" }).First();
+								 .ToAsyncEnumerable().DefaultIfEmpty(new ThinHashes { Key = "nothing found" }).First();
 
 			if (ajax)
-				return Json(await found);
+				return Json(new Hashes(await found, hi));
 			else
 			{
 				ViewBag.Info = _hashesInfo;
 
-				return View(nameof(Index), await found);
+				return View(nameof(Index), new Hashes(await found, hi));
 			}
 		}
 
@@ -143,9 +142,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			});
 
 			text = text.Trim().ToLower();
-
 			Task<List<ThinHashes>> found = null;
-			//var key_pro_name = _dbaseContext.Model.FindEntityType(typeof(Hashes)).FindProperty("Key").GetAnnotations().FirstOrDefault(x => x.Name == "Key").Value;
+
 			switch (BloggingContext.ConnectionTypeName)
 			{
 				case "mysqlconnection":
@@ -167,7 +165,8 @@ LIMIT 20",
 					.Select(x => new ThinHashes { Key = x.Key, HashMD5 = x.HashMD5, HashSHA256 = x.HashSHA256 })
 					.DefaultIfEmpty(new ThinHashes { Key = "nothing found" })
 					.ToList();*/
-					found = (from x in _dbaseContext.Hashes
+
+					found = (from x in _dbaseContext.ThinHashes
 							 where (x.HashMD5.StartsWith(text) || x.HashSHA256.StartsWith(text))
 							 select x)
 							 .ToAsyncEnumerable()
@@ -178,7 +177,7 @@ LIMIT 20",
 					break;
 
 				case "sqlconnection":
-					found = _dbaseContext.Hashes.FromSql(
+					found = _dbaseContext.ThinHashes.FromSql(
 $@"SELECT TOP 20 * FROM (
 	SELECT x.[{nameof(Hashes.Key)}], x.{nameof(Hashes.HashMD5)}, x.{nameof(Hashes.HashSHA256)}
 	FROM {nameof(Hashes)} AS x
@@ -204,7 +203,7 @@ $@"SELECT TOP 20 * FROM (
 					break;
 
 				case "sqliteconnection":
-					found = (from x in _dbaseContext.Hashes
+					found = (from x in _dbaseContext.ThinHashes
 							 where (x.HashMD5.StartsWith(text) || x.HashSHA256.StartsWith(text))
 							 select x)
 							 .ToAsyncEnumerable()

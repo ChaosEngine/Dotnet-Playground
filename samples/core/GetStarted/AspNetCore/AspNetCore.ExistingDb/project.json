@@ -1,5 +1,5 @@
 {
-	"version": "1.0.0-custom",
+	"version": "1.0.1-custom",
 	"dependencies": {
 		"Microsoft.AspNetCore.Diagnostics": "1.1.0",
 		"Microsoft.AspNetCore.Razor.Tools": {
@@ -33,7 +33,8 @@
 		},
 		"Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.1.0",
 		"Microsoft.AspNetCore.Mvc": "1.1.1",
-		"Pomelo.EntityFrameworkCore.MySql": "1.1.0"
+        "Pomelo.EntityFrameworkCore.MySql": "1.1.0",
+        "Microsoft.EntityFrameworkCore": "1.1.0"
 	},
 
 	"tools": {

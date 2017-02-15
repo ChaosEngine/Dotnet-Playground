@@ -13,39 +13,21 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		SHA256 = 1
 	}
 
-	[Table("hashes")]//does not work for MySQL, works for SqlServer
 	public class ThinHashes
 	{
 		[Key]
 		[Required]
-		[Column("key", TypeName = "varchar(20)")]//does not work for MySQL, works for SqlServer
 		public string Key { get; set; }
 
 		[Required]
-		[Column("hashMD5", TypeName = "char(32)")]//does not work for MySQL, works for SqlServer
 		public string HashMD5 { get; set; }
 
 		[Required]
-		[Column("hashSHA256", TypeName = "char(64)")]//does not work for MySQL, works for SqlServer
 		public string HashSHA256 { get; set; }
 	}
 
-	[Table("hashes")]//does not work for MySQL, works for SqlServer
 	public partial class Hashes : ThinHashes
 	{
-		/*[Key]
-		[Required]
-		[Column("key", TypeName = "varchar(20)")]//does not work for MySQL, works for SqlServer
-		public string Key { get; set; }
-
-		[Required]
-		[Column("hashMD5", TypeName = "char(32)")]//does not work for MySQL, works for SqlServer
-		public string HashMD5 { get; set; }
-
-		[Required]
-		[Column("hashSHA256", TypeName = "char(64)")]//does not work for MySQL, works for SqlServer
-		public string HashSHA256 { get; set; }*/
-
 		[Required]
 		[HashLength]
 		[NotMapped]
@@ -54,6 +36,15 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		[Required]
 		[NotMapped]
 		public KindEnum Kind { get; set; }
+
+		public Hashes(ThinHashes th, HashInput hi)
+		{
+			Key = th.Key;
+			HashMD5 = th.HashMD5;
+			HashSHA256 = th.HashSHA256;
+			Kind = hi.Kind;
+			Search = hi.Search;
+		}
 	}
 
 	public class HashInput

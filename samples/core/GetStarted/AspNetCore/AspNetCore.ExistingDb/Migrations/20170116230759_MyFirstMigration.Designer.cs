@@ -29,7 +29,7 @@ namespace AspNetCore.ExistingDb.Migrations
                     b.ToTable("Blog");
                 });
 
-            modelBuilder.Entity("EFGetStarted.AspNetCore.ExistingDb.Models.Hashes", b =>
+            modelBuilder.Entity("EFGetStarted.AspNetCore.ExistingDb.Models.ThinHashes", b =>
                 {
                     b.Property<string>("Key")
                         .ValueGeneratedOnAdd()

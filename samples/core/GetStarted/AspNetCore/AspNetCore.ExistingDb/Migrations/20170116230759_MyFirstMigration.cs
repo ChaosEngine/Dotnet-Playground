@@ -13,7 +13,8 @@ namespace AspNetCore.ExistingDb.Migrations
                 columns: table => new
                 {
                     BlogId = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("Sqlite:Autoincrement", true)
+						.Annotation("SqlServer:ValueGeneration", "Identity"),
                     Url = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
@@ -39,7 +40,8 @@ namespace AspNetCore.ExistingDb.Migrations
                 columns: table => new
                 {
                     PostId = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
+                        .Annotation("Sqlite:Autoincrement", true)
+						.Annotation("SqlServer:ValueGeneration", "Identity"),
                     BlogId = table.Column<int>(nullable: false),
                     Content = table.Column<string>(nullable: true),
                     Title = table.Column<string>(nullable: true)

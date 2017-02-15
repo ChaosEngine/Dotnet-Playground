@@ -7,7 +7,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 	{
 		public virtual DbSet<Blog> Blog { get; set; }
 		public virtual DbSet<Post> Post { get; set; }
-		public virtual DbSet<Hashes> Hashes { get; set; }
+		public virtual DbSet<ThinHashes> ThinHashes { get; set; }
 
 		public static bool IsMySql { get; private set; }
 		public static string ConnectionTypeName { get; private set; }
@@ -39,19 +39,20 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 					.HasForeignKey(d => d.BlogId);
 			});
 
-			modelBuilder.Entity<Hashes>(entity =>
+			modelBuilder.Entity<ThinHashes>(entity =>
 			{
-				entity.Property(e => e.Key).IsRequired();
-				entity.Property(e => e.HashMD5).IsRequired();
-				entity.Property(e => e.HashSHA256).IsRequired();
+				entity.Property(e => e.Key).IsRequired().HasColumnType("varchar(20)");
+				entity.Property(e => e.HashMD5).IsRequired().HasColumnType("char(32)").HasColumnName("hashMD5");
+				entity.Property(e => e.HashSHA256).IsRequired().HasColumnType("char(64)").HasColumnName("hashSHA256");
+
+				modelBuilder.Entity<ThinHashes>().HasIndex(e => e.HashMD5);
+				modelBuilder.Entity<ThinHashes>().HasIndex(e => e.HashSHA256);
 
 				if (IsMySql)//fixes column mapping for MySql
 				{
 					entity.Property(e => e.Key).HasColumnName("SourceKey");
-					entity.Property(e => e.HashMD5).HasColumnName("hashMD5");
-					entity.Property(e => e.HashSHA256).HasColumnName("hashSHA256");
 
-					modelBuilder.Entity<Hashes>().ToTable("Hashes");
+					modelBuilder.Entity<ThinHashes>().ToTable("Hashes");
 				}
 			});
 		}
