@@ -25,7 +25,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 		private IAsyncEnumerable<Blog> GetBlogs()
 		{
-			var lst = _context.Blog.ToAsyncEnumerable();
+			var lst = _context.Blogs.ToAsyncEnumerable();
 
 			return lst;
 		}
@@ -99,7 +99,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 			if (id <= 0 || string.IsNullOrEmpty(url)) return BadRequest(ModelState);
 
-			Task<Blog> tsk = _context.Blog.FindAsync(id);
+			Task<Blog> tsk = _context.Blogs.FindAsync(id);
 			Blog blog = await tsk;
 			if (blog != null && url != blog.Url)
 			{
@@ -123,7 +123,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 			if (id <= 0) return BadRequest(ModelState);
 
-			Task<Blog> tsk = _context.Blog.FindAsync(id);
+			Task<Blog> tsk = _context.Blogs.FindAsync(id);
 			Blog blog = await tsk;
 			if (blog != null)
 			{
@@ -149,7 +149,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			{
 				var appRootPath = _configuration["AppRootPath"];
 
-				await _context.Blog.AddAsync(blog);
+				await _context.Blogs.AddAsync(blog);
 				await _context.SaveChangesAsync();
 
 				var route = appRootPath + "Blogs";

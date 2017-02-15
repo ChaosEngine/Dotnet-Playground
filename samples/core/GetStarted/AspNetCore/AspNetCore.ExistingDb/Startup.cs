@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using System.IO;
 using System;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.DataProtection;
 
 [assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
 
@@ -77,6 +78,14 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 			// Add framework services.
 			services.AddMvc();
+
+			if (Directory.Exists("/keys"))
+			{
+				services.AddDataProtection()
+					//.DisableAutomaticKeyGeneration()
+					.PersistKeysToFileSystem(new DirectoryInfo("/keys"))
+					.SetApplicationName("AspNetCore.ExistingDb" + Configuration["AppRootPath"]);
+			}
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

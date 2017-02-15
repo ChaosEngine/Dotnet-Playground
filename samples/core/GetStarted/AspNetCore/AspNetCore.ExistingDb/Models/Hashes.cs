@@ -42,6 +42,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 			Key = th.Key;
 			HashMD5 = th.HashMD5;
 			HashSHA256 = th.HashSHA256;
+
 			Kind = hi.Kind;
 			Search = hi.Search;
 		}

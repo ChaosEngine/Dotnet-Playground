@@ -2,19 +2,45 @@ version: '2'
 services:
     mssql:
         image: "microsoft/mssql-server-linux"
-        #command: /opt/mssql/bin/sqlservr.sh
         volumes:
             - /mnt/content/Videos/Progz/B/mssql1:/var/opt
         environment:
             - SA_PASSWORD=P@ssw0rd
             - ACCEPT_EULA=Y
-    web:
+    weba:
         image: "chaosengine/aspnetcore:latest"
-        ports:
-            - "8080:5000"
+        expose:
+            - "5000"
+        volumes:
+            - ./keys:/keys
         environment:
             - ConnectionStrings:SqlServer=Server=mssql;Database=test;User Id=test;Password=melexmelex;
         depends_on:
             - mssql
         links:
             - mssql
+    webb:
+        image: "chaosengine/aspnetcore:latest"
+        expose:
+            - "5000"
+        volumes:
+            - ./keys:/keys
+        environment:
+            - ConnectionStrings:SqlServer=Server=mssql;Database=test;User Id=test;Password=melexmelex;
+        depends_on:
+            - mssql
+        links:
+            - mssql
+    haproxy:
+        image: haproxy
+        volumes:
+            - ./haproxy:/usr/local/etc/haproxy
+        links:
+            - weba
+            - webb
+        ports:
+            - "8080:8080"
+            - "70:70"
+        expose:
+            - "8080"
+            - "70"

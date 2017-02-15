@@ -30,6 +30,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 		public HashesController(BloggingContext context, ILogger<HashesController> logger, IConfiguration configuration)
 		{
 			_dbaseContext = context;
+			_dbaseContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+
 			_logger = logger;
 			_configuration = configuration;
 		}
@@ -58,6 +60,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 						using (var db = new BloggingContext(bc.Options))
 						{
+							db.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+
 							var alphabet = (from h in db.ThinHashes select h.Key.First()
 											).Distinct()
 											.OrderBy(o => o);
@@ -147,25 +151,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			switch (BloggingContext.ConnectionTypeName)
 			{
 				case "mysqlconnection":
-					/*found = _dbaseContext.Hashes.FromSql(
-$@"SELECT x.SourceKey, x.{nameof(Hashes.HashMD5)}, x.{nameof(Hashes.HashSHA256)}
-FROM {nameof(Hashes)} AS x
-WHERE x.{nameof(Hashes.HashMD5)} like CAST(@text AS CHAR CHARACTER SET utf8)
-UNION ALL
-SELECT y.SourceKey, y.{nameof(Hashes.HashMD5)}, y.{nameof(Hashes.HashSHA256)}
-FROM {nameof(Hashes)} AS y
-WHERE y.{nameof(Hashes.HashSHA256)} like CAST(@text AS CHAR CHARACTER SET utf8)
-LIMIT 20",
-					new MySqlParameter
-					{
-						ParameterName = "@text",
-						Value = text + '%'
-					})
-					.ToAsyncEnumerable()
-					.Select(x => new ThinHashes { Key = x.Key, HashMD5 = x.HashMD5, HashSHA256 = x.HashSHA256 })
-					.DefaultIfEmpty(new ThinHashes { Key = "nothing found" })
-					.ToList();*/
-
 					found = (from x in _dbaseContext.ThinHashes
 							 where (x.HashMD5.StartsWith(text) || x.HashSHA256.StartsWith(text))
 							 select x)
@@ -191,15 +176,6 @@ $@"SELECT TOP 20 * FROM (
 						.Select(x => new ThinHashes { Key = x.Key, HashMD5 = x.HashMD5, HashSHA256 = x.HashSHA256 })
 						.DefaultIfEmpty(new ThinHashes { Key = "nothing found" })
 						.ToList();
-
-					/*found = (from x in _dbaseContext.Hashes
-							 where (x.HashMD5.StartsWith(text.Trim()) || x.HashSHA256.StartsWith(text.Trim()))
-							 select x)
-							 .ToAsyncEnumerable()
-							.Take(50)
-							.Select(x => new ThinHashes { Key = x.Key, HashMD5 = x.HashMD5, HashSHA256 = x.HashSHA256 })
-							.DefaultIfEmpty(new ThinHashes { Key = "nothing found" })
-							.ToList();*/
 					break;
 
 				case "sqliteconnection":

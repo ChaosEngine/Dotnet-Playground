@@ -13,12 +13,14 @@ namespace AspNetCore.ExistingDb.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder
-                .HasAnnotation("ProductVersion", "1.1.0-rtm-22752");
+                .HasAnnotation("ProductVersion", "1.1.0-rtm-22752")
+                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("EFGetStarted.AspNetCore.ExistingDb.Models.Blog", b =>
                 {
                     b.Property<int>("BlogId")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Url")
                         .IsRequired();
@@ -31,7 +33,8 @@ namespace AspNetCore.ExistingDb.Migrations
             modelBuilder.Entity("EFGetStarted.AspNetCore.ExistingDb.Models.Post", b =>
                 {
                     b.Property<int>("PostId")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<int>("BlogId");
 
@@ -50,7 +53,6 @@ namespace AspNetCore.ExistingDb.Migrations
                 {
                     b.Property<string>("Key")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("key")
                         .HasColumnType("varchar(20)");
 
                     b.Property<string>("HashMD5")
@@ -65,7 +67,7 @@ namespace AspNetCore.ExistingDb.Migrations
 
                     b.HasKey("Key");
 
-                    b.ToTable("hashes");
+					b.ToTable("Hashes");
                 });
 
             modelBuilder.Entity("EFGetStarted.AspNetCore.ExistingDb.Models.Post", b =>

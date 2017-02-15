@@ -5,8 +5,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 {
 	public partial class BloggingContext : DbContext
 	{
-		public virtual DbSet<Blog> Blog { get; set; }
-		public virtual DbSet<Post> Post { get; set; }
+		public virtual DbSet<Blog> Blogs { get; set; }
+		public virtual DbSet<Post> Posts { get; set; }
 		public virtual DbSet<ThinHashes> ThinHashes { get; set; }
 
 		public static bool IsMySql { get; private set; }
@@ -21,7 +21,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 				IsMySql = ConnectionTypeName == typeof(MySqlConnection).Name.ToLower();
 			}
 
-			ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+			//ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 		}
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -45,14 +45,14 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 				entity.Property(e => e.HashMD5).IsRequired().HasColumnType("char(32)").HasColumnName("hashMD5");
 				entity.Property(e => e.HashSHA256).IsRequired().HasColumnType("char(64)").HasColumnName("hashSHA256");
 
-				modelBuilder.Entity<ThinHashes>().HasIndex(e => e.HashMD5);
-				modelBuilder.Entity<ThinHashes>().HasIndex(e => e.HashSHA256);
+				//modelBuilder.Entity<ThinHashes>().HasIndex(e => e.HashMD5);
+				//modelBuilder.Entity<ThinHashes>().HasIndex(e => e.HashSHA256);
+
+				modelBuilder.Entity<ThinHashes>().ToTable("Hashes");
 
 				if (IsMySql)//fixes column mapping for MySql
 				{
-					entity.Property(e => e.Key).HasColumnName("SourceKey");
-
-					modelBuilder.Entity<ThinHashes>().ToTable("Hashes");
+					entity.Property(e => e.Key).HasColumnName("SourceKey");					
 				}
 			});
 		}

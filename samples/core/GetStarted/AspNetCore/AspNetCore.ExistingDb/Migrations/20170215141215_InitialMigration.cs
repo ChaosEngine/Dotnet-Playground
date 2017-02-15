@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace AspNetCore.ExistingDb.Migrations
 {
-    public partial class MyFirstMigration : Migration
+    public partial class InitialMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -13,8 +14,8 @@ namespace AspNetCore.ExistingDb.Migrations
                 columns: table => new
                 {
                     BlogId = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true)
-						.Annotation("SqlServer:ValueGeneration", "Identity"),
+						.Annotation("Sqlite:Autoincrement", true)
+						.Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Url = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
@@ -23,16 +24,16 @@ namespace AspNetCore.ExistingDb.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "hashes",
+                name: "Hashes",
                 columns: table => new
                 {
-                    key = table.Column<string>(type: "varchar(20)", nullable: false),
+                    Key = table.Column<string>(type: "varchar(20)", nullable: false),
                     hashMD5 = table.Column<string>(type: "char(32)", nullable: false),
                     hashSHA256 = table.Column<string>(type: "char(64)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_hashes", x => x.key);
+                    table.PrimaryKey("PK_Hashes", x => x.Key);
                 });
 
             migrationBuilder.CreateTable(
@@ -40,8 +41,8 @@ namespace AspNetCore.ExistingDb.Migrations
                 columns: table => new
                 {
                     PostId = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true)
-						.Annotation("SqlServer:ValueGeneration", "Identity"),
+						.Annotation("Sqlite:Autoincrement", true)
+						.Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     BlogId = table.Column<int>(nullable: false),
                     Content = table.Column<string>(nullable: true),
                     Title = table.Column<string>(nullable: true)
@@ -61,15 +62,15 @@ namespace AspNetCore.ExistingDb.Migrations
                 name: "IX_Post_BlogId",
                 table: "Post",
                 column: "BlogId");
-        }
+		}
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "hashes");
+                name: "Post");
 
             migrationBuilder.DropTable(
-                name: "Post");
+                name: "Hashes");
 
             migrationBuilder.DropTable(
                 name: "Blog");
