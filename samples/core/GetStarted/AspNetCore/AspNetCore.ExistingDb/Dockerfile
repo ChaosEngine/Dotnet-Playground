@@ -10,4 +10,6 @@ ENV USER www-data
 RUN	chown -R $USER:$USER /app
 USER "$USER"
 
+VOLUME /keys
+
 ENTRYPOINT ["dotnet", "app.dll"]
