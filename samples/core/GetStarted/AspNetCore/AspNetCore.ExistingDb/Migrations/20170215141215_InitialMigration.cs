@@ -62,6 +62,14 @@ namespace AspNetCore.ExistingDb.Migrations
                 name: "IX_Post_BlogId",
                 table: "Post",
                 column: "BlogId");
+
+			migrationBuilder.Sql(@"IF NOT EXISTS(SELECT principal_id FROM sys.server_principals WHERE name = 'test')  CREATE LOGIN test WITH PASSWORD = 'P@ssw0rd123'
+
+CREATE USER [test] FOR LOGIN [test]
+ALTER USER [test] WITH DEFAULT_SCHEMA=[dbo]
+use [test];
+ALTER ROLE [db_owner] ADD MEMBER [test]
+");
 		}
 
         protected override void Down(MigrationBuilder migrationBuilder)

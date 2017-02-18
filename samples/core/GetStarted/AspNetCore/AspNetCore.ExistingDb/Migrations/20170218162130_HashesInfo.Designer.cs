@@ -8,9 +8,10 @@ using EFGetStarted.AspNetCore.ExistingDb.Models;
 namespace AspNetCore.ExistingDb.Migrations
 {
     [DbContext(typeof(BloggingContext))]
-    partial class BloggingContextModelSnapshot : ModelSnapshot
+    [Migration("20170218162130_HashesInfo")]
+    partial class HashesInfo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.1.0-rtm-22752")

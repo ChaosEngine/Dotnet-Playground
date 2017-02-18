@@ -22,68 +22,106 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 	{
 		private static HashesInfo _hashesInfo;
 		private static readonly object _locker = new object();
-
 		private readonly IConfiguration _configuration;
-		private readonly BloggingContext _dbaseContext;
+		private readonly BloggingContext _db;
+		private readonly ILoggerFactory _loggerFactory;
 		private readonly ILogger<HashesController> _logger;
 
-		public HashesController(BloggingContext context, ILogger<HashesController> logger, IConfiguration configuration)
+		public HashesInfo CurrentHashesInfo
 		{
-			_dbaseContext = context;
-			_dbaseContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+			get { return GetHashesInfoFromDB(_db); }
+		}
 
-			_logger = logger;
+		private HashesInfo GetHashesInfoFromDB(BloggingContext db)
+		{
+			if (_hashesInfo == null)
+			{
+				var x = db.HashesInfo.FirstOrDefault();
+				_hashesInfo = x;
+			}
+			return _hashesInfo;
+		}
+
+		public HashesController(BloggingContext context, ILoggerFactory loggerFactory, IConfiguration configuration)
+		{
+			_db = context;
+			_db.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+
+			_loggerFactory = loggerFactory;
+			_logger = loggerFactory.CreateLogger<HashesController>();
 			_configuration = configuration;
 		}
 
 		public IActionResult Index()
 		{
-			if (_hashesInfo == null || (!_hashesInfo.IsCalculating && _hashesInfo.Count <= 0))
+			if (CurrentHashesInfo == null || (!CurrentHashesInfo.IsCalculating && CurrentHashesInfo.Count <= 0))
 			{
 				Task.Factory.StartNew((conf) =>
 				{
 					_logger.LogInformation(0, $"###Starting calculation thread");
 
+					HashesInfo hi = null;
 					lock (_locker)
 					{
-						_logger.LogInformation(0, $"###Starting calculation of initial Hash parameters");
-
-						if (_hashesInfo != null)
-						{
-							_logger.LogInformation(0, $"###Leaving calculation of initial Hash parameters; already present");
-							return _hashesInfo;
-						}
-
-						_hashesInfo = new HashesInfo { IsCalculating = true };
 						var bc = new DbContextOptionsBuilder<BloggingContext>();
+						bc.UseLoggerFactory(_loggerFactory);
 						Startup.ConfigureDBKind(bc, (IConfiguration)conf);
 
 						using (var db = new BloggingContext(bc.Options))
 						{
-							db.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+							try
+							{
+								if (GetHashesInfoFromDB(db) != null)
+								{
+									_logger.LogInformation(0, $"###Leaving calculation of initial Hash parameters; already present");
+									return GetHashesInfoFromDB(db);
+								}
+								db.Database.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
+								_logger.LogInformation(0, $"###Starting calculation of initial Hash parameters");
 
-							var alphabet = (from h in db.ThinHashes select h.Key.First()
-											).Distinct()
-											.OrderBy(o => o);
-							var count = db.ThinHashes.Count();
-							var key_length = db.ThinHashes.Max(x => x.Key.Length);
+								hi = new HashesInfo { ID = 0, IsCalculating = true };
 
-							_hashesInfo.Count = count;
-							_hashesInfo.KeyLength = key_length;
-							_hashesInfo.Alphabet = string.Concat(alphabet);
-							_hashesInfo.IsCalculating = false;
+								db.HashesInfo.Add(hi);
+								db.SaveChanges(true);
+								_hashesInfo = hi;//temporary save to static to indicate calculation and block new calcultion threads
 
-							_logger.LogInformation(0, $"###Calculation of initial Hash parameters ended");
+								var alphabet = (from h in db.ThinHashes
+												select h.Key.First()
+												).Distinct()
+												.OrderBy(o => o);
+								var count = db.ThinHashes.Count();
+								var key_length = db.ThinHashes.Max(x => x.Key.Length);
+
+								hi.Count = count;
+								hi.KeyLength = key_length;
+								hi.Alphabet = string.Concat(alphabet);
+								hi.IsCalculating = false;
+
+								db.Update(hi);
+								db.SaveChanges(true);
+
+								db.Database.CommitTransaction();
+							}
+							catch (Exception)
+							{
+								db.Database.RollbackTransaction();
+								hi = null;
+							}
+							finally
+							{
+								_hashesInfo = hi;
+								_logger.LogInformation(0, $"###Calculation of initial Hash parameters ended");
+							}
 						}
-						ViewBag.Info = _hashesInfo;
 					}
-					return _hashesInfo;
+					return hi;
 				}, _configuration);
 			}
 
-			_logger.LogInformation(0, $"###Returning {nameof(_hashesInfo)}.{nameof(_hashesInfo.IsCalculating)} = {(_hashesInfo != null ? _hashesInfo.IsCalculating.ToString() : "null")}");
+			_logger.LogInformation(0,
+				$"###Returning {nameof(HashesInfo)}.{nameof(HashesInfo.IsCalculating)} = {(CurrentHashesInfo != null ? CurrentHashesInfo.IsCalculating.ToString() : "null")}");
 
-			ViewBag.Info = _hashesInfo;
+			ViewBag.Info = CurrentHashesInfo;
 
 			return View();
 		}
@@ -98,7 +136,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 					return Json("error");
 				else
 				{
-					ViewBag.Info = _hashesInfo;
+					ViewBag.Info = CurrentHashesInfo;
 
 					return View(nameof(Index), null);
 				}
@@ -111,16 +149,16 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 			hi.Search = hi.Search.Trim().ToLower();
 
-			Task<ThinHashes> found = (from x in _dbaseContext.ThinHashes
-								  where ((hi.Kind == KindEnum.MD5 && x.HashMD5 == hi.Search) || (hi.Kind == KindEnum.SHA256 && x.HashSHA256 == hi.Search))
-								  select x)
+			Task<ThinHashes> found = (from x in _db.ThinHashes
+									  where ((hi.Kind == KindEnum.MD5 && x.HashMD5 == hi.Search) || (hi.Kind == KindEnum.SHA256 && x.HashSHA256 == hi.Search))
+									  select x)
 								 .ToAsyncEnumerable().DefaultIfEmpty(new ThinHashes { Key = "nothing found" }).First();
 
 			if (ajax)
 				return Json(new Hashes(await found, hi));
 			else
 			{
-				ViewBag.Info = _hashesInfo;
+				ViewBag.Info = CurrentHashesInfo;
 
 				return View(nameof(Index), new Hashes(await found, hi));
 			}
@@ -136,7 +174,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 					return Json("error");
 				else
 				{
-					ViewBag.Info = _hashesInfo;
+					ViewBag.Info = CurrentHashesInfo;
 					return View(nameof(Index), null);
 				}
 			}
@@ -151,7 +189,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			switch (BloggingContext.ConnectionTypeName)
 			{
 				case "mysqlconnection":
-					found = (from x in _dbaseContext.ThinHashes
+					found = (from x in _db.ThinHashes
 							 where (x.HashMD5.StartsWith(text) || x.HashSHA256.StartsWith(text))
 							 select x)
 							 .ToAsyncEnumerable()
@@ -162,7 +200,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 					break;
 
 				case "sqlconnection":
-					found = _dbaseContext.ThinHashes.FromSql(
+					found = _db.ThinHashes.FromSql(
 $@"SELECT TOP 20 * FROM (
 	SELECT x.[{nameof(Hashes.Key)}], x.{nameof(Hashes.HashMD5)}, x.{nameof(Hashes.HashSHA256)}
 	FROM {nameof(Hashes)} AS x
@@ -179,7 +217,7 @@ $@"SELECT TOP 20 * FROM (
 					break;
 
 				case "sqliteconnection":
-					found = (from x in _dbaseContext.ThinHashes
+					found = (from x in _db.ThinHashes
 							 where (x.HashMD5.StartsWith(text) || x.HashSHA256.StartsWith(text))
 							 select x)
 							 .ToAsyncEnumerable()
@@ -196,7 +234,7 @@ $@"SELECT TOP 20 * FROM (
 				return Json(await found);
 			else
 			{
-				ViewBag.Info = _hashesInfo;
+				ViewBag.Info = CurrentHashesInfo;
 				return View(nameof(Index), await found);
 			}
 		}

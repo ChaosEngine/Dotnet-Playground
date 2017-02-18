@@ -60,6 +60,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 
 	public class HashesInfo
 	{
+		[DatabaseGenerated(DatabaseGeneratedOption.None)]
+		public int ID { get; set; } = 0;
 		public int Count { get; set; } = 0;
 		public int KeyLength { get; set; }
 		public string Alphabet { get; set; }
