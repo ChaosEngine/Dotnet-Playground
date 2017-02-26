@@ -7,6 +7,8 @@ services:
         environment:
             - SA_PASSWORD=P@ssw0rd
             - ACCEPT_EULA=Y
+        ports:
+            - "1433:1433"
     weba:
         image: "chaosengine/aspnetcore:latest"
         expose:
@@ -47,12 +49,14 @@ services:
         image: haproxy
         volumes:
             - ./haproxy:/usr/local/etc/haproxy
+            - ../../../../../sockets:/sockets
         links:
             - weba
             - webb
+            - webc
         ports:
-            - "8080:8080"
+#            - "8080:8080"
             - "70:70"
-        expose:
-            - "8080"
-            - "70"
+#        expose:
+#            - "8080"
+#            - "70"
