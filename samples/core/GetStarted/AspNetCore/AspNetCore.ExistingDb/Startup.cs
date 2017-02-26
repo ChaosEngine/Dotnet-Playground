@@ -79,11 +79,11 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			// Add framework services.
 			services.AddMvc();
 
-			if (Directory.Exists(Path.DirectorySeparatorChar + "keys"))
+			if (Directory.Exists(Path.DirectorySeparatorChar + "shared"))
 			{
 				services.AddDataProtection()
 					//.DisableAutomaticKeyGeneration()
-					.PersistKeysToFileSystem(new DirectoryInfo(Path.DirectorySeparatorChar + "keys"))
+					.PersistKeysToFileSystem(new DirectoryInfo(Path.DirectorySeparatorChar + "shared"))
 					.SetApplicationName("AspNetCore.ExistingDb" + Configuration["AppRootPath"]);
 			}
 		}

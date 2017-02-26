@@ -20,7 +20,14 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 	/// </summary>
 	public class HashesController : Controller
 	{
-		private static HashesInfo _hashesInfo;
+		/// <summary>
+		/// Used value or this specific worker node/process or load balancing server
+		/// </summary>
+		private static HashesInfo _hashesInfoStatic;
+		/// <summary>
+		/// locally cached value for request, refreshed upon every request.
+		/// </summary>
+		private HashesInfo _hi;
 		private static readonly object _locker = new object();
 		private readonly IConfiguration _configuration;
 		private readonly BloggingContext _db;
@@ -34,12 +41,17 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 		private HashesInfo GetHashesInfoFromDB(BloggingContext db)
 		{
-			if (_hashesInfo == null)
+			if (_hashesInfoStatic == null)
 			{
-				var x = db.HashesInfo.FirstOrDefault();
-				_hashesInfo = x;
+				if (_hi == null)			//local value is empty, fill it from DB once
+					_hi = db.HashesInfo.FirstOrDefault(x => x.ID == 0);
+
+				if (_hi == null || _hi.IsCalculating)
+					return _hi;				//still calculating, return just this local value
+				else
+					_hashesInfoStatic = _hi;//calculation ended, save to global static value
 			}
-			return _hashesInfo;
+			return _hashesInfoStatic;
 		}
 
 		public HashesController(BloggingContext context, ILoggerFactory loggerFactory, IConfiguration configuration)
@@ -69,48 +81,51 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 						using (var db = new BloggingContext(bc.Options))
 						{
-							try
+							db.Database.SetCommandTimeout(180);
+							using (var trans = db.Database.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted))//needed, other web nodes will read saved-caculating-satate and exit thread
 							{
-								if (GetHashesInfoFromDB(db) != null)
+								try
 								{
-									_logger.LogInformation(0, $"###Leaving calculation of initial Hash parameters; already present");
-									return GetHashesInfoFromDB(db);
+									if (GetHashesInfoFromDB(db) != null)
+									{
+										_logger.LogInformation(0, $"###Leaving calculation of initial Hash parameters; already present");
+										return GetHashesInfoFromDB(db);
+									}
+									_logger.LogInformation(0, $"###Starting calculation of initial Hash parameters");
+
+									hi = new HashesInfo { ID = 0, IsCalculating = true };
+
+									db.HashesInfo.Add(hi);
+									db.SaveChanges(true);
+									_hashesInfoStatic = hi;//temporary save to static to indicate calculation and block new calcultion threads
+
+									var alphabet = (from h in db.ThinHashes
+													select h.Key.First()
+													).Distinct()
+													.OrderBy(o => o);
+									var count = db.ThinHashes.Count();
+									var key_length = db.ThinHashes.Max(x => x.Key.Length);
+
+									hi.Count = count;
+									hi.KeyLength = key_length;
+									hi.Alphabet = string.Concat(alphabet);
+									hi.IsCalculating = false;
+
+									db.Update(hi);
+									db.SaveChanges(true);
+
+									trans.Commit();
+									_logger.LogInformation(0, $"###Calculation of initial Hash parameters ended");
 								}
-								db.Database.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
-								_logger.LogInformation(0, $"###Starting calculation of initial Hash parameters");
-
-								hi = new HashesInfo { ID = 0, IsCalculating = true };
-
-								db.HashesInfo.Add(hi);
-								db.SaveChanges(true);
-								_hashesInfo = hi;//temporary save to static to indicate calculation and block new calcultion threads
-
-								var alphabet = (from h in db.ThinHashes
-												select h.Key.First()
-												).Distinct()
-												.OrderBy(o => o);
-								var count = db.ThinHashes.Count();
-								var key_length = db.ThinHashes.Max(x => x.Key.Length);
-
-								hi.Count = count;
-								hi.KeyLength = key_length;
-								hi.Alphabet = string.Concat(alphabet);
-								hi.IsCalculating = false;
-
-								db.Update(hi);
-								db.SaveChanges(true);
-
-								db.Database.CommitTransaction();
-							}
-							catch (Exception)
-							{
-								db.Database.RollbackTransaction();
-								hi = null;
-							}
-							finally
-							{
-								_hashesInfo = hi;
-								_logger.LogInformation(0, $"###Calculation of initial Hash parameters ended");
+								catch (Exception)
+								{
+									trans.Rollback();
+									hi = null;
+								}
+								finally
+								{
+									_hashesInfoStatic = hi;
+								}
 							}
 						}
 					}
@@ -240,3 +255,4 @@ $@"SELECT TOP 20 * FROM (
 		}
 	}
 }
+

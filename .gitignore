@@ -172,7 +172,6 @@ ClientBin/
 node_modules/
 bower_components/
 *.swp
-keys/
 
 # RIA/Silverlight projects
 Generated_Code/

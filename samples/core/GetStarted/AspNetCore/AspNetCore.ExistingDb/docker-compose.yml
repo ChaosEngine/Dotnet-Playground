@@ -12,7 +12,7 @@ services:
         expose:
             - "5000"
         volumes:
-            - ./keys:/keys
+            - ./shared:/shared
         environment:
             - ConnectionStrings:SqlServer=Server=mssql;Database=test;User Id=test;Password=melexmelex;
         depends_on:
@@ -24,7 +24,19 @@ services:
         expose:
             - "5000"
         volumes:
-            - ./keys:/keys
+            - ./shared:/shared
+        environment:
+            - ConnectionStrings:SqlServer=Server=mssql;Database=test;User Id=test;Password=melexmelex;
+        depends_on:
+            - mssql
+        links:
+            - mssql
+    webc:
+        image: "chaosengine/aspnetcore:latest"
+        expose:
+            - "5000"
+        volumes:
+            - ./shared:/shared
         environment:
             - ConnectionStrings:SqlServer=Server=mssql;Database=test;User Id=test;Password=melexmelex;
         depends_on:
