@@ -10,7 +10,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		public virtual DbSet<ThinHashes> ThinHashes { get; set; }
 		public virtual DbSet<HashesInfo> HashesInfo { get; set; }
 
-		public static bool IsMySql { get; private set; }
+		//public static bool IsMySql { get; private set; }
 		public static string ConnectionTypeName { get; private set; }
 
 		public BloggingContext(DbContextOptions<BloggingContext> options)
@@ -19,7 +19,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 			if (ConnectionTypeName == null)
 			{
 				ConnectionTypeName = Database.GetDbConnection().GetType().Name.ToLower();
-				IsMySql = ConnectionTypeName == typeof(MySqlConnection).Name.ToLower();
+				//IsMySql = ConnectionTypeName == typeof(MySqlConnection).Name.ToLower();
 			}
 
 			//ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
@@ -52,10 +52,10 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 
 				modelBuilder.Entity<ThinHashes>().ToTable("Hashes");
 
-				if (IsMySql)//fixes column mapping for MySql
-				{
-					entity.Property(e => e.Key).HasColumnName("SourceKey");
-				}
+				//if (IsMySql)//fixes column mapping for MySql
+				//{
+				//	entity.Property(e => e.Key).HasColumnName("SourceKey");
+				//}
 			});
 
 			modelBuilder.Entity<HashesInfo>(entity =>
