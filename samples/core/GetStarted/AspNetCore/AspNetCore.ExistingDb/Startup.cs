@@ -39,7 +39,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
 				.AddEnvironmentVariables();
 			if (env.IsDevelopment())
-				builder.AddUserSecrets();
+				builder.AddUserSecrets<Startup>();
 
 			Configuration = builder.Build();
 		}
