@@ -26,7 +26,9 @@
 		"Pomelo.EntityFrameworkCore.MySql": "1.1.0",
 		"Microsoft.EntityFrameworkCore": "1.1.0",
 		"Microsoft.AspNetCore.Mvc.Razor.ViewCompilation.Design": "1.1.0-preview4-final",
-		"Microsoft.AspNetCore.Razor.Tools": "1.1.0-preview4-final"
+		"Microsoft.AspNetCore.Razor.Tools": "1.1.0-preview4-final",
+		"Microsoft.AspNetCore.Session": "1.0.0",
+		"Microsoft.Extensions.Caching.SqlServer": "1.0.0"
 	},
 
 	"tools": {
@@ -35,7 +37,8 @@
 		"Microsoft.Extensions.SecretManager.Tools": "1.1.0-preview4-final",
 		"Microsoft.DotNet.Watcher.Tools": "1.1.0-preview4-final",
 		"Microsoft.AspNetCore.Mvc.Razor.ViewCompilation.Tools": "1.1.0-*",
-		"Microsoft.AspNetCore.Razor.Tools": "1.1.0-preview4-final"
+		"Microsoft.AspNetCore.Razor.Tools": "1.1.0-preview4-final",
+		"Microsoft.Extensions.Caching.SqlConfig.Tools": "1.1.0-preview4-final"
 	},
 
 	"userSecretsId": "aspnet-AspNetCore.ExistingDb-20161230022416",

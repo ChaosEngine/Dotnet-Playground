@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AspNetCore.ExistingDb;
+using Microsoft.EntityFrameworkCore;
 using MySql.Data.MySqlClient;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Models
@@ -21,8 +22,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 				ConnectionTypeName = Database.GetDbConnection().GetType().Name.ToLower();
 				//IsMySql = ConnectionTypeName == typeof(MySqlConnection).Name.ToLower();
 			}
-
-			//ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 		}
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -53,9 +52,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 				modelBuilder.Entity<ThinHashes>().ToTable("Hashes");
 
 				//if (IsMySql)//fixes column mapping for MySql
-				//{
 				//	entity.Property(e => e.Key).HasColumnName("SourceKey");
-				//}
 			});
 
 			modelBuilder.Entity<HashesInfo>(entity =>
@@ -67,6 +64,15 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 				entity.Property(e => e.IsCalculating).IsRequired();
 
 				entity.HasKey(e => e.ID);
+			});
+
+			modelBuilder.Entity<SessionCache>(entity =>
+			{
+				entity.HasIndex(e => e.ExpiresAtTime)
+					.HasName("Index_ExpiresAtTime");
+
+				entity.Property(e => e.Id).HasMaxLength(449);
+				entity.Property(e => e.Value).IsRequired();
 			});
 		}
 	}

@@ -2,7 +2,8 @@
     ViewData["Title"] = "Contact";
 }
 <h2>@ViewData["Title"].</h2>
-<h3>@ViewData["Message"]</h3>
+
+<h4>@Html.Raw(ViewData["Message"])</h4>
 
 <address>
     One Microsoft Way<br />
