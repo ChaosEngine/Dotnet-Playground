@@ -48,15 +48,11 @@ services:
     haproxy:
         image: haproxy
         volumes:
-            - ./haproxy:/usr/local/etc/haproxy
+            - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
             - ../../../../../sockets:/sockets
         links:
             - weba
             - webb
             - webc
         ports:
-#            - "8080:8080"
             - "70:70"
-#        expose:
-#            - "8080"
-#            - "70"

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.DataProtection;
 using AspNetCore.ExistingDb;
 
-[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
+//[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
 
 namespace EFGetStarted.AspNetCore.ExistingDb
 {

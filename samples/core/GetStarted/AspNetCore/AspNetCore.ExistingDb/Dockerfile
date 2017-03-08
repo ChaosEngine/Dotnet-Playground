@@ -12,4 +12,4 @@ USER "$USER"
 
 VOLUME /shared
 
-ENTRYPOINT ["dotnet", "app.dll"]
+ENTRYPOINT ["dotnet", "AspNetCore.ExistingDb.dll"]
