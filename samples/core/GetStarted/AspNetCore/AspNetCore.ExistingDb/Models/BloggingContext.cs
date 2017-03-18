@@ -1,51 +1,78 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AspNetCore.ExistingDb;
+using Microsoft.EntityFrameworkCore;
 using MySql.Data.MySqlClient;
-using MySQL.Data.EntityFrameworkCore.Extensions;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Models
 {
 	public partial class BloggingContext : DbContext
 	{
-		public virtual DbSet<Blog> Blog { get; set; }
-		public virtual DbSet<Post> Post { get; set; }
-		public virtual DbSet<Hashes> Hashes { get; set; }
+		public virtual DbSet<Blog> Blogs { get; set; }
+		public virtual DbSet<Post> Posts { get; set; }
+		public virtual DbSet<ThinHashes> ThinHashes { get; set; }
+		public virtual DbSet<HashesInfo> HashesInfo { get; set; }
+
+		//public static bool IsMySql { get; private set; }
+		public static string ConnectionTypeName { get; private set; }
 
 		public BloggingContext(DbContextOptions<BloggingContext> options)
 			: base(options)
 		{
+			if (ConnectionTypeName == null)
+			{
+				ConnectionTypeName = Database.GetDbConnection().GetType().Name.ToLower();
+				//IsMySql = ConnectionTypeName == typeof(MySqlConnection).Name.ToLower();
+			}
 		}
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
-			var is_mysql = Database.GetDbConnection().GetType().Name == typeof(MySqlConnection).Name;
-
 			modelBuilder.Entity<Blog>(entity =>
 			{
 				entity.Property(e => e.Url).IsRequired();
+				entity.ToTable("Blog");
 			});
-			modelBuilder.Entity<Blog>().ToTable("Blog");
 
 			modelBuilder.Entity<Post>(entity =>
 			{
 				entity.HasOne(d => d.Blog)
 					.WithMany(p => p.Post)
 					.HasForeignKey(d => d.BlogId);
+				entity.ToTable("Post");
 			});
 
-			modelBuilder.Entity<Hashes>(entity =>
+			modelBuilder.Entity<ThinHashes>(entity =>
 			{
-				entity.Property(e => e.Key).IsRequired();
-				entity.Property(e => e.HashMD5).IsRequired();
-				entity.Property(e => e.HashSHA256).IsRequired();
+				entity.Property(e => e.Key).IsRequired().HasColumnType("varchar(20)");
+				entity.Property(e => e.HashMD5).IsRequired().HasColumnType("char(32)").HasColumnName("hashMD5");
+				entity.Property(e => e.HashSHA256).IsRequired().HasColumnType("char(64)").HasColumnName("hashSHA256");
 
-				if (is_mysql)//fixes column mapping for MySql
-				{
-					entity.Property(e => e.Key).HasColumnName("SourceKey");
-					entity.Property(e => e.HashMD5).HasColumnName("hashMD5");
-					entity.Property(e => e.HashSHA256).HasColumnName("hashSHA256");
+				//modelBuilder.Entity<ThinHashes>().HasIndex(e => e.HashMD5);
+				//modelBuilder.Entity<ThinHashes>().HasIndex(e => e.HashSHA256);
 
-					modelBuilder.Entity<Hashes>().ToTable("Hashes");
-				}
+				modelBuilder.Entity<ThinHashes>().ToTable("Hashes");
+
+				//if (IsMySql)//fixes column mapping for MySql
+				//	entity.Property(e => e.Key).HasColumnName("SourceKey");
+			});
+
+			modelBuilder.Entity<HashesInfo>(entity =>
+			{
+				entity.Property(e => e.ID).IsRequired();
+				entity.Property(e => e.Alphabet).HasColumnType("varchar(100)");
+				entity.Property(e => e.Count);
+				entity.Property(e => e.KeyLength);
+				entity.Property(e => e.IsCalculating).IsRequired();
+
+				entity.HasKey(e => e.ID);
+			});
+
+			modelBuilder.Entity<SessionCache>(entity =>
+			{
+				entity.HasIndex(e => e.ExpiresAtTime)
+					.HasName("Index_ExpiresAtTime");
+
+				entity.Property(e => e.Id).HasMaxLength(449);
+				entity.Property(e => e.Value).IsRequired();
 			});
 		}
 	}

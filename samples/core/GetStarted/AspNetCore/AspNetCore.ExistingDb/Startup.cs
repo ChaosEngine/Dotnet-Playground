@@ -5,12 +5,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MySQL.Data.EntityFrameworkCore.Extensions;
 using System.IO;
 using System;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.DataProtection;
+using AspNetCore.ExistingDb;
 
-[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
+//[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
 
 namespace EFGetStarted.AspNetCore.ExistingDb
 {
@@ -38,32 +39,64 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
 				.AddEnvironmentVariables();
 			if (env.IsDevelopment())
-				builder.AddUserSecrets();
+				builder.AddUserSecrets<Startup>();
 
 			Configuration = builder.Build();
+		}
+
+		private string GetDBConnString(IConfiguration configuration)
+		{
+			string conn_str;
+			switch (configuration["DBKind"]?.ToLower())
+			{
+				case "mysql":
+				case "mariadb":
+				case "maria":
+					conn_str = configuration.GetConnectionString("MySQL");
+					break;
+				case "sqlserver":
+				case "mssql":
+					conn_str = configuration.GetConnectionString("SqlServer");
+					break;
+				case "sqlite":
+					conn_str = "Filename=./Blogging.db";
+					break;
+				default:
+					throw new NotSupportedException($"Bad DBKind name");
+			}
+			return conn_str;
 		}
 
 		/// <summary>
 		/// Sets up DB kind and connection
 		/// </summary>
+		/// <returns>connection string</returns>
 		/// <param name="options"></param>
 		/// <param name="configuration"></param>
-		internal static void ConfigureDBKind(DbContextOptionsBuilder options, IConfiguration configuration)
+		internal static string ConfigureDBKind(DbContextOptionsBuilder options, IConfiguration configuration)
 		{
+			string conn_str;
 			switch (configuration["DBKind"]?.ToLower())
 			{
 				case "mysql":
-					options.UseMySQL(configuration.GetConnectionString("MySQL"));
+				case "mariadb":
+				case "maria":
+					conn_str = configuration.GetConnectionString("MySQL");
+					options.UseMySql(conn_str);
 					break;
 				case "sqlserver":
-					options.UseSqlServer(configuration.GetConnectionString("SqlServer"));
+				case "mssql":
+					conn_str = configuration.GetConnectionString("SqlServer");
+					options.UseSqlServer(conn_str);
 					break;
 				case "sqlite":
-					options.UseSqlite("Filename=./Blogging.db");
+					conn_str = "Filename=./Blogging.db";
+					options.UseSqlite(conn_str);
 					break;
 				default:
 					throw new NotSupportedException($"Bad DBKind name");
 			}
+			return conn_str;
 		}
 
 		// This method gets called by the runtime. Use this method to add services to the container.
@@ -71,10 +104,38 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		{
 			services.AddSingleton(Configuration);
 
-			services.AddDbContext<BloggingContext>(options => ConfigureDBKind(options, Configuration));
+			services.AddDbContext<BloggingContext>(options =>
+			{
+				ConfigureDBKind(options, Configuration);
+			});
+
+			services.AddDistributedSqlServerCache(options =>
+			{
+				var conn_str = GetDBConnString(Configuration);
+
+				options.ConnectionString = conn_str;
+				options.SchemaName = "dbo";
+				options.TableName = nameof(SessionCache);
+				options.ExpiredItemsDeletionInterval = TimeSpan.FromMinutes(30);
+			});
+
+			services.AddSession(options =>
+			{
+				// Set a short timeout for easy testing.
+				options.IdleTimeout = TimeSpan.FromSeconds(10);
+				options.CookieHttpOnly = true;
+			});
 
 			// Add framework services.
 			services.AddMvc();
+
+			if (Directory.Exists(Path.DirectorySeparatorChar + "shared"))
+			{
+				services.AddDataProtection()
+					//.DisableAutomaticKeyGeneration()
+					.PersistKeysToFileSystem(new DirectoryInfo(Path.DirectorySeparatorChar + "shared"))
+					.SetApplicationName("AspNetCore.ExistingDb" + Configuration["AppRootPath"]);
+			}
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -96,6 +157,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			}
 
 			app.UseStaticFiles();
+
+			app.UseSession();
 
 			app.UseMvc(routes =>
 			{

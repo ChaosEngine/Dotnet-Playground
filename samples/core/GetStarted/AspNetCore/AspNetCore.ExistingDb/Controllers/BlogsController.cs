@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 {
+	[Route("[controller]")]
 	public class BlogsController : Controller
 	{
 		private BloggingContext _context;
@@ -24,7 +25,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 		private IAsyncEnumerable<Blog> GetBlogs()
 		{
-			var lst = _context.Blog.ToAsyncEnumerable();
+			var lst = _context.Blogs.ToAsyncEnumerable();
 
 			return lst;
 		}
@@ -34,27 +35,28 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			var lst = await (GetBlogs().ToList());
 
 			return View(lst);
-			//throw new NotImplementedException("blablabla");
 		}
 
+		[HttpGet(nameof(Create))]
 		public IActionResult Create()
 		{
 			return View();
 		}
 
-		[HttpPost("Blogs/Edit/{BlogId}/{ajax}")]
-		[HttpPost("Blogs/Delete/{BlogId}/{ajax}")]
-		[HttpDelete("Blogs/Delete/{BlogId}/{ajax}")]
+		//[HttpPost("Blogs/Edit/{BlogId}/{ajax}")]
+		//[HttpPost("Blogs/Delete/{BlogId}/{ajax}")]
+		//[HttpDelete("Blogs/Delete/{BlogId}/{ajax}")]
+		[Route(@"{x:regex(^(" + nameof(Delete) + "|" + nameof(Edit) + ")$)}" + @"/{BlogId}/{ajax}")]
 		[ValidateAntiForgeryToken]
 		public async Task<ActionResult> ItemAction(Blog blog, bool ajax, BlogActionEnum action = BlogActionEnum.Unknown)
 		{
 			if (action == BlogActionEnum.Delete)
 				ModelState.Remove(nameof(blog.Url));
-			
+
 			if (!ModelState.IsValid)
 			{
 				if (ajax)
-					return new JsonResult("error");
+					return Json("error");
 				else
 				{
 					IEnumerable<Blog> lst = await (GetBlogs().ToList());
@@ -97,7 +99,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 			if (id <= 0 || string.IsNullOrEmpty(url)) return BadRequest(ModelState);
 
-			Task<Blog> tsk = _context.Blog.FindAsync(id);
+			Task<Blog> tsk = _context.Blogs.FindAsync(id);
 			Blog blog = await tsk;
 			if (blog != null && url != blog.Url)
 			{
@@ -121,7 +123,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 			if (id <= 0) return BadRequest(ModelState);
 
-			Task<Blog> tsk = _context.Blog.FindAsync(id);
+			Task<Blog> tsk = _context.Blogs.FindAsync(id);
 			Blog blog = await tsk;
 			if (blog != null)
 			{
@@ -134,7 +136,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 				return NotFound();
 		}
 
-		[HttpPost]
+		[HttpPost(nameof(Create))]
 		[ValidateAntiForgeryToken]
 		public async Task<ActionResult> Create(Blog blog)
 		{
@@ -147,7 +149,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			{
 				var appRootPath = _configuration["AppRootPath"];
 
-				await _context.Blog.AddAsync(blog);
+				await _context.Blogs.AddAsync(blog);
 				await _context.SaveChangesAsync();
 
 				var route = appRootPath + "Blogs";

@@ -8,36 +8,14 @@ using EFGetStarted.AspNetCore.ExistingDb.Models;
 namespace AspNetCore.ExistingDb.Migrations
 {
     [DbContext(typeof(BloggingContext))]
-    partial class BloggingContextModelSnapshot : ModelSnapshot
+    [Migration("20170218162130_HashesInfo")]
+    partial class HashesInfo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.1.0-rtm-22752")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity("AspNetCore.ExistingDb.SessionCache", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(449);
-
-                    b.Property<DateTimeOffset?>("AbsoluteExpiration");
-
-                    b.Property<DateTimeOffset>("ExpiresAtTime");
-
-                    b.Property<long?>("SlidingExpirationInSeconds");
-
-                    b.Property<byte[]>("Value")
-                        .IsRequired();
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ExpiresAtTime")
-                        .HasName("Index_ExpiresAtTime");
-
-                    b.ToTable("SessionCache");
-                });
 
             modelBuilder.Entity("EFGetStarted.AspNetCore.ExistingDb.Models.Blog", b =>
                 {

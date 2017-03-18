@@ -7,20 +7,23 @@
 @{
 	if (((HashesInfo)ViewBag.Info) != null && ((HashesInfo)ViewBag.Info).IsCalculating == false)
 	{
-		<p>
-			Search for <strong>@(((HashesInfo)ViewBag.Info).KeyLength)</strong> character MD5 or SHA256 hash source string. Alphabet is '@(((HashesInfo)ViewBag.Info).Alphabet)'
-		</p>
-		<p>
-			Hashes count: <strong>@(((HashesInfo)ViewBag.Info).Count)</strong>
-			last updated @DateTime.Now.ToString()
-		</p>
+		<cache expires-after="@TimeSpan.FromDays(1)">
+			<p>
+				Search for <strong>@(((HashesInfo)ViewBag.Info).KeyLength)</strong> character MD5 or SHA256 hash source string. Alphabet is '@(((HashesInfo)ViewBag.Info).Alphabet)'
+			</p>
+			<p>
+				Hashes count: <strong>@(((HashesInfo)ViewBag.Info).Count)</strong>
+				last updated @DateTime.Now.ToString()
+			</p>
+		</cache>
 	}
 	else
 	{
 		<p>Calculating...wait about 10 secs or so...and refresh the page</p>
 	}
 }
-<form action="@Conf["AppRootPath"]Hashes/Search" method="post" id="theForm" class="form-horizontal" role="form">
+
+<form action="@Conf["AppRootPath"]Hashes/@(nameof(EFGetStarted.AspNetCore.ExistingDb.Controllers.HashesController.Search))" method="post" id="theForm" class="form-horizontal">
 	<div class="form-horizontal">
 		<div asp-validation-summary="All" class="text-danger"></div>
 		<div class="form-group">
@@ -50,7 +53,7 @@
 <table id="result_tab" class="table table-striped table-bordered" style='@(Model != null && !Model.Key.StartsWith("error") ? "" : "display:none")'>
 	<thead><tr><th>Key</th><th>MD5</th><th>SHA256</th></tr></thead>
 	<tbody>
-		<tr>
+		<tr id="trFirstResult">
 			<td id="res_cel_key">@Model?.Key</td>
 			<td id="res_cel_md5">@Model?.HashMD5</td>
 			<td id="res_cel_sha256">@Model?.HashSHA256</td>
@@ -60,6 +63,7 @@
 @section scripts
 {
 	<script type="text/javascript">
+		var g_LastTimeOfRun = new Date().getTime();
 		$(function () {
 			$.validator.addMethod('hashlength',
 				function (value, element, params) {
@@ -88,6 +92,43 @@
 						hashlength: $('#txtSearch').data("val-hashlength")
 					}
 				}
+			});
+
+			$("#txtSearch").on("input", function (e) {
+				if ($(this).data("lastval") != $(this).val()) {
+					$(this).data("lastval", $(this).val());
+
+					//change action
+					var value = $(this).val();
+					var time_of_run = new Date().getTime();
+
+					if (value.length > 4 && ((time_of_run - g_LastTimeOfRun) > 1000)) {
+						g_LastTimeOfRun = new Date().getTime();
+
+						var hedrs = { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() }
+
+						$.ajax({
+							method: "POST", url: '@Conf["AppRootPath"]Hashes/@(nameof(EFGetStarted.AspNetCore.ExistingDb.Controllers.HashesController.Autocomplete))',
+							headers: hedrs,
+							data: { "text": value, "ajax": true },
+						}).done(function (found) {
+							$('#result_tab').show();
+							$('#trFirstResult').hide();
+
+							var t = $('#result_tab tbody');
+							t.find('tr:visible').not('#trFirstResult').remove();
+
+							$.each(found, function (i, item) {
+								var $tr = $('<tr>').append(
+									$('<td>').text(item.key),
+									$('<td>').text(item.hashMD5),
+									$('<td>').text(item.hashSHA256)
+								).appendTo('#result_tab');
+								//console.log($tr.wrap('<p>').html());
+							});
+						});
+					}
+				};
 			});
 		});
 
@@ -124,11 +165,10 @@
 			divResult.text('');
 			$('#result_tab').hide();
 
-			var token = $('input[name="__RequestVerificationToken"]').val();
-			var hedrs = { 'RequestVerificationToken': token }
+			var hedrs = { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() }
 
 			$.ajax({
-				method: "POST", url: '@Conf["AppRootPath"]Hashes/Search',
+				method: "POST", url: '@Conf["AppRootPath"]Hashes/@(nameof(EFGetStarted.AspNetCore.ExistingDb.Controllers.HashesController.Search))',
 				headers: hedrs,
 				data: {
 					"Search": search, "Kind": sha_kind, "ajax": true
@@ -142,6 +182,11 @@
 					return;
 				}
 				$('#result_tab').show();
+
+				var t = $('#result_tab tbody');
+				t.find('tr:visible').not('#trFirstResult').remove();
+				$('#trFirstResult').show();
+
 				$('#res_cel_key').text(found.key);
 				$('#res_cel_md5').text(found.hashMD5);
 				$('#res_cel_sha256').text(found.hashSHA256);

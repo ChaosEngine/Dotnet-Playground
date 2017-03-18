@@ -140,6 +140,7 @@ publish/
 # TODO: Comment the next line if you want to checkin your web deploy settings
 # but database connection strings (with potential passwords) will be unencrypted
 *.pubxml
+G
 *.publishproj
 
 # NuGet Packages
@@ -170,6 +171,7 @@ ClientBin/
 *.publishsettings
 node_modules/
 bower_components/
+*.swp
 
 # RIA/Silverlight projects
 Generated_Code/
@@ -206,3 +208,5 @@ FakesAssemblies/
 project.lock.json
 samples/**/wwwroot/lib/
 venv
+/samples/core/GetStarted/AspNetCore/AspNetCore.ExistingDb/wwwroot/css/site.min.css
+/samples/core/GetStarted/AspNetCore/AspNetCore.ExistingDb/wwwroot/js/site.min.js
