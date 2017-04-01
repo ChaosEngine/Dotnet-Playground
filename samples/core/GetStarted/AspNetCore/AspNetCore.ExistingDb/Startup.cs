@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.IO;
@@ -26,6 +25,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				.UseContentRoot(Directory.GetCurrentDirectory())
 				.UseIISIntegration()
 				.UseStartup<Startup>()
+				.UseApplicationInsights()
 				.Build();
 
 			host.Run();
@@ -122,7 +122,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			services.AddSession(options =>
 			{
 				// Set a short timeout for easy testing.
-				options.IdleTimeout = TimeSpan.FromSeconds(10);
+				options.IdleTimeout = TimeSpan.FromMinutes(30);
 				options.CookieHttpOnly = true;
 			});
 
@@ -134,7 +134,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				services.AddDataProtection()
 					//.DisableAutomaticKeyGeneration()
 					.PersistKeysToFileSystem(new DirectoryInfo(Path.DirectorySeparatorChar + "shared"))
-					.SetApplicationName("AspNetCore.ExistingDb" + Configuration["AppRootPath"]);
+					.SetApplicationName("AspNetCore.ExistingDb" + Configuration.AppRootPath());
 			}
 		}
 
@@ -149,12 +149,14 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			{
 				loggerFactory.AddDebug();
 				app.UseDeveloperExceptionPage();
+				//app.UseExceptionHandler("/Home/Error");
 				app.UseBrowserLink();
 			}
 			else
 			{
 				app.UseExceptionHandler("/Home/Error");
 			}
+			app.UseStatusCodePagesWithReExecute("/Home/Error/{0}");
 
 			app.UseStaticFiles();
 

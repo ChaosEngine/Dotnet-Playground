@@ -82,7 +82,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 				return result;
 			else
 			{
-				var appRootPath = _configuration["AppRootPath"];
+				var appRootPath = _configuration.AppRootPath();
 				var destination_url = appRootPath + "Blogs";
 				return Redirect(destination_url);
 			}
@@ -147,7 +147,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 			if (ModelState.IsValid)
 			{
-				var appRootPath = _configuration["AppRootPath"];
+				var appRootPath = _configuration.AppRootPath();
 
 				await _context.Blogs.AddAsync(blog);
 				await _context.SaveChangesAsync();

@@ -6,7 +6,7 @@
 
 <h2>@ViewData["Title"]</h2>
 <p>
-	<a href="@Conf["AppRootPath"]Blogs/@(nameof(EFGetStarted.AspNetCore.ExistingDb.Controllers.BlogsController.Create))">Create New</a>
+	<a href="@Conf.AppRootPath()Blogs/@(nameof(EFGetStarted.AspNetCore.ExistingDb.Controllers.BlogsController.Create))">Create New</a>
 </p>
 
 <table class="table">
@@ -54,7 +54,7 @@
 
 			$.ajax({
 				method: action == delete_action ? 'DELETE' : 'POST',
-				url: '@Conf["AppRootPath"]Blogs/' + action + '/' + id + '/true',
+				url: '@Conf.AppRootPath()Blogs/' + action + '/' + id + '/true',
 				dataType: 'json',
 				data: action == delete_action ? 'action=' + delete_action : serialized_form,
 				headers: action == delete_action ? hedrs : null

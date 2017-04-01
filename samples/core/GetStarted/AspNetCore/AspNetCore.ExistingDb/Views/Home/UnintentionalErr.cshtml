@@ -1,0 +1,15 @@
+﻿@inject  Microsoft.Extensions.Configuration.IConfiguration Conf
+
+<h3>something from something with something of something</h3>
+@{
+	object tmp_val;
+	if (TempData.TryGetValue("itwas", out tmp_val))
+	{
+		<p>@tmp_val</p>
+	}
+}
+
+<form action="@Conf.AppRootPath()Home/UnintentionalErr" method="post">
+	<input type="submit" name="action" value="repost" />
+	<input type="submit" name="action" value="exception" />
+</form>

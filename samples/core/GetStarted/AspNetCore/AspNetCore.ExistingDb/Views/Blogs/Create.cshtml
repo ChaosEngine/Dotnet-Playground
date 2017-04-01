@@ -6,10 +6,10 @@
 
 <h2>@ViewData["Title"]</h2>
 <p>
-	<a href="@Conf["AppRootPath"]Blogs">Blogs</a>
+	<a href="@Conf.AppRootPath()Blogs">Blogs</a>
 </p>
 
-<form action="@Conf["AppRootPath"]Blogs/@(nameof(EFGetStarted.AspNetCore.ExistingDb.Controllers.BlogsController.Create))" method="post" class="form-horizontal" role="form">
+<form action="@Conf.AppRootPath()Blogs/@(nameof(EFGetStarted.AspNetCore.ExistingDb.Controllers.BlogsController.Create))" method="post" class="form-horizontal" role="form">
 	@Html.AntiForgeryToken()
     <div class="form-horizontal">
         <div asp-validation-summary="All" class="text-danger"></div>

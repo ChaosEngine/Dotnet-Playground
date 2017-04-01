@@ -23,7 +23,7 @@
 	}
 }
 
-<form action="@Conf["AppRootPath"]Hashes/@(nameof(EFGetStarted.AspNetCore.ExistingDb.Controllers.HashesController.Search))" method="post" id="theForm" class="form-horizontal">
+<form action="@Conf.AppRootPath()Hashes/@(nameof(EFGetStarted.AspNetCore.ExistingDb.Controllers.HashesController.Search))" method="post" id="theForm" class="form-horizontal">
 	<div class="form-horizontal">
 		<div asp-validation-summary="All" class="text-danger"></div>
 		<div class="form-group">
@@ -108,7 +108,7 @@
 						var hedrs = { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() }
 
 						$.ajax({
-							method: "POST", url: '@Conf["AppRootPath"]Hashes/@(nameof(EFGetStarted.AspNetCore.ExistingDb.Controllers.HashesController.Autocomplete))',
+							method: "POST", url: '@Conf.AppRootPath()Hashes/@(nameof(EFGetStarted.AspNetCore.ExistingDb.Controllers.HashesController.Autocomplete))',
 							headers: hedrs,
 							data: { "text": value, "ajax": true },
 						}).done(function (found) {
@@ -168,7 +168,7 @@
 			var hedrs = { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() }
 
 			$.ajax({
-				method: "POST", url: '@Conf["AppRootPath"]Hashes/@(nameof(EFGetStarted.AspNetCore.ExistingDb.Controllers.HashesController.Search))',
+				method: "POST", url: '@Conf.AppRootPath()Hashes/@(nameof(EFGetStarted.AspNetCore.ExistingDb.Controllers.HashesController.Search))',
 				headers: hedrs,
 				data: {
 					"Search": search, "Kind": sha_kind, "ajax": true

@@ -1,8 +1,18 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
 namespace EFGetStarted.AspNetCore.ExistingDb
 {
+	public static class ConfigurrationExtensions
+	{
+		public static string AppRootPath(this IConfiguration configuration)
+		{
+			return configuration["AppRootPath"];
+		}
+	}
+
 	public static class SessionExtensions
 	{
 		public static void Set<T>(this ISession session, string key, T value)
@@ -17,6 +27,22 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			return value == null ?
 				default(T) :
 				JsonConvert.DeserializeObject<T>(value);
+		}
+	}
+
+	public static class TempDataExtensions
+	{
+		public static void Put<T>(this ITempDataDictionary tempData, string key, T value) where T : class
+		{
+			tempData[key] = JsonConvert.SerializeObject(value);
+		}
+
+		public static T Get<T>(this ITempDataDictionary tempData, string key) where T : class
+		{
+			tempData.TryGetValue(key, out object value);
+			return value == null ?
+				default(T) :
+				JsonConvert.DeserializeObject<T>((string)value);
 		}
 	}
 }
