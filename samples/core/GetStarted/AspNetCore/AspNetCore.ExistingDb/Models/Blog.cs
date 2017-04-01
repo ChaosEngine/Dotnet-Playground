@@ -29,7 +29,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 	}
 
 	public partial class Blog
-    {
+	{
 		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 		[Required]
 		[Key]
@@ -42,8 +42,35 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		public virtual ICollection<Post> Post { get; set; }
 
 		public Blog()
-        {
-            Post = new HashSet<Post>();
-        }
-    }
+		{
+			Post = new HashSet<Post>();
+		}
+
+		public Blog(Blog parent)
+		{
+			Post = new HashSet<Post>();
+
+			BlogId = parent.BlogId;
+			Url = parent.Url;
+		}
+	}
+
+	public class DecoratedBlog : Blog
+	{
+		[ProtectionValidation("tralalal")]
+		public string ProtectedID { get; set; }
+
+		public DecoratedBlog():base()
+		{
+		}
+
+		public DecoratedBlog(Blog blog) : base(blog)
+		{
+		}
+
+		public DecoratedBlog(Blog blog, string protectedID) : base(blog)
+		{
+			ProtectedID = protectedID;
+		}
+	}
 }

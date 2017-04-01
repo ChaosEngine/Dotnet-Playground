@@ -1,5 +1,5 @@
-﻿@model IEnumerable<Blog>
-@inject  Microsoft.Extensions.Configuration.IConfiguration Conf
+﻿@model IEnumerable<DecoratedBlog>
+@inject Microsoft.Extensions.Configuration.IConfiguration Conf
 @{
 	ViewBag.Title = "Blogs";
 }
@@ -56,7 +56,7 @@
 				method: action == delete_action ? 'DELETE' : 'POST',
 				url: '@Conf.AppRootPath()Blogs/' + action + '/' + id + '/true',
 				dataType: 'json',
-				data: action == delete_action ? 'action=' + delete_action : serialized_form,
+				data: serialized_form,
 				headers: action == delete_action ? hedrs : null
 			}).done(function (blog, textStatus, jqXHR) {
 				if (blog == "error") {

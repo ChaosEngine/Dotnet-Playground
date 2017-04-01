@@ -1,4 +1,6 @@
-﻿using EFGetStarted.AspNetCore.ExistingDb.Models;
+﻿using AspNetCore.ExistingDb.Repositories;
+using EFGetStarted.AspNetCore.ExistingDb.Models;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -12,27 +14,29 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 	[Route("[controller]")]
 	public class BlogsController : Controller
 	{
-		private BloggingContext _context;
-		private ILogger<BlogsController> _logger;
-		private IConfiguration _configuration;
+		private readonly ILogger<BlogsController> _logger;
+		private readonly IConfiguration _configuration;
+		private readonly IDataProtector _protector;
+		private readonly IBloggingRepository _repo;
 
-		public BlogsController(BloggingContext context, ILogger<BlogsController> logger, IConfiguration configuration)
+		public BlogsController(IBloggingRepository repo, ILogger<BlogsController> logger, IConfiguration configuration, IDataProtectionProvider protectionProvider)
 		{
-			_context = context;
+			_repo = repo;
 			_logger = logger;
 			_configuration = configuration;
+			_protector = protectionProvider.CreateProtector(GetType().FullName);
 		}
 
-		private IAsyncEnumerable<Blog> GetBlogs()
+		private async Task<IEnumerable<DecoratedBlog>> GetBlogs()
 		{
-			var lst = _context.Blogs.ToAsyncEnumerable();
+			var lst = (await _repo.GetAllAsync());
 
-			return lst;
+			return lst.Select(b => new DecoratedBlog(b, _protector.Protect(b.BlogId.ToString())));
 		}
 
 		public async Task<IActionResult> Index()
 		{
-			var lst = await (GetBlogs().ToList());
+			var lst = await GetBlogs();
 
 			return View(lst);
 		}
@@ -48,7 +52,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 		//[HttpDelete("Blogs/Delete/{BlogId}/{ajax}")]
 		[Route(@"{x:regex(^(" + nameof(Delete) + "|" + nameof(Edit) + ")$)}" + @"/{BlogId}/{ajax}")]
 		[ValidateAntiForgeryToken]
-		public async Task<ActionResult> ItemAction(Blog blog, bool ajax, BlogActionEnum action = BlogActionEnum.Unknown)
+		public async Task<ActionResult> ItemAction(DecoratedBlog blog, bool ajax, BlogActionEnum action = BlogActionEnum.Unknown)
 		{
 			if (action == BlogActionEnum.Delete)
 				ModelState.Remove(nameof(blog.Url));
@@ -59,8 +63,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 					return Json("error");
 				else
 				{
-					IEnumerable<Blog> lst = await (GetBlogs().ToList());
-					lst = lst.Where(x => x.BlogId != blog.BlogId).Union(new[] { blog });
+					IEnumerable<DecoratedBlog> lst = await GetBlogs();
+					lst = lst.Where(x => x.ProtectedID != blog.ProtectedID).Union(new[] { blog });
 					return View(nameof(Index), lst);
 				}
 			}
@@ -99,12 +103,13 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 			if (id <= 0 || string.IsNullOrEmpty(url)) return BadRequest(ModelState);
 
-			Task<Blog> tsk = _context.Blogs.FindAsync(id);
+			Task<Blog> tsk = _repo.GetSingleAsync(id);
 			Blog blog = await tsk;
 			if (blog != null && url != blog.Url)
 			{
 				blog.Url = url;
-				await _context.SaveChangesAsync();
+				_repo.Edit(blog);
+				int modified = await _repo.SaveAsync();
 
 				return Json(blog);
 			}
@@ -123,12 +128,12 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 			if (id <= 0) return BadRequest(ModelState);
 
-			Task<Blog> tsk = _context.Blogs.FindAsync(id);
+			Task<Blog> tsk = _repo.GetSingleAsync(id);
 			Blog blog = await tsk;
 			if (blog != null)
 			{
-				_context.Remove(blog);
-				await _context.SaveChangesAsync();
+				_repo.Delete(blog);
+				await _repo.SaveAsync();
 
 				return Json("deleted");
 			}
@@ -149,8 +154,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			{
 				var appRootPath = _configuration.AppRootPath();
 
-				await _context.Blogs.AddAsync(blog);
-				await _context.SaveChangesAsync();
+				await _repo.AddAsync(blog);
+				await _repo.SaveAsync();
 
 				var route = appRootPath + "Blogs";
 				return Redirect(route);

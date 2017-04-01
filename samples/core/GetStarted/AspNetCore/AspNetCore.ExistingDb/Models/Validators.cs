@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using EFGetStarted.AspNetCore.ExistingDb.Controllers;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System;
 using System.Collections.Generic;
@@ -48,6 +50,37 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 
 			attributes.Add(key, value);
 			return true;
+		}
+
+		private string GetErrorMessage()
+		{
+			return ErrorMessageString;
+		}
+	}
+
+	public class ProtectionValidationAttribute : ValidationAttribute
+	{
+		public override bool RequiresValidationContext => true;
+
+		public ProtectionValidationAttribute(string errorMessage = null) : base(errorMessage)
+		{
+			if (string.IsNullOrEmpty(errorMessage))
+				ErrorMessage = $"Unmatching protection for element";
+			else
+				ErrorMessage = errorMessage;
+		}
+
+		protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+		{
+			var decorated = (DecoratedBlog)validationContext.ObjectInstance;
+			IDataProtector protector = validationContext.GetDataProtector(typeof(BlogsController).FullName);
+
+			if (protector.Unprotect(decorated.ProtectedID) != decorated.BlogId.ToString())
+			{
+				return new ValidationResult(GetErrorMessage());
+			}
+
+			return ValidationResult.Success;
 		}
 
 		private string GetErrorMessage()

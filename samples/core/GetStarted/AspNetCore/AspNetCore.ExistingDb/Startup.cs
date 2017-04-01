@@ -9,6 +9,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.DataProtection;
 using AspNetCore.ExistingDb;
+using AspNetCore.ExistingDb.Repositories;
 
 //[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
 
@@ -136,6 +137,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 					.PersistKeysToFileSystem(new DirectoryInfo(Path.DirectorySeparatorChar + "shared"))
 					.SetApplicationName("AspNetCore.ExistingDb" + Configuration.AppRootPath());
 			}
+
+			services.AddScoped<IBloggingRepository, BloggingRepository>();
+			services.AddScoped<IHashesRepository, HashesRepository>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,11 +1,12 @@
-﻿@model Blog
-@inject  Microsoft.Extensions.Configuration.IConfiguration Conf
+﻿@model DecoratedBlog
+@inject Microsoft.Extensions.Configuration.IConfiguration Conf
 <div class="form-inline">
 	<span class='displaying'>@Html.DisplayFor(modelItem => Model.Url)</span>
 
 	<form method="post" class="form-horizontal" data-id="@Model.BlogId">
 		<div asp-validation-summary="All" class="text-danger"></div>
 		@Html.AntiForgeryToken()
+		<input type="hidden" asp-for="ProtectedID" value="@Model.ProtectedID" />
 		<input asp-for="Url" value="@Model.Url" id="inp_@Model.BlogId" placeholder="Url" class="edit form-control" />
 		<input name="action" type="submit" value="@(BlogActionEnum.Edit)"
 			   formaction="@Conf.AppRootPath()Blogs/@(BlogActionEnum.Edit)/@Model.BlogId/false" 
