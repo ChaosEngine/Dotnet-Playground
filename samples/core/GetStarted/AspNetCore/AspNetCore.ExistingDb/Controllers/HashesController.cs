@@ -15,14 +15,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 	/// </summary>
 	public class HashesController : Controller
 	{
-		/// <summary>
-		/// Used value or this specific worker node/process or load balancing server
-		/// </summary>
-		private static HashesInfo _hashesInfoStatic;
-		/// <summary>
-		/// locally cached value for request, refreshed upon every request.
-		/// </summary>
-		private HashesInfo _hi;
 		private static readonly object _locker = new object();
 		private readonly IConfiguration _configuration;
 		private readonly IHashesRepository _repo;
