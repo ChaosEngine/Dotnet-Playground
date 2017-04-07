@@ -31,13 +31,13 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			_configuration = configuration;
 		}
 
-		public IActionResult Index()
+		public async Task<IActionResult> Index()
 		{
-			var curr_has_inf = _repo.CurrentHashesInfo.Result;
+			var curr_has_inf = await _repo.CurrentHashesInfo;
 
 			if (curr_has_inf == null || (!curr_has_inf.IsCalculating && curr_has_inf.Count <= 0))
 			{
-				Task.Factory.StartNew((conf) =>
+				var task = Task.Factory.StartNew((conf) =>
 				{
 					_logger.LogInformation(0, $"###Starting calculation thread");
 

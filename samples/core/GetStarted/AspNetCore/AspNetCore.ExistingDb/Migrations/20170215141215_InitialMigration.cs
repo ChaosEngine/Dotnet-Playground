@@ -63,8 +63,9 @@ namespace AspNetCore.ExistingDb.Migrations
                 table: "Post",
                 column: "BlogId");
 
-			migrationBuilder.Sql(@"IF NOT EXISTS(SELECT principal_id FROM sys.server_principals WHERE name = 'test')  CREATE LOGIN test WITH PASSWORD = 'P@ssw0rd123'
-
+			//for SqlServer create user,login and access rights
+			if (migrationBuilder.ActiveProvider == "Microsoft.EntityFrameworkCore.SqlServer")
+				migrationBuilder.Sql(@"IF NOT EXISTS(SELECT principal_id FROM sys.server_principals WHERE name = 'test')  CREATE LOGIN test WITH PASSWORD = 'P@ssw0rd123'
 CREATE USER [test] FOR LOGIN [test]
 ALTER USER [test] WITH DEFAULT_SCHEMA=[dbo]
 use [test];

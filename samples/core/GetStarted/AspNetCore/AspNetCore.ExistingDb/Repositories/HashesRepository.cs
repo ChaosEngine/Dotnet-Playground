@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
@@ -114,8 +115,10 @@ $@"SELECT TOP 20 * FROM (
 
 			using (var db = new BloggingContext(bc.Options))
 			{
-				db.Database.SetCommandTimeout(180);
-				using (var trans = db.Database.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted))//needed, other web nodes will read saved-caculating-satate and exit thread
+				db.Database.SetCommandTimeout(180);//long long running. timeouts prevention
+				//in sqlite only serializable - https://sqlite.org/isolation.html
+				var isolation_level = BloggingContext.ConnectionTypeName == "sqliteconnection" ? IsolationLevel.Serializable: IsolationLevel.ReadUncommitted;
+				using (var trans = db.Database.BeginTransaction(isolation_level))//needed, other web nodes will read saved-caculating-state and exit thread
 				{
 					try
 					{
