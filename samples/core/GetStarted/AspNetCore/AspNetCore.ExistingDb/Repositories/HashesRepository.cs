@@ -17,6 +17,8 @@ namespace AspNetCore.ExistingDb.Repositories
 	{
 		Task<HashesInfo> CurrentHashesInfo { get; }
 
+		void SetReadOnly(bool value);
+
 		Task<List<ThinHashes>> AutoComplete(string text);
 
 		HashesInfo CalculateHashesInfo<T>(ILoggerFactory _loggerFactory, ILogger<T> _logger, IConfiguration conf) where T : Controller;
@@ -56,6 +58,11 @@ namespace AspNetCore.ExistingDb.Repositories
 
 		public HashesRepository(BloggingContext context) : base(context)
 		{
+		}
+
+		public void SetReadOnly(bool value)
+		{
+			_entities.ChangeTracker.QueryTrackingBehavior = value ? QueryTrackingBehavior.NoTracking : QueryTrackingBehavior.TrackAll;
 		}
 
 		public Task<List<ThinHashes>> AutoComplete(string text)

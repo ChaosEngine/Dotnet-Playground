@@ -12,7 +12,7 @@ namespace AspNetCore.ExistingDb.Repositories
 		where Ent : class
 		where Cont : DbContext
 	{
-		Cont Context { get; }
+		//Cont Context { get; }
 
 		EntityEntry<Ent> Add(Ent entity);
 		Task<EntityEntry<Ent>> AddAsync(Ent entity);
@@ -33,10 +33,10 @@ namespace AspNetCore.ExistingDb.Repositories
 	{
 		protected Cont _entities;
 
-		public Cont Context
+		/*public Cont Context
 		{
 			get { return _entities; }
-		}
+		}*/
 
 		public GenericRepository(Cont context)
 		{

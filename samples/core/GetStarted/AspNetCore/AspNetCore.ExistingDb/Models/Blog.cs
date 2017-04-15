@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.DataProtection;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -57,7 +58,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 
 	public class DecoratedBlog : Blog
 	{
-		[ProtectionValidation("tralalal")]
+		[ProtectionValidation("Protected ID field is invalid")]
 		public string ProtectedID { get; set; }
 
 		public DecoratedBlog():base()
@@ -68,9 +69,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		{
 		}
 
-		public DecoratedBlog(Blog blog, string protectedID) : base(blog)
+		public DecoratedBlog(Blog blog, IDataProtector protector) : base(blog)
 		{
-			ProtectedID = protectedID;
+			ProtectedID = protector.Protect(BlogId.ToString());
 		}
 	}
 }

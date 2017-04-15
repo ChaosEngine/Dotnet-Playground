@@ -45,29 +45,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			Configuration = builder.Build();
 		}
 
-		private string GetDBConnString(IConfiguration configuration)
-		{
-			string conn_str;
-			switch (configuration["DBKind"]?.ToLower())
-			{
-				case "mysql":
-				case "mariadb":
-				case "maria":
-					conn_str = configuration.GetConnectionString("MySQL");
-					break;
-				case "sqlserver":
-				case "mssql":
-					conn_str = configuration.GetConnectionString("SqlServer");
-					break;
-				case "sqlite":
-					conn_str = "Filename=./Blogging.db";
-					break;
-				default:
-					throw new NotSupportedException($"Bad DBKind name");
-			}
-			return conn_str;
-		}
-
 		/// <summary>
 		/// Sets up DB kind and connection
 		/// </summary>
@@ -83,16 +60,19 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				case "mariadb":
 				case "maria":
 					conn_str = configuration.GetConnectionString("MySQL");
-					options.UseMySql(conn_str);
+					if (options != null)
+						options.UseMySql(conn_str);
 					break;
 				case "sqlserver":
 				case "mssql":
 					conn_str = configuration.GetConnectionString("SqlServer");
-					options.UseSqlServer(conn_str);
+					if (options != null)
+						options.UseSqlServer(conn_str);
 					break;
 				case "sqlite":
 					conn_str = "Filename=./Blogging.db";
-					options.UseSqlite(conn_str);
+					if (options != null)
+						options.UseSqlite(conn_str);
 					break;
 				default:
 					throw new NotSupportedException($"Bad DBKind name");
@@ -100,10 +80,17 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			return conn_str;
 		}
 
+		void ConfigureDependencyInjection(IServiceCollection services)
+		{
+			services.AddSingleton(Configuration);
+			services.AddScoped<IBloggingRepository, BloggingRepository>();
+			services.AddScoped<IHashesRepository, HashesRepository>();
+		}
+
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddSingleton(Configuration);
+			ConfigureDependencyInjection(services);
 
 			services.AddDbContext<BloggingContext>(options =>
 			{
@@ -112,7 +99,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 			services.AddDistributedSqlServerCache(options =>
 			{
-				var conn_str = GetDBConnString(Configuration);
+				var conn_str = ConfigureDBKind(null, Configuration);
 
 				options.ConnectionString = conn_str;
 				options.SchemaName = "dbo";
@@ -123,23 +110,20 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			services.AddSession(options =>
 			{
 				// Set a short timeout for easy testing.
-				options.IdleTimeout = TimeSpan.FromMinutes(30);
+				options.IdleTimeout = TimeSpan.FromMinutes(60);
 				options.CookieHttpOnly = true;
 			});
 
 			// Add framework services.
 			services.AddMvc();
 
-			if (Directory.Exists(Path.DirectorySeparatorChar + "shared"))
+			var keys_directory = Configuration["SharedKeysDirectory"]?.Replace('/', Path.DirectorySeparatorChar)?.Replace('\\', Path.DirectorySeparatorChar);
+			if (!string.IsNullOrEmpty(keys_directory) && Directory.Exists(keys_directory))
 			{
 				services.AddDataProtection()
-					//.DisableAutomaticKeyGeneration()
-					.PersistKeysToFileSystem(new DirectoryInfo(Path.DirectorySeparatorChar + "shared"))
-					.SetApplicationName("AspNetCore.ExistingDb" + Configuration.AppRootPath());
+					.SetDefaultKeyLifetime(TimeSpan.FromDays(14))
+					.PersistKeysToFileSystem(new DirectoryInfo(keys_directory));
 			}
-
-			services.AddScoped<IBloggingRepository, BloggingRepository>();
-			services.AddScoped<IHashesRepository, HashesRepository>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AspNetCore.ExistingDb.Repositories;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
 namespace EFGetStarted.AspNetCore.ExistingDb
@@ -39,7 +41,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 		public static T Get<T>(this ITempDataDictionary tempData, string key) where T : class
 		{
-			tempData.TryGetValue(key, out object value);
+			object value;
+			tempData.TryGetValue(key, out value);
 			return value == null ?
 				default(T) :
 				JsonConvert.DeserializeObject<T>((string)value);

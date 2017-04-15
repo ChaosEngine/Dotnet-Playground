@@ -24,14 +24,14 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			_repo = repo;
 			_logger = logger;
 			_configuration = configuration;
-			_protector = protectionProvider.CreateProtector(GetType().FullName);
+			_protector = protectionProvider.CreateProtector(typeof(DecoratedBlog).FullName);
 		}
 
 		private async Task<IEnumerable<DecoratedBlog>> GetBlogs()
 		{
 			var lst = (await _repo.GetAllAsync());
 
-			return lst.Select(b => new DecoratedBlog(b, _protector.Protect(b.BlogId.ToString())));
+			return lst.Select(b => new DecoratedBlog(b, _protector));
 		}
 
 		public async Task<IActionResult> Index()

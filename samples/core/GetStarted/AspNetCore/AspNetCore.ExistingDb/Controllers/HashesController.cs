@@ -24,7 +24,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 		public HashesController(IHashesRepository repo, ILoggerFactory loggerFactory, IConfiguration configuration)
 		{
 			_repo = repo;
-			_repo.Context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+			_repo.SetReadOnly(true);
 
 			_loggerFactory = loggerFactory;
 			_logger = loggerFactory.CreateLogger<HashesController>();

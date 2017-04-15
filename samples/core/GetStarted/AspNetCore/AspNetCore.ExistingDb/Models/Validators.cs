@@ -73,7 +73,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		protected override ValidationResult IsValid(object value, ValidationContext validationContext)
 		{
 			var decorated = (DecoratedBlog)validationContext.ObjectInstance;
-			IDataProtector protector = validationContext.GetDataProtector(typeof(BlogsController).FullName);
+			IDataProtector protector = validationContext.GetDataProtector(decorated.GetType().FullName);
 
 			if (protector.Unprotect(decorated.ProtectedID) != decorated.BlogId.ToString())
 			{
