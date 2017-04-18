@@ -135,18 +135,45 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			if (statusCode <= 0)
 				statusCode = Response.StatusCode;
 
-			switch (Response.StatusCode)
+			/*switch (Response.StatusCode)
 			{
 				case StatusCodes.Status404NotFound:
 					break;
 				default:
 					break;
-			}
+			}*/
 
 			var reExecute = HttpContext.Features.Get<IStatusCodeReExecuteFeature>();
 			_logger.LogInformation($"Unexpected Status Code: {statusCode}, OriginalPath: {reExecute?.OriginalPath}");
 
 			return await Task.FromResult(View(statusCode));
+		}
+
+		[HttpPost]
+		public async Task<IActionResult> ClientsideLog(LogLevel? level, string message, string url, string line, string col, string error)
+		{
+			switch (level.GetValueOrDefault(LogLevel.None))
+			{
+				case LogLevel.Trace:
+					_logger.LogTrace(message);
+					break;
+				case LogLevel.Debug:
+					_logger.LogDebug(message);
+					break;
+				case LogLevel.Information:
+					_logger.LogInformation(message);
+					break;
+				case LogLevel.Warning:
+					_logger.LogWarning(message);
+					break;
+				case LogLevel.Error:
+					_logger.LogError(message);
+					break;
+				default:
+					break;
+			}
+			var ok = Ok();
+			return await Task.FromResult(ok);
 		}
 	}
 }
