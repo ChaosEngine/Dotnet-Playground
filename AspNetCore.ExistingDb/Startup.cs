@@ -26,7 +26,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				.UseContentRoot(Directory.GetCurrentDirectory())
 				.UseIISIntegration()
 				.UseStartup<Startup>()
-				.UseApplicationInsights()
+				//.UseApplicationInsights()
 				.Build();
 
 			host.Run();

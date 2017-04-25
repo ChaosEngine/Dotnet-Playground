@@ -8,13 +8,18 @@ var logLevel = {
 	Error: 4
 };
 
+var g_AppRootPath = "/Home/ClientsideLog";
+
 function ajaxLog(level, message, url, line, col, error) {
-	$.post("/Home/ClientsideLog", {
+	$.post(g_AppRootPath, {
 		"level": level, "message": message, "url": url, "line": line, "col": col, "error": error
 	});
 };
 
 (function () {
+	if (window.location.pathname.indexOf("/dotnet") == 0)
+		g_AppRootPath = "/dotnet/Home/ClientsideLog";
+
 	var org_trace = console.trace;
 	var org_debug = console.debug;
 	var org_info = console.info;
