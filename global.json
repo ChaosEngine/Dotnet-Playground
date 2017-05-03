@@ -1,8 +1,1 @@
-﻿{
-	"projects": [
-		"AspNetCore.ExistingDb"
-	],
-	"sdk": {
-		"version": "1.1.0-*"
-	}
-}
+{"projects":["AspNetCore.ExistingDb"]}

@@ -7,22 +7,23 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using System.IO;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 {
 	public class HomeController : Controller
 	{
-		class BigBlob
+		class RandomData
 		{
 			private static HashAlgorithm _hasher;
 
 			public byte[] Buffer { get; set; }
 
-			public BigBlob()
+			public RandomData()
 			{
 			}
 
-			public BigBlob(int size)
+			public RandomData(int size)
 			{
 				var rnd = new Random(Environment.TickCount);
 				Buffer = new byte[size];
@@ -30,13 +31,20 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 				rnd.NextBytes(Buffer);
 			}
 
-			public BigBlob(int randomMinLength, int randomMaxLength)
+			public RandomData(int randomMinLength, int randomMaxLength)
 			{
 				var rnd = new Random(Environment.TickCount);
 				var size = rnd.Next(randomMinLength, randomMaxLength);
 				Buffer = new byte[size];
 
 				rnd.NextBytes(Buffer);
+			}
+
+			public static string RandomStr()
+			{
+				string rStr = Path.GetRandomFileName();
+				rStr = rStr.Replace(".", ""); // For Removing the .
+				return rStr;
 			}
 
 			public override string ToString()
@@ -54,8 +62,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 		const string SessionKeyName = "_Name";
 		const string SessionKeyYearsMember = "_YearsMember";
 		const string SessionKeyDate = "_Date";
-		const string SessionBigBlog = "_BigBlob";
-
+		
 		private readonly IConfiguration _configuration;
 		private readonly ILogger<HomeController> _logger;
 
@@ -68,15 +75,15 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 		public async Task<IActionResult> Index()
 		{
 			if (!HttpContext.Session.Keys.Contains(SessionKeyName))
-				HttpContext.Session.SetString(SessionKeyName, "Rick");
+				HttpContext.Session.SetString(SessionKeyName, RandomData.RandomStr());
 			if (!HttpContext.Session.Keys.Contains(SessionKeyYearsMember))
 				HttpContext.Session.SetInt32(SessionKeyYearsMember, 3);
 			if (!HttpContext.Session.Keys.Contains(SessionKeyDate))
 				HttpContext.Session.Set(SessionKeyDate, DateTime.Now);
-			if (!HttpContext.Session.Keys.Contains(SessionBigBlog))
-				HttpContext.Session.Set(SessionBigBlog, new BigBlob(500, 8000));
+			if (!HttpContext.Session.Keys.Contains(typeof(RandomData).Name))
+				HttpContext.Session.Set(typeof(RandomData).Name, new RandomData(500, 8000));
 
-			return await Task.FromResult(View());
+			return View();
 		}
 
 		public async Task<IActionResult> About()
@@ -96,7 +103,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			var currentTime = DateTime.Now.TimeOfDay.ToString();
 			var time = $"Current time: {currentTime} - session time: {sessionTime}";
 
-			var big_blob = HttpContext.Session.Get<BigBlob>(SessionBigBlog);
+			var big_blob = HttpContext.Session.Get<RandomData>(typeof(RandomData).Name);
 
 			ViewData["Message"] = $"Name: '{name}'<br />Membership years: '{yearsMember}'<br />time: '{time}'<br />"
 				+ $"BigBlob: '{big_blob}'";

@@ -1,0 +1,3 @@
+[submodule "Caching-MySQL"]
+	path = Caching-MySQL
+	url = git@github.com:ChaosEngine/Caching-MySQL.git

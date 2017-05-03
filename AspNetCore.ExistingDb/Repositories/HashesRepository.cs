@@ -118,13 +118,13 @@ $@"SELECT TOP 20 * FROM (
 
 			var bc = new DbContextOptionsBuilder<BloggingContext>();
 			bc.UseLoggerFactory(loggerFactory);
-			Startup.ConfigureDBKind(bc, configuration);
+			Startup.ConfigureDBKind(bc, configuration, null);
 
 			using (var db = new BloggingContext(bc.Options))
 			{
 				db.Database.SetCommandTimeout(180);//long long running. timeouts prevention
-				//in sqlite only serializable - https://sqlite.org/isolation.html
-				var isolation_level = BloggingContext.ConnectionTypeName == "sqliteconnection" ? IsolationLevel.Serializable: IsolationLevel.ReadUncommitted;
+												   //in sqlite only serializable - https://sqlite.org/isolation.html
+				var isolation_level = BloggingContext.ConnectionTypeName == "sqliteconnection" ? IsolationLevel.Serializable : IsolationLevel.ReadUncommitted;
 				using (var trans = db.Database.BeginTransaction(isolation_level))//needed, other web nodes will read saved-caculating-state and exit thread
 				{
 					try
