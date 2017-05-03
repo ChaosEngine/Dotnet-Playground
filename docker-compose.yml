@@ -14,7 +14,7 @@ services:
         expose:
             - "5000"
         volumes:
-            - ./shared:/shared
+            - AspNetCore.ExistingDb/shared:/shared
         environment:
             - ConnectionStrings__SqlServer
         depends_on:
@@ -26,7 +26,7 @@ services:
         expose:
             - "5000"
         volumes:
-            - ./shared:/shared
+            - AspNetCore.ExistingDb/shared:/shared
         environment:
             - ConnectionStrings__SqlServer
         depends_on:
@@ -38,7 +38,7 @@ services:
         expose:
             - "5000"
         volumes:
-            - ./shared:/shared
+            - AspNetCore.ExistingDb/shared:/shared
         environment:
             - ConnectionStrings__SqlServer
         depends_on:
@@ -48,8 +48,8 @@ services:
     haproxy:
         image: haproxy
         volumes:
-            - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
-            - ../sockets:/sockets
+            - AspNetCore.ExistingDb/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+            - sockets:/sockets
         links:
             - weba
             - webb
