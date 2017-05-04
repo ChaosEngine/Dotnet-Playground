@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.DataProtection;
 using AspNetCore.ExistingDb;
 using AspNetCore.ExistingDb.Repositories;
+using System.Data.Common;
 
 //[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
 
@@ -68,7 +69,11 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 						distributedCacheServices.AddDistributedMySqlCache(opts =>
 						{
 							opts.ConnectionString = conn_str;
-							opts.SchemaName = "dotnet";
+
+							var builder = new DbConnectionStringBuilder();
+							builder.ConnectionString = conn_str;
+							opts.SchemaName = builder["database"] as string;
+
 							opts.TableName = nameof(SessionCache);
 							opts.ExpiredItemsDeletionInterval = TimeSpan.FromMinutes(30);
 						});

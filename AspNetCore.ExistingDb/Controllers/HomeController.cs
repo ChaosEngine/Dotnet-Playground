@@ -83,7 +83,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			if (!HttpContext.Session.Keys.Contains(typeof(RandomData).Name))
 				HttpContext.Session.Set(typeof(RandomData).Name, new RandomData(500, 8000));
 
-			return View();
+			return await Task.FromResult(View());
 		}
 
 		public async Task<IActionResult> About()
