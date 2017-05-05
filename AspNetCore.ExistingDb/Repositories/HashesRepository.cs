@@ -21,7 +21,7 @@ namespace AspNetCore.ExistingDb.Repositories
 
 		Task<List<ThinHashes>> AutoComplete(string text);
 
-		HashesInfo CalculateHashesInfo<T>(ILoggerFactory _loggerFactory, ILogger<T> _logger, IConfiguration conf) where T : Controller;
+		Task<HashesInfo> CalculateHashesInfo<T>(ILoggerFactory _loggerFactory, ILogger<T> _logger, IConfiguration conf) where T : Controller;
 	}
 
 	public class HashesRepository : GenericRepository<BloggingContext, ThinHashes>, IHashesRepository
@@ -112,7 +112,7 @@ $@"SELECT TOP 20 * FROM (
 		/// <param name="logger"></param>
 		/// <param name="configuration"></param>
 		/// <returns></returns>
-		public HashesInfo CalculateHashesInfo<T>(ILoggerFactory loggerFactory, ILogger<T> logger, IConfiguration configuration) where T : Controller
+		public async Task<HashesInfo> CalculateHashesInfo<T>(ILoggerFactory loggerFactory, ILogger<T> logger, IConfiguration configuration) where T : Controller
 		{
 			HashesInfo hi = null;
 
@@ -125,7 +125,7 @@ $@"SELECT TOP 20 * FROM (
 				db.Database.SetCommandTimeout(180);//long long running. timeouts prevention
 												   //in sqlite only serializable - https://sqlite.org/isolation.html
 				var isolation_level = BloggingContext.ConnectionTypeName == "sqliteconnection" ? IsolationLevel.Serializable : IsolationLevel.ReadUncommitted;
-				using (var trans = db.Database.BeginTransaction(isolation_level))//needed, other web nodes will read saved-caculating-state and exit thread
+				using (var trans = await db.Database.BeginTransactionAsync(isolation_level))//needed, other web nodes will read saved-caculating-state and exit thread
 				{
 					try
 					{
@@ -138,24 +138,24 @@ $@"SELECT TOP 20 * FROM (
 
 						hi = new HashesInfo { ID = 0, IsCalculating = true };
 
-						db.HashesInfo.Add(hi);
-						db.SaveChanges(true);
+						await db.HashesInfo.AddAsync(hi);
+						await db.SaveChangesAsync(true);
 						_hashesInfoStatic = hi;//temporary save to static to indicate calculation and block new calcultion threads
 
 						var alphabet = (from h in db.ThinHashes
 										select h.Key.First()
 										).Distinct()
 										.OrderBy(o => o);
-						var count = db.ThinHashes.Count();
-						var key_length = db.ThinHashes.Max(x => x.Key.Length);
+						var count = db.ThinHashes.CountAsync();
+						var key_length = db.ThinHashes.MaxAsync(x => x.Key.Length);
 
-						hi.Count = count;
-						hi.KeyLength = key_length;
+						hi.Count = await count;
+						hi.KeyLength = await key_length;
 						hi.Alphabet = string.Concat(alphabet);
 						hi.IsCalculating = false;
 
 						db.Update(hi);
-						db.SaveChanges(true);
+						await db.SaveChangesAsync(true);
 
 						trans.Commit();
 						logger.LogInformation(0, $"###Calculation of initial Hash parameters ended");

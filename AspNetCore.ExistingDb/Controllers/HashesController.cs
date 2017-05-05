@@ -37,16 +37,16 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 			if (curr_has_inf == null || (!curr_has_inf.IsCalculating && curr_has_inf.Count <= 0))
 			{
-				var task = Task.Factory.StartNew((conf) =>
+				var task = Task.Factory.StartNew(async(conf) =>
 				{
 					_logger.LogInformation(0, $"###Starting calculation thread");
 
-					HashesInfo hi = null;
+					Task<HashesInfo> hi = null;
 					lock (_locker)
 					{
 						hi = _repo.CalculateHashesInfo(_loggerFactory, _logger, (IConfiguration)conf);
 					}
-					return hi;
+					return await hi;
 				}, _configuration);
 			}
 
