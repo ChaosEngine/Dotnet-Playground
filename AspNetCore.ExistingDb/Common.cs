@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace EFGetStarted.AspNetCore.ExistingDb
 {
-	public static class ConfigurrationExtensions
+	public static class ConfigurationExtensions
 	{
 		public static string AppRootPath(this IConfiguration configuration)
 		{
