@@ -17,7 +17,7 @@ var paths = {
     minCss: webroot + "css/**/*.min.css",
     concatJsDest: webroot + "js/site.min.js",
 	concatCssDest: webroot + "css/site.min.css",
-	less: webroot + "css/**/*.less",
+	boostrapLess: webroot + "css/bootstrap.less"
 };
 
 gulp.task("clean:js", function (cb) {
@@ -38,14 +38,14 @@ gulp.task("min:js", function () {
 });
 
 gulp.task("MyBootstapColors:css", function () {
-	return gulp.src([paths.less])
+	return gulp.src([paths.boostrapLess])
 		.pipe(less())
-		.pipe(gulp.dest(webroot + "css"));
+		.pipe(cssmin())
+		.pipe(gulp.dest(webroot + "lib/bootstrap/dist/css"));
 });
 
 gulp.task("min:css", function () {
-    return gulp.src([paths.css, "!" + paths.minCss])
-		.pipe(concat(webroot + "css/bootstrap.css"))
+	return gulp.src([paths.css, "!" + paths.minCss])
         .pipe(concat(paths.concatCssDest))
 		.pipe(cssmin())
         .pipe(gulp.dest("."));
