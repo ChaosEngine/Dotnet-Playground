@@ -51,8 +51,8 @@
   <Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
     <Exec Command="npm install" />
     <Exec Command="bower install --allow-root" />
-    <Exec Command=".\node_modules\.bin\gulp clean" />
-    <Exec Command=".\node_modules\.bin\gulp min" />
+    <Exec Command="gulp clean" />
+    <Exec Command="gulp min" />
   </Target>
 
   <ItemGroup>
@@ -60,7 +60,7 @@
     <DotNetCliToolReference Include="Microsoft.Extensions.SecretManager.Tools" Version="1.0.0" />
     <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="1.0.0" />
     <DotNetCliToolReference Include="Microsoft.Extensions.Caching.SqlConfig.Tools" Version="1.1.0-preview4-final" />
-	<DotNetCliToolReference Include="Pomelo.Extensions.Caching.MySqlConfig.Tools" Version="1.0.0-preview1-final" />
+	<!--<DotNetCliToolReference Include="Pomelo.Extensions.Caching.MySqlConfig.Tools" Version="1.0.0-preview1-final" />-->
   </ItemGroup>
 
   <ItemGroup>
