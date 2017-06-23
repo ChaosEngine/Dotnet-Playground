@@ -51,4 +51,6 @@ gulp.task("min:css", function () {
         .pipe(gulp.dest("."));
 });
 
-gulp.task("min", ["min:js", "MyBootstapColors:css", "min:css"]);
+gulp.task("min", ["min:js",
+	//"MyBootstapColors:css",
+	"min:css"]);
