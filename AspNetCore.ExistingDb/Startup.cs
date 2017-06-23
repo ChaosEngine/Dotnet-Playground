@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.DataProtection;
 using AspNetCore.ExistingDb;
 using AspNetCore.ExistingDb.Repositories;
 using System.Data.Common;
+using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 
 //[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
 
@@ -117,6 +118,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		void ConfigureDependencyInjection(IServiceCollection services)
 		{
 			services.AddSingleton(Configuration);
+			services.AddSingleton<ICompilationService, CustomCompilationService>();
 			services.AddScoped<IBloggingRepository, BloggingRepository>();
 			services.AddScoped<IHashesRepository, HashesRepository>();
 		}

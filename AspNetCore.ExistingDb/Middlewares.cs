@@ -1,16 +1,21 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using EFGetStarted.AspNetCore.ExistingDb.Controllers;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.AspNetCore.Mvc.Razor.Compilation;
+using Microsoft.AspNetCore.Mvc.Razor.Internal;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
+
 
 namespace EFGetStarted.AspNetCore.ExistingDb
 {
-    public static class MiddlewareExtensions
-    {
+	public static class MiddlewareExtensions
+	{
 		public static IApplicationBuilder UseEnvironmentTitleDisplay(this IApplicationBuilder builder)
 		{
 			return builder.UseMiddleware<EnvironmentTitleDisplay>();
@@ -53,6 +58,27 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 				await context.Response.WriteAsync(newContent);
 			}
+		}
+	}
+
+	public class CustomCompilationService : DefaultRoslynCompilationService, ICompilationService
+	{
+		public CustomCompilationService(CSharpCompiler compiler,
+			IOptions<RazorViewEngineOptions> optionsAccessor,
+			IRazorViewEngineFileProviderAccessor fileProviderAccessor,
+			ILoggerFactory loggerFactory)
+			: base(compiler, fileProviderAccessor, optionsAccessor, loggerFactory)
+		{
+
+		}
+
+		CompilationResult ICompilationService.Compile(RelativeFileInfo fileInfo, string compilationContent)
+		{
+			if (fileInfo.RelativePath == "/Views/ViewCodeGenerator/Index.cshtml")
+			{
+				ViewCodeGeneratorController.CompiledViewCode = compilationContent;
+			}
+			return base.Compile(fileInfo, compilationContent);
 		}
 	}
 }
