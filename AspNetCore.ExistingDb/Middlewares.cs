@@ -60,7 +60,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			}
 		}
 	}
-
+#if DEBUG
 	public class CustomCompilationService : DefaultRoslynCompilationService, ICompilationService
 	{
 		public CustomCompilationService(CSharpCompiler compiler,
@@ -81,4 +81,5 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			return base.Compile(fileInfo, compilationContent);
 		}
 	}
+#endif
 }

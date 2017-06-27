@@ -12,10 +12,10 @@
 		<link rel="stylesheet" href="@Conf.AppRootPath()css/site.css" />
 	</environment>
 	<environment names="Staging,Production">
-		@*<link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous"
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous"
 			  asp-fallback-href="@Conf.AppRootPath()lib/bootstrap/dist/css/bootstrap.min.css"
-			  asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />*@
-		<link rel="stylesheet" href="@Conf.AppRootPath()lib/bootstrap/dist/css/bootstrap.css" asp-append-version="true" />
+			  asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
+		@*<link rel="stylesheet" href="@Conf.AppRootPath()lib/bootstrap/dist/css/bootstrap.css" asp-append-version="true" />*@
 		<link rel="stylesheet" href="@Conf.AppRootPath()css/site.min.css" asp-append-version="true" />
 	</environment>
 	@*@Html.Raw(JavaScriptSnippet.FullScript)*@
@@ -40,22 +40,24 @@
 							<li><a href="@Conf.AppRootPath()Home">Home</a></li>
 							<li><a href="@Conf.AppRootPath()Home/UnintentionalErr/">Unintentional Error</a></li>
 							@*<li><a href="#">Another action</a></li>
-							<li><a href="#">Something else here</a></li>
-							<li role="separator" class="divider"></li>
-							<li><a href="#">Separated link</a></li>
-							<li role="separator" class="divider"></li>
-							<li><a href="#">One more separated link</a></li>*@
+								<li><a href="#">Something else here</a></li>
+								<li role="separator" class="divider"></li>
+								<li><a href="#">Separated link</a></li>
+								<li role="separator" class="divider"></li>
+								<li><a href="#">One more separated link</a></li>*@
 						</ul>
 					</li>
 					<li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Blogs <span class="caret"></span></a>
 						<ul class="dropdown-menu">
 							<li><a href="@Conf.AppRootPath()Blogs">List</a></li>
-							<li><a href="@Conf.AppRootPath()Blogs/Create/">Create</a></li>							
+							<li><a href="@Conf.AppRootPath()Blogs/Create/">Create</a></li>
 						</ul>
 					</li>
 					<li><a href="@Conf.AppRootPath()Hashes">My Rainbow</a></li>
-					<li><a href="@Conf.AppRootPath()ViewCodeGenerator">ViewCodeGenerator</a></li>
+					<environment names="Development">
+						<li><a href="@Conf.AppRootPath()ViewCodeGenerator">ViewCodeGenerator</a></li>
+					</environment>
 					<li><a href="@Conf.AppRootPath()Home/About">About</a></li>
 					<li><a href="@Conf.AppRootPath()Home/Contact">Contact</a></li>
 				</ul>
@@ -72,10 +74,10 @@
 
 	<environment names="Development">
 		@*<script src="@Conf.AppRootPath()lib/jquery/dist/jquery.js"></script>
-		<script src="@Conf.AppRootPath()lib/bootstrap/dist/js/bootstrap.js"></script>*@
+			<script src="@Conf.AppRootPath()lib/bootstrap/dist/js/bootstrap.js"></script>*@
 
 		<script src="https://cdn.jsdelivr.net/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-			<script src="https://cdn.jsdelivr.net/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+		<script src="https://cdn.jsdelivr.net/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
 		<script src="@Conf.AppRootPath()js/site.js" asp-append-version="true"></script>
 	</environment>

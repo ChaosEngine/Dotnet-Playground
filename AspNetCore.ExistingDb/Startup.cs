@@ -118,7 +118,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		void ConfigureDependencyInjection(IServiceCollection services)
 		{
 			services.AddSingleton(Configuration);
+#if DEBUG
 			services.AddSingleton<ICompilationService, CustomCompilationService>();
+#endif
 			services.AddScoped<IBloggingRepository, BloggingRepository>();
 			services.AddScoped<IHashesRepository, HashesRepository>();
 		}
