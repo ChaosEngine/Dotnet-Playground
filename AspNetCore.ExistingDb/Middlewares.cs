@@ -1,16 +1,8 @@
-﻿using EFGetStarted.AspNetCore.ExistingDb.Controllers;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
-using Microsoft.AspNetCore.Mvc.Razor;
-using Microsoft.AspNetCore.Mvc.Razor.Compilation;
-using Microsoft.AspNetCore.Mvc.Razor.Internal;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System.IO;
 using System.Threading.Tasks;
-
 
 namespace EFGetStarted.AspNetCore.ExistingDb
 {
@@ -60,26 +52,4 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			}
 		}
 	}
-#if DEBUG
-	public class CustomCompilationService : DefaultRoslynCompilationService, ICompilationService
-	{
-		public CustomCompilationService(CSharpCompiler compiler,
-			IOptions<RazorViewEngineOptions> optionsAccessor,
-			IRazorViewEngineFileProviderAccessor fileProviderAccessor,
-			ILoggerFactory loggerFactory)
-			: base(compiler, fileProviderAccessor, optionsAccessor, loggerFactory)
-		{
-
-		}
-
-		CompilationResult ICompilationService.Compile(RelativeFileInfo fileInfo, string compilationContent)
-		{
-			if (fileInfo.RelativePath == "/Views/ViewCodeGenerator/Index.cshtml")
-			{
-				ViewCodeGeneratorController.CompiledViewCode = compilationContent;
-			}
-			return base.Compile(fileInfo, compilationContent);
-		}
-	}
-#endif
 }

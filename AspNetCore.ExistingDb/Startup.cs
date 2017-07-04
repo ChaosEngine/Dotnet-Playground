@@ -12,6 +12,7 @@ using AspNetCore.ExistingDb;
 using AspNetCore.ExistingDb.Repositories;
 using System.Data.Common;
 using Microsoft.AspNetCore.Mvc.Razor.Compilation;
+using Microsoft.VisualStudio.Web.CodeGeneration.Templating.Compilation;
 
 //[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
 
@@ -119,7 +120,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		{
 			services.AddSingleton(Configuration);
 #if DEBUG
-			services.AddSingleton<ICompilationService, CustomCompilationService>();
+			services.AddSingleton<ICompilationService, RoslynCompilationService>();
 #endif
 			services.AddScoped<IBloggingRepository, BloggingRepository>();
 			services.AddScoped<IHashesRepository, HashesRepository>();
