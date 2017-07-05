@@ -26,10 +26,10 @@
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.0-preview2-final" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.0.0-preview2-final" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.0.0-preview2-final" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.Design" Version="2.0.0-preview2-25149" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.Design" Version="2.0.0-preview*" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.0.0-preview2-final" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.0.0-preview2-final" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Design" Version="2.0.0-preview2-25149" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Design" Version="2.0.0-preview*" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.0.0-preview2-final" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="2.0.0-preview2-final" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0-preview2-final" />
@@ -52,10 +52,10 @@
   </Target>
 
   <ItemGroup>
-    <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="1.0.0" />
-    <DotNetCliToolReference Include="Microsoft.Extensions.SecretManager.Tools" Version="1.0.0" />
-    <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="1.0.0" />
-    <DotNetCliToolReference Include="Microsoft.Extensions.Caching.SqlConfig.Tools" Version="1.1.0-preview4-final" />
+	<DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.0-preview*" />
+	<DotNetCliToolReference Include="Microsoft.Extensions.SecretManager.Tools" Version="2.0.0-preview*" />
+	<DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="2.0.0-preview*" />
+	<DotNetCliToolReference Include="Microsoft.Extensions.Caching.SqlConfig.Tools" Version="2.0.0-preview*" />
 	<!--<DotNetCliToolReference Include="Pomelo.Extensions.Caching.MySqlConfig.Tools" Version="1.0.0-preview1-final" />-->
   </ItemGroup>
 
