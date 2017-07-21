@@ -4,4 +4,4 @@ docker run -it --rm -v $(pwd):/app --workdir /app microsoft/aspnetcore-build:2.0
 && docker build -t chaosengine/aspnetcore:2.0 . \
 && chmod 777 shared
 #
-# dotnet AspNetCore.ExistingDb.dll & sleep 2s && chmod 666 /sockets/www.sock
+# dotnet AspNetCore.ExistingDb.dll & sleep 2s && chmod 666 /sockets/www.sock && fg
