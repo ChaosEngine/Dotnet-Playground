@@ -48,72 +48,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			Configuration = builder.Build();
 		}
 
-		/// <summary>
-		/// Sets up DB kind and connection
-		/// </summary>
-		/// <returns>connection string</returns>
-		/// <param name="dbContextOpts"></param>
-		/// <param name="configuration"></param>
-		/// <param name="distributedCacheServices"></param>
-		internal static string ConfigureDBKind(DbContextOptionsBuilder dbContextOpts, IConfiguration configuration, IServiceCollection distributedCacheServices = null)
-		{
-			string conn_str;
-			switch (configuration["DBKind"]?.ToLower())
-			{
-				case "mysql":
-				case "mariadb":
-				case "maria":
-					conn_str = configuration.GetConnectionString("MySQL");
-					if (dbContextOpts != null)
-						dbContextOpts.UseMySql(conn_str);
-					if (distributedCacheServices != null)
-					{
-						distributedCacheServices.AddDistributedMySqlCache(opts =>
-						{
-							opts.ConnectionString = conn_str;
-
-							var builder = new DbConnectionStringBuilder();
-							builder.ConnectionString = conn_str;
-							opts.SchemaName = builder["database"] as string;
-
-							opts.TableName = nameof(SessionCache);
-							opts.ExpiredItemsDeletionInterval = TimeSpan.FromMinutes(30);
-						});
-					}
-					break;
-
-				case "sqlserver":
-				case "mssql":
-					conn_str = configuration.GetConnectionString("SqlServer");
-					if (dbContextOpts != null)
-						dbContextOpts.UseSqlServer(conn_str);
-					if (distributedCacheServices != null)
-					{
-						distributedCacheServices.AddDistributedSqlServerCache(opts =>
-						{
-							opts.ConnectionString = conn_str;
-							opts.SchemaName = "dbo";
-							opts.TableName = nameof(SessionCache);
-							opts.ExpiredItemsDeletionInterval = TimeSpan.FromMinutes(30);
-						});
-					}
-					break;
-
-				case "sqlite":
-					conn_str = "Filename=./Blogging.db";
-					if (dbContextOpts != null)
-						dbContextOpts.UseSqlite(conn_str);
-					break;
-
-				default:
-					throw new NotSupportedException($"Bad DBKind name");
-			}
-			return conn_str;
-		}
-
 		void ConfigureDistributedCache(IConfiguration configuration, IServiceCollection services)
 		{
-			ConfigureDBKind(null, configuration, services);
+			BloggingContextFactory.ConfigureDBKind(null, configuration, services);
 		}
 
 		void ConfigureDependencyInjection(IServiceCollection services)
@@ -133,7 +70,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 			services.AddDbContext<BloggingContext>(options =>
 			{
-				ConfigureDBKind(options, Configuration);
+				BloggingContextFactory.ConfigureDBKind(options, Configuration);
 			});
 
 			ConfigureDistributedCache(Configuration, services);

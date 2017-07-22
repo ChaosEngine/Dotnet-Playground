@@ -118,7 +118,7 @@ $@"SELECT TOP 20 * FROM (
 
 			var bc = new DbContextOptionsBuilder<BloggingContext>();
 			bc.UseLoggerFactory(loggerFactory);
-			Startup.ConfigureDBKind(bc, configuration, null);
+			BloggingContextFactory.ConfigureDBKind(bc, configuration, null);
 
 			using (var db = new BloggingContext(bc.Options))
 			{
