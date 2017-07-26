@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
@@ -28,6 +30,22 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			}
 
 			return Json(CompiledViewCode ?? "");
+		}
+
+		// GET api/values/sleep
+		[HttpGet("sleep")]
+		public string GetSleep()
+		{
+			Thread.Sleep(1000);
+			return Process.GetCurrentProcess().Threads.Count.ToString();
+		}
+
+		// GET api/values/delay
+		[HttpGet("delay")]
+		async public Task<string> GetDelay()
+		{
+			await Task.Delay(1000);
+			return Process.GetCurrentProcess().Threads.Count.ToString();
 		}
 	}
 }
