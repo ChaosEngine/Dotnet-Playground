@@ -1,0 +1,82 @@
+﻿@{
+	ViewBag.Title = "Bootstrap Table hashes";
+}
+
+<div id="toolbar" class="btn-group">
+	<div class="checkbox-inline">
+		<input type="checkbox" value="" />2 digits landcodes
+	</div>&nbsp;
+	<button id="btninfo" class="btn btn-default" type="button"><i class="glyphicon glyphicon-info-sign"></i>&nbsp;row info</button>
+</div>
+
+<div class="container-fluid">
+	<table id="table"
+		   data-unique-id="Key"
+		   data-sort-name="Key"
+		   data-sort-order="asc"
+		   data-classes="table table-condensed table-hover table-striped"
+		   data-toggle="table"
+		   data-side-pagination="server"
+		   data-url="Load"
+		   data-query-params="extraServerParams"
+		   data-pagination="true"
+		   data-show-refresh="true"
+		   data-search="true"
+		   data-toolbar="#toolbar"
+		   data-page-size="10"
+		   data-page-list="[5,10,20,50,500,2000]">
+		<thead>
+			<tr>
+				@*<th data-field="ISO2" data-sortable="false" data-halign="center" data-align="center" data-formatter="flagFormatter">Flag</th>*@
+				<th data-field="Key" data-sortable="true" data-halign="center" data-align="center">Key</th>
+				<th data-field="HashMD5" data-sortable="true">HashMD5</th>
+				<th data-field="HashSHA256" data-sortable="true">HashSHA256</th>
+			</tr>
+		</thead>
+	</table>
+</div>
+
+@section scripts
+{
+@await Html.PartialAsync("_BootstrapTablePartial")
+
+<script type="text/javascript">
+
+    function flagFormatter(value, row) {
+      return '<img src="/images/flags/' + value.toLowerCase() + '.png" >';
+    }
+
+    function extraServerParams(params) {
+      params.ExtraParam = 2;
+      return params;
+    }
+
+    function highLightRow($tr) {
+      $tr.addClass('highlight').siblings().removeClass('highlight');
+    }
+
+    function getId($element) {
+      var result = $($element).closest('tr').data('uniqueid');
+      return result;
+    }
+
+    $(document).ready(function () {
+      var $table = $('#table');
+
+      $('#btninfo').click(function () {
+        $tr = $table.find('tr.highlight');
+        var id = getId($tr);
+
+        var msg = (id === undefined) ? 'No row selected' : 'Country code : ' + id;
+        alert(msg);
+      });
+
+      // register row-click event
+      $table.on('click-row.bs.table', function ($element, row, $tr) {
+        highLightRow($tr);
+      });
+
+    });
+
+</script>
+}

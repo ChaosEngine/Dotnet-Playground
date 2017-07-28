@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace AspNetCore.ExistingDb.Repositories
@@ -32,6 +33,10 @@ namespace AspNetCore.ExistingDb.Repositories
 		where Cont : DbContext
 	{
 		protected Cont _entities;
+
+		protected static readonly IEnumerable<string> _allColumnNames =
+			typeof(Ent).GetProperties(BindingFlags.Public | BindingFlags.Instance).Select(p => p.Name).ToArray();
+
 
 		/*public Cont Context
 		{

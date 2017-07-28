@@ -8,6 +8,8 @@ using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using System.IO;
+using System.Threading;
+using System.Diagnostics;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 {
@@ -62,7 +64,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 		const string SessionKeyName = "_Name";
 		const string SessionKeyYearsMember = "_YearsMember";
 		const string SessionKeyDate = "_Date";
-		
+
 		private readonly IConfiguration _configuration;
 		private readonly ILogger<HomeController> _logger;
 
@@ -181,6 +183,70 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			}
 			var ok = Ok();
 			return await Task.FromResult(ok);
+		}
+
+		[HttpGet("Home/UnintentionalErr/sleep")]
+		//[ValidateAntiForgeryToken]
+		public string GetSleep(/*CancellationToken token*/)
+		{
+			try
+			{
+				var token = HttpContext.RequestAborted;
+				token.ThrowIfCancellationRequested();
+
+				if (token.IsCancellationRequested)
+				{
+					_logger.LogWarning("Aborted0");
+					return "0";
+				}
+
+				Thread.Sleep(1_000);
+
+				if (token.IsCancellationRequested)
+				{
+					_logger.LogWarning("Aborted1");
+					return "0";
+				}
+
+				return Process.GetCurrentProcess().Threads.Count.ToString();
+			}
+			catch (Exception ex)
+			{
+				_logger.LogWarning(ex.StackTrace);
+				throw;
+			}			
+		}
+
+		[HttpGet("Home/UnintentionalErr/delay")]
+		//[ValidateAntiForgeryToken]
+		public async Task<string> GetDelay(/*CancellationToken token*/)
+		{
+			try
+			{
+				var token = HttpContext.RequestAborted;
+				token.ThrowIfCancellationRequested();
+
+				if (token.IsCancellationRequested)
+				{
+					_logger.LogWarning("Aborted0");
+					return "0";
+				}
+
+				await Task.Delay(1_000, token);
+
+				if (token.IsCancellationRequested)
+				{
+					_logger.LogWarning("Aborted1");
+					return "0";
+				}
+
+				return Process.GetCurrentProcess().Threads.Count.ToString();
+			}
+			catch (Exception ex)
+			{
+				_logger.LogWarning(ex.StackTrace);
+				throw;
+			}
 		}
 	}
 }
