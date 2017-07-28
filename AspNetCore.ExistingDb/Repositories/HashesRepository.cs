@@ -17,9 +17,13 @@ namespace AspNetCore.ExistingDb.Repositories
 	{
 		Task<HashesInfo> CurrentHashesInfo { get; }
 
+		Task<long> TotalCountAsync();
+
 		void SetReadOnly(bool value);
 
 		Task<List<ThinHashes>> AutoComplete(string text);
+
+		Task<List<ThinHashes>> Search(string sortColumn, string sortOrderDirection, string searchText, int limitItemsPerPage, int pageNumber);
 
 		Task<HashesInfo> CalculateHashesInfo<T>(ILoggerFactory _loggerFactory, ILogger<T> _logger, IConfiguration conf) where T : Controller;
 	}
@@ -102,6 +106,65 @@ $@"SELECT TOP 20 * FROM (
 			}
 
 			return found;
+		}
+
+		public Task<List<ThinHashes>> Search(string sortColumn, string sortOrderDirection, string searchText, int limitItemsPerPage, int pageNumber)
+		{
+			Task<List<ThinHashes>> found = null;
+
+			string sql = @"
+
+SELECT [" + string.Join("],[", _allColumnNames) + @"]
+FROM Hashes" +
+(string.IsNullOrEmpty(searchText) ? "" :
+$@"
+WHERE	(
+			([Key] IS NULL OR [Key] LIKE '%{searchText}%') OR
+			(hashMD5 IS NULL OR hashMD5 LIKE '%{searchText}%') OR 
+			(hashSHA256 IS NULL OR hashSHA256 LIKE '%{searchText}%')
+		)
+") +
+@"
+ORDER BY [" + sortColumn + "] " + sortOrderDirection + @"
+OFFSET ({0} * {1}) ROWS
+FETCH NEXT {1} ROWS ONLY
+
+";
+			found = _entities.ThinHashes.FromSql(sql, pageNumber, limitItemsPerPage, searchText)
+				.DefaultIfEmpty(new ThinHashes { Key = "nothing found" })
+				.ToListAsync();
+
+			return found;
+		}
+
+		public async Task<long> TotalCountAsync()
+		{
+			var conn = _entities.Database.GetDbConnection();
+			try
+			{
+				using (var command = conn.CreateCommand())
+				{
+					var sql = @"
+SELECT CONVERT(bigint, rows)
+FROM sysindexes
+WHERE id = OBJECT_ID('" +
+
+"Hashes" +
+
+@"')
+AND indid < 2";
+
+					command.CommandText = sql;
+					await _entities.Database.OpenConnectionAsync();
+
+					var count = Convert.ToInt64(await command.ExecuteScalarAsync());
+					return count;
+				}
+			}
+			finally
+			{
+				conn.Close();
+			}
 		}
 
 		/// <summary>

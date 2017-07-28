@@ -10,9 +10,6 @@ using System.Threading.Tasks;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 {
-	/// <summary>
-	/// TODO: test knockout.js, test ApplicationInsights
-	/// </summary>
 	public class HashesController : Controller
 	{
 		private static readonly object _locker = new object();
@@ -55,7 +52,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 			ViewBag.Info = curr_has_inf;
 
-			return View();
+			return View("Index");
 		}
 
 		[HttpPost]
