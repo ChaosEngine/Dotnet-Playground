@@ -30,6 +30,36 @@
 		</p>
 		<p>
 			<button class="btn btn-danger" onclick="throw new Error('Unexpected Exception bum!!')">Throw Exception</button>
+			@*@Html.AntiForgeryToken()*@
+			<button class="btn" type="button" id="btnDelay" value="Delay" onclick="FireDelay()">Intentional Delay</button>
 		</p>
 	</div>
 </div>
+
+@section scripts
+{
+<script type="text/javascript">
+	function FireDelay() {
+		//var hedrs = { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() }
+
+		$.ajax({
+			method: "GET", url: "@Conf.AppRootPath()Home/UnintentionalErr/delay",
+			//headers: hedrs,
+			//data: { "text": "test0", "ajax": true },
+			timeout: 500,
+			success: function (response)
+			{
+				alert("success: " + response);
+			},
+			error: function (x, t, m)
+			{
+				if (t === "timeout") {
+					alert("got timeout");
+				} else {
+					alert(t);
+				}
+			}
+		});
+	}
+</script>
+}

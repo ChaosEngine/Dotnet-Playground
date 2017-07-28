@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,7 +11,7 @@ using System.Threading.Tasks;
 namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 {
 	[Route("[controller]")]
-	public class ViewCodeGeneratorController : Controller
+	public sealed class ViewCodeGeneratorController : Controller
 	{
 		public static string CompiledViewCode { get; set; }
 
@@ -30,22 +32,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			}
 
 			return Json(CompiledViewCode ?? "");
-		}
-
-		// GET api/values/sleep
-		[HttpGet("sleep")]
-		public string GetSleep()
-		{
-			Thread.Sleep(1000);
-			return Process.GetCurrentProcess().Threads.Count.ToString();
-		}
-
-		// GET api/values/delay
-		[HttpGet("delay")]
-		async public Task<string> GetDelay()
-		{
-			await Task.Delay(1000);
-			return Process.GetCurrentProcess().Threads.Count.ToString();
 		}
 	}
 }
