@@ -1,14 +1,16 @@
-﻿using EFGetStarted.AspNetCore.ExistingDb;
-using EFGetStarted.AspNetCore.ExistingDb.Models;
+﻿using EFGetStarted.AspNetCore.ExistingDb.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace AspNetCore.ExistingDb.Repositories
@@ -17,13 +19,15 @@ namespace AspNetCore.ExistingDb.Repositories
 	{
 		Task<HashesInfo> CurrentHashesInfo { get; }
 
-		Task<long> TotalCountAsync();
-
 		void SetReadOnly(bool value);
 
 		Task<List<ThinHashes>> AutoComplete(string text);
 
-		Task<List<ThinHashes>> Search(string sortColumn, string sortOrderDirection, string searchText, int limitItemsPerPage, int pageNumber);
+		Task<Tuple<List<ThinHashes>, int>> SearchSqlServerAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit);
+
+		Task<Tuple<List<ThinHashes>, int>> SearchMySqlAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit);
+
+		Task<Tuple<List<ThinHashes>, int>> SearchAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit);
 
 		Task<HashesInfo> CalculateHashesInfo<T>(ILoggerFactory _loggerFactory, ILogger<T> _logger, IConfiguration conf) where T : Controller;
 	}
@@ -39,6 +43,7 @@ namespace AspNetCore.ExistingDb.Repositories
 		/// </summary>
 		private HashesInfo _hi;
 		private static readonly object _locker = new object();
+		private readonly IConfiguration _configuration;
 
 		public Task<HashesInfo> CurrentHashesInfo
 		{
@@ -60,8 +65,9 @@ namespace AspNetCore.ExistingDb.Repositories
 			return _hashesInfoStatic;
 		}
 
-		public HashesRepository(BloggingContext context) : base(context)
+		public HashesRepository(BloggingContext context, IConfiguration configuration) : base(context)
 		{
+			_configuration = configuration;
 		}
 
 		public void SetReadOnly(bool value)
@@ -108,62 +114,233 @@ $@"SELECT TOP 20 * FROM (
 			return found;
 		}
 
-		public Task<List<ThinHashes>> Search(string sortColumn, string sortOrderDirection, string searchText, int limitItemsPerPage, int pageNumber)
+		private string WhereColumnCondition(char colNamePrefix, char colNameSuffix, string searchTextParamName = "searchText")
 		{
-			Task<List<ThinHashes>> found = null;
+			var sb = new StringBuilder(
+@"
+		(
+");
+			string comma = string.Empty;
+			foreach (var col in AllColumnNames)
+			{
+				//([Key] LIKE @searchText) OR
+				sb.AppendFormat("{0}({3}{1}{4} LIKE @{2})", comma, col, searchTextParamName, colNamePrefix, colNameSuffix);
+				comma = " OR" + Environment.NewLine;
+			}
+			sb.Append(@"
+		)
+");
+			return sb.ToString();
+		}
 
-			string sql = @"
-
-SELECT [" + string.Join("],[", _allColumnNames) + @"]
+		public async Task<Tuple<List<ThinHashes>, int>> SearchSqlServerAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit)
+		{
+			string sql =
+(string.IsNullOrEmpty(searchText) ?
+"SELECT rows FROM sysindexes WHERE id = OBJECT_ID('Hashes') AND indid < 2"
+:
+@"
+SELECT count(*) cnt
+FROM Hashes
+WHERE " + WhereColumnCondition('[', ']')
+) +
+$@";
+SELECT [{string.Join("],[", AllColumnNames)}]
 FROM Hashes" +
 (string.IsNullOrEmpty(searchText) ? "" :
 $@"
-WHERE	(
-			([Key] IS NULL OR [Key] LIKE '%{searchText}%') OR
-			(hashMD5 IS NULL OR hashMD5 LIKE '%{searchText}%') OR 
-			(hashSHA256 IS NULL OR hashSHA256 LIKE '%{searchText}%')
-		)
-") +
-@"
-ORDER BY [" + sortColumn + "] " + sortOrderDirection + @"
-OFFSET ({0} * {1}) ROWS
-FETCH NEXT {1} ROWS ONLY
+WHERE " + WhereColumnCondition('[', ']')
+) +
+$@"
+ORDER BY [{sortColumn}] {sortOrderDirection}
+OFFSET @offset ROWS
+FETCH NEXT @limit ROWS ONLY
 
 ";
-			found = _entities.ThinHashes.FromSql(sql, pageNumber, limitItemsPerPage, searchText)
-				.DefaultIfEmpty(new ThinHashes { Key = "nothing found" })
-				.ToListAsync();
 
-			return found;
-		}
-
-		public async Task<long> TotalCountAsync()
-		{
 			var conn = _entities.Database.GetDbConnection();
 			try
 			{
-				using (var command = conn.CreateCommand())
+				var found = new List<ThinHashes>();
+				int count = -1;
+
+				await conn.OpenAsync();
+				using (var cmd = conn.CreateCommand())
 				{
-					var sql = @"
-SELECT CONVERT(bigint, rows)
-FROM sysindexes
-WHERE id = OBJECT_ID('" +
+					cmd.CommandText = sql;
+					cmd.CommandTimeout = 240;
+					DbParameter parameter;
 
-"Hashes" +
+					parameter = cmd.CreateParameter();
+					parameter.ParameterName = "@offset";
+					parameter.DbType = DbType.Int32;
+					parameter.Value = offset;
+					cmd.Parameters.Add(parameter);
 
-@"')
-AND indid < 2";
+					parameter = cmd.CreateParameter();
+					parameter.ParameterName = "@limit";
+					parameter.DbType = DbType.Int32;
+					parameter.Value = limit;
+					cmd.Parameters.Add(parameter);
 
-					command.CommandText = sql;
-					await _entities.Database.OpenConnectionAsync();
+					if (!string.IsNullOrEmpty(searchText))
+					{
+						parameter = cmd.CreateParameter();
+						parameter.ParameterName = "@searchText";
+						parameter.DbType = DbType.String;
+						parameter.Size = 100;
+						parameter.Value =  /*'%' + */searchText + '%';
+						cmd.Parameters.Add(parameter);
+					}
 
-					var count = Convert.ToInt64(await command.ExecuteScalarAsync());
-					return count;
+					using (var rdr = await cmd.ExecuteReaderAsync())
+					{
+						while (await rdr.ReadAsync())
+						{
+							count = rdr.GetInt32(0);
+						}
+
+						if (count > 0 && await rdr.NextResultAsync() && rdr.HasRows)
+						{
+							while (await rdr.ReadAsync())
+							{
+								found.Add(new ThinHashes
+								{
+									Key = rdr.GetString(0),
+									HashMD5 = rdr.GetString(1),
+									HashSHA256 = rdr.GetString(2)
+								});
+							}
+						}
+						else
+						{
+							found.Add(new ThinHashes { Key = "nothing found" });
+						}
+					}
 				}
+
+				return new Tuple<List<ThinHashes>, int>(found, count);
+			}
+			catch (Exception)
+			{
+				throw;
 			}
 			finally
 			{
 				conn.Close();
+			}
+		}
+
+		public async Task<Tuple<List<ThinHashes>, int>> SearchMySqlAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit)
+		{
+			string sql =// "SET SESSION SQL_BIG_SELECTS=1;" +
+(string.IsNullOrEmpty(searchText) ?
+@"
+SELECT count(*) cnt FROM Hashes"
+:
+@"
+SELECT count(*) cnt
+FROM Hashes
+WHERE " + WhereColumnCondition('`', '`')
+) +
+$@";
+SELECT `{string.Join("`,`", AllColumnNames)}`
+FROM Hashes" +
+(string.IsNullOrEmpty(searchText) ? "" :
+$@"
+WHERE " + WhereColumnCondition('`', '`')
+) +
+$@"
+ORDER BY `{sortColumn}` {sortOrderDirection}
+LIMIT @limit OFFSET @offset
+";
+
+			using (var conn = new MySqlConnection(_configuration.GetConnectionString("MySQL")))
+			{
+				var found = new List<ThinHashes>();
+				int count = -1;
+
+				await conn.OpenAsync();
+				using (var cmd = new MySqlCommand(sql, conn))
+				{
+					cmd.CommandText = sql;
+					cmd.CommandTimeout = 240;
+					DbParameter parameter;
+
+					parameter = cmd.CreateParameter();
+					parameter.ParameterName = "@offset";
+					parameter.DbType = DbType.Int32;
+					parameter.Value = offset;
+					cmd.Parameters.Add(parameter);
+
+					parameter = cmd.CreateParameter();
+					parameter.ParameterName = "@limit";
+					parameter.DbType = DbType.Int32;
+					parameter.Value = limit;
+					cmd.Parameters.Add(parameter);
+
+					if (!string.IsNullOrEmpty(searchText))
+					{
+						parameter = cmd.CreateParameter();
+						parameter.ParameterName = "@searchText";
+						parameter.DbType = DbType.String;
+						parameter.Size = 100;
+						parameter.Value =  /*'%' + */searchText + '%';
+						cmd.Parameters.Add(parameter);
+					}
+
+					using (var rdr = await cmd.ExecuteReaderAsync())
+					{
+						while (await rdr.ReadAsync())
+						{
+							count = rdr.GetInt32(0);
+						}
+
+						if (count > 0 && await rdr.NextResultAsync() && rdr.HasRows)
+						{
+							while (await rdr.ReadAsync())
+							{
+								found.Add(new ThinHashes
+								{
+									Key = rdr.GetString(0),
+									HashMD5 = rdr.GetString(1),
+									HashSHA256 = rdr.GetString(2)
+								});
+							}
+						}
+						else
+						{
+							found.Add(new ThinHashes { Key = "nothing found" });
+						}
+					}
+				}
+
+				return new Tuple<List<ThinHashes>, int>(found, count);
+			}
+		}
+
+		public async Task<Tuple<List<ThinHashes>, int>> SearchAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit)
+		{
+			if (!string.IsNullOrEmpty(sortColumn) && !AllColumnNames.Contains(sortColumn))
+			{
+				throw new ArgumentException("bad sort column");
+			}
+			else if (!string.IsNullOrEmpty(sortOrderDirection) &&
+				   sortOrderDirection != "asc" && sortOrderDirection != "desc")
+			{
+				throw new ArgumentException("bad sort direction");
+			}
+
+			switch (BloggingContext.ConnectionTypeName)
+			{
+				case "mysqlconnection":
+					return await SearchMySqlAsync(sortColumn, sortOrderDirection, searchText, offset, limit);
+
+				case "sqlconnection":
+					return await SearchSqlServerAsync(sortColumn, sortOrderDirection, searchText, offset, limit);
+
+				default:
+					throw new NotSupportedException($"Bad {nameof(BloggingContext.ConnectionTypeName)} name");
 			}
 		}
 

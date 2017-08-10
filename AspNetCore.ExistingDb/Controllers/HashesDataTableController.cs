@@ -74,13 +74,12 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			var content = ItemsToJson(items, columnNames, sort, order, limit, offset);*/
 
 
-			var itemz = await _repo.Search(sort, order, search, limit, offset / limit);
-			var count = await _repo.TotalCountAsync();
+			var itemz = await _repo.SearchAsync(sort, order, search, offset, limit);
 
 			var result = new
 			{
-				total = count,
-				rows = itemz
+				total = itemz.Item2,
+				rows = itemz.Item1
 			};
 
 			var content = JsonConvert.SerializeObject(result, Formatting.None,

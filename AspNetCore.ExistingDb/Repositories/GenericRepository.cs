@@ -34,14 +34,18 @@ namespace AspNetCore.ExistingDb.Repositories
 	{
 		protected Cont _entities;
 
-		protected static readonly IEnumerable<string> _allColumnNames =
-			typeof(Ent).GetProperties(BindingFlags.Public | BindingFlags.Instance).Select(p => p.Name).ToArray();
-
-
 		/*public Cont Context
 		{
 			get { return _entities; }
 		}*/
+
+		protected static IEnumerable<string> AllColumnNames
+		{
+			get
+			{
+				return typeof(Ent).GetProperties(BindingFlags.Public | BindingFlags.Instance).Select(p => p.Name);
+			}
+		}
 
 		public GenericRepository(Cont context)
 		{
