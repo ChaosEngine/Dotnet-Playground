@@ -37,7 +37,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.0.0-preview2-final" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.0-preview2-final" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration" Version="2.0.0-preview2-final" />
-    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.0.0-preview3-10054" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.0.0-preview3-10055" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.0.0-preview2-final" />
     <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.0.0-preview2-final" />
     <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="2.0.0-preview2-final" />
