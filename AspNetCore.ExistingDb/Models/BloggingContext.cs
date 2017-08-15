@@ -11,8 +11,7 @@ using System.Data.Common;
 using System.IO;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Models
-{
-	
+{	
 	public class BloggingContextFactory : IDesignTimeDbContextFactory<BloggingContext>
 	{
 		/// <summary>
