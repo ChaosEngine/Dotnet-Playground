@@ -22,12 +22,8 @@ namespace AspNetCore.ExistingDb.Repositories
 		void SetReadOnly(bool value);
 
 		Task<List<ThinHashes>> AutoComplete(string text);
-
-		//Task<Tuple<List<ThinHashes>, int>> SearchSqlServerAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit);
-
-		//Task<Tuple<List<ThinHashes>, int>> SearchMySqlAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit);
-
-		Task<Tuple<List<ThinHashes>, int>> SearchAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit);
+		
+		Task<(List<ThinHashes> itemz, int count)> SearchAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit);
 
 		Task<HashesInfo> CalculateHashesInfo<T>(ILoggerFactory _loggerFactory, ILogger<T> _logger, IConfiguration conf) where T : Controller;
 	}
@@ -133,7 +129,7 @@ $@"SELECT TOP 20 * FROM (
 			return sb.ToString();
 		}
 
-		private async Task<Tuple<List<ThinHashes>, int>> SearchSqlServerAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit)
+		private async Task<(List<ThinHashes> itemz, int count)> SearchSqlServerAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit)
 		{
 			string sql =
 (string.IsNullOrEmpty(searchText) ?
@@ -219,7 +215,7 @@ FETCH NEXT @limit ROWS ONLY
 					}
 				}
 
-				return new Tuple<List<ThinHashes>, int>(found, count);
+				return (found, count);
 			}
 			catch (Exception)
 			{
@@ -231,7 +227,7 @@ FETCH NEXT @limit ROWS ONLY
 			}
 		}
 
-		private async Task<Tuple<List<ThinHashes>, int>> SearchMySqlAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit)
+		private async Task<(List<ThinHashes> itemz, int count)> SearchMySqlAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit)
 		{
 			string sql =// "SET SESSION SQL_BIG_SELECTS=1;" +
 (string.IsNullOrEmpty(searchText) ?
@@ -315,11 +311,11 @@ LIMIT @limit OFFSET @offset
 					}
 				}
 
-				return new Tuple<List<ThinHashes>, int>(found, count);
+				return (found, count);
 			}
 		}
 
-		private async Task<Tuple<List<ThinHashes>, int>> SearchSqliteAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit)
+		private async Task<(List<ThinHashes> itemz, int count)> SearchSqliteAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit)
 		{
 			string sql =
 (string.IsNullOrEmpty(searchText) ?
@@ -403,7 +399,7 @@ LIMIT @limit OFFSET @offset
 					}
 				}
 
-				return new Tuple<List<ThinHashes>, int>(found, count);
+				return (found, count);
 			}
 			catch (Exception)
 			{
@@ -415,7 +411,7 @@ LIMIT @limit OFFSET @offset
 			}
 		}
 
-		public async Task<Tuple<List<ThinHashes>, int>> SearchAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit)
+		public async Task<(List<ThinHashes> itemz, int count)> SearchAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit)
 		{
 			if (!string.IsNullOrEmpty(sortColumn) && !AllColumnNames.Contains(sortColumn))
 			{

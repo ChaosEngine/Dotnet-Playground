@@ -79,7 +79,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			{
 				// Set a short timeout for easy testing.
 				options.IdleTimeout = TimeSpan.FromMinutes(60);
-				options.CookieHttpOnly = true;
+				options.Cookie.HttpOnly = true;
 			});
 
 			// Add framework services.

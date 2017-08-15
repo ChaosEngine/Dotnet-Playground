@@ -66,7 +66,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 					break;
 
 				case "sqlite":
-					conn_str = "Filename=./Blogging.db";
+					conn_str = configuration.GetConnectionString("Sqlite");
 					if (dbContextOpts != null)
 						dbContextOpts.UseSqlite(conn_str);
 					break;
@@ -125,8 +125,16 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		{
 			if (ConnectionTypeName == null)
 			{
-				ConnectionTypeName = Database.GetDbConnection().GetType().Name.ToLower();
-				//IsMySql = ConnectionTypeName == typeof(MySqlConnection).Name.ToLower();
+				var conn = Database.GetDbConnection();
+				try
+				{
+					ConnectionTypeName = conn.GetType().Name.ToLower();
+					//IsMySql = ConnectionTypeName == typeof(MySqlConnection).Name.ToLower();
+				}
+				finally
+				{
+					conn.Close();
+				}
 			}
 		}
 
