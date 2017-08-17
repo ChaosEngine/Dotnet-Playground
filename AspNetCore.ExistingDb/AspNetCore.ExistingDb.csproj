@@ -18,8 +18,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor" Version="2.0.0" />
+    <!--
+	<PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Server.IISIntegration" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.0" />
@@ -34,15 +34,17 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration" Version="2.0.0" />
-    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.0.0-rtm-10056" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="2.0.0" />
-	<PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.7.6" />
 	<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.ViewCompilation" Version="2.0.0" />
-	<!--<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.Design" Version="2.0.0-preview1-final" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Design" Version="2.0.0-preview1-final" />-->
+	-->
+	<PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.0" />	
+	
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor" Version="2.0.0" />
+	<PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.7.6" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.0.0-rtm-10056" />
+    <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="2.0.0" />
   </ItemGroup>
 
   <Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
@@ -57,7 +59,7 @@
 	<DotNetCliToolReference Include="Microsoft.Extensions.SecretManager.Tools" Version="2.0.0" />
 	<DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="2.0.0" />
 	<DotNetCliToolReference Include="Microsoft.Extensions.Caching.SqlConfig.Tools" Version="2.0.0" />
-	<!--<DotNetCliToolReference Include="Pomelo.Extensions.Caching.MySqlConfig.Tools" Version="1.0.0-preview1-final" />-->
+	<DotNetCliToolReference Include="Pomelo.Extensions.Caching.MySqlConfig.Tools" Version="1.0.0-preview2-final" />
   </ItemGroup>
 
   <ItemGroup>
