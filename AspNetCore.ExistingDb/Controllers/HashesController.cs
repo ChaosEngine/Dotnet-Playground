@@ -34,7 +34,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 			if (curr_has_inf == null || (!curr_has_inf.IsCalculating && curr_has_inf.Count <= 0))
 			{
-				var task = Task.Factory.StartNew(async(conf) =>
+				var task = Task.Factory.StartNew(async (conf) =>
 				{
 					_logger.LogInformation(0, $"###Starting calculation thread");
 
@@ -78,15 +78,17 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 			hi.Search = hi.Search.Trim().ToLower();
 
-			var found = _repo.FindByAsync(x => ((hi.Kind == KindEnum.MD5 && x.HashMD5 == hi.Search) || (hi.Kind == KindEnum.SHA256 && x.HashSHA256 == hi.Search)));
+			var found = (await _repo.FindByAsync(x =>
+				((hi.Kind == KindEnum.MD5 && x.HashMD5 == hi.Search) || (hi.Kind == KindEnum.SHA256 && x.HashSHA256 == hi.Search))))
+				.DefaultIfEmpty(new ThinHashes { Key = "nothing found" }).FirstOrDefault();
 
 			if (ajax)
-				return Json(new Hashes((await found).FirstOrDefault(), hi));
+				return Json(new Hashes(found, hi));
 			else
 			{
 				ViewBag.Info = await _repo.CurrentHashesInfo;
 
-				return View(nameof(Index), new Hashes((await found).FirstOrDefault(), hi));
+				return View(nameof(Index), new Hashes(found, hi));
 			}
 		}
 
