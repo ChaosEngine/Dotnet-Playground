@@ -1,4 +1,4 @@
-FROM microsoft/aspnetcore:2.0
+FROM microsoft/aspnetcore
 
 ENV ASPNETCORE_URLS http://+:5000
 EXPOSE 5000
