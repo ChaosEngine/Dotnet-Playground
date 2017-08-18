@@ -5,18 +5,18 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<link rel="icon" type="image/x-icon" href="@Conf.AppRootPath()favicon.ico" />
+	<link rel="icon" type="image/x-icon" href="~/favicon.ico" />
 	<title>@ViewData["Title"] - EFGetStarted.AspNetCore.ExistingDb</title>
 	<environment names="Development">
-		<link rel="stylesheet" href="@Conf.AppRootPath()lib/bootstrap/dist/css/bootstrap.css" />
-		<link rel="stylesheet" href="@Conf.AppRootPath()css/site.css" />
+		<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+		<link rel="stylesheet" href="~/css/site.css" />
 	</environment>
 	<environment names="Staging,Production">
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous"
-			  asp-fallback-href="@Conf.AppRootPath()lib/bootstrap/dist/css/bootstrap.min.css"
+			  asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
 			  asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
-		@*<link rel="stylesheet" href="@Conf.AppRootPath()lib/bootstrap/dist/css/bootstrap.css" asp-append-version="true" />*@
-		<link rel="stylesheet" href="@Conf.AppRootPath()css/site.min.css" asp-append-version="true" />
+		@*<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" asp-append-version="true" />*@
+		<link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
 	</environment>
 	@*@Html.Raw(JavaScriptSnippet.FullScript)*@
 </head>
@@ -30,43 +30,36 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</button>
-				<a href="@Conf.AppRootPath()" class="navbar-brand" title="@Conf["DBKind"]?.ToLower()">@Environment.MachineName</a>
+				<a href="~/" class="navbar-brand" title="@Conf["DBKind"]?.ToLower()">@Environment.MachineName</a>
 			</div>
 			<div class="navbar-collapse collapse">
 				<ul class="nav navbar-nav">
 					<li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Main <span class="caret"></span></a>
 						<ul class="dropdown-menu">
-							<li><a href="@Conf.AppRootPath()Home">Home</a></li>
-							<li><a href="@Conf.AppRootPath()Home/UnintentionalErr/">Unintentional Error</a></li>
-							@*<li><a href="#">Another action</a></li>
-								<li><a href="#">Something else here</a></li>
-								<li role="separator" class="divider"></li>
-								<li><a href="#">Separated link</a></li>
-								<li role="separator" class="divider"></li>
-								<li><a href="#">One more separated link</a></li>*@
+							<li><a href="~/Home">Home</a></li>
+							<li><a href="~/Home/UnintentionalErr/">Unintentional Error</a></li>
 						</ul>
 					</li>
 					<li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Blogs <span class="caret"></span></a>
 						<ul class="dropdown-menu">
-							<li><a href="@Conf.AppRootPath()Blogs">List</a></li>
-							<li><a href="@Conf.AppRootPath()Blogs/Create/">Create</a></li>
+							<li><a href="~/Blogs">List</a></li>
+							<li><a href="~/Blogs/Create/">Create</a></li>
 						</ul>
 					</li>
-					@*<li><a href="@Conf.AppRootPath()Hashes">My Rainbow</a></li>*@
 					<li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">My Rainbow <span class="caret"></span></a>
 						<ul class="dropdown-menu">
-							<li><a href="@Conf.AppRootPath()Hashes/">Hashes</a></li>
-							<li><a href="@Conf.AppRootPath()HashesDataTable/">Hashes Data Table</a></li>
+							<li><a href="~/Hashes/">Hashes</a></li>
+							<li><a href="~/HashesDataTable/">Hashes Data Table</a></li>
 						</ul>
 					</li>
 					<environment names="Development">
-					<li><a href="@Conf.AppRootPath()ViewCodeGenerator">ViewCodeGenerator</a></li>
+					<li><a href="~/ViewCodeGenerator">ViewCodeGenerator</a></li>
 					</environment>
-					<li><a href="@Conf.AppRootPath()Home/About">About</a></li>
-					<li><a href="@Conf.AppRootPath()Home/Contact">Contact</a></li>
+					<li><a href="~/Home/About">About</a></li>
+					<li><a href="~/Home/Contact">Contact</a></li>
 				</ul>
 			</div>
 		</div>
@@ -80,24 +73,24 @@
 	</div>
 
 	<environment names="Development">
-		@*<script src="@Conf.AppRootPath()lib/jquery/dist/jquery.js"></script>
-			<script src="@Conf.AppRootPath()lib/bootstrap/dist/js/bootstrap.js"></script>*@
+		@*<script src="~/lib/jquery/dist/jquery.js"></script>
+			<script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>*@
 
 		<script src="https://cdn.jsdelivr.net/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 		<script src="https://cdn.jsdelivr.net/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
 
-		<script src="@Conf.AppRootPath()js/site.js" asp-append-version="true"></script>
+		<script src="~/js/site.js" asp-append-version="true"></script>
 	</environment>
 	<environment names="Staging,Production">
 		<script src="https://cdn.jsdelivr.net/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"
-				asp-fallback-src="@Conf.AppRootPath()lib/jquery/dist/jquery.min.js"
+				asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
 				asp-fallback-test="window.jQuery">
 		</script>
 		<script src="https://cdn.jsdelivr.net/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"
-				asp-fallback-src="@Conf.AppRootPath()lib/bootstrap/dist/js/bootstrap.min.js"
+				asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
 				asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal">
 		</script>
-		<script src="@Conf.AppRootPath()js/site.min.js" asp-append-version="true"></script>
+		<script src="~/js/site.min.js" asp-append-version="true"></script>
 	</environment>
 
 	@RenderSection("scripts", required: false)

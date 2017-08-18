@@ -1,18 +1,15 @@
-﻿using EFGetStarted.AspNetCore.ExistingDb.Models;
+﻿using AspNetCore.ExistingDb.Repositories;
+using EFGetStarted.AspNetCore.ExistingDb.Models;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.IO;
-using System;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.DataProtection;
-using AspNetCore.ExistingDb;
-using AspNetCore.ExistingDb.Repositories;
-using System.Data.Common;
-using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.VisualStudio.Web.CodeGeneration.Templating.Compilation;
+using System;
+using System.IO;
 
 //[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
 
@@ -61,6 +58,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 #endif
 			services.AddScoped<IBloggingRepository, BloggingRepository>();
 			services.AddScoped<IHashesRepository, HashesRepository>();
+			services.AddSingleton<IUrlHelperFactory, DomainUrlHelperFactory>();
 		}
 
 		// This method gets called by the runtime. Use this method to add services to the container.
