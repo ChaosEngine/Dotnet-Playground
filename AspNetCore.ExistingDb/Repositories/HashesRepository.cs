@@ -76,7 +76,7 @@ namespace AspNetCore.ExistingDb.Repositories
 			text = text.Trim().ToLower();
 			Task<List<ThinHashes>> found = null;
 
-			switch (BloggingContext.ConnectionTypeName)
+			switch (_entities.ConnectionTypeName)
 			{
 				case "sqliteconnection":
 				case "mysqlconnection":
@@ -423,7 +423,7 @@ LIMIT @limit OFFSET @offset
 				throw new ArgumentException("bad sort direction");
 			}
 
-			switch (BloggingContext.ConnectionTypeName)
+			switch (_entities.ConnectionTypeName)
 			{
 				case "mysqlconnection":
 					return await SearchMySqlAsync(sortColumn, sortOrderDirection, searchText, offset, limit);
@@ -459,7 +459,7 @@ LIMIT @limit OFFSET @offset
 			{
 				db.Database.SetCommandTimeout(180);//long long running. timeouts prevention
 												   //in sqlite only serializable - https://sqlite.org/isolation.html
-				var isolation_level = BloggingContext.ConnectionTypeName == "sqliteconnection" ? IsolationLevel.Serializable : IsolationLevel.ReadUncommitted;
+				var isolation_level = db.ConnectionTypeName == "sqliteconnection" ? IsolationLevel.Serializable : IsolationLevel.ReadUncommitted;
 				using (var trans = await db.Database.BeginTransactionAsync(isolation_level))//needed, other web nodes will read saved-caculating-state and exit thread
 				{
 					try

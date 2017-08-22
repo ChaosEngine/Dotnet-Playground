@@ -11,7 +11,7 @@ using System.Data.Common;
 using System.IO;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Models
-{	
+{
 	public class BloggingContextFactory : IDesignTimeDbContextFactory<BloggingContext>
 	{
 		/// <summary>
@@ -118,24 +118,28 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		public virtual DbSet<HashesInfo> HashesInfo { get; set; }
 
 		//public static bool IsMySql { get; private set; }
-		public static string ConnectionTypeName { get; private set; }
+		public string ConnectionTypeName
+		{
+			get
+			{
+				switch (Database.ProviderName)
+				{
+					case "Microsoft.EntityFrameworkCore.Sqlite":
+						return "sqliteconnection";
+					case "Microsoft.EntityFrameworkCore.SqlServer":
+						return "sqlconnection";
+					case "Pomelo.EntityFrameworkCore.MySql":
+						return "mysqlconnection";
+					default:
+						throw new NotSupportedException($"Bad DBKind name");
+				}
+				//IsMySql = ConnectionTypeName == typeof(MySqlConnection).Name.ToLower();
+			}
+		}
 
 		public BloggingContext(DbContextOptions<BloggingContext> options)
 			: base(options)
 		{
-			if (ConnectionTypeName == null)
-			{
-				var conn = Database.GetDbConnection();
-				try
-				{
-					ConnectionTypeName = conn.GetType().Name.ToLower();
-					//IsMySql = ConnectionTypeName == typeof(MySqlConnection).Name.ToLower();
-				}
-				finally
-				{
-					conn.Close();
-				}
-			}
 		}
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
