@@ -5,31 +5,13 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using AspNetCore.ExistingDb.Tests;
 using Xunit;
 
-namespace Tests
+namespace Blogs
 {
-	public class Blogs
+	public class BlogsRepository : BaseTests
 	{
-		async Task<(SqliteConnection, DbContextOptions<BloggingContext>)> SetupInMemoryDB()
-		{
-			var connection = new SqliteConnection("DataSource=:memory:");
-
-			await connection.OpenAsync();
-
-			var options = new DbContextOptionsBuilder<BloggingContext>()
-				.UseSqlite(connection)
-				.Options;
-
-			// Create the schema in the database
-			using (var context = new BloggingContext(options))
-			{
-				await context.Database.EnsureCreatedAsync();
-			}
-
-			return (connection, options);
-		}
-
 		[Fact]
 		public async Task Add_writes_to_database()
 		{
@@ -53,7 +35,7 @@ namespace Tests
 					Assert.Equal("http://sample.com", (await context.Blogs.SingleAsync()).Url);
 				}
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
 				throw;
 			}
@@ -89,7 +71,7 @@ namespace Tests
 					Assert.Equal(2, result.Count());
 				}
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
 				throw;
 			}
@@ -126,7 +108,7 @@ namespace Tests
 					Assert.Equal((await repository.GetAllAsync()).Count, 0);
 				}
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
 				throw;
 			}
@@ -171,7 +153,7 @@ namespace Tests
 					Assert.Equal(result.First().Url, "http://domain.com/bar");
 				}
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
 				throw;
 			}
