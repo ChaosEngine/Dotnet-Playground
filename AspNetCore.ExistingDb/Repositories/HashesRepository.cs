@@ -1,6 +1,7 @@
 ﻿using EFGetStarted.AspNetCore.ExistingDb.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
@@ -22,14 +23,15 @@ namespace AspNetCore.ExistingDb.Repositories
 		void SetReadOnly(bool value);
 
 		Task<List<ThinHashes>> AutoComplete(string text);
-		
-		Task<(List<ThinHashes> itemz, int count)> SearchAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit);
 
-		Task<HashesInfo> CalculateHashesInfo<T>(ILoggerFactory _loggerFactory, ILogger<T> _logger, IConfiguration conf) where T : Controller;
+		Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit);
+
+		Task<HashesInfo> CalculateHashesInfo(ILoggerFactory _loggerFactory, ILogger _logger, IConfiguration conf, DbContextOptions<BloggingContext> dbContextOptions);
 	}
 
 	public class HashesRepository : GenericRepository<BloggingContext, ThinHashes>, IHashesRepository
 	{
+		private const string _NOTHING_FOUND_TEXT = "nothing found";
 		/// <summary>
 		/// Used value or this specific worker node/process or load balancing server
 		/// </summary>
@@ -84,7 +86,7 @@ namespace AspNetCore.ExistingDb.Repositories
 							 where (x.HashMD5.StartsWith(text) || x.HashSHA256.StartsWith(text))
 							 select x)
 						.Take(20)
-						.DefaultIfEmpty(new ThinHashes { Key = "nothing found" })
+						.DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT })
 						.ToListAsync();
 					break;
 
@@ -99,7 +101,7 @@ $@"SELECT TOP 20 * FROM (
 	FROM {nameof(Hashes)} AS y
 	WHERE y.{nameof(Hashes.HashSHA256)} like cast(@text as varchar)
 ) a", new SqlParameter("@text", text + '%'))
-						.DefaultIfEmpty(new ThinHashes { Key = "nothing found" })
+						.DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT })
 						.ToListAsync();
 					break;
 
@@ -129,7 +131,7 @@ $@"SELECT TOP 20 * FROM (
 			return sb.ToString();
 		}
 
-		private async Task<(List<ThinHashes> itemz, int count)> SearchSqlServerAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit)
+		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchSqlServerAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit)
 		{
 			string sql =
 (string.IsNullOrEmpty(searchText) ?
@@ -157,7 +159,7 @@ FETCH NEXT @limit ROWS ONLY
 			var conn = _entities.Database.GetDbConnection();
 			try
 			{
-				var found = new List<ThinHashes>();
+				var found = new List<ThinHashes>(limit);
 				int count = -1;
 
 				await conn.OpenAsync();
@@ -210,7 +212,7 @@ FETCH NEXT @limit ROWS ONLY
 						}
 						else
 						{
-							found.Add(new ThinHashes { Key = "nothing found" });
+							found.Add(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
 						}
 					}
 				}
@@ -227,7 +229,7 @@ FETCH NEXT @limit ROWS ONLY
 			}
 		}
 
-		private async Task<(List<ThinHashes> itemz, int count)> SearchMySqlAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit)
+		private async Task<(List<ThinHashes> Itemz, int Count)> SearchMySqlAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit)
 		{
 			string sql =// "SET SESSION SQL_BIG_SELECTS=1;" +
 (string.IsNullOrEmpty(searchText) ?
@@ -253,7 +255,7 @@ LIMIT @limit OFFSET @offset
 
 			using (var conn = new MySqlConnection(_configuration.GetConnectionString("MySQL")))
 			{
-				var found = new List<ThinHashes>();
+				var found = new List<ThinHashes>(limit);
 				int count = -1;
 
 				await conn.OpenAsync();
@@ -306,7 +308,7 @@ LIMIT @limit OFFSET @offset
 						}
 						else
 						{
-							found.Add(new ThinHashes { Key = "nothing found" });
+							found.Add(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
 						}
 					}
 				}
@@ -315,7 +317,7 @@ LIMIT @limit OFFSET @offset
 			}
 		}
 
-		private async Task<(List<ThinHashes> itemz, int count)> SearchSqliteAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit)
+		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchSqliteAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit)
 		{
 			string sql =
 (string.IsNullOrEmpty(searchText) ?
@@ -341,7 +343,7 @@ LIMIT @limit OFFSET @offset
 			var conn = _entities.Database.GetDbConnection();
 			try
 			{
-				var found = new List<ThinHashes>();
+				var found = new List<ThinHashes>(limit);
 				int count = -1;
 
 				await conn.OpenAsync();
@@ -394,7 +396,7 @@ LIMIT @limit OFFSET @offset
 						}
 						else
 						{
-							found.Add(new ThinHashes { Key = "nothing found" });
+							found.Add(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
 						}
 					}
 				}
@@ -411,7 +413,7 @@ LIMIT @limit OFFSET @offset
 			}
 		}
 
-		public async Task<(List<ThinHashes> itemz, int count)> SearchAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit)
+		public async Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit)
 		{
 			if (!string.IsNullOrEmpty(sortColumn) && !AllColumnNames.Contains(sortColumn))
 			{
@@ -447,15 +449,16 @@ LIMIT @limit OFFSET @offset
 		/// <param name="logger"></param>
 		/// <param name="configuration"></param>
 		/// <returns></returns>
-		public async Task<HashesInfo> CalculateHashesInfo<T>(ILoggerFactory loggerFactory, ILogger<T> logger, IConfiguration configuration) where T : Controller
+		public async Task<HashesInfo> CalculateHashesInfo(ILoggerFactory loggerFactory, ILogger logger, IConfiguration configuration,
+			DbContextOptions<BloggingContext> dbContextOptions)
 		{
 			HashesInfo hi = null;
 
-			var bc = new DbContextOptionsBuilder<BloggingContext>();
-			bc.UseLoggerFactory(loggerFactory);
-			BloggingContextFactory.ConfigureDBKind(bc, configuration, null);
+			//var bc = new DbContextOptionsBuilder<BloggingContext>();
+			//bc.UseLoggerFactory(loggerFactory);
+			//BloggingContextFactory.ConfigureDBKind(bc, configuration, null);
 
-			using (var db = new BloggingContext(bc.Options))
+			using (var db = new BloggingContext(/*bc.Options*/dbContextOptions))
 			{
 				db.Database.SetCommandTimeout(180);//long long running. timeouts prevention
 												   //in sqlite only serializable - https://sqlite.org/isolation.html
@@ -495,9 +498,10 @@ LIMIT @limit OFFSET @offset
 						trans.Commit();
 						logger.LogInformation(0, $"###Calculation of initial Hash parameters ended");
 					}
-					catch (Exception)
+					catch (Exception ex)
 					{
 						trans.Rollback();
+						logger.LogError(ex, nameof(CalculateHashesInfo));
 						hi = null;
 					}
 					finally

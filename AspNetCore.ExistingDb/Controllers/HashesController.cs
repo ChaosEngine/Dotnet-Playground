@@ -41,7 +41,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 					Task<HashesInfo> hi = null;
 					lock (_locker)
 					{
-						hi = _repo.CalculateHashesInfo(_loggerFactory, _logger, (IConfiguration)conf);
+						var dbContextOptions = HttpContext.RequestServices.GetService(typeof(DbContextOptions<BloggingContext>)) as DbContextOptions<BloggingContext>;
+						
+						hi = _repo.CalculateHashesInfo(_loggerFactory, _logger, (IConfiguration)conf, dbContextOptions);
 					}
 					return await hi;
 				}, _configuration);

@@ -78,8 +78,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 			var result = new
 			{
-				total = found.count,
-				rows = found.itemz
+				total = found.Count,
+				rows = found.Itemz
 			};
 
 			var content = JsonConvert.SerializeObject(result, Formatting.None,

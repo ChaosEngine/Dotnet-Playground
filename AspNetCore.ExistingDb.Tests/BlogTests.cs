@@ -1,58 +1,58 @@
 using AspNetCore.ExistingDb.Repositories;
+using AspNetCore.ExistingDb.Tests;
 using EFGetStarted.AspNetCore.ExistingDb.Models;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using AspNetCore.ExistingDb.Tests;
 using Xunit;
 
 namespace Blogs
 {
-	public class BlogsRepository : BaseTests
+	public class BlogsRepository : IClassFixture<BloggingContextDBFixture>
 	{
+		BloggingContextDBFixture DBFixture { get; set; }
+
+		public BlogsRepository(BloggingContextDBFixture dBFixture)
+		{
+			DBFixture = dBFixture;
+		}
+
 		[Fact]
 		public async Task Add_writes_to_database()
 		{
-			// In-memory database only exists while the connection is open
-			var (conn, db_opts) = await SetupInMemoryDB();
 			try
 			{
 				// Run the test against one instance of the context
-				using (var context = new BloggingContext(db_opts))
+				using (var context = new BloggingContext(DBFixture.Setup.DbOpts))
 				{
 					var repository = new BloggingRepository(context);
 
-					await repository.AddAsync(new Blog { Url = "http://sample.com", BlogId = 1, Post = null });
+					await repository.AddAsync(new Blog { Url = "http://sample.com", /*BlogId = 1,*/ Post = null });
 					await repository.SaveAsync();
 				}
 
 				// Use a separate instance of the context to verify correct data was saved to database
-				using (var context = new BloggingContext(db_opts))
+				using (var context = new BloggingContext(DBFixture.Setup.DbOpts))
 				{
-					Assert.Equal(1, await context.Blogs.CountAsync());
-					Assert.Equal("http://sample.com", (await context.Blogs.SingleAsync()).Url);
+					Assert.Equal(1, await context.Blogs.CountAsync(x => x.Url == "http://sample.com"));
+
+					var repository = new BloggingRepository(context);
 				}
 			}
 			catch (Exception)
 			{
 				throw;
 			}
-			finally
-			{
-				conn.Dispose();
-			}
 		}
 
 		[Fact]
 		public async Task Find_searches_URL()
 		{
-			var (conn, db_opts) = await SetupInMemoryDB();
 			try
 			{
 				// Insert seed data into the database using one instance of the context
-				using (var context = new BloggingContext(db_opts))
+				using (var context = new BloggingContext(DBFixture.Setup.DbOpts))
 				{
 					var repository = new BloggingRepository(context);
 
@@ -63,7 +63,7 @@ namespace Blogs
 				}
 
 				// Use a clean instance of the context to run the test
-				using (var context = new BloggingContext(db_opts))
+				using (var context = new BloggingContext(DBFixture.Setup.DbOpts))
 				{
 					var repository = new BloggingRepository(context);
 					var result = await repository.FindByAsync(b => b.Url.Contains("cat"));
@@ -75,20 +75,15 @@ namespace Blogs
 			{
 				throw;
 			}
-			finally
-			{
-				conn.Dispose();
-			}
 		}
 
 		[Fact]
 		public async Task Delete_by_URL()
 		{
-			var (conn, db_opts) = await SetupInMemoryDB();
 			try
 			{
 				// Insert seed data into the database using one instance of the context
-				using (var context = new BloggingContext(db_opts))
+				using (var context = new BloggingContext(DBFixture.Setup.DbOpts))
 				{
 					var repository = new BloggingRepository(context);
 
@@ -97,47 +92,42 @@ namespace Blogs
 				}
 
 				// Use a clean instance of the context to run the test
-				using (var context = new BloggingContext(db_opts))
+				using (var context = new BloggingContext(DBFixture.Setup.DbOpts))
 				{
 					var repository = new BloggingRepository(context);
-					var result = (await repository.GetAllAsync()).First();
+					var result = (await repository.FindByAsync(x => x.Url == "http://sample.com/foobar")).FirstOrDefault();
 					repository.Delete(result);
 
 					await repository.SaveAsync();
 
-					Assert.Equal((await repository.GetAllAsync()).Count, 0);
+					Assert.Equal((await repository.FindByAsync(x => x.Url == "http://sample.com/foobar")).Count, 0);
 				}
 			}
 			catch (Exception)
 			{
 				throw;
 			}
-			finally
-			{
-				conn.Dispose();
-			}
 		}
 
 		[Fact]
 		public async Task Edit()
 		{
-			var (conn, db_opts) = await SetupInMemoryDB();
 			try
 			{
 				// Insert seed data into the database using one instance of the context
-				using (var context = new BloggingContext(db_opts))
+				using (var context = new BloggingContext(DBFixture.Setup.DbOpts))
 				{
 					var repository = new BloggingRepository(context);
 
-					await repository.AddAsync(new Blog { Url = "http://sample.com/foo" });
+					await repository.AddAsync(new Blog { Url = "http://some.address.com/foo" });
 					await repository.SaveAsync();
 				}
 
 				// Use a clean instance of the context to run the test
-				using (var context = new BloggingContext(db_opts))
+				using (var context = new BloggingContext(DBFixture.Setup.DbOpts))
 				{
 					var repository = new BloggingRepository(context);
-					var result = (await repository.FindByAsync(x => x.Url == "http://sample.com/foo")).FirstOrDefault();
+					var result = (await repository.FindByAsync(x => x.Url == "http://some.address.com/foo")).FirstOrDefault();
 					Assert.NotNull(result);
 
 					result.Url = "http://domain.com/bar";
@@ -146,20 +136,16 @@ namespace Blogs
 					await repository.SaveAsync();
 				}
 
-				using (var context = new BloggingContext(db_opts))
+				using (var context = new BloggingContext(DBFixture.Setup.DbOpts))
 				{
 					var repository = new BloggingRepository(context);
-					var result = await repository.FindByAsync(x => x.Url != null);
+					var result = await repository.FindByAsync(x => x.Url.StartsWith("http://domain.com"));
 					Assert.Equal(result.First().Url, "http://domain.com/bar");
 				}
 			}
 			catch (Exception)
 			{
 				throw;
-			}
-			finally
-			{
-				conn.Dispose();
 			}
 		}
 	}
