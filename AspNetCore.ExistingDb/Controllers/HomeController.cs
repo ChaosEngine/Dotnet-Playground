@@ -127,7 +127,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 				case "repost":
 					TempData.Add("itwas", $"Clicked something {action}");
 
-					var destination_url = _configuration.AppRootPath() + $"Home/{nameof(UnintentionalErr)}";
+					var destination_url = $"{nameof(UnintentionalErr)}";
 
 					return await Task.FromResult(Redirect(destination_url));
 

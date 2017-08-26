@@ -9,10 +9,10 @@
 		<input type="hidden" asp-for="ProtectedID" value="@Model.ProtectedID" />
 		<input asp-for="Url" value="@Model.Url" id="inp_@Model.BlogId" placeholder="Url" class="edit form-control" />
 		<input name="action" type="submit" value="@(BlogActionEnum.Edit)"
-			   formaction="@Conf.AppRootPath()Blogs/@(BlogActionEnum.Edit)/@Model.BlogId/false" 
+			   formaction="~/Blogs/@(BlogActionEnum.Edit)/@Model.BlogId/false" 
 			   class="update-case btn btn-default" />
 		<input name="action" type="submit" value="@(BlogActionEnum.Delete)"
-			   formaction="@Conf.AppRootPath()Blogs/@(BlogActionEnum.Delete)/@Model.BlogId/false"
+			   formaction="~/Blogs/@(BlogActionEnum.Delete)/@Model.BlogId/false"
 			   class="delete-case btn btn-danger" formnovalidate="formnovalidate" />
 	</form>
 </div>

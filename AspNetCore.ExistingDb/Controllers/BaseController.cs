@@ -79,13 +79,13 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 				// Apply filtering, 
 				items = items.Where(searchExpression, search, StringComparison.OrdinalIgnoreCase);
 
-				//items = items.Where(Filteradoo).AsQueryable();
+				//items = items.Where(FilteraDoo).AsQueryable();
 			}
 
 			return items;
 
 			//inner method
-			//bool Filteradoo(T arg)
+			//bool FilteraDoo(T arg)
 			//{
 			//	foreach (var col in columnNames)
 			//	{
