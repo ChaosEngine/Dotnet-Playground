@@ -116,44 +116,42 @@ $@"SELECT TOP 20 * FROM (
 		{
 			var sb = new StringBuilder(
 @"
-		(
-");
+(
+	");
 			string comma = string.Empty;
 			foreach (var col in AllColumnNames)
 			{
 				//([Key] LIKE @searchText) OR
 				sb.AppendFormat("{0}({3}{1}{4} LIKE @{2})", comma, col, searchTextParamName, colNamePrefix, colNameSuffix);
-				comma = " OR" + Environment.NewLine;
+				comma = " OR" + Environment.NewLine + '\t';
 			}
 			sb.Append(@"
-		)
+)
 ");
 			return sb.ToString();
 		}
 
 		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchSqlServerAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit)
 		{
+			string col_names = string.Join("],[", AllColumnNames);
 			string sql =
 (string.IsNullOrEmpty(searchText) ?
 "SELECT rows FROM sysindexes WHERE id = OBJECT_ID('Hashes') AND indid < 2"
 :
-@"
-SELECT count(*) cnt
+$@"
+SELECT [{col_names}]
+INTO #tempo
 FROM Hashes
-WHERE " + WhereColumnCondition('[', ']')
+WHERE {WhereColumnCondition('[', ']')};
+SELECT count(*) cnt FROM #tempo
+"
 ) +
 $@";
-SELECT [{string.Join("],[", AllColumnNames)}]
-FROM Hashes" +
-(string.IsNullOrEmpty(searchText) ? "" :
-$@"
-WHERE " + WhereColumnCondition('[', ']')
-) +
-$@"
+SELECT [{col_names}]
+FROM {(string.IsNullOrEmpty(searchText) ? "Hashes" : "#tempo")}
 ORDER BY [{sortColumn}] {sortOrderDirection}
 OFFSET @offset ROWS
 FETCH NEXT @limit ROWS ONLY
-
 ";
 
 			var conn = _entities.Database.GetDbConnection();
@@ -231,24 +229,24 @@ FETCH NEXT @limit ROWS ONLY
 
 		private async Task<(List<ThinHashes> Itemz, int Count)> SearchMySqlAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit)
 		{
+			string col_names = string.Join("`,`", AllColumnNames);
 			string sql =// "SET SESSION SQL_BIG_SELECTS=1;" +
 (string.IsNullOrEmpty(searchText) ?
 @"
 SELECT count(*) cnt FROM Hashes"
 :
-@"
-SELECT count(*) cnt
+$@"
+CREATE TEMPORARY TABLE tempo AS
+SELECT `{col_names}`
 FROM Hashes
-WHERE " + WhereColumnCondition('`', '`')
+WHERE {WhereColumnCondition('`', '`')}
+;
+SELECT count(*) cnt FROM tempo"
 ) +
 $@";
-SELECT `{string.Join("`,`", AllColumnNames)}`
-FROM Hashes" +
-(string.IsNullOrEmpty(searchText) ? "" :
-$@"
-WHERE " + WhereColumnCondition('`', '`')
-) +
-$@"
+SELECT `{col_names}`
+FROM {(string.IsNullOrEmpty(searchText) ? "Hashes" : "tempo")}
+
 ORDER BY `{sortColumn}` {sortOrderDirection}
 LIMIT @limit OFFSET @offset
 ";
@@ -319,23 +317,23 @@ LIMIT @limit OFFSET @offset
 
 		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchSqliteAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit)
 		{
+			string col_names = string.Join("],[", AllColumnNames);
 			string sql =
 (string.IsNullOrEmpty(searchText) ?
 "SELECT count(*) cnt FROM Hashes"
 :
-@"
-SELECT count(*) cnt
+$@"
+CREATE TEMPORARY TABLE tempo AS
+SELECT [{col_names}]
 FROM Hashes
-WHERE " + WhereColumnCondition('[', ']')
+WHERE {WhereColumnCondition('[', ']')}
+;
+SELECT count(*) cnt FROM tempo"
 ) +
 $@";
-SELECT [{string.Join("],[", AllColumnNames)}]
-FROM Hashes" +
-(string.IsNullOrEmpty(searchText) ? "" :
-$@"
-WHERE " + WhereColumnCondition('[', ']')
-) +
-$@"
+SELECT [{col_names}]
+FROM {(string.IsNullOrEmpty(searchText) ? "Hashes" : "tempo")}
+
 ORDER BY [{sortColumn}] {sortOrderDirection}
 LIMIT @limit OFFSET @offset
 ";
