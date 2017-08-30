@@ -3,6 +3,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AspNetCore.ExistingDb.Tests
@@ -12,6 +13,16 @@ namespace AspNetCore.ExistingDb.Tests
 		public (SqliteConnection Conn, DbContextOptions<BloggingContext> DbOpts, IConfiguration Conf) Setup
 		{
 			get; set;
+		}
+
+		public CancellationToken CancellationToken
+		{
+			get
+			{
+				CancellationTokenSource source = new CancellationTokenSource();
+				CancellationToken token = source.Token;
+				return token;
+			}
 		}
 
 		protected async Task<(SqliteConnection, DbContextOptions<BloggingContext>, IConfiguration)> SetupInMemoryDB()
@@ -43,6 +54,10 @@ namespace AspNetCore.ExistingDb.Tests
 			var db = SetupInMemoryDB();
 			db.Wait();
 			Setup = db.Result;
+			
+			//// Define the cancellation token.
+			//CancellationTokenSource source = new CancellationTokenSource();
+			//CancellationToken token = source.Token;
 		}
 
 		#region IDisposable Support

@@ -187,7 +187,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 		[HttpGet("Home/UnintentionalErr/sleep")]
 		//[ValidateAntiForgeryToken]
-		public string GetSleep(/*CancellationToken token*/)
+		public string GetSleep()
 		{
 			try
 			{
@@ -200,7 +200,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 					return "0";
 				}
 
-				Thread.Sleep(1_000);
+				Thread.Sleep(2_000);
 
 				if (token.IsCancellationRequested)
 				{
@@ -214,12 +214,12 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			{
 				_logger.LogWarning(ex.StackTrace);
 				throw;
-			}			
+			}
 		}
 
 		[HttpGet("Home/UnintentionalErr/delay")]
 		//[ValidateAntiForgeryToken]
-		public async Task<string> GetDelay(/*CancellationToken token*/)
+		public async Task<string> GetDelay()
 		{
 			try
 			{
@@ -232,7 +232,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 					return "0";
 				}
 
-				await Task.Delay(1_000, token);
+				await Task.Delay(2_000, token);
 
 				if (token.IsCancellationRequested)
 				{

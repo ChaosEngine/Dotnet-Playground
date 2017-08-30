@@ -160,7 +160,7 @@ namespace Hashes
 				using (var context = new BloggingContext(Setup.DbOpts))
 				{
 					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf);
-					var found = await repository.SearchAsync("Key", "desc", "dummy", 0, 10);
+					var found = await repository.SearchAsync("Key", "desc", "dummy", 0, 10, CancellationToken);
 					Assert.NotNull(found);
 					Assert.NotEmpty(found.Itemz);
 					Assert.Equal(found.Itemz.Count(), 1);
@@ -202,7 +202,7 @@ namespace Hashes
 				using (var context = new BloggingContext(Setup.DbOpts))
 				{
 					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf);
-					var found = await repository.SearchAsync("Key", "desc", "fake", 0, 10);
+					var found = await repository.SearchAsync("Key", "desc", "fake", 0, 10, CancellationToken);
 					Assert.NotNull(found);
 					Assert.NotEmpty(found.Itemz);
 					Assert.Equal(found.Itemz.Count(), 1);
@@ -250,7 +250,7 @@ namespace Hashes
 				using (var context = new BloggingContext(Setup.DbOpts))
 				{
 					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf);
-					var found = await repository.SearchAsync("Key", "asc", "fake", 2, 10);
+					var found = await repository.SearchAsync("Key", "asc", "fake", 2, 10, CancellationToken);
 					Assert.NotNull(found);
 					Assert.NotEmpty(found.Itemz);
 					Assert.Equal(found.Count, itemsCount);
@@ -303,7 +303,7 @@ namespace Hashes
 				using (var context = new BloggingContext(Setup.DbOpts))
 				{
 					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf);
-					var found = await repository.SearchAsync("Key", "asc", "63b347973bb99f", 2, 10);
+					var found = await repository.SearchAsync("Key", "asc", "63b347973bb99f", 2, 10, CancellationToken);
 					Assert.NotNull(found);
 					Assert.NotEmpty(found.Itemz);
 					Assert.Equal(found.Count, itemsCount);

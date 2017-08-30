@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
@@ -73,8 +74,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			// Sort the filtered items and apply paging
 			var content = ItemsToJson(items, columnNames, sort, order, limit, offset);*/
 
-
-			var found = await _repo.SearchAsync(sort, order, search, offset, limit);
+			CancellationToken token = HttpContext.RequestAborted;
+			var found = await _repo.SearchAsync(sort, order, search, offset, limit, token);
 
 			var result = new
 			{

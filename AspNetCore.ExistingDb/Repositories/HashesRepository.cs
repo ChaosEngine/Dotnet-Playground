@@ -12,6 +12,7 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AspNetCore.ExistingDb.Repositories
@@ -24,9 +25,11 @@ namespace AspNetCore.ExistingDb.Repositories
 
 		Task<List<ThinHashes>> AutoComplete(string text);
 
-		Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit);
+		Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchAsync(string sortColumn, string sortOrderDirection, string searchText,
+			int offset, int limit, CancellationToken token);
 
-		Task<HashesInfo> CalculateHashesInfo(ILoggerFactory _loggerFactory, ILogger _logger, IConfiguration conf, DbContextOptions<BloggingContext> dbContextOptions);
+		Task<HashesInfo> CalculateHashesInfo(ILoggerFactory _loggerFactory, ILogger _logger, IConfiguration conf,
+			DbContextOptions<BloggingContext> dbContextOptions);
 	}
 
 	public class HashesRepository : GenericRepository<BloggingContext, ThinHashes>, IHashesRepository
@@ -131,7 +134,8 @@ $@"SELECT TOP 20 * FROM (
 			return sb.ToString();
 		}
 
-		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchSqlServerAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit)
+		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchSqlServerAsync(string sortColumn, string sortOrderDirection,
+			string searchText, int offset, int limit, CancellationToken token)
 		{
 			string col_names = string.Join("],[", AllColumnNames);
 			string sql =
@@ -160,7 +164,7 @@ FETCH NEXT @limit ROWS ONLY
 				var found = new List<ThinHashes>(limit);
 				int count = -1;
 
-				await conn.OpenAsync();
+				await conn.OpenAsync(token);
 				using (var cmd = conn.CreateCommand())
 				{
 					cmd.CommandText = sql;
@@ -189,16 +193,16 @@ FETCH NEXT @limit ROWS ONLY
 						cmd.Parameters.Add(parameter);
 					}
 
-					using (var rdr = await cmd.ExecuteReaderAsync())
+					using (var rdr = await cmd.ExecuteReaderAsync(token))
 					{
-						while (await rdr.ReadAsync())
+						if (await rdr.ReadAsync(token))
 						{
 							count = rdr.GetInt32(0);
 						}
 
-						if (count > 0 && await rdr.NextResultAsync() && rdr.HasRows)
+						if (count > 0 && await rdr.NextResultAsync(token) && rdr.HasRows)
 						{
-							while (await rdr.ReadAsync())
+							while (await rdr.ReadAsync(token))
 							{
 								found.Add(new ThinHashes
 								{
@@ -217,7 +221,7 @@ FETCH NEXT @limit ROWS ONLY
 
 				return (found, count);
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
 				throw;
 			}
@@ -227,7 +231,8 @@ FETCH NEXT @limit ROWS ONLY
 			}
 		}
 
-		private async Task<(List<ThinHashes> Itemz, int Count)> SearchMySqlAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit)
+		private async Task<(List<ThinHashes> Itemz, int Count)> SearchMySqlAsync(string sortColumn, string sortOrderDirection, string searchText,
+			int offset, int limit, CancellationToken token)
 		{
 			string col_names = string.Join("`,`", AllColumnNames);
 			string sql =// "SET SESSION SQL_BIG_SELECTS=1;" +
@@ -256,7 +261,7 @@ LIMIT @limit OFFSET @offset
 				var found = new List<ThinHashes>(limit);
 				int count = -1;
 
-				await conn.OpenAsync();
+				await conn.OpenAsync(token);
 				using (var cmd = new MySqlCommand(sql, conn))
 				{
 					cmd.CommandText = sql;
@@ -285,16 +290,16 @@ LIMIT @limit OFFSET @offset
 						cmd.Parameters.Add(parameter);
 					}
 
-					using (var rdr = await cmd.ExecuteReaderAsync())
+					using (var rdr = await cmd.ExecuteReaderAsync(token))
 					{
-						while (await rdr.ReadAsync())
+						if (await rdr.ReadAsync(token))
 						{
 							count = rdr.GetInt32(0);
 						}
 
-						if (count > 0 && await rdr.NextResultAsync() && rdr.HasRows)
+						if (count > 0 && await rdr.NextResultAsync(token) && rdr.HasRows)
 						{
-							while (await rdr.ReadAsync())
+							while (await rdr.ReadAsync(token))
 							{
 								found.Add(new ThinHashes
 								{
@@ -315,7 +320,8 @@ LIMIT @limit OFFSET @offset
 			}
 		}
 
-		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchSqliteAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit)
+		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchSqliteAsync(string sortColumn, string sortOrderDirection,
+			string searchText, int offset, int limit, CancellationToken token)
 		{
 			string col_names = string.Join("],[", AllColumnNames);
 			string sql =
@@ -344,7 +350,7 @@ LIMIT @limit OFFSET @offset
 				var found = new List<ThinHashes>(limit);
 				int count = -1;
 
-				await conn.OpenAsync();
+				await conn.OpenAsync(token);
 				using (var cmd = conn.CreateCommand())
 				{
 					cmd.CommandText = sql;
@@ -373,16 +379,16 @@ LIMIT @limit OFFSET @offset
 						cmd.Parameters.Add(parameter);
 					}
 
-					using (var rdr = await cmd.ExecuteReaderAsync())
+					using (var rdr = await cmd.ExecuteReaderAsync(token))
 					{
-						while (await rdr.ReadAsync())
+						if (await rdr.ReadAsync(token))
 						{
 							count = rdr.GetInt32(0);
 						}
 
-						if (count > 0 && await rdr.NextResultAsync() && rdr.HasRows)
+						if (count > 0 && await rdr.NextResultAsync(token) && rdr.HasRows)
 						{
-							while (await rdr.ReadAsync())
+							while (await rdr.ReadAsync(token))
 							{
 								found.Add(new ThinHashes
 								{
@@ -411,7 +417,8 @@ LIMIT @limit OFFSET @offset
 			}
 		}
 
-		public async Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit)
+		public async Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchAsync(string sortColumn, string sortOrderDirection, string searchText,
+			int offset, int limit, CancellationToken token)
 		{
 			if (!string.IsNullOrEmpty(sortColumn) && !AllColumnNames.Contains(sortColumn))
 			{
@@ -426,13 +433,13 @@ LIMIT @limit OFFSET @offset
 			switch (_entities.ConnectionTypeName)
 			{
 				case "mysqlconnection":
-					return await SearchMySqlAsync(sortColumn, sortOrderDirection, searchText, offset, limit);
+					return await SearchMySqlAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
 
 				case "sqlconnection":
-					return await SearchSqlServerAsync(sortColumn, sortOrderDirection, searchText, offset, limit);
+					return await SearchSqlServerAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
 
 				case "sqliteconnection":
-					return await SearchSqliteAsync(sortColumn, sortOrderDirection, searchText, offset, limit);
+					return await SearchSqliteAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
 
 				default:
 					throw new NotSupportedException($"Bad {nameof(BloggingContext.ConnectionTypeName)} name");
