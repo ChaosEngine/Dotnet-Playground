@@ -3,9 +3,6 @@
 }
 
 <div id="toolbar" class="btn-group">
-	<div class="checkbox-inline">
-		<input type="checkbox" value="" />2 digits landcodes
-	</div>&nbsp;
 	<button id="btninfo" class="btn btn-default" type="button"><i class="glyphicon glyphicon-info-sign"></i>&nbsp;row info</button>
 </div>
 
@@ -36,9 +33,24 @@
 	</table>
 </div>
 
+<environment names="Development">
+@section headElements
+{
+	<link rel="stylesheet" href="~/css/bootstrap-table.css" />
+}
+</environment>
+
 @section scripts
 {
-@await Html.PartialAsync("_BootstrapTablePartial")
+<environment names="Development">
+	<script src="~/lib/bootstrap-table/dist/bootstrap-table.js"></script>
+</environment>
+<environment names="Staging,Production">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.js"
+			asp-fallback-src="~/lib/bootstrap-table/dist/bootstrap-table.min.js"
+			asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.bootstrapTable">
+	</script>
+</environment>
 
 <script type="text/javascript">
 

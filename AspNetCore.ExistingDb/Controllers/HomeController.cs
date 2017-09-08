@@ -196,23 +196,27 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 				if (token.IsCancellationRequested)
 				{
-					_logger.LogWarning("Aborted0");
-					return "0";
+					_logger.LogWarning("!!!!!!!!!!!!!!!Aborted 0");
+					return "-1";
 				}
 
 				Thread.Sleep(2_000);
 
 				if (token.IsCancellationRequested)
 				{
-					_logger.LogWarning("Aborted1");
-					return "0";
+					_logger.LogWarning("!!!!!!!!!!!!!!!Aborted 1");
+					return "-2";
 				}
 
 				return Process.GetCurrentProcess().Threads.Count.ToString();
 			}
-			catch (Exception ex)
+			catch (OperationCanceledException ex)
 			{
-				_logger.LogWarning(ex.StackTrace);
+				_logger.LogWarning(ex, $"!!!!!!!!!!!!!!!Cancelled {nameof(GetSleep)}");
+				return "-3";
+			}
+			catch (Exception)
+			{
 				throw;
 			}
 		}
@@ -228,23 +232,27 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 				if (token.IsCancellationRequested)
 				{
-					_logger.LogWarning("Aborted0");
-					return "0";
+					_logger.LogWarning("!!!!!!!!!!!!!!!Aborted 0");
+					return "-1";
 				}
 
 				await Task.Delay(2_000, token);
 
 				if (token.IsCancellationRequested)
 				{
-					_logger.LogWarning("Aborted1");
-					return "0";
+					_logger.LogWarning("!!!!!!!!!!!!!!!Aborted 1");
+					return "-2";
 				}
 
 				return Process.GetCurrentProcess().Threads.Count.ToString();
 			}
-			catch (Exception ex)
+			catch (OperationCanceledException ex)
 			{
-				_logger.LogWarning(ex.StackTrace);
+				_logger.LogWarning(ex, $"!!!!!!!!!!!!!!!Cancelled {nameof(GetDelay)}");
+				return "-3";
+			}
+			catch (Exception)
+			{
 				throw;
 			}
 		}

@@ -221,10 +221,6 @@ FETCH NEXT @limit ROWS ONLY
 
 				return (found, count);
 			}
-			catch (Exception ex)
-			{
-				throw;
-			}
 			finally
 			{
 				conn.Close();
@@ -317,7 +313,7 @@ LIMIT @limit OFFSET @offset
 				}
 
 				return (found, count);
-			}
+			}//end using
 		}
 
 		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchSqliteAsync(string sortColumn, string sortOrderDirection,
@@ -406,10 +402,6 @@ LIMIT @limit OFFSET @offset
 				}
 
 				return (found, count);
-			}
-			catch (Exception)
-			{
-				throw;
 			}
 			finally
 			{

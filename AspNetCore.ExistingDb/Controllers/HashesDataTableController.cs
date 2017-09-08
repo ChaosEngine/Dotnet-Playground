@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -21,9 +22,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 		{
 			get
 			{
-				IQueryable<ThinHashes> result = _repo.GetAll()
-					//.Take(2000)
-					;
+				IQueryable<ThinHashes> result = _repo.GetAll()/*.Take(2000)*/;
 				return result;
 			}
 		}
@@ -58,6 +57,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 		[HttpGet]
 		public async Task<IActionResult> Load(string sort, string order, string search, int limit, int offset, string extraParam)
 		{
+			#region Old code
 			// Get entity fieldnames
 			/*IEnumerable<string> columnNames = AllColumnNames;
 
@@ -73,22 +73,35 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 			// Sort the filtered items and apply paging
 			var content = ItemsToJson(items, columnNames, sort, order, limit, offset);*/
+			#endregion Old code
 
 			CancellationToken token = HttpContext.RequestAborted;
-			var found = await _repo.SearchAsync(sort, order, search, offset, limit, token);
-
-			var result = new
+			try
 			{
-				total = found.Count,
-				rows = found.Itemz
-			};
+				//await Task.Delay(2_000, token);
 
-			var content = JsonConvert.SerializeObject(result, Formatting.None,
-					new JsonSerializerSettings() { MetadataPropertyHandling = MetadataPropertyHandling.Ignore });
+				var found = await _repo.SearchAsync(sort, order, search, offset, limit, token);
 
+				var result = new
+				{
+					total = found.Count,
+					rows = found.Itemz
+				};
 
+				var content = JsonConvert.SerializeObject(result, Formatting.None,
+						new JsonSerializerSettings() { MetadataPropertyHandling = MetadataPropertyHandling.Ignore });
 
-			return Content(content, "application/json");
+				return Content(content, "application/json");
+			}
+			catch (OperationCanceledException ex)
+			{
+				_logger.LogWarning(ex, $"!!!!!!!!!!!!!!!Cancelled {nameof(Load)}::{nameof(_repo.SearchAsync)}({sort}, {order}, {search}, {offset}, {limit}, {token})");
+				return Ok();
+			}
+			catch (Exception)
+			{			
+				throw;
+			}
 		}
 	}
 }
