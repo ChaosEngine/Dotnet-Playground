@@ -1,0 +1,17 @@
+﻿<environment names="Development">
+	<script src="~/lib/crypto-js/core.js"></script>
+	<script src="~/lib/crypto-js/sha256.js"></script>
+	<script src="~/lib/crypto-js/md5.js"></script>
+</environment>
+<environment names="Staging,Production">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9/core.min.js" integrity="sha256-hV6Ff1ZbnLObO8BWHPZs1oA3aPZkX4bnnEKO4nX1sm0=" crossorigin="anonymous"
+			asp-fallback-src="~/lib/crypto-js/core.js"
+			asp-fallback-test="window.CryptoJS"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9/md5.min.js" integrity="sha256-ne5CSeojRuwauQbDd4WlvjYaqLv9PJaXSnpKBd3bpBA=" crossorigin="anonymous"
+			asp-fallback-src="~/lib/crypto-js/md5.js"
+			asp-fallback-test="window.CryptoJS.MD5"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9/sha256.min.js" integrity="sha256-MbCf/Y78OUgHK9TUlZusmdPut+Uw97JDZvpMgyymakE=" crossorigin="anonymous"
+			asp-fallback-src="~/lib/crypto-js/sha256.js"
+			asp-fallback-test="window.CryptoJS.SHA256"
+			></script>
+</environment>

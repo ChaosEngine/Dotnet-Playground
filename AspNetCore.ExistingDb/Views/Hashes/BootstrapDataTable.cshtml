@@ -28,6 +28,7 @@
 				<th data-field="Key" data-sortable="true" data-halign="center" data-align="center">Key</th>
 				<th data-field="HashMD5" data-sortable="true">HashMD5</th>
 				<th data-field="HashSHA256" data-sortable="true">HashSHA256</th>
+				<th data-field="Validate" data-sortable="false" data-halign="center" data-align="center" data-formatter="validateFormatter">Validate</th>
 			</tr>
 		</thead>
 	</table>
@@ -42,53 +43,55 @@
 
 @section scripts
 {
-<environment names="Development">
-	<script src="~/lib/bootstrap-table/dist/bootstrap-table.js"></script>
-</environment>
-<environment names="Staging,Production">
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.js"
-			asp-fallback-src="~/lib/bootstrap-table/dist/bootstrap-table.min.js"
-			asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.bootstrapTable">
+	<environment names="Development">
+		<script src="~/lib/bootstrap-table/dist/bootstrap-table.js"></script>
+	</environment>
+	<environment names="Staging,Production">
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.js" integrity="sha256-eXHLyyVI+v6X1wbfg9NB05IWqOqY4E9185nHZgeDIhg=" crossorigin="anonymous"
+				asp-fallback-src="~/lib/bootstrap-table/dist/bootstrap-table.min.js"
+				asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.bootstrapTable">
+		</script>
+	</environment>
+
+	@await Html.PartialAsync("_CryptoJSScriptsPartial")
+
+	<script type="text/javascript">
+
+		function validateFormatter(value, row) {
+			return '<button class="btn btn-warning btn-xs" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>';
+		}
+
+		function extraServerParams(params) {
+			params.ExtraParam = 2;
+			return params;
+		}
+
+		function highLightRow($tr) {
+			$tr.addClass('highlight').siblings().removeClass('highlight');
+		}
+
+		function getId($element) {
+			var result = $($element).closest('tr').data('uniqueid');
+			return result;
+		}
+
+		$(document).ready(function () {
+			var $table = $('#table');
+
+			$('#btninfo').click(function () {
+				$tr = $table.find('tr.highlight');
+				var id = getId($tr);
+
+				var msg = (id === undefined) ? 'No row selected' : 'Country code : ' + id;
+				alert(msg);
+			});
+
+			// register row-click event
+			$table.on('click-row.bs.table', function ($element, row, $tr) {
+				highLightRow($tr);
+			});
+
+		});
+
 	</script>
-</environment>
-
-<script type="text/javascript">
-
-    function flagFormatter(value, row) {
-      return '<img src="/images/flags/' + value.toLowerCase() + '.png" >';
-    }
-
-    function extraServerParams(params) {
-      params.ExtraParam = 2;
-      return params;
-    }
-
-    function highLightRow($tr) {
-      $tr.addClass('highlight').siblings().removeClass('highlight');
-    }
-
-    function getId($element) {
-      var result = $($element).closest('tr').data('uniqueid');
-      return result;
-    }
-
-    $(document).ready(function () {
-      var $table = $('#table');
-
-      $('#btninfo').click(function () {
-        $tr = $table.find('tr.highlight');
-        var id = getId($tr);
-
-        var msg = (id === undefined) ? 'No row selected' : 'Country code : ' + id;
-        alert(msg);
-      });
-
-      // register row-click event
-      $table.on('click-row.bs.table', function ($element, row, $tr) {
-        highLightRow($tr);
-      });
-
-    });
-
-</script>
 }

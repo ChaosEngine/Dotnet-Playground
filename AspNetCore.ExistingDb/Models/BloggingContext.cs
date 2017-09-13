@@ -98,7 +98,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 				.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
 				.AddJsonFile($"appsettings.{env}.json", optional: true)
 				.AddEnvironmentVariables();
-			if (env == "Development")
+			if (string.IsNullOrEmpty(env) || env == "Development")
 				builder.AddUserSecrets<Startup>();
 			var config = builder.Build();
 

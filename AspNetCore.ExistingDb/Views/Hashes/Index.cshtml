@@ -51,17 +51,22 @@
 	</div>
 </form>
 <table id="result_tab" class="table table-striped table-bordered" style='@(Model != null && !Model.Key.StartsWith("error") ? "" : "display:none")'>
-	<thead><tr><th>Key</th><th>MD5</th><th>SHA256</th></tr></thead>
+	<thead><tr><th>Key</th><th>MD5</th><th>SHA256</th><th>Validation</th></tr></thead>
 	<tbody>
 		<tr id="trFirstResult">
 			<td id="res_cel_key">@Model?.Key</td>
 			<td id="res_cel_md5">@Model?.HashMD5</td>
 			<td id="res_cel_sha256">@Model?.HashSHA256</td>
+			<td id="res_cel_clientValidate">
+				<button class="btn btn-warning btn-xs" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>
+			</td>
 		</tr>
 	</tbody>
 </table>
 @section scripts
 {
+	@await Html.PartialAsync("_CryptoJSScriptsPartial")
+
 	<script type="text/javascript">
 		var g_LastTimeOfRun = new Date().getTime();
 		$(function () {
@@ -122,7 +127,8 @@
 								var $tr = $('<tr>').append(
 									$('<td>').text(item.key),
 									$('<td>').text(item.hashMD5),
-									$('<td>').text(item.hashSHA256)
+									$('<td>').text(item.hashSHA256),
+									$('<td>').html('<button class="btn btn-warning btn-xs" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>')
 								).appendTo('#result_tab');
 								//console.log($tr.wrap('<p>').html());
 							});
@@ -190,8 +196,10 @@
 				$('#res_cel_key').text(found.key);
 				$('#res_cel_md5').text(found.hashMD5);
 				$('#res_cel_sha256').text(found.hashSHA256);
+				$('#res_cel_clientValidate').html('<button class="btn btn-warning btn-xs" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>');
 			});
 		}
+
 	</script>
 	@await Html.PartialAsync("_ValidationScriptsPartial")
 }

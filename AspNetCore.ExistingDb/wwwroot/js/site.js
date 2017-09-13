@@ -16,6 +16,22 @@ function ajaxLog(level, message, url, line, col, error) {
 	});
 };
 
+function clientValidate(button) {
+	var tr = $(button).parent().parent();
+
+	var key = tr.find("td").eq(0).text();
+	var orig_md5 = tr.find("td").eq(1).text();
+	var orig_sha = tr.find("td").eq(2).text();
+
+	md5 = CryptoJS.MD5(key);
+	sha = CryptoJS.SHA256(key);
+
+	//alert("key[" + key + ']\nMD5[' + md5 + ']\nSHA256[' + sha + ']');
+
+	tr.find("td").eq(1).html("<strong style='color:" + (md5 == orig_md5 ? "green" : "red") + "'>" + orig_md5 + "</strong>");
+	tr.find("td").eq(2).html("<strong style='color:" + (sha == orig_sha ? "green" : "red") + "'>" + orig_sha + "</strong>");
+};
+
 (function () {
 	if (window.location.pathname.indexOf("/dotnet") == 0)
 		g_AppRootPath = "/dotnet/Home/ClientsideLog";
