@@ -23,6 +23,9 @@ function clientValidate(button) {
 	var orig_md5 = tr.find("td").eq(1).text();
 	var orig_sha = tr.find("td").eq(2).text();
 
+	if (orig_md5 == '' || orig_sha == '')
+		return;
+
 	md5 = CryptoJS.MD5(key);
 	sha = CryptoJS.SHA256(key);
 

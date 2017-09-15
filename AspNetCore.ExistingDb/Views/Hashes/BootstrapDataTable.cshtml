@@ -58,7 +58,8 @@
 	<script type="text/javascript">
 
 		function validateFormatter(value, row) {
-			return '<button class="btn btn-warning btn-xs" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>';
+			return (row.HashMD5 == null || row.HashSHA256 == null) ? ''
+				: '<button class="btn btn-warning btn-xs" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>';
 		}
 
 		function extraServerParams(params) {

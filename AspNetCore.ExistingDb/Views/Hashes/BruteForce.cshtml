@@ -1,0 +1,49 @@
+﻿@{
+	ViewBag.Title = "Brute Force hashes";
+}
+@section headElements
+{
+	<style type="text/css">
+	</style>
+}
+<h1>Brute forcing hashes to plain text (with trivial strings)</h1>
+<p id="pParagraph">Based on <a target="_blank" href="http://embed.plnkr.co/mnlQ6P">http://embed.plnkr.co/mnlQ6P</a></p>
+<div id="divWorkerContainer">
+	<div class="global-message"></div>
+</div>
+@section scripts
+{
+	@await Html.PartialAsync("_CryptoJSScriptsPartial")
+	
+	<environment names="Development">
+		<script src="~/js/workers/shared.js"></script>
+		<script src="~/js/workers/main.js"></script>
+		<script type="text/javascript">
+			var libs2Load = ['../../lib/crypto-js/core.js', '../../lib/crypto-js/sha256.js', '../../lib/crypto-js/md5.js',
+				'shared.js'];
+		</script>
+	</environment>
+	<environment names="Staging,Production">
+		<script type="text/javascript">
+			var libs2Load = ['https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9/core.min.js',
+				'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9/sha256.min.js',
+				'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9/md5.min.js',
+				'shared.js'];
+		</script>
+	</environment>
+
+	<script type="text/javascript">
+		$(document).ready(function () {			
+			var passToHash = 'ilfa';
+			
+			BruteForce(window, document,
+				'divWorkerContainer',//element into which display content
+				libs2Load,
+				4,//worker count
+				'abcdefghijklmnopqrstuvwxyz0123456789',//alphabet from which to start crunching hashes
+				hash(passToHash),//hashToCrack
+				passToHash.length//pass characters length
+			);
+		});
+	</script>
+}

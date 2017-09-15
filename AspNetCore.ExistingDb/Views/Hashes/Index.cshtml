@@ -128,7 +128,8 @@
 									$('<td>').text(item.key),
 									$('<td>').text(item.hashMD5),
 									$('<td>').text(item.hashSHA256),
-									$('<td>').html('<button class="btn btn-warning btn-xs" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>')
+									$('<td>').html((item.hashMD5 == null || item.hashSHA256 == null) ? ''
+										: '<button class="btn btn-warning btn-xs" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>')
 								).appendTo('#result_tab');
 								//console.log($tr.wrap('<p>').html());
 							});
@@ -196,7 +197,8 @@
 				$('#res_cel_key').text(found.key);
 				$('#res_cel_md5').text(found.hashMD5);
 				$('#res_cel_sha256').text(found.hashSHA256);
-				$('#res_cel_clientValidate').html('<button class="btn btn-warning btn-xs" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>');
+				$('#res_cel_clientValidate').html((item.hashMD5 == null || item.hashSHA256 == null) ? ''
+					: '<button class="btn btn-warning btn-xs" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>');
 			});
 		}
 
