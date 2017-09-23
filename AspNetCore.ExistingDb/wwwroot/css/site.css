@@ -48,3 +48,7 @@ textarea {
 .navbar-inverse {
 	background-color: darkred;
 }
+
+li.dropdown:hover > .dropdown-menu {
+    display: block;
+}

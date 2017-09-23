@@ -25,7 +25,7 @@ function hash(passphrase) {
 function LazyProduct(iCharNum, strAlphabet) {
 	//this.sets = [];
 	//this.dm = [];
-	strAlphabet = strAlphabet.split("");
+	//strAlphabet = strAlphabet.split("");
 	var len = strAlphabet.length;
 
 	this.length = Math.pow(len, iCharNum);

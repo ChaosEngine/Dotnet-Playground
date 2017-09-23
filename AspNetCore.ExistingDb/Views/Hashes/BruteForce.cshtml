@@ -4,17 +4,77 @@
 @section headElements
 {
 	<style type="text/css">
+.workers {
+  color: rgba(0, 0, 0, 0.8);
+  margin-top: 20px; }
+  .workers:after {
+	content: '';
+	display: table;
+	clear: both; }
+  .workers h1 {
+	color: rgba(0, 0, 0, 0.7);
+	text-align: center;
+	text-transform: uppercase;
+	font-size: 3em;
+	letter-spacing: -1px; }
+  .workers > .global-message {
+	text-align: left;
+	margin-bottom: 2rem; }
+  .workers .worker {
+	overflow: hidden;
+	float: left;
+	width: 320px;
+	padding: 1rem;
+	margin: 0 2rem 2rem 0;
+	background-color: #d3d3d3;
+	border-radius: 10px;
+	font-size: small;
+	text-align: center;
+	opacity: 1;
+	transition: opacity 0.3s ease-out; }
+	.workers .worker.found > header {
+	  background-color: rgba(0, 114, 0, 0.5); }
+	.workers .worker.done:not(.found) {
+	  opacity: 0.4; }
+	  .workers .worker.done:not(.found) > header {
+		background-color: rgba(110, 6, 6, 0.5); }
+	.workers .worker > header {
+	  margin: -1rem -1rem 1rem -1rem;
+	  padding: 0.5rem;
+	  background-color: rgba(80, 0, 0, 0.5);
+	  color: rgba(255, 255, 255, 0.9);
+	  transition: background 0.3s ease-out; }
+	  .workers .worker > header > .title {
+		font-weight: 600;
+		font-size: 2em;
+		text-transform: uppercase; }
+	.workers .worker > .data-element {
+	  margin-bottom: 1rem; }
+	  .workers .worker > .data-element > .label {
+		font-size: 1.3em;
+		text-transform: uppercase; }
+	  .workers .worker > .data-element > .value {
+		display: block;
+
+		font-size: 1.5rem; }
+	  .workers .worker > .data-element.remaining > .value {
+		font-weight: 400;
+		font-size: 1.5rem; }
 	</style>
 }
 <h1>Brute forcing hashes to plain text (with trivial strings)</h1>
 <p id="pParagraph">Based on <a target="_blank" href="http://embed.plnkr.co/mnlQ6P">http://embed.plnkr.co/mnlQ6P</a></p>
-<div id="divWorkerContainer">
+<input id="txtHash" placeholder="hash to crack" class="form-control" style="margin-bottom: 5px" />
+<label>Alphabet</label><input id="txtAlphabet" class="form-control" style="margin-bottom: 5px" value="abcdefghijklmnopqrstuvwxyz0123456789" />
+<label>Worker count</label><select id="ddlWorkerCount"><option>1</option><option>2</option><option>4</option><option>8</option></select>
+<button type="submit" id="btnCrack" class="btn btn-warning">Crack</button>
+<div class="workers">
 	<div class="global-message"></div>
 </div>
 @section scripts
 {
 	@await Html.PartialAsync("_CryptoJSScriptsPartial")
-	
+
 	<environment names="Development">
 		<script src="~/js/workers/shared.js"></script>
 		<script src="~/js/workers/main.js"></script>
@@ -33,17 +93,44 @@
 	</environment>
 
 	<script type="text/javascript">
-		$(document).ready(function () {			
-			var passToHash = 'ilfa';
-			
-			BruteForce(window, document,
-				'divWorkerContainer',//element into which display content
-				libs2Load,
-				4,//worker count
-				'abcdefghijklmnopqrstuvwxyz0123456789',//alphabet from which to start crunching hashes
-				hash(passToHash),//hashToCrack
-				passToHash.length//pass characters length
-			);
+		var instance = null;
+
+		$(document).ready(function () {
+
+			$("#btnCrack").on("click", function (e) {
+				if(instance != null) {
+					instance.clear();
+					instance = null;
+					$("#btnCrack").text('Crack');
+					return;
+				}
+
+				var passToHash = $('#txtHash').val();
+				var alphabet = $('#txtAlphabet').val();
+				
+				if (passToHash == null || passToHash == '' || alphabet == null || alphabet == '') {
+					$('.global-message').text('nothing to decode');
+					return;
+				}
+				$("#btnCrack").text('Cancel');
+
+				var workerCount = $('#ddlWorkerCount').val();
+
+				var hashToCrack = hash(passToHash);
+				instance = new BruteForce(window, document,
+					'.workers',//element into which display content
+					libs2Load,
+					workerCount,//worker count
+					alphabet,//alphabet from which to start crunching hashes
+					hashToCrack,//hashToCrack
+					passToHash.length,//pass characters length
+					function(foundPass){
+						$("#btnCrack").text('Reset');
+					}
+				);
+				instance.clear();
+				instance.run();
+			});
 		});
 	</script>
 }

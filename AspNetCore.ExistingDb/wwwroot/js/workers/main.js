@@ -1,7 +1,8 @@
-function BruteForce(w, d, divContainerName, libsToLoad, workerCount, alphabet, hashToCrack, passCharacterLength) {
+function BruteForce(w, d, divContainerName, libsToLoad, workerCount, alphabet, hashToCrack, passCharacterLength,
+	foundAction) {
 
 	var passphraseLimit = Math.pow(alphabet.length/*10 digits*/, passCharacterLength/*number of digits*/),
-		workers = [];
+		workers = [], startTime = null;
 
 	function onError(e) {
 		updateTextContent('#pParagraph', [
@@ -59,79 +60,104 @@ function BruteForce(w, d, divContainerName, libsToLoad, workerCount, alphabet, h
 			'	<span class="value"/>' +
 			'</div>';
 
-		d.querySelector('#' + divContainerName).appendChild(element);
+		d.querySelector(divContainerName).appendChild(element);
 	}
 
 	function updateTextContent(selector, content) {
 		d.querySelector(selector).textContent = content;
 	}
 
-	updateTextContent('.global-message', 'Starting ' + workerCount +
-		' workers to brute force the SHA256 hash ' + hashToCrack + '.');
-	
-	// Splitting the limit number into pieces and distribute equally along the
-	// workers.
-	splitNumIntoRanges(passphraseLimit, workerCount).forEach(function (range, index) {
-		var worker = new Worker('../js/workers/worker.min.js');
-		createWorkerMonitor(index);
+	this.run = function () {
+		updateTextContent('.global-message', 'Starting ' + workerCount +
+			' workers to brute force the SHA256 hash ' + hashToCrack + '.');
 
-		worker.addEventListener('message', function (e) {
-			var data = JSON.parse(arrayBufferToBinaryString(e.data));
+		// Splitting the limit number into pieces and distribute equally along the
+		// workers.
+		splitNumIntoRanges(passphraseLimit, workerCount).forEach(function (range, index) {
+			var worker = new Worker('../js/workers/worker.min.js');
+			createWorkerMonitor(index);
 
-			if (data.update) {
-				// On a update we update the data of the specific worker
-				updateTextContent('#worker-' + index + ' > .passphrase > .value', data.update.passphrase);
-				updateTextContent('#worker-' + index + ' > .hash > .value', data.update.hash);
-				updateTextContent('#worker-' + index + ' > .remaining > .value', data.update.remaining);
-			}
-			else if (data.found) {
-				// If a worker found the correct hash we will set the global message and
-				// terminate all workers.
-				updateTextContent('#worker-' + index + ' > .passphrase > .value', data.found.passphrase);
-				updateTextContent('#worker-' + index + ' > .hash > .value', data.found.hash);
-				updateTextContent('#worker-' + index + ' > .remaining > .value', data.found.remaining);
+			worker.addEventListener('message', function (e) {
+				var data = JSON.parse(arrayBufferToBinaryString(e.data));
 
-				d.querySelector('#worker-' + index).classList.add('found');
-				updateTextContent('.global-message', 'Worker ' + index +
-					' found the passphrase ' + data.found.passphrase + ' within ' +
-					data.found.timeSpent + 'ms!');
+				if (data.update) {
+					// On a update we update the data of the specific worker
+					updateTextContent('#worker-' + index + ' > .passphrase > .value', data.update.passphrase);
+					updateTextContent('#worker-' + index + ' > .hash > .value', data.update.hash);
+					updateTextContent('#worker-' + index + ' > .remaining > .value', data.update.remaining);
+				}
+				else if (data.found) {
+					// If a worker found the correct hash we will set the global message and
+					// terminate all workers.
+					updateTextContent('#worker-' + index + ' > .passphrase > .value', data.found.passphrase);
+					updateTextContent('#worker-' + index + ' > .hash > .value', data.found.hash);
+					updateTextContent('#worker-' + index + ' > .remaining > .value', data.found.remaining);
 
-				// Terminate all workers
-				workers.forEach(function (w) {
-					// Worker.terminate() to interrupt the web worker
-					w.terminate();
-					// Add done class to all worker elements
-					toArray(d.querySelectorAll('.worker')).forEach(function (e) {
-						e.classList.add('done');
+					d.querySelector('#worker-' + index).classList.add('found');
+					updateTextContent('.global-message', 'Worker ' + index +
+						' found the passphrase ' + data.found.passphrase + ' within ' +
+						(new Date().getTime() - startTime.getTime()) + 'ms!');
+
+					// Terminate all workers
+					workers.forEach(function (w) {
+						// Worker.terminate() to interrupt the web worker
+						w.terminate();
+						// Add done class to all worker elements
+						toArray(d.querySelectorAll('.worker')).forEach(function (e) {
+							e.classList.add('done');
+						});
 					});
-				});
+					workers = [];
 
-			}
-			else if (data.done) {
-				// If a worker is done before we found a result lets update the data and
-				// style.
-				updateTextContent('#worker-' + index + ' > .passphrase > .value', data.done.passphrase);
-				updateTextContent('#worker-' + index + ' > .hash > .value', data.done.hash);
-				updateTextContent('#worker-' + index + ' > .remaining > .value', '0');
-				d.querySelector('#worker-' + index).classList.add('done');
-			}
+					if(foundAction!=null && typeof(foundAction)!= undefined)
+					{
+						foundAction(data.found.passphrase);
+					}
+				}
+				else if (data.done) {
+					// If a worker is done before we found a result lets update the data and
+					// style.
+					updateTextContent('#worker-' + index + ' > .passphrase > .value', data.done.passphrase);
+					updateTextContent('#worker-' + index + ' > .hash > .value', data.done.hash);
+					updateTextContent('#worker-' + index + ' > .remaining > .value', '0');
+					d.querySelector('#worker-' + index).classList.add('done');
+				}
+			});
+			worker.addEventListener('error', onError, false);
+
+			// Start the worker with a postMessage and pass the parameters
+			var cmd = {
+				libsToLoad: libsToLoad,
+				hash: hashToCrack,
+				range: range,
+				alphabet: alphabet,
+				passCharacterLength: passCharacterLength,
+				updateRate: 200
+			};
+			var buff = binaryStringToArrayBuffer(JSON.stringify(cmd));
+			worker.postMessage(buff, [buff]);
+
+			// Push into the global workers array so we have controll later on
+			workers.push(worker);
 		});
-		worker.addEventListener('error', onError, false);
 
-		// Start the worker with a postMessage and pass the parameters
-		var cmd = {
-			libsToLoad: libsToLoad,
-			hash: hashToCrack,
-			range: range,
-			alphabet: alphabet,
-			passCharacterLength: passCharacterLength,
-			updateRate: 200
-		};
-		var buff = binaryStringToArrayBuffer(JSON.stringify(cmd));
-		worker.postMessage(buff, [buff]);
+		startTime = new Date();
+	}
 
-		// Push into the global workers array so we have controll later on
-		workers.push(worker);
-	});
+	this.clear = function () {
+		startTime = null;
 
-};
+		workers.forEach(function (w) {
+			// Worker.terminate() to interrupt the web worker
+			w.terminate();
+		});
+
+		workers = [];
+
+		toArray(d.querySelectorAll('.worker')).forEach(function (node) {
+			node.parentNode.removeChild(node);
+		});
+
+		updateTextContent('.global-message', '');
+	}
+}
