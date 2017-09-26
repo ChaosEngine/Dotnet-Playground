@@ -1,17 +1,33 @@
 ﻿<environment names="Development">
+	<script type="text/javascript">
+		var libs2Load = ['../../lib/crypto-js/core.js', '../../lib/crypto-js/sha256.js', '../../lib/crypto-js/md5.js',
+			'shared.js'];
+	</script>
 	<script src="~/lib/crypto-js/core.js"></script>
 	<script src="~/lib/crypto-js/sha256.js"></script>
 	<script src="~/lib/crypto-js/md5.js"></script>
 </environment>
 <environment names="Staging,Production">
+	<script type="text/javascript">
+		var libs2Load = [];
+	</script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9/core.min.js" integrity="sha256-hV6Ff1ZbnLObO8BWHPZs1oA3aPZkX4bnnEKO4nX1sm0=" crossorigin="anonymous"
 			asp-fallback-src="~/lib/crypto-js/core.js"
-			asp-fallback-test="window.CryptoJS"></script>
+			asp-fallback-test="(window.CryptoJS && libs2Load.push('https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9/core.min.js'))"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9/md5.min.js" integrity="sha256-ne5CSeojRuwauQbDd4WlvjYaqLv9PJaXSnpKBd3bpBA=" crossorigin="anonymous"
 			asp-fallback-src="~/lib/crypto-js/md5.js"
-			asp-fallback-test="window.CryptoJS.MD5"></script>
+			asp-fallback-test="(window.CryptoJS.MD5 && libs2Load.push('https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9/md5.min.js'))"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9/sha256.min.js" integrity="sha256-MbCf/Y78OUgHK9TUlZusmdPut+Uw97JDZvpMgyymakE=" crossorigin="anonymous"
 			asp-fallback-src="~/lib/crypto-js/sha256.js"
-			asp-fallback-test="window.CryptoJS.SHA256"
+			asp-fallback-test="(window.CryptoJS.SHA256 && libs2Load.push('https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9/sha256.min.js'))"
 			></script>
+	<script type="text/javascript">
+		if(libs2Load.length <= 0)
+		{
+			libs2Load = ['../../lib/crypto-js/core.js', '../../lib/crypto-js/sha256.js', '../../lib/crypto-js/md5.js',
+				'shared.js'];
+		}
+		else
+			libs2Load.push('shared.js');
+	</script>
 </environment>

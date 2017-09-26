@@ -66,7 +66,7 @@
 <p id="pParagraph">Based on <a target="_blank" href="http://embed.plnkr.co/mnlQ6P">http://embed.plnkr.co/mnlQ6P</a></p>
 <input id="txtHash" placeholder="hash to crack" class="form-control" style="margin-bottom: 5px" />
 <label>Alphabet</label><input id="txtAlphabet" class="form-control" style="margin-bottom: 5px" value="abcdefghijklmnopqrstuvwxyz0123456789" />
-<label>Worker count</label><select id="ddlWorkerCount"><option>1</option><option>2</option><option>4</option><option>8</option></select>
+<label>Worker count&nbsp;</label><select id="ddlWorkerCount"><option>1</option><option>2</option><option>4</option><option>8</option></select>
 <button type="submit" id="btnCrack" class="btn btn-warning">Crack</button>
 <div class="workers">
 	<div class="global-message"></div>
@@ -78,18 +78,6 @@
 	<environment names="Development">
 		<script src="~/js/workers/shared.js"></script>
 		<script src="~/js/workers/main.js"></script>
-		<script type="text/javascript">
-			var libs2Load = ['../../lib/crypto-js/core.js', '../../lib/crypto-js/sha256.js', '../../lib/crypto-js/md5.js',
-				'shared.js'];
-		</script>
-	</environment>
-	<environment names="Staging,Production">
-		<script type="text/javascript">
-			var libs2Load = ['https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9/core.min.js',
-				'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9/sha256.min.js',
-				'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9/md5.min.js',
-				'shared.js'];
-		</script>
 	</environment>
 
 	<script type="text/javascript">
