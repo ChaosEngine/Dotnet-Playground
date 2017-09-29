@@ -1,4 +1,4 @@
-function BruteForce(w, d, divContainerName, libsToLoad, workerCount, alphabet, hashToCrack, passCharacterLength,
+function BruteForce(w, d, divContainerName, libsToLoad, workerCount, updateRate, alphabet, hashToCrack, passCharacterLength,
 	foundAction) {
 
 	var passphraseLimit = Math.pow(alphabet.length/*10 digits*/, passCharacterLength/*number of digits*/),
@@ -132,7 +132,7 @@ function BruteForce(w, d, divContainerName, libsToLoad, workerCount, alphabet, h
 				range: range,
 				alphabet: alphabet,
 				passCharacterLength: passCharacterLength,
-				updateRate: 200
+				updateRate: updateRate
 			};
 			var buff = binaryStringToArrayBuffer(JSON.stringify(cmd));
 			worker.postMessage(buff, [buff]);

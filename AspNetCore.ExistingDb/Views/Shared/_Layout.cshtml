@@ -21,7 +21,12 @@
 	@*@Html.Raw(JavaScriptSnippet.FullScript)*@
 </head>
 <body>
-	<div class="navbar navbar-inverse navbar-fixed-top">
+	<environment names="Development">
+		<div class="navbar navbar-inverse navbar-fixed-top" style="background-color: darkslateblue">
+	</environment>
+	<environment names="Staging,Production">
+		<div class="navbar navbar-inverse navbar-fixed-top" style="background-color: darkred">
+	</environment>
 		<div class="container">
 			<div class="navbar-header">
 				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">

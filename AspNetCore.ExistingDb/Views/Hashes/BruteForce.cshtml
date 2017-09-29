@@ -67,6 +67,7 @@
 <input id="txtHash" placeholder="hash to crack" class="form-control" style="margin-bottom: 5px" />
 <label>Alphabet</label><input id="txtAlphabet" class="form-control" style="margin-bottom: 5px" value="abcdefghijklmnopqrstuvwxyz0123456789" />
 <label>Worker count&nbsp;</label><select id="ddlWorkerCount"><option>1</option><option>2</option><option>4</option><option>8</option></select>
+<label>Update rate&nbsp;</label><select id="ddlUpdateRate"><option>20</option><option>100</option><option>200</option><option>500</option></select> ms
 <button type="submit" id="btnCrack" class="btn btn-warning">Crack</button>
 <div class="workers">
 	<div class="global-message"></div>
@@ -103,12 +104,14 @@
 				$("#btnCrack").text('Cancel');
 
 				var workerCount = $('#ddlWorkerCount').val();
+				var updateRate = $('#ddlUpdateRate').val();
 
 				var hashToCrack = hash(passToHash);
 				instance = new BruteForce(window, document,
 					'.workers',//element into which display content
 					libs2Load,
 					workerCount,//worker count
+					updateRate,
 					alphabet,//alphabet from which to start crunching hashes
 					hashToCrack,//hashToCrack
 					passToHash.length,//pass characters length
