@@ -26,10 +26,12 @@ function clientValidate(button) {
 	if (orig_md5 == '' || orig_sha == '')
 		return;
 
-	md5 = CryptoJS.MD5(key);
-	sha = CryptoJS.SHA256(key);
-
-	//alert("key[" + key + ']\nMD5[' + md5 + ']\nSHA256[' + sha + ']');
+	var md = forge.md.md5.create();
+	md.update(key);
+	md5 = md.digest().toHex();
+	md = forge.md.sha256.create();
+	md.update(key);
+	sha = md.digest().toHex();
 
 	tr.find("td").eq(1).html("<strong style='color:" + (md5 == orig_md5 ? "green" : "red") + "'>" + orig_md5 + "</strong>");
 	tr.find("td").eq(2).html("<strong style='color:" + (sha == orig_sha ? "green" : "red") + "'>" + orig_sha + "</strong>");

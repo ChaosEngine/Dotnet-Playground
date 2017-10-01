@@ -16,26 +16,33 @@ function binaryStringToArrayBuffer(bin) {
 	return buf;
 }
 
+// md.update('The quick brown fox jumps over the lazy dog');
+// console.log(md.digest().toHex());
+// output: d7a8fbb307d7809469ca9abcb0082e4f8d5651e46d3cdb762d02d0bf37c9e592
+
 // Standard hashing function that uses SHA256
 function hash(passphrase) {
-	var hash = CryptoJS.SHA256(passphrase)
-	return hash.toString();
+	//var hash = CryptoJS.SHA256(passphrase)
+	//return hash.toString();
+	
+	var md = forge.md.sha256.create();
+	md.update(passphrase);
+	return md.digest().toHex();
 }
 
 function LazyProduct(iCharNum, strAlphabet) {
-	//this.sets = [];
-	//this.dm = [];
-	//strAlphabet = strAlphabet.split("");
 	var len = strAlphabet.length;
 
 	this.length = Math.pow(len, iCharNum);
-
+	chars = [];
+	
 	this.item = function (n) {
-		for (var c = [], i = iCharNum; i--;) {
+		for (var i = iCharNum; i--;) {
 			var power = Math.pow(len, i);
 
-			c[i] = strAlphabet[(n / power << 0) % len];
+			// ~~ is double bitwise NOT making it truncate decimal to integer
+			chars[iCharNum - i] = strAlphabet[~~(n / power) % len];
 		}
-		return c.join('');
-	};
+		return chars.join('');
+	}
 }
