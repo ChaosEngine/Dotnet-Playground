@@ -15,8 +15,8 @@ namespace AspNetCore.ExistingDb.Repositories
 	{
 		//Cont Context { get; }
 
-		EntityEntry<Ent> Add(Ent entity);
-		Task<EntityEntry<Ent>> AddAsync(Ent entity);
+		Ent Add(Ent entity);
+		Task<Ent> AddAsync(Ent entity);
 		Task AddRangeAsync(IEnumerable<Ent> entities);
 		void Delete(Ent entity);
 		void DeleteRange(IEnumerable<Ent> entities);
@@ -85,14 +85,16 @@ namespace AspNetCore.ExistingDb.Repositories
 			return await query;
 		}
 
-		public virtual EntityEntry<Ent> Add(Ent entity)
+		public virtual Ent Add(Ent entity)
 		{
-			return _entities.Set<Ent>().Add(entity);
+			var ent_entry = _entities.Set<Ent>().Add(entity);
+			return ent_entry.Entity;
 		}
 
-		public virtual async Task<EntityEntry<Ent>> AddAsync(Ent entity)
+		public virtual async Task<Ent> AddAsync(Ent entity)
 		{
-			return await _entities.Set<Ent>().AddAsync(entity);
+			var ent_entry = await _entities.Set<Ent>().AddAsync(entity);
+			return ent_entry.Entity;
 		}
 
 		public virtual Task AddRangeAsync(IEnumerable<Ent> entities)

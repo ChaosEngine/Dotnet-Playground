@@ -11,8 +11,19 @@ using System.Threading.Tasks;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 {
+	/// <summary>
+	/// For testing
+	/// </summary>
+	public interface IBlogsController : IDisposable
+	{
+		IActionResult Create();
+		Task<ActionResult> Create(Blog blog);
+		Task<IActionResult> Index();
+		Task<ActionResult> ItemAction(DecoratedBlog blog, bool ajax, BlogActionEnum action = BlogActionEnum.Unknown);
+	}
+
 	[Route("[controller]")]
-	public class BlogsController : Controller
+	public class BlogsController : Controller, IBlogsController
 	{
 		private readonly ILogger<BlogsController> _logger;
 		private readonly IConfiguration _configuration;

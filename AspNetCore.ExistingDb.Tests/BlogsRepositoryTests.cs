@@ -36,8 +36,6 @@ namespace Blogs
 				using (var context = new BloggingContext(DBFixture.Setup.DbOpts))
 				{
 					Assert.Equal(1, await context.Blogs.CountAsync(x => x.Url == "http://sample.com"));
-
-					var repository = new BloggingRepository(context);
 				}
 			}
 			catch (Exception)
@@ -100,7 +98,7 @@ namespace Blogs
 
 					await repository.SaveAsync();
 
-					Assert.Equal((await repository.FindByAsync(x => x.Url == "http://sample.com/foobar")).Count, 0);
+					Assert.Empty((await repository.FindByAsync(x => x.Url == "http://sample.com/foobar")));
 				}
 			}
 			catch (Exception)
@@ -140,7 +138,7 @@ namespace Blogs
 				{
 					var repository = new BloggingRepository(context);
 					var result = await repository.FindByAsync(x => x.Url.StartsWith("http://domain.com"));
-					Assert.Equal(result.First().Url, "http://domain.com/bar");
+					Assert.Equal("http://domain.com/bar", result.First().Url);
 				}
 			}
 			catch (Exception)

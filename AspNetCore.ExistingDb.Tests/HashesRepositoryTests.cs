@@ -66,7 +66,7 @@ namespace Hashes
 					var found = await repository.FindByAsync(x => x.HashSHA256 == "63b347973bb99fed9277b33cb4646b205e9a31331acfa574add3d2351f445e43");
 					Assert.NotNull(found);
 					Assert.NotEmpty(found);
-					Assert.Equal(found.First().Key, "alamakota");
+					Assert.Equal("alamakota", found.First().Key);
 				}
 			}
 			catch (Exception)
@@ -107,7 +107,7 @@ namespace Hashes
 					var found = await repository.AutoComplete("NOEXIST");
 					Assert.NotNull(found);
 					Assert.NotEmpty(found);
-					Assert.Equal(found.First().Key, "nothing found");
+					Assert.Equal("nothing found", found.First().Key);
 
 					found = await repository.AutoComplete("fake");
 					Assert.NotNull(found);
@@ -161,10 +161,10 @@ namespace Hashes
 				{
 					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf);
 					var found = await repository.SearchAsync("Key", "desc", "dummy", 0, 10, CancellationToken);
-					Assert.NotNull(found);
+					Assert.Equal(0, found.Count);
 					Assert.NotEmpty(found.Itemz);
-					Assert.Equal(found.Itemz.Count(), 1);
-					Assert.Equal(found.Itemz.First().Key, "nothing found");
+					Assert.True(1 == found.Itemz.Count());
+					Assert.Equal("nothing found", found.Itemz.First().Key);
 				}
 			}
 			catch (Exception)
@@ -203,10 +203,10 @@ namespace Hashes
 				{
 					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf);
 					var found = await repository.SearchAsync("Key", "desc", "fake", 0, 10, CancellationToken);
-					Assert.NotNull(found);
+					Assert.True(found.Count > 0);
 					Assert.NotEmpty(found.Itemz);
-					Assert.Equal(found.Itemz.Count(), 1);
-					Assert.Equal(found.Itemz.First().Key, "fakefakef");
+					Assert.True(1 == found.Itemz.Count());
+					Assert.Equal("fakefakef", found.Itemz.First().Key);
 				}
 			}
 			catch (Exception)
@@ -251,12 +251,12 @@ namespace Hashes
 				{
 					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf);
 					var found = await repository.SearchAsync("Key", "asc", "fake", 2, 10, CancellationToken);
-					Assert.NotNull(found);
+					Assert.True(found.Count > 0);
 					Assert.NotEmpty(found.Itemz);
 					Assert.Equal(found.Count, itemsCount);
-					Assert.Equal(found.Itemz.Count(), 10);
-					Assert.Equal(found.Itemz.First().Key, "fakefakef_10");
-					Assert.Equal(found.Itemz.First().HashSHA256, "fakefakefakefakefakefakefakefakefakefakefakefakefakefakefakefake_10");
+					Assert.Equal(10, found.Itemz.Count());
+					Assert.Equal("fakefakef_10", found.Itemz.First().Key);
+					Assert.Equal("fakefakefakefakefakefakefakefakefakefakefakefakefakefakefakefake_10", found.Itemz.First().HashSHA256);
 				}
 			}
 			catch (Exception)
@@ -304,12 +304,12 @@ namespace Hashes
 				{
 					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf);
 					var found = await repository.SearchAsync("Key", "asc", "63b347973bb99f", 2, 10, CancellationToken);
-					Assert.NotNull(found);
+					Assert.True(found.Count > 0);
 					Assert.NotEmpty(found.Itemz);
 					Assert.Equal(found.Count, itemsCount);
-					Assert.Equal(found.Itemz.Count(), 10);
-					Assert.Equal(found.Itemz.First().Key, "alamakota_10");
-					Assert.Equal(found.Itemz.First().HashSHA256, "63b347973bb99fed9277b33cb4646b205e9a31331acfa574add3d2351f445e43_10");
+					Assert.Equal(10, found.Itemz.Count());
+					Assert.Equal("alamakota_10", found.Itemz.First().Key);
+					Assert.Equal("63b347973bb99fed9277b33cb4646b205e9a31331acfa574add3d2351f445e43_10", found.Itemz.First().HashSHA256);
 				}
 			}
 			catch (Exception)
@@ -369,10 +369,10 @@ namespace Hashes
 					var res1 = await repository.CalculateHashesInfo(factory, logger, Setup.Conf, Setup.DbOpts);
 
 					Assert.Same(res0, res1);
-					Assert.Equal(res0.Alphabet, "abc");
-					Assert.Equal(res0.Count, 300);
-					Assert.Equal(res0.IsCalculating, false);
-					Assert.Equal(res0.KeyLength, 12);
+					Assert.Equal("abc", res0.Alphabet);
+					Assert.Equal(300, res0.Count);
+					Assert.False(res0.IsCalculating);
+					Assert.Equal(12, res0.KeyLength);
 
 					var expected = await repository.CurrentHashesInfo;
 
