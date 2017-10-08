@@ -1,14 +1,17 @@
 ﻿using EFGetStarted.AspNetCore.ExistingDb.Models;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace AspNetCore.ExistingDb.Tests
 {
-	public abstract class BaseTests : IDisposable
+	public abstract class BaseRepositoryTests : IDisposable
 	{
 		public (SqliteConnection Conn, DbContextOptions<BloggingContext> DbOpts, IConfiguration Conf) Setup
 		{
@@ -49,12 +52,12 @@ namespace AspNetCore.ExistingDb.Tests
 			return (connection, options, config);
 		}
 
-		public BaseTests()
+		public BaseRepositoryTests()
 		{
 			var db = SetupInMemoryDB();
 			db.Wait();
 			Setup = db.Result;
-			
+
 			//// Define the cancellation token.
 			//CancellationTokenSource source = new CancellationTokenSource();
 			//CancellationToken token = source.Token;
@@ -98,10 +101,49 @@ namespace AspNetCore.ExistingDb.Tests
 		#endregion
 	}
 
-	public class BloggingContextDBFixture : BaseTests, IDisposable
+	public class BloggingContextDBFixture : BaseRepositoryTests, IDisposable
 	{
 		public BloggingContextDBFixture() : base()
 		{
+		}
+	}
+
+	public class BaseControllerTest
+	{
+		protected ILoggerFactory LoggerFactory { get; private set; }
+
+		protected IConfiguration Configuration { get; private set; }
+
+		protected IDataProtectionProvider DataProtectionProvider { get; private set; }
+
+		protected IConfiguration CreateConfiguration()
+		{
+			var builder = new ConfigurationBuilder()
+				//.SetBasePath("wwww")
+				.AddJsonFile(@"..\..\AspNetCore.ExistingDb\appsettings.json", optional: true, reloadOnChange: true)
+				//.AddJsonFile($@"..\..\AspNetCore.ExistingDb\appsettings.{env.EnvironmentName}.json", optional: true)
+				.AddEnvironmentVariables();
+			//if (env.IsDevelopment())
+			//	builder.AddUserSecrets<Startup>();
+			return builder.Build();
+		}
+
+		protected void SetupServices()
+		{
+			var serviceCollection = new ServiceCollection()
+				.AddLogging();
+			serviceCollection.AddDataProtection();
+
+			var serviceProvider = serviceCollection.BuildServiceProvider();
+
+			var factory = serviceProvider.GetService<ILoggerFactory>();
+			LoggerFactory = factory;
+
+			var protection = serviceProvider.GetService<IDataProtectionProvider>();
+			DataProtectionProvider = protection;
+
+			var configuration = CreateConfiguration();
+			Configuration = configuration;
 		}
 	}
 }

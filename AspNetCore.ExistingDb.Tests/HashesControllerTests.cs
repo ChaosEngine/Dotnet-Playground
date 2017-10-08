@@ -1,0 +1,412 @@
+﻿using AspNetCore.ExistingDb.Repositories;
+using AspNetCore.ExistingDb.Tests;
+using EFGetStarted.AspNetCore.ExistingDb.Controllers;
+using EFGetStarted.AspNetCore.ExistingDb.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
+using Xunit;
+
+namespace Controllers
+{
+	public class HashesControllerTests : BaseControllerTest
+	{
+		static string Sha256(string value)
+		{
+			StringBuilder sb = new StringBuilder();
+			using (var hash = SHA256.Create())
+			{
+				Encoding enc = Encoding.UTF8;
+				Byte[] result = hash.ComputeHash(enc.GetBytes(value));
+				foreach (Byte b in result)
+					sb.Append(b.ToString("x2"));
+			}
+			return sb.ToString();
+		}
+
+		static string MD5(string value)
+		{
+			StringBuilder sb = new StringBuilder();
+			using (var hash = System.Security.Cryptography.MD5.Create())
+			{
+				Encoding enc = Encoding.UTF8;
+				Byte[] result = hash.ComputeHash(enc.GetBytes(value));
+				foreach (Byte b in result)
+					sb.Append(b.ToString("x2"));
+			}
+			return sb.ToString();
+		}
+
+		private static Moq.Mock<IHashesRepository> MockHashesRepository()
+		{
+			var mock = new Moq.Mock<IHashesRepository>();
+			string ilfad = "ilfad", alphabet = "abcdefghijklmopqrstuvwxyz";
+			var hashes = new List<ThinHashes>(3)
+			{
+				new ThinHashes
+				{
+					Key = ilfad ,
+					HashMD5 = MD5(ilfad ),
+					HashSHA256 = Sha256(ilfad )
+				}
+			};
+			ThinHashes to_add = null;
+			HashesInfo hi = new HashesInfo
+			{
+				ID = 0,
+				IsCalculating = true
+			};
+
+			mock.Setup(r => r.SetReadOnly(Moq.It.IsAny<bool>()));
+
+			mock.Setup(r => r.CalculateHashesInfo(Moq.It.IsAny<ILoggerFactory>(), Moq.It.IsAny<ILogger>(),
+				Moq.It.IsAny<IConfiguration>(), Moq.It.IsAny<DbContextOptions<BloggingContext>>()))
+				.Returns(() =>
+				{
+					return Task.FromResult(hi);
+				})
+				.Callback(() =>
+				{
+					hi.ID = 0;
+					hi.Alphabet = alphabet;
+					hi.Count = (int)Math.Pow(alphabet.Length, ilfad.Length);
+					hi.IsCalculating = false;
+					hi.KeyLength = ilfad.Length;
+				});
+
+			mock.SetupGet(r => r.CurrentHashesInfo).Returns(() =>
+			{
+				return Task.FromResult(hi);
+			});
+
+			mock.Setup(r => r.FindByAsync(Moq.It.IsAny<Expression<Func<ThinHashes, bool>>>())).Returns<Expression<Func<ThinHashes, bool>>>((s) =>
+			{
+				var expr = s.Compile();
+				var found = hashes.Where(h => expr.Invoke(h)).ToList();
+				return Task.FromResult(found);
+			});
+
+			mock.Setup(r => r.AutoComplete(Moq.It.IsAny<string>())).Returns<string>((s) =>
+			{
+				var found = hashes.Where(h =>
+					h.HashMD5.ToLowerInvariant().StartsWith(s) || h.HashSHA256.ToLowerInvariant().StartsWith(s) || h.Key.ToLowerInvariant().StartsWith(s))
+					.DefaultIfEmpty(new ThinHashes { Key = "nothing found" })
+					.ToList();
+
+				return Task.FromResult(found);
+			});
+
+			mock.Setup(r => r.AddRangeAsync(Moq.It.IsAny<IEnumerable<ThinHashes>>())).Returns<IEnumerable<ThinHashes>>((s) =>
+			{
+				hashes.AddRange(s);
+
+				return Task.FromResult(0);
+			});
+
+			return mock;
+		}
+
+		public HashesControllerTests() : base()
+		{
+			SetupServices();
+		}
+
+		[Fact]
+		public async Task Index()
+		{
+			// Arrange
+			Moq.Mock<IHashesRepository> mock = MockHashesRepository();
+			IHashesRepository repository = mock.Object;
+			var logger = LoggerFactory.CreateLogger<HashesController>();
+
+			using (IHashesController controller = new HashesController(repository, LoggerFactory, Configuration))
+			{
+				// Act
+				var result = await controller.Index();
+				await repository.CalculateHashesInfo(LoggerFactory, logger, Configuration,
+					new Moq.Mock<DbContextOptions<BloggingContext>>().Object);
+
+				// Assert
+				Assert.NotNull(result);
+
+				Assert.IsType<ViewResult>(result);
+				Assert.Null(((ViewResult)result).Model);
+				Assert.Equal("Index", ((ViewResult)result).ViewName);
+
+				var chi = await repository.CurrentHashesInfo;
+				Assert.False(chi.IsCalculating);
+				Assert.True(chi.Count > 0);
+			}
+		}
+
+		[Fact]
+		public async Task Search_FOUND()
+		{
+			// Arrange
+			Moq.Mock<IHashesRepository> mock = MockHashesRepository();
+			IHashesRepository repository = mock.Object;
+
+			using (IHashesController controller = new HashesController(repository, LoggerFactory, Configuration))
+			{
+				// Act
+				var result = await controller.Search(new HashInput
+				{
+					Kind = KindEnum.MD5,
+					Search = "b25319faaaea0bf397b2bed872b78c45",
+				}, true);
+
+				// Assert
+				Assert.IsType<JsonResult>(result);
+				Assert.IsType<Hashes>(((JsonResult)result).Value);
+				Assert.Equal("ilfad", ((Hashes)((JsonResult)result).Value).Key);
+				Assert.Equal("b25319faaaea0bf397b2bed872b78c45", ((Hashes)((JsonResult)result).Value).HashMD5);
+				Assert.Equal("1b3d50ffed54e382f06578f5f917ae948ed38e3db2c66ca6e5d07809ba50fe39", ((Hashes)((JsonResult)result).Value).HashSHA256);
+
+				// Act
+				result = await controller.Search(new HashInput
+				{
+					Kind = KindEnum.SHA256,
+					Search = "1b3d50ffed54e382f06578f5f917ae948ed38e3db2c66ca6e5d07809ba50fe39",
+				}, true);
+
+				// Assert
+				Assert.IsType<JsonResult>(result);
+				Assert.IsType<Hashes>(((JsonResult)result).Value);
+				Assert.Equal("ilfad", ((Hashes)((JsonResult)result).Value).Key);
+				Assert.Equal("b25319faaaea0bf397b2bed872b78c45", ((Hashes)((JsonResult)result).Value).HashMD5);
+				Assert.Equal("1b3d50ffed54e382f06578f5f917ae948ed38e3db2c66ca6e5d07809ba50fe39", ((Hashes)((JsonResult)result).Value).HashSHA256);
+			}
+		}
+
+		[Fact]
+		public async Task Search_NOTFOUND()
+		{
+			// Arrange
+			Moq.Mock<IHashesRepository> mock = MockHashesRepository();
+			IHashesRepository repository = mock.Object;
+
+			using (IHashesController controller = new HashesController(repository, LoggerFactory, Configuration))
+			{
+				// Act
+				var result = await controller.Search(new HashInput
+				{
+					Kind = KindEnum.MD5,
+					Search = "notfoundnotfoundnotfoundnotfound",
+				}, true);
+
+				// Assert
+				Assert.IsType<JsonResult>(result);
+				Assert.IsType<Hashes>(((JsonResult)result).Value);
+				Assert.Equal("nothing found", ((Hashes)((JsonResult)result).Value).Key);
+				Assert.Null(((Hashes)((JsonResult)result).Value).HashMD5);
+				Assert.Null(((Hashes)((JsonResult)result).Value).HashSHA256);
+
+				// Act
+				result = await controller.Search(new HashInput
+				{
+					Kind = KindEnum.SHA256,
+					Search = "badbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadbadb",
+				}, true);
+
+				// Assert
+				Assert.IsType<JsonResult>(result);
+				Assert.IsType<Hashes>(((JsonResult)result).Value);
+				Assert.Equal("nothing found", ((Hashes)((JsonResult)result).Value).Key);
+				Assert.Null(((Hashes)((JsonResult)result).Value).HashMD5);
+				Assert.Null(((Hashes)((JsonResult)result).Value).HashSHA256);
+			}
+		}
+
+		[Fact]
+		public async Task InvalidSearch()
+		{
+			// Arrange
+			Moq.Mock<IHashesRepository> mock = MockHashesRepository();
+			IHashesRepository repository = mock.Object;
+
+			using (IHashesController controller = new HashesController(repository, LoggerFactory, Configuration))
+			{
+				// Act
+				((Controller)controller).ModelState.AddModelError("Hash lenght", "Hash lenght is bad");
+				var result = await controller.Search(new HashInput
+				{
+					Kind = KindEnum.MD5,
+					Search = "too_short",
+				}, true);
+
+				// Assert
+				Assert.IsType<JsonResult>(result);
+				Assert.IsType<string>(((JsonResult)result).Value);
+				Assert.Equal("error", ((JsonResult)result).Value);
+			}
+			using (IHashesController controller = new HashesController(repository, LoggerFactory, Configuration))
+			{
+				// Act
+				((Controller)controller).ModelState.AddModelError("Hash lenght", "Hash lenght is bad");
+				var result = await controller.Search(new HashInput
+				{
+					Kind = KindEnum.SHA256,
+					Search = "",//empty
+				}, true);
+
+				// Assert
+				Assert.IsType<JsonResult>(result);
+				Assert.IsType<string>(((JsonResult)result).Value);
+				Assert.Equal("error", ((JsonResult)result).Value);
+			}
+			using (IHashesController controller = new HashesController(repository, LoggerFactory, Configuration))
+			{
+				// Act
+				((Controller)controller).ModelState.AddModelError("Hash lenght", "Hash lenght is bad");
+				var result = await controller.Search(new HashInput
+				{
+					Kind = KindEnum.SHA256,
+					Search = null,//null not allowed
+				}, true);
+
+				// Assert
+				Assert.IsType<JsonResult>(result);
+				Assert.IsType<string>(((JsonResult)result).Value);
+				Assert.Equal("error", ((JsonResult)result).Value);
+			}
+			using (IHashesController controller = new HashesController(repository, LoggerFactory, Configuration))
+			{
+				// Act
+				((Controller)controller).ModelState.AddModelError("Hash lenght and type", "Hash lenght is bad and type is bad");
+				var result = await controller.Search(new HashInput
+				{
+				}, true);
+
+				// Assert
+				Assert.IsType<JsonResult>(result);
+				Assert.IsType<string>(((JsonResult)result).Value);
+				Assert.Equal("error", ((JsonResult)result).Value);
+			}
+		}
+
+		[Fact]
+		public async Task Autocomplete()
+		{
+			// Arrange
+			Moq.Mock<IHashesRepository> mock = MockHashesRepository();
+			IHashesRepository repository = mock.Object;
+
+			await repository.AddRangeAsync(new[]
+			{
+				new ThinHashes { Key = "aaaaa", HashMD5 = "594f803b380a41396ed63dca39503542", HashSHA256 = "ed968e840d10d2d313a870bc131a4e2c311d7ad09bdf32b3418147221f51a6e2" },
+				new ThinHashes { Key = "aaaab", HashMD5 = "11649b4394d09e4aba132ad49bd1e7db", HashSHA256 = "5ef1b1016a260f0c229c5b24afe87fe24a68b4c80f6f89535b87e0ca72a08623" },
+				new ThinHashes { Key = "aaaac", HashMD5 = "16a08135a7d44b3d6beac2d84f9067c6", HashSHA256 = "b3a7dc940ffbb84720f62ede7fc0c59303210e259a5c4c4c85bfc26fb5f04f4d" },
+				new ThinHashes { Key = "aaaad", HashMD5 = "fba2fdaf36fdf1931d552535a57eb984", HashSHA256 = "d0977789a5e2f79fdfbb4b1dbb342d90c88eeae3d3c68297a3a3027c859af2ee" },
+				new ThinHashes { Key = "aaaae", HashMD5 = "85732438767e17f34cea6e206d2af366", HashSHA256 = "63a094f96b7b890fe1cf798f57465e2f9ab494408564cbf39fcdef159d8697b2" },
+				new ThinHashes { Key = "aaaaf", HashMD5 = "148a38bed87a7ddececcdc4dd6a6bb30", HashSHA256 = "06c7c8965b8d5621946c0fe1c80078002c1659c7b6348aaec9be583bf47dac9f" },
+				new ThinHashes { Key = "aaaag", HashMD5 = "47ce81bbe7521737555cfbd39e7b6a5e", HashSHA256 = "078b6ba3284302811de5c4a3778a4df5107062f3b8acfb7d0c3705e448a9d761" },
+				new ThinHashes { Key = "aaaah", HashMD5 = "ea467513aad73f1820e7e4c8488980b0", HashSHA256 = "eca3e47db80d2151296cf4002c3390c956a50f91bcc156046a949af3aa9ffa58" },
+				new ThinHashes { Key = "aaaai", HashMD5 = "65aa471507524e7dde675f0a22ed1287", HashSHA256 = "968c120f2e95ad42b09d289bed97c0db5eb0e21778f87eba48bd044d4534ca25" },
+				new ThinHashes { Key = "aaaaj", HashMD5 = "2f52f7168f84e23ea79b9c2ef8d67657", HashSHA256 = "c739af85522b45884bf66294b05fee2efbce602003657ecc4d3df82c9311629a" },
+			});
+
+			using (IHashesController controller = new HashesController(repository, LoggerFactory, Configuration))
+			{
+				// Act
+				var result = await controller.Autocomplete("ilfad", true);
+
+				// Assert
+				Assert.IsType<JsonResult>(result);
+				Assert.IsType<List<ThinHashes>>(((JsonResult)result).Value);
+				var lst = ((List<ThinHashes>)((JsonResult)result).Value);
+				Assert.NotNull(lst);
+				Assert.NotEmpty(lst);
+				Assert.True(1 == lst.Count);
+				Assert.Contains(lst, l => l.Key == "ilfad");
+
+
+				// Act
+				result = await controller.Autocomplete("ilf", true);
+
+				// Assert
+				Assert.IsType<JsonResult>(result);
+				Assert.IsType<List<ThinHashes>>(((JsonResult)result).Value);
+				lst = ((List<ThinHashes>)((JsonResult)result).Value);
+				Assert.NotNull(lst);
+				Assert.NotEmpty(lst);
+				Assert.True(1 == lst.Count);
+				Assert.Contains(lst, l => l.Key == "ilfad");
+
+
+				// Act
+				result = await controller.Autocomplete("empty", true);
+
+				// Assert
+				Assert.IsType<JsonResult>(result);
+				Assert.IsType<List<ThinHashes>>(((JsonResult)result).Value);
+				lst = ((List<ThinHashes>)((JsonResult)result).Value);
+				Assert.NotNull(lst);
+				Assert.NotEmpty(lst);
+				Assert.True(1 == lst.Count);
+				Assert.Equal("nothing found", lst.First().Key);
+				Assert.Null(lst.First().HashMD5);
+				Assert.Null(lst.First().HashSHA256);
+
+
+				// Act
+				result = await controller.Autocomplete("078b6ba3284302811d", false);
+
+				// Assert
+				Assert.IsType<ViewResult>(result);
+				Assert.IsType<List<ThinHashes>>(((ViewResult)result).Model);
+				lst = ((List<ThinHashes>)((ViewResult)result).Model);
+				Assert.NotNull(lst);
+				Assert.NotEmpty(lst);
+				Assert.True(1 == lst.Count);
+				Assert.Equal("aaaag", lst.First().Key);
+				Assert.Equal("078b6ba3284302811de5c4a3778a4df5107062f3b8acfb7d0c3705e448a9d761", lst.First().HashSHA256);
+				Assert.Equal("47ce81bbe7521737555cfbd39e7b6a5e", lst.First().HashMD5);
+
+
+				// Act
+				result = await controller.Autocomplete("e", false);
+
+				// Assert
+				Assert.IsType<ViewResult>(result);
+				Assert.IsType<List<ThinHashes>>(((ViewResult)result).Model);
+				lst = ((List<ThinHashes>)((ViewResult)result).Model);
+				Assert.NotNull(lst);
+				Assert.NotEmpty(lst);
+				Assert.True(lst.Count >= 2);
+				Assert.True(lst.First().HashMD5.StartsWith("e") || lst.First().HashSHA256.StartsWith("e"));
+				Assert.Contains(lst, h =>
+					h.HashSHA256 == "ed968e840d10d2d313a870bc131a4e2c311d7ad09bdf32b3418147221f51a6e2"
+					|| h.HashSHA256 == "eca3e47db80d2151296cf4002c3390c956a50f91bcc156046a949af3aa9ffa58"
+					|| h.HashMD5 == "ea467513aad73f1820e7e4c8488980b0");
+			}
+		}
+
+		[Fact]
+		public async Task InvalidAutocomplete()
+		{
+			// Arrange
+			Moq.Mock<IHashesRepository> mock = MockHashesRepository();
+			IHashesRepository repository = mock.Object;
+
+			using (IHashesController controller = new HashesController(repository, LoggerFactory, Configuration))
+			{
+				// Act
+				((Controller)controller).ModelState.AddModelError("empty search", "you must specify search keyword");
+				var result = await controller.Autocomplete(null, false);
+
+				// Assert
+				Assert.IsType<ViewResult>(result);
+				Assert.Null(((ViewResult)result).Model);
+				Assert.Equal("Index", ((ViewResult)result).ViewName);
+			}
+		}
+	}
+}

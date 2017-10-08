@@ -4,13 +4,21 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 {
-	public class HashesController : Controller
+	public interface IHashesController : IDisposable
+	{
+		Task<ActionResult> Autocomplete([Required] string text, bool ajax);
+		Task<IActionResult> Index();
+		Task<ActionResult> Search(HashInput hi, bool ajax);
+	}
+
+	public class HashesController : Controller, IHashesController
 	{
 		private static readonly object _locker = new object();
 		private readonly IConfiguration _configuration;
@@ -42,7 +50,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 					lock (_locker)
 					{
 						var dbContextOptions = HttpContext.RequestServices.GetService(typeof(DbContextOptions<BloggingContext>)) as DbContextOptions<BloggingContext>;
-						
+
 						hi = _repo.CalculateHashesInfo(_loggerFactory, _logger, (IConfiguration)conf, dbContextOptions);
 					}
 					return await hi;

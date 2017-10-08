@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Blogs
+namespace Repositories
 {
 	public class BlogsRepository : IClassFixture<BloggingContextDBFixture>
 	{

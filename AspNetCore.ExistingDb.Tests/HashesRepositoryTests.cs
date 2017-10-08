@@ -11,9 +11,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.Sqlite;
 
-namespace Hashes
+namespace Repositories
 {
-	public class HashesRepository : BaseTests, IDisposable
+	public class HashesRepository : BaseRepositoryTests, IDisposable
 	{
 		public HashesRepository() : base()
 		{

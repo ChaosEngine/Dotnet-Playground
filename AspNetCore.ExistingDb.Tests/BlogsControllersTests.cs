@@ -2,10 +2,7 @@
 using AspNetCore.ExistingDb.Tests;
 using EFGetStarted.AspNetCore.ExistingDb.Controllers;
 using EFGetStarted.AspNetCore.ExistingDb.Models;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,117 +11,90 @@ using Xunit;
 
 namespace Controllers
 {
-	public class BlogsControllers : IClassFixture<BloggingContextDBFixture>
+	public class BlogsControllers : BaseControllerTest
 	{
-		BloggingContextDBFixture DBFixture { get; set; }
-
-		ILoggerFactory LoggerFactory { get; set; }
-
-		IConfiguration Configuration { get; set; }
-
-		IDataProtectionProvider DataProtectionProvider { get; set; }
-
-		IConfiguration CreateConfiguration()
-		{
-			var builder = new ConfigurationBuilder()
-				//.SetBasePath("wwww")
-				.AddJsonFile(@"..\..\AspNetCore.ExistingDb\appsettings.json", optional: true, reloadOnChange: true)
-				//.AddJsonFile($@"..\..\AspNetCore.ExistingDb\appsettings.{env.EnvironmentName}.json", optional: true)
-				.AddEnvironmentVariables();
-			//if (env.IsDevelopment())
-			//	builder.AddUserSecrets<Startup>();
-			return builder.Build();
-		}
-
-		void SetupServices()
-		{
-			var serviceCollection = new ServiceCollection()
-				.AddLogging();
-			serviceCollection.AddDataProtection();
-
-			var serviceProvider = serviceCollection.BuildServiceProvider();
-
-			var factory = serviceProvider.GetService<ILoggerFactory>();
-			LoggerFactory = factory;
-
-			var protection = serviceProvider.GetService<IDataProtectionProvider>();
-			DataProtectionProvider = protection;
-
-			var configuration = CreateConfiguration();
-			Configuration = configuration;
-		}
-
 		private static Moq.Mock<IBloggingRepository> MockBloggingRepository()
 		{
 			var mock = new Moq.Mock<IBloggingRepository>();
+			var lst = new List<Blog>(3)
+			{
+				new Blog
+				{
+					BlogId = 1,
+					Post = new []
+					{
+						new Post
+						{
+							BlogId = 1,
+							Content = "content",
+							PostId = 1,
+							Title = "title"
+						}
+					},
+					Url = "http://www.some-url.com"
+				}
+			};
+			Blog to_add = null;
+
 
 			mock.Setup(r => r.GetAllAsync()).Returns(() =>
 			{
-				var lst = new List<Blog>(5)
-				{
-					new Blog
-					{
-						BlogId = 1,
-						Post = new []
-						{
-							new Post
-							{
-								BlogId = 1,
-								Content = "content",
-								PostId = 1,
-								Title = "title"
-							}
-						},
-						Url = "http://www.some-url.com"
-					}
-				};
 				return Task.FromResult(lst.ToList());
 			});
 
-			mock.Setup(r => r.AddAsync(Moq.It.IsAny<Blog>())).Returns(() =>
+			mock.Setup(r => r.AddAsync(Moq.It.IsAny<Blog>())).Returns<Blog>((s) =>
 			{
-				return Task.FromResult(new Blog
-				{
-					BlogId = 2,
-					Post = null,
-					Url = "http://www.internet.com",
-				});
+				to_add = s;
+				return Task.FromResult(to_add);
 			});
 
 			mock.Setup(r => r.SaveAsync()).Returns(() =>
 			{
-				return Task.FromResult(1);
-			});
-
-			mock.Setup(r => r.GetSingleAsync(Moq.It.IsIn(new int[] { 2 }))).Returns(() =>
-			{
-				return Task.FromResult(new Blog
+				if (to_add != null)
 				{
-					BlogId = 2,
-					Post = null,
-					Url = "http://www.internet.com",
-				});
+					lst.Add(to_add);
+					to_add = null;
+					return Task.FromResult(1);
+				}
+				return Task.FromResult(0);
 			});
 
-			mock.Setup(r => r.GetSingleAsync(Moq.It.IsNotIn(new int[] { 2 }))).Returns(() =>
+			mock.Setup(r => r.GetSingleAsync(Moq.It.IsIn(new object[] { 2 }))).Returns<object[]>((s) =>
+			{
+				var found = lst.FirstOrDefault(_ => _.BlogId == (int)s.FirstOrDefault());
+				return Task.FromResult(found);
+			});
+
+			mock.Setup(r => r.GetSingleAsync(Moq.It.IsNotIn(new object[] { 2 }))).Returns(() =>
 			{
 				return Task.FromResult<Blog>(null);
 			});
 
-			mock.Setup(r => r.Edit(Moq.It.IsAny<Blog>()));
+			mock.Setup(r => r.Edit(Moq.It.IsAny<Blog>())).Callback<Blog>((s) =>
+			{
+				var found = lst.FirstOrDefault(_ => _.BlogId == s.BlogId);
+				found.Url = s.Url;
+			});
+
+			mock.Setup(r => r.Delete(Moq.It.IsAny<Blog>())).Callback<Blog>((s) =>
+			{
+				var found = lst.FirstOrDefault(_ => _.BlogId == s.BlogId);
+				if (found != null)
+				{
+					lst.Remove(found);
+				}
+			});
 
 			return mock;
 		}
 
-		public BlogsControllers(BloggingContextDBFixture dBFixture)
+		public BlogsControllers() : base()
 		{
-			DBFixture = dBFixture;
-
 			SetupServices();
 		}
 
 		[Fact]
-		async Task Index_GetAll()
+		public async Task Index_GetAll()
 		{
 			// Arrange
 			Moq.Mock<IBloggingRepository> mock = MockBloggingRepository();
@@ -141,9 +111,6 @@ namespace Controllers
 
 				Assert.IsType<ViewResult>(result);
 				Assert.IsAssignableFrom<IEnumerable<DecoratedBlog>>(((ViewResult)result).Model);
-
-				//System.Linq.Enumerable.SelectListIterator<EFGetStarted.AspNetCore.ExistingDb.Models.Blog, EFGetStarted.AspNetCore.ExistingDb.Models.DecoratedBlog> xxxxxxxxxx;
-
 				Assert.NotEmpty(((IEnumerable<DecoratedBlog>)((ViewResult)result).Model));
 				Assert.Equal(1, ((IEnumerable<DecoratedBlog>)((ViewResult)result).Model).First().BlogId);
 				Assert.Equal("http://www.some-url.com", ((IEnumerable<DecoratedBlog>)((ViewResult)result).Model).First().Url);
@@ -151,7 +118,7 @@ namespace Controllers
 		}
 
 		[Fact]
-		async Task Create()
+		public async Task Create()
 		{
 			// Arrange
 			Moq.Mock<IBloggingRepository> mock = MockBloggingRepository();
@@ -189,7 +156,7 @@ namespace Controllers
 		}
 
 		[Fact]
-		async Task InvalidCreate()
+		public async Task InvalidCreate()
 		{
 			// Arrange
 			Moq.Mock<IBloggingRepository> mock = MockBloggingRepository();
@@ -220,7 +187,7 @@ namespace Controllers
 		}
 
 		[Fact]
-		async Task Edit()
+		public async Task Edit()
 		{
 			// Arrange
 			Moq.Mock<IBloggingRepository> mock = MockBloggingRepository();
@@ -234,6 +201,7 @@ namespace Controllers
 				Post = null,
 				Url = "http://www.internet.com",
 			});
+			await repository.SaveAsync();
 
 			using (IBlogsController controller = new BlogsController(repository, logger, Configuration, DataProtectionProvider))
 			{
@@ -257,7 +225,7 @@ namespace Controllers
 		}
 
 		[Fact]
-		async Task InvalidEdit()
+		public async Task InvalidEdit()
 		{
 			// Arrange
 			Moq.Mock<IBloggingRepository> mock = MockBloggingRepository();
@@ -271,6 +239,7 @@ namespace Controllers
 				Post = null,
 				Url = "http://www.999999.com",
 			});
+			await repository.SaveAsync();
 
 			using (IBlogsController controller = new BlogsController(repository, logger, Configuration, DataProtectionProvider))
 			{
@@ -295,7 +264,7 @@ namespace Controllers
 		}
 
 		[Fact]
-		async Task Delete()
+		public async Task Delete()
 		{
 			// Arrange
 			Moq.Mock<IBloggingRepository> mock = MockBloggingRepository();
@@ -309,6 +278,7 @@ namespace Controllers
 				Post = null,
 				Url = "http://www.internet.com",
 			});
+			await repository.SaveAsync();
 
 			using (IBlogsController controller = new BlogsController(repository, logger, Configuration, DataProtectionProvider))
 			{
@@ -331,7 +301,7 @@ namespace Controllers
 		}
 
 		[Fact]
-		async Task InvalidDelete()
+		public async Task InvalidDelete()
 		{
 			// Arrange
 			Moq.Mock<IBloggingRepository> mock = MockBloggingRepository();
@@ -345,6 +315,7 @@ namespace Controllers
 				Post = null,
 				Url = "http://www.99999.com",
 			});
+			await repository.SaveAsync();
 
 			using (IBlogsController controller = new BlogsController(repository, logger, Configuration, DataProtectionProvider))
 			{
