@@ -13,25 +13,38 @@ using System.Threading.Tasks;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 {
-	public class HashesDataTableController : BaseController<ThinHashes>
+	public interface IHashesDataTableController : IDisposable
+	{
+		IActionResult Index();
+		Task<IActionResult> Load(string sort, string order, string search, int limit, int offset, string extraParam);
+	}
+
+	public class HashesDataTableController : BaseController<ThinHashes>, IHashesDataTableController
 	{
 		private readonly IHostingEnvironment _hostingEnvironment;
+		private readonly ILogger<BaseController<ThinHashes>> _logger;
 		private readonly IHashesRepository _repo;
+		private static readonly JsonSerializerSettings _serializationSettings =
+			new JsonSerializerSettings { MetadataPropertyHandling = MetadataPropertyHandling.Ignore, Formatting = Formatting.None };
 
-		private IQueryable<ThinHashes> BaseItems
+		#region Old code
+		/*private IQueryable<ThinHashes> BaseItems
 		{
 			get
 			{
-				IQueryable<ThinHashes> result = _repo.GetAll()/*.Take(2000)*/;
+				IQueryable<ThinHashes> result = _repo.GetAll()
+					//.Take(2000)
+					;
 				return result;
 			}
-		}
+		}*/
+		#endregion Old code
 
 		public HashesDataTableController(IHostingEnvironment env, IHashesRepository repo,
-			ILogger<BaseController<ThinHashes>> logger) : base(logger)
+			ILogger<BaseController<ThinHashes>> logger) : base()
 		{
 			_hostingEnvironment = env;
-
+			_logger = logger;
 			_repo = repo;
 			_repo.SetReadOnly(true);
 		}
@@ -72,7 +85,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			IQueryable<ThinHashes> items = SearchItems(BaseItems, search, columnNames);
 
 			// Sort the filtered items and apply paging
-			var content = ItemsToJson(items, columnNames, sort, order, limit, offset);*/
+			var found = ItemsToJson(items, columnNames, sort, order, limit, offset);*/
 			#endregion Old code
 
 			CancellationToken token = HttpContext.RequestAborted;
@@ -88,10 +101,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 					rows = found.Itemz
 				};
 
-				var content = JsonConvert.SerializeObject(result, Formatting.None,
-						new JsonSerializerSettings() { MetadataPropertyHandling = MetadataPropertyHandling.Ignore });
-
-				return Content(content, "application/json");
+				return Json(result, _serializationSettings);
 			}
 			catch (OperationCanceledException ex)
 			{
@@ -99,7 +109,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 				return Ok();
 			}
 			catch (Exception)
-			{			
+			{
 				throw;
 			}
 		}

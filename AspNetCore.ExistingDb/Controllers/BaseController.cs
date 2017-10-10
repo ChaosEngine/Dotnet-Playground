@@ -15,53 +15,48 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 		private static readonly IEnumerable<string> _allColumnNames =
 			typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance).Select(p => p.Name).ToArray();
 
-		protected readonly ILogger<BaseController<T>> _logger;
-
 		public static IEnumerable<string> AllColumnNames => _allColumnNames;
 
-		public BaseController(ILogger<BaseController<T>> logger)
+		public BaseController()
 		{
-			_logger = logger;
 		}
 
-		protected string ItemsToJson(IQueryable<T> items, IEnumerable<string> columnNames, string sort, string order, int limit, int offset)
+		public static (IEnumerable<T> Itemz, int Count) ItemsToJson(IQueryable<T> items, IEnumerable<string> columnNames, string sort, string order, int limit, int offset)
 		{
-			try
+			// where clause is set, count total records
+			int count = items.Count();
+
+			// Skip requires sorting, so make sure there is always sorting
+			string sortExpression;
+
+			if (sort?.Length > 0)
+				sortExpression = string.Format("{0} {1}", sort, order);
+			else
+				sortExpression = string.Empty;
+
+			// show ALL records if limit is not set
+			if (limit == 0)
+				limit = count;
+
+			#region Old code
+			// Prepare json structure
+			/*var result = new
 			{
-				// where clause is set, count total records
-				int count = items.Count();
+				total = count,
+				rows = items.OrderBy(sortExpression).Skip(offset).Take(limit)//.Select("new (" + string.Join(',', columnNames) + ")")
+			};
 
-				// Skip requires sorting, so make sure there is always sorting
-				string sortExpression;
+			return JsonConvert.SerializeObject(result, Formatting.None,
+				new JsonSerializerSettings() { MetadataPropertyHandling = MetadataPropertyHandling.Ignore });*/
+			#endregion Old code
 
-				if (sort?.Length > 0)
-					sortExpression = string.Format("{0} {1}", sort, order);
-				else
-					sortExpression = string.Empty;
+			items = items.OrderBy(sortExpression).Skip(offset).Take(limit);
 
-				// show ALL records if limit is not set
-				if (limit == 0)
-					limit = count;
-
-				// Prepare json structure
-				var result = new
-				{
-					total = count,
-					rows = items.OrderBy(sortExpression).Skip(offset).Take(limit)//.Select("new (" + string.Join(',', columnNames) + ")")
-				};
-
-				return JsonConvert.SerializeObject(result, Formatting.None,
-					new JsonSerializerSettings() { MetadataPropertyHandling = MetadataPropertyHandling.Ignore });
-			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, ex.Message);
-				return null;
-			}
+			return (items, items.Count());
 		}
 
 		// needs System.Linq.Dynamic.Core
-		protected IQueryable<T> SearchItems(IQueryable<T> items, string search, IEnumerable<string> columnNames)
+		public static IQueryable<T> SearchItems(IQueryable<T> items, string search, IEnumerable<string> columnNames)
 		{
 			// Apply filtering to all visible column names
 			if (search?.Length > 0)

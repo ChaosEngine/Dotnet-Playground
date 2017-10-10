@@ -2,24 +2,32 @@
 using AspNetCore.ExistingDb.Tests;
 using EFGetStarted.AspNetCore.ExistingDb.Controllers;
 using EFGetStarted.AspNetCore.ExistingDb.Models;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace Controllers
 {
-	public class HashesControllerTests : BaseControllerTest
+	static class HashesHelpers
 	{
-		static string Sha256(string value)
+		internal static string Sha256(string value)
 		{
 			StringBuilder sb = new StringBuilder();
 			using (var hash = SHA256.Create())
@@ -32,7 +40,7 @@ namespace Controllers
 			return sb.ToString();
 		}
 
-		static string MD5(string value)
+		internal static string MD5(string value)
 		{
 			StringBuilder sb = new StringBuilder();
 			using (var hash = System.Security.Cryptography.MD5.Create())
@@ -45,7 +53,7 @@ namespace Controllers
 			return sb.ToString();
 		}
 
-		private static Moq.Mock<IHashesRepository> MockHashesRepository()
+		internal static Moq.Mock<IHashesRepository> MockHashesRepository()
 		{
 			var mock = new Moq.Mock<IHashesRepository>();
 			string ilfad = "ilfad", alphabet = "abcdefghijklmopqrstuvwxyz";
@@ -58,11 +66,10 @@ namespace Controllers
 					HashSHA256 = Sha256(ilfad )
 				}
 			};
-			ThinHashes to_add = null;
 			HashesInfo hi = new HashesInfo
 			{
 				ID = 0,
-				IsCalculating = true
+				IsCalculating = false
 			};
 
 			mock.Setup(r => r.SetReadOnly(Moq.It.IsAny<bool>()));
@@ -111,9 +118,63 @@ namespace Controllers
 				return Task.FromResult(0);
 			});
 
+			mock.Setup(r => r.SearchAsync(Moq.It.IsAny<string>(), Moq.It.IsAny<string>(), Moq.It.IsAny<string>(),
+				Moq.It.IsAny<int>(), Moq.It.IsAny<int>(), Moq.It.IsAny<CancellationToken>()))
+				.Returns((string sort, string order, string search, int offset, int limit, CancellationToken token) =>
+				{
+					var column_names = BaseController<ThinHashes>.AllColumnNames;
+
+					IQueryable<ThinHashes> items = BaseController<ThinHashes>.SearchItems(hashes.AsQueryable(), search, column_names);
+
+					(IEnumerable<ThinHashes> Itemz, int Count) tuple =
+						BaseController<ThinHashes>.ItemsToJson(items, column_names, sort, order, limit, offset);
+
+					return Task.FromResult(tuple);
+				});
+
+			mock.Setup(r => r.GetAll()).Returns(() =>
+			{
+				var querable = hashes.AsQueryable();
+				return querable;
+			});
+
 			return mock;
 		}
 
+		internal static ControllerContext MockContollerContext()
+		{
+			var httpContextMock = new Moq.Mock<HttpContext>();
+
+			httpContextMock.Setup(r => r.RequestServices.GetService(typeof(DbContextOptions<BloggingContext>))).Returns(() =>
+			{
+				var opts = new DbContextOptions<BloggingContext>();
+				return opts;
+			});
+			httpContextMock.Setup(r => r.RequestServices.GetService(typeof(ITempDataDictionaryFactory))).Returns(() =>
+			{
+				var tdp = new Moq.Mock<ITempDataProvider>();
+				tdp.Setup(p => p.LoadTempData(Moq.It.IsAny<HttpContext>())).Returns(() =>
+				{
+					return new Dictionary<string, object>();
+				});
+
+				var tddf = new Moq.Mock<ITempDataDictionaryFactory>();
+				tddf.Setup(f => f.GetTempData(Moq.It.IsAny<HttpContext>())).Returns(() =>
+				{
+					return new TempDataDictionary(httpContextMock.Object, tdp.Object);
+				});
+				return tddf.Object;
+			});
+
+			httpContextMock.SetupGet(r => r.RequestAborted).Returns(default(CancellationToken));
+
+			var cc = new ControllerContext(new ActionContext(httpContextMock.Object, new RouteData(), new ControllerActionDescriptor()));
+			return cc;
+		}
+	}
+
+	public class HashesControllerTests : BaseControllerTest
+	{
 		public HashesControllerTests() : base()
 		{
 			SetupServices();
@@ -123,16 +184,18 @@ namespace Controllers
 		public async Task Index()
 		{
 			// Arrange
-			Moq.Mock<IHashesRepository> mock = MockHashesRepository();
+			Moq.Mock<IHashesRepository> mock = HashesHelpers.MockHashesRepository();
 			IHashesRepository repository = mock.Object;
 			var logger = LoggerFactory.CreateLogger<HashesController>();
 
+
 			using (IHashesController controller = new HashesController(repository, LoggerFactory, Configuration))
 			{
+				((Controller)controller).ControllerContext = HashesHelpers.MockContollerContext();
+
 				// Act
 				var result = await controller.Index();
-				await repository.CalculateHashesInfo(LoggerFactory, logger, Configuration,
-					new Moq.Mock<DbContextOptions<BloggingContext>>().Object);
+				//await repository.CalculateHashesInfo(LoggerFactory, logger, Configuration, new Moq.Mock<DbContextOptions<BloggingContext>>().Object);
 
 				// Assert
 				Assert.NotNull(result);
@@ -151,7 +214,7 @@ namespace Controllers
 		public async Task Search_FOUND()
 		{
 			// Arrange
-			Moq.Mock<IHashesRepository> mock = MockHashesRepository();
+			Moq.Mock<IHashesRepository> mock = HashesHelpers.MockHashesRepository();
 			IHashesRepository repository = mock.Object;
 
 			using (IHashesController controller = new HashesController(repository, LoggerFactory, Configuration))
@@ -190,7 +253,7 @@ namespace Controllers
 		public async Task Search_NOTFOUND()
 		{
 			// Arrange
-			Moq.Mock<IHashesRepository> mock = MockHashesRepository();
+			Moq.Mock<IHashesRepository> mock = HashesHelpers.MockHashesRepository();
 			IHashesRepository repository = mock.Object;
 
 			using (IHashesController controller = new HashesController(repository, LoggerFactory, Configuration))
@@ -229,7 +292,7 @@ namespace Controllers
 		public async Task InvalidSearch()
 		{
 			// Arrange
-			Moq.Mock<IHashesRepository> mock = MockHashesRepository();
+			Moq.Mock<IHashesRepository> mock = HashesHelpers.MockHashesRepository();
 			IHashesRepository repository = mock.Object;
 
 			using (IHashesController controller = new HashesController(repository, LoggerFactory, Configuration))
@@ -296,7 +359,7 @@ namespace Controllers
 		public async Task Autocomplete()
 		{
 			// Arrange
-			Moq.Mock<IHashesRepository> mock = MockHashesRepository();
+			Moq.Mock<IHashesRepository> mock = HashesHelpers.MockHashesRepository();
 			IHashesRepository repository = mock.Object;
 
 			await repository.AddRangeAsync(new[]
@@ -393,7 +456,7 @@ namespace Controllers
 		public async Task InvalidAutocomplete()
 		{
 			// Arrange
-			Moq.Mock<IHashesRepository> mock = MockHashesRepository();
+			Moq.Mock<IHashesRepository> mock = HashesHelpers.MockHashesRepository();
 			IHashesRepository repository = mock.Object;
 
 			using (IHashesController controller = new HashesController(repository, LoggerFactory, Configuration))
@@ -406,6 +469,111 @@ namespace Controllers
 				Assert.IsType<ViewResult>(result);
 				Assert.Null(((ViewResult)result).Model);
 				Assert.Equal("Index", ((ViewResult)result).ViewName);
+			}
+		}
+	}
+
+	public class HashesDataTableController : BaseControllerTest
+	{
+		public HashesDataTableController() : base()
+		{
+			SetupServices();
+		}
+
+		[Fact]
+		public void Index()
+		{
+			// Arrange
+			Moq.Mock<IHashesRepository> mock = HashesHelpers.MockHashesRepository();
+			IHashesRepository repository = mock.Object;
+			var logger = LoggerFactory.CreateLogger<BaseController<ThinHashes>>();
+			Moq.Mock<IHostingEnvironment> ienv = new Moq.Mock<IHostingEnvironment>();
+
+			using (IHashesDataTableController controller = new EFGetStarted.AspNetCore.ExistingDb.Controllers.HashesDataTableController(ienv.Object, repository, logger))
+			{
+				// Act
+				var result = controller.Index();
+
+				// Assert
+				Assert.IsType<ViewResult>(result);
+				Assert.Null(((ViewResult)result).Model);
+				Assert.NotNull(((ViewResult)result).ViewName);
+			}
+		}
+
+		[Fact]
+		public async Task Ajaxifiable_Load()
+		{
+			// Arrange
+			Moq.Mock<IHashesRepository> mock = HashesHelpers.MockHashesRepository();
+			IHashesRepository repository = mock.Object;
+			var logger = LoggerFactory.CreateLogger<BaseController<ThinHashes>>();
+
+			await repository.AddRangeAsync(new[]
+			{
+				//already addded - "ilfad"
+				//new ThinHashes { Key = "ilfad", HashMD5 = "b25319faaaea0bf397b2bed872b78c45",  HashSHA256 = "1b3d50ffed54e382f06578f5f917ae948ed38e3db2c66ca6e5d07809ba50fe39" },
+				new ThinHashes { Key = "aaaab", HashMD5 = "11649b4394d09e4aba132ad49bd1e7db", HashSHA256 = "5ef1b1016a260f0c229c5b24afe87fe24a68b4c80f6f89535b87e0ca72a08623" },
+				new ThinHashes { Key = "aaaab", HashMD5 = "11649b4394d09e4aba132ad49bd1e7db", HashSHA256 = "5ef1b1016a260f0c229c5b24afe87fe24a68b4c80f6f89535b87e0ca72a08623" },
+				new ThinHashes { Key = "aaaaa", HashMD5 = "594f803b380a41396ed63dca39503542", HashSHA256 = "ed968e840d10d2d313a870bc131a4e2c311d7ad09bdf32b3418147221f51a6e2" },
+				new ThinHashes { Key = "aaaac", HashMD5 = "16a08135a7d44b3d6beac2d84f9067c6", HashSHA256 = "b3a7dc940ffbb84720f62ede7fc0c59303210e259a5c4c4c85bfc26fb5f04f4d" },
+				new ThinHashes { Key = "aaaae", HashMD5 = "85732438767e17f34cea6e206d2af366", HashSHA256 = "63a094f96b7b890fe1cf798f57465e2f9ab494408564cbf39fcdef159d8697b2" },
+				new ThinHashes { Key = "aaaaf", HashMD5 = "148a38bed87a7ddececcdc4dd6a6bb30", HashSHA256 = "06c7c8965b8d5621946c0fe1c80078002c1659c7b6348aaec9be583bf47dac9f" },
+				new ThinHashes { Key = "aaaag", HashMD5 = "47ce81bbe7521737555cfbd39e7b6a5e", HashSHA256 = "078b6ba3284302811de5c4a3778a4df5107062f3b8acfb7d0c3705e448a9d761" },
+				new ThinHashes { Key = "aaaaj", HashMD5 = "2f52f7168f84e23ea79b9c2ef8d67657", HashSHA256 = "c739af85522b45884bf66294b05fee2efbce602003657ecc4d3df82c9311629a" },
+				new ThinHashes { Key = "aaaah", HashMD5 = "ea467513aad73f1820e7e4c8488980b0", HashSHA256 = "eca3e47db80d2151296cf4002c3390c956a50f91bcc156046a949af3aa9ffa58" },
+				new ThinHashes { Key = "aaaai", HashMD5 = "65aa471507524e7dde675f0a22ed1287", HashSHA256 = "968c120f2e95ad42b09d289bed97c0db5eb0e21778f87eba48bd044d4534ca25" },
+				new ThinHashes { Key = "aaaad", HashMD5 = "fba2fdaf36fdf1931d552535a57eb984", HashSHA256 = "d0977789a5e2f79fdfbb4b1dbb342d90c88eeae3d3c68297a3a3027c859af2ee" },
+			});
+
+			var ihost_env = new Moq.Mock<IHostingEnvironment>().Object;
+
+			using (IHashesDataTableController controller = new EFGetStarted.AspNetCore.ExistingDb.Controllers.HashesDataTableController(ihost_env, repository, logger))
+			{
+				((Controller)controller).ControllerContext = HashesHelpers.MockContollerContext();
+
+				// Act
+				var result = await controller.Load(nameof(ThinHashes.Key), "DESC", "ilfad", 0, 0, "blah");
+
+				// Assert
+				Assert.IsType<JsonResult>(result);
+				//fetching anonymous object from JsonResult is weird; use reflection
+				Assert.IsType<int>(((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value, null));
+				Assert.Equal(1, (int)((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value, null));
+				Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value, null));
+				Assert.Single((IEnumerable<ThinHashes>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value, null));
+				Assert.Equal("ilfad", ((IEnumerable<ThinHashes>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value, null)).ElementAt(0).Key);
+
+
+				// Act
+				result = await controller.Load(nameof(ThinHashes.Key), "DESC", "", 0, 0, "blah");
+
+				Assert.IsType<int>(((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value, null));
+				Assert.True((int)((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value, null) > 0);
+				Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value, null));
+				Assert.NotEmpty((IEnumerable<ThinHashes>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value, null));
+				Assert.Equal("aaaaa", ((IEnumerable<ThinHashes>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value, null)).Last().Key);
+
+
+				// Act
+				result = await controller.Load(nameof(ThinHashes.HashSHA256), "ASC", "", 3, 3, "blah");
+
+				Assert.IsType<int>(((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value, null));
+				Assert.True((int)((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value, null) > 0);
+				Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value, null));
+				Assert.Equal(3, ((IEnumerable<ThinHashes>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value, null)).Count());
+				Assert.Equal("aaaab", ((IEnumerable<ThinHashes>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value, null)).First().Key);
+
+
+				// Act
+				result = await controller.Load(nameof(ThinHashes.HashMD5), "ASC", "dummy", 3, 3, "blah");
+
+				Assert.IsType<int>(((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value, null));
+				Assert.Equal(0, (int)((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value, null));
+				Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value, null));
+				Assert.Empty(((IEnumerable<ThinHashes>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value, null)));
+
+				result = await controller.Load("badbad", "ASC", "dummy", 3, 3, "blah");
 			}
 		}
 	}
