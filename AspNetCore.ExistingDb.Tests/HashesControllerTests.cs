@@ -573,7 +573,10 @@ namespace Controllers
 				Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value, null));
 				Assert.Empty(((IEnumerable<ThinHashes>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value, null)));
 
-				result = await controller.Load("badbad", "ASC", "dummy", 3, 3, "blah");
+				var exception = Assert.ThrowsAnyAsync<Exception>(async () =>
+				{
+					result = await controller.Load("badbad", "ASC", "dummy", 3, 3, "blah");
+				});
 			}
 		}
 	}
