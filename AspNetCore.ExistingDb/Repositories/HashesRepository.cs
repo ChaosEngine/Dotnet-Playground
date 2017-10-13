@@ -151,7 +151,8 @@ SELECT count(*) cnt FROM #tempo
 $@";
 SELECT [{col_names}]
 FROM {(string.IsNullOrEmpty(searchText) ? "Hashes" : "#tempo")}
-ORDER BY [{sortColumn}] {sortOrderDirection}
+
+{(string.IsNullOrEmpty(sortColumn) ? "ORDER BY 1" : $"ORDER BY [{sortColumn}] {sortOrderDirection}")}
 OFFSET @offset ROWS
 FETCH NEXT @limit ROWS ONLY
 ";
@@ -246,7 +247,7 @@ $@";
 SELECT `{col_names}`
 FROM {(string.IsNullOrEmpty(searchText) ? "Hashes" : "tempo")}
 
-ORDER BY `{sortColumn}` {sortOrderDirection}
+{(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY `{sortColumn}` {sortOrderDirection}")}
 LIMIT @limit OFFSET @offset
 ";
 
@@ -334,7 +335,7 @@ $@";
 SELECT [{col_names}]
 FROM {(string.IsNullOrEmpty(searchText) ? "Hashes" : "tempo")}
 
-ORDER BY [{sortColumn}] {sortOrderDirection}
+{(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY [{sortColumn}] {sortOrderDirection}")}
 LIMIT @limit OFFSET @offset
 ";
 
