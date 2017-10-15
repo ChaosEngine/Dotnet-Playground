@@ -15,7 +15,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Security.Cryptography;
 using System.Text;
@@ -124,7 +123,7 @@ namespace Controllers
 				{
 					var column_names = BaseController<ThinHashes>.AllColumnNames;
 
-					IQueryable<ThinHashes> items = BaseController<ThinHashes>.SearchItems(hashes.AsQueryable(), search, column_names);
+					IEnumerable<ThinHashes> items = BaseController<ThinHashes>.SearchItems(hashes.AsQueryable(), search, column_names);
 
 					(IEnumerable<ThinHashes> Itemz, int Count) tuple =
 						BaseController<ThinHashes>.ItemsToJson(items, sort, order, limit, offset);
@@ -600,6 +599,18 @@ namespace Controllers
 				{
 					result = await controller.Load("badbad", "ASC", "dummy", 3, 3, "blah");
 				});
+
+
+				// Act
+				result = await controller.Load(null, null, "", 0, 0, "blah");
+
+				// Assert
+				Assert.IsType<JsonResult>(result);
+				//fetching anonymous object from JsonResult is weird; use reflection
+				Assert.IsType<int>(((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value));
+				Assert.Equal(12, (int)((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value));
+				Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value));
+				Assert.True(12 == ((IEnumerable<ThinHashes>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value)).Count());
 			}
 		}
 	}

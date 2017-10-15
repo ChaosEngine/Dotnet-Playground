@@ -4,7 +4,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Dynamic.Core;
 using System.Reflection;
 using System.Text;
 
@@ -17,29 +16,38 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 		public static IEnumerable<string> AllColumnNames => _allColumnNames;
 
-		public static (IEnumerable<T> Itemz, int Count) ItemsToJson(IQueryable<T> items, string sort, string order, int limit, int offset)
+		public static (IEnumerable<T> Itemz, int Count) ItemsToJson(IEnumerable<T> items, string sort, string order, int limit, int offset)
 		{
-			// where clause is set, count total records
-			int count = items.Count();
-			
 			if (sort?.Length > 0)
 			{
 				// Skip requires sorting, so make sure there is always sorting
-				string sortExpression = string.Format("{0} {1}", sort, order);
-				items = items.OrderBy(sortExpression);
+				//string sortExpression = string.Format("{0} {1}", sort, order);
+				//items = items.OrderBy(sortExpression);
+				if (order.ToUpperInvariant() == "ASC")
+					items = items.OrderBy(OrderaDoo);
+				else
+					items = items.OrderByDescending(OrderaDoo);
 			}
-		
-			// show ALL records if limit is not set
+
 			if (limit <= 0)
-				limit = count;
-						
+				limit = items.Count();
+
 			items = items.Skip(offset).Take(limit);
 
 			return (items, items.Count());
+
+			//inner method
+			object OrderaDoo(T arg)
+			{
+				object value = typeof(T).GetProperty(sort,
+					BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public)
+					.GetValue(arg);
+				return value;
+			}
 		}
 
 		// needs System.Linq.Dynamic.Core
-		public static IQueryable<T> SearchItems(IQueryable<T> items, string search, IEnumerable<string> columnNames)
+		public static IEnumerable<T> SearchItems(IQueryable<T> items, string search, IEnumerable<string> columnNames)
 		{
 			// Apply filtering to all visible column names
 			if (search?.Length > 0)
@@ -58,7 +66,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 				// Apply filtering, 
 				items = items.Where(searchExpression, search, StringComparison.OrdinalIgnoreCase);*/
 
-				items = items.Where(FilteraDoo).AsQueryable();
+				return items.Where(FilteraDoo);
 			}
 
 			return items;
