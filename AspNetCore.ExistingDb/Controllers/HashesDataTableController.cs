@@ -21,8 +21,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 	public class HashesDataTableController : BaseController<ThinHashes>, IHashesDataTableController
 	{
-		private readonly IHostingEnvironment _hostingEnvironment;
-		private readonly ILogger<BaseController<ThinHashes>> _logger;
+		private readonly ILogger<HashesDataTableController> _logger;
 		private readonly IHashesRepository _repo;
 		private static readonly JsonSerializerSettings _serializationSettings =
 			new JsonSerializerSettings { MetadataPropertyHandling = MetadataPropertyHandling.Ignore, Formatting = Formatting.None };
@@ -40,10 +39,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 		}*/
 		#endregion Old code
 
-		public HashesDataTableController(IHostingEnvironment env, IHashesRepository repo,
-			ILogger<BaseController<ThinHashes>> logger) : base()
+		public HashesDataTableController(IHashesRepository repo, ILogger<HashesDataTableController> logger) : base()
 		{
-			_hostingEnvironment = env;
 			_logger = logger;
 			_repo = repo;
 			_repo.SetReadOnly(true);
