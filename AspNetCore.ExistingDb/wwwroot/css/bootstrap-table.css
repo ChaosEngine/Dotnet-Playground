@@ -311,3 +311,7 @@ div.fixed-table-scroll-outer {
     display: block;
     clear: both;
 }
+.highlight {
+	border-top: groove;
+	border-bottom: groove;
+}

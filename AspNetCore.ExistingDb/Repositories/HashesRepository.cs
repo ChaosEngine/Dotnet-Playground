@@ -201,13 +201,15 @@ FETCH NEXT @limit ROWS ONLY
 
 						if (count > 0 && await rdr.NextResultAsync(token) && rdr.HasRows)
 						{
+							string[] strings = new string[3];
 							while (await rdr.ReadAsync(token))
 							{
+								rdr.GetValues(strings);
 								found.Add(new ThinHashes
 								{
-									Key = rdr.GetString(0),
-									HashMD5 = rdr.GetString(1),
-									HashSHA256 = rdr.GetString(2)
+									Key = strings[0],
+									HashMD5 = strings[1],
+									HashSHA256 = strings[2]
 								});
 							}
 						}
@@ -294,13 +296,15 @@ LIMIT @limit OFFSET @offset
 
 						if (count > 0 && await rdr.NextResultAsync(token) && rdr.HasRows)
 						{
+							string[] strings = new string[3];
 							while (await rdr.ReadAsync(token))
 							{
+								rdr.GetValues(strings);
 								found.Add(new ThinHashes
 								{
-									Key = rdr.GetString(0),
-									HashMD5 = rdr.GetString(1),
-									HashSHA256 = rdr.GetString(2)
+									Key = strings[0],
+									HashMD5 = strings[1],
+									HashSHA256 = strings[2]
 								});
 							}
 						}
@@ -383,13 +387,15 @@ LIMIT @limit OFFSET @offset
 
 						if (count > 0 && await rdr.NextResultAsync(token) && rdr.HasRows)
 						{
+							string[] strings = new string[3];
 							while (await rdr.ReadAsync(token))
 							{
+								rdr.GetValues(strings);
 								found.Add(new ThinHashes
 								{
-									Key = rdr.GetString(0),
-									HashMD5 = rdr.GetString(1),
-									HashSHA256 = rdr.GetString(2)
+									Key = strings[0],
+									HashMD5 = strings[1],
+									HashSHA256 = strings[2]
 								});
 							}
 						}

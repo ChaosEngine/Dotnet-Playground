@@ -4,6 +4,7 @@
 
 <div id="toolbar" class="btn-group">
 	<button id="btninfo" class="btn btn-default" type="button"><i class="glyphicon glyphicon-info-sign"></i>&nbsp;row info</button>
+	&nbsp;&nbsp;<span id="spTimeToLoad"></span>
 </div>
 
 <div class="container-fluid">
@@ -60,20 +61,18 @@
 				: '<button class="btn btn-warning btn-xs" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>';
 		}
 
+		var _startTime = null;
 		function extraServerParams(params) {
+			_startTime = new Date().getTime();
 			params.ExtraParam = 2;
 			return params;
-		}
-
-		function highLightRow($tr) {
-			$tr.addClass('highlight').siblings().removeClass('highlight');
 		}
 
 		function getId($element) {
 			var result = $($element).closest('tr').data('uniqueid');
 			return result;
 		}
-
+		
 		$(document).ready(function () {
 			var $table = $('#table');
 
@@ -87,9 +86,16 @@
 
 			// register row-click event
 			$table.on('click-row.bs.table', function ($element, row, $tr) {
-				highLightRow($tr);
+				$tr.addClass('highlight').siblings().removeClass('highlight');
 			});
-
+			// load success
+			$table.on('load-success.bs.table', function (data) {
+				$('#spTimeToLoad').text('Took ' + ((new Date().getTime() - _startTime) + 'ms!'));
+			});
+			// load error
+			$table.on('load-error.bs.table', function (status, res) {
+				$('#spTimeToLoad').text('error!');
+			});
 		});
 
 	</script>
