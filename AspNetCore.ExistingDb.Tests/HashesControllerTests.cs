@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -169,6 +170,18 @@ namespace Controllers
 
 			CancellationToken token;
 			httpContextMock.SetupProperty(r => r.RequestAborted, token).SetReturnsDefault(token);
+
+			httpContextMock.Setup(r => r.RequestServices.GetService(typeof(Microsoft.AspNetCore.Mvc.ModelBinding.Validation.IObjectModelValidator))).Returns(() =>
+			{
+				var omv = new Moq.Mock<Microsoft.AspNetCore.Mvc.ModelBinding.Validation.IObjectModelValidator>();
+				omv.Setup(p => p.Validate(Moq.It.IsAny<ActionContext>(),
+					Moq.It.IsAny<Microsoft.AspNetCore.Mvc.ModelBinding.Validation.ValidationStateDictionary>(),
+					Moq.It.IsAny<string>(), Moq.It.IsAny<object>()))
+					.Callback(() =>
+					{
+					});
+				return omv.Object;
+			});
 
 			var cc = new ControllerContext(new ActionContext(httpContextMock.Object, new RouteData(), new ControllerActionDescriptor()));
 			return cc;
@@ -503,7 +516,7 @@ namespace Controllers
 		}
 
 		[Fact]
-		public async Task Ajaxifiable_Load()
+		public async Task Ajaxifiable_Load_Proper()
 		{
 			// Arrange
 			Moq.Mock<IHashesRepository> mock = HashesHelpers.MockHashesRepository();
@@ -532,7 +545,7 @@ namespace Controllers
 				((Controller)controller).ControllerContext = HashesHelpers.MockContollerContext();
 
 				// Act - search single
-				var result = await controller.Load(nameof(ThinHashes.Key), "DESC", "ilfad", 0, 0, "blah");
+				var result = await controller.Load(new HashesDataTableLoadInput(nameof(ThinHashes.Key), "DESC", "ilfad", 0, 0, "blah"));
 
 				// Assert
 				Assert.IsType<JsonResult>(result);
@@ -544,7 +557,7 @@ namespace Controllers
 				Assert.Equal("ilfad", ((IEnumerable<ThinHashes>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value)).ElementAt(0).Key);
 
 				// Act - search by Hash256 dont mind ordering
-				result = await controller.Load(null, null, "b3a7dc", 0, 0, "blah");
+				result = await controller.Load(new HashesDataTableLoadInput(null, null, "b3a7dc", 0, 0, "blah"));
 
 				// Assert
 				Assert.IsType<JsonResult>(result);
@@ -555,7 +568,7 @@ namespace Controllers
 				Assert.Equal("aaaac", ((IEnumerable<ThinHashes>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value)).ElementAt(0).Key);
 
 				// Act - search by Hash256 but not from start - should not find anything
-				result = await controller.Load(null, null, "e7fc0c5", 0, 0, "blah");
+				result = await controller.Load(new HashesDataTableLoadInput(null, null, "e7fc0c5", 0, 0, "blah"));
 
 				// Assert
 				Assert.IsType<JsonResult>(result);
@@ -566,7 +579,7 @@ namespace Controllers
 
 
 				// Act - ensure order by Key desc
-				result = await controller.Load(nameof(ThinHashes.Key), "DESC", "", 0, 0, "blah");
+				result = await controller.Load(new HashesDataTableLoadInput(nameof(ThinHashes.Key), "DESC", "", 0, 0, "blah"));
 
 				Assert.IsType<int>(((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value));
 				Assert.True((int)((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value) > 0);
@@ -576,7 +589,7 @@ namespace Controllers
 
 
 				// Act - ensure order by HashSHA256 asc
-				result = await controller.Load(nameof(ThinHashes.HashSHA256), "ASC", "", 3, 3, "blah");
+				result = await controller.Load(new HashesDataTableLoadInput(nameof(ThinHashes.HashSHA256), "ASC", "", 3, 3, "blah"));
 
 				Assert.IsType<int>(((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value));
 				Assert.True((int)((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value) > 0);
@@ -586,7 +599,7 @@ namespace Controllers
 
 
 				// Act - search unexisting, empty result
-				result = await controller.Load(nameof(ThinHashes.HashMD5), "ASC", "dummy", 3, 3, "blah");
+				result = await controller.Load(new HashesDataTableLoadInput(nameof(ThinHashes.HashMD5), "ASC", "dummy", 3, 3, "blah"));
 
 				Assert.IsType<int>(((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value));
 				Assert.Equal(0, (int)((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value));
@@ -596,12 +609,12 @@ namespace Controllers
 				// Act - order by bad column - should raise an exception
 				var exception = Assert.ThrowsAnyAsync<Exception>(async () =>
 				{
-					result = await controller.Load("badbad", "ASC", "dummy", 3, 3, "blah");
+					result = await controller.Load(new HashesDataTableLoadInput("badbad", "ASC", "dummy", 3, 3, "blah"));
 				});
 
 
 				// Act - get all results no sorting or searching, verify count
-				result = await controller.Load(null, null, "", 0, 0, "blah");
+				result = await controller.Load(new HashesDataTableLoadInput(null, null, "", 0, 0, "blah"));
 
 				// Assert
 				Assert.IsType<JsonResult>(result);
@@ -626,10 +639,41 @@ namespace Controllers
 				((Controller)controller).HttpContext.RequestAborted = new CancellationToken(true);
 
 				// Act - search single
-				var result = await controller.Load(nameof(ThinHashes.Key), "DESC", "ilfad", 0, 0, "blah");
+				var result = await controller.Load(new HashesDataTableLoadInput(nameof(ThinHashes.Key), "DESC", "ilfad", 0, 0, "blah"));
 
 				// Assert
 				Assert.IsType<OkResult>(result);
+			}
+		}
+
+		[Fact]
+		public async Task Ajaxifiable_Cancell_ValidationFailed()
+		{
+			// Arrange
+			Moq.Mock<IHashesRepository> mock = HashesHelpers.MockHashesRepository();
+			IHashesRepository repository = mock.Object;
+			var logger = LoggerFactory.CreateLogger<EFGetStarted.AspNetCore.ExistingDb.Controllers.HashesDataTableController>();
+
+			using (IHashesDataTableController controller = new EFGetStarted.AspNetCore.ExistingDb.Controllers.HashesDataTableController(repository, logger))
+			{
+				((Controller)controller).ControllerContext = HashesHelpers.MockContollerContext();
+
+				var model = new HashesDataTableLoadInput("bad_bad", "WHATEVER", "<>..;[][-", -1, -4, "blah");
+				((Controller)controller).ModelState.AddModelError("Sort", "Characters are not allowed: only Key|HashMD5|HashSHA256");
+				((Controller)controller).ModelState.AddModelError("Order", "Order not allowed: only asc|desc");
+				((Controller)controller).ModelState.AddModelError("Search", "Characters are not allowed");
+				((Controller)controller).ModelState.AddModelError("Limit", "bad numeric range");
+				((Controller)controller).ModelState.AddModelError("Offset", "bad numeric range");
+
+				// Act - search single
+				var result = await controller.Load(model);
+
+				// Assert
+				Assert.NotNull(result);
+				Assert.IsType<BadRequestObjectResult>(result);
+				Assert.NotNull((result as BadRequestObjectResult).Value);
+				Assert.IsType<SerializableError>((result as BadRequestObjectResult).Value);
+				Assert.NotEmpty(((result as BadRequestObjectResult).Value as SerializableError));
 			}
 		}
 	}

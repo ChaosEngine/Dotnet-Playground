@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -16,7 +17,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 	public interface IHashesDataTableController : IDisposable
 	{
 		IActionResult Index();
-		Task<IActionResult> Load(string sort, string order, string search, int limit, int offset, string extraParam);
+		Task<IActionResult> LoadOld(string sort, string order, string search, int limit, int offset, string extraParam);
+		Task<IActionResult> Load(HashesDataTableLoadInput input);
 	}
 
 	public class HashesDataTableController : BaseController<ThinHashes>, IHashesDataTableController
@@ -64,8 +66,34 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			return View(view_name);
 		}
 
+		/// <summary>
+		/// Validtion is not working here
+		/// </summary>
+		/// <param name="sort"></param>
+		/// <param name="order"></param>
+		/// <param name="search"></param>
+		/// <param name="limit"></param>
+		/// <param name="offset"></param>
+		/// <param name="extraParam"></param>
+		/// <returns></returns>
 		[HttpGet]
-		public async Task<IActionResult> Load(string sort, string order, string search, int limit, int offset, string extraParam)
+		[Obsolete("use Load")]
+		public async Task<IActionResult> LoadOld(
+			[Bind("sort"), Required, RegularExpression("this", ErrorMessage = "Characters are not allowed: only Key|HashMD5|HashSHA256")]
+			string sort,
+			[Bind("order"), Required, RegularExpression("is", ErrorMessage = "Order not allowed: only asc|desc")]
+			string order,
+			[Bind("search"), Required, RegularExpression("not_working", ErrorMessage = "Characters are not allowed.")]
+			string search,
+			int limit,
+			int offset,
+			string extraParam)
+		{
+			return await Load(new HashesDataTableLoadInput(sort, order, search, limit, offset, extraParam));
+		}
+
+		[HttpGet]
+		public async Task<IActionResult> Load(HashesDataTableLoadInput input)
 		{
 			#region Old code
 			// Get entity fieldnames
@@ -85,12 +113,24 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			var found = ItemsToJson(items, columnNames, sort, order, limit, offset);*/
 			#endregion Old code
 
+			if (!ModelState.IsValid)
+			{
+#if DEBUG
+				//_logger.LogWarning("!!!!!!!validation error" +Environment.NewLine +
+				//	ModelState.Values.Where(m => m.ValidationState != Microsoft.AspNetCore.Mvc.ModelBinding.ModelValidationState.Valid)
+				//	.SelectMany(m => m.Errors)
+				//	.Select(m => m.ErrorMessage + Environment.NewLine)
+				//	.Aggregate((me, me1) => me1 + " " + me));
+#endif
+				return BadRequest(ModelState);
+			}
+
 			CancellationToken token = HttpContext.RequestAborted;
 			try
 			{
 				//await Task.Delay(2_000, token);
 
-				var found = await _repo.SearchAsync(sort, order, search, offset, limit, token);
+				var found = await _repo.SearchAsync(input.Sort, input.Order, input.Search, input.Offset, input.Limit, token);
 
 				var result = new
 				{
@@ -102,7 +142,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			}
 			catch (OperationCanceledException ex)
 			{
-				_logger.LogWarning(ex, $"!!!!!!!!!!!!!!!Cancelled {nameof(Load)}::{nameof(_repo.SearchAsync)}({sort}, {order}, {search}, {offset}, {limit}, {token})");
+				_logger.LogWarning(ex, $"!!!!!!!!!!!!!!!Cancelled {nameof(Load)}::{nameof(_repo.SearchAsync)}" +
+					$"({input.Sort}, {input.Order}, {input.Search}, {input.Offset}, {input.Limit}, {token})");
 				return Ok();
 			}
 			catch (Exception)

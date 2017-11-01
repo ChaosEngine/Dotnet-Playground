@@ -1,6 +1,9 @@
 #!/bin/bash
 #
-	docker run -it --rm -v $(pwd):/app --workdir /app microsoft/aspnetcore-build:latest bash -c \
+	docker run -it --rm -v $(pwd):/app --workdir /app \
+		--env DBKind=sqlite \
+		--env ConnectionStrings__Sqlite="Filename=./bin/Debug/netcoreapp2.0/Blogging.db"  \
+		microsoft/aspnetcore-build:latest bash -c \
 		"cd Caching-MySQL && dotnet restore && cd .. && \
 		dotnet test -v n AspNetCore.ExistingDb.Tests && \
 		dotnet publish -c Release \

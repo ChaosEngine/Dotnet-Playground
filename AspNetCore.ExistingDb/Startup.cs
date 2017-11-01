@@ -18,7 +18,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 	public class Startup
 	{
 		public IConfiguration Configuration { get; }
-
+		
 		public static void Main(string[] args)
 		{
 			var host = new WebHostBuilder()
