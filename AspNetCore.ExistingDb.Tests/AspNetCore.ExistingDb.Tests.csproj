@@ -4,6 +4,7 @@
 	<!--unreleases test-patch line change-->
 	<NoWarn>$(NOWARN);NU1605</NoWarn>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+	<LangVersion>7.1</LangVersion>
     <IsPackable>false</IsPackable>
     <AssemblyName>AspNetCore.ExistingDb.Tests</AssemblyName>
     <RootNamespace>AspNetCore.ExistingDb.Tests</RootNamespace>

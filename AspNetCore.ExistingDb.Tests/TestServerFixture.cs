@@ -1,14 +1,12 @@
 ﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
-using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using Xunit;
 
 namespace Integration
 {
@@ -16,18 +14,20 @@ namespace Integration
 	/// A test fixture which hosts the target project (project we wish to test) in an in-memory server.
 	/// </summary>
 	/// <typeparam name="TStartup"/>Target project's startup type</typeparam>
-	public class TestFixture<TStartup> : IDisposable
-	{
+	public class TestServerFixture<TStartup> : IDisposable
+	{		
 		private readonly TestServer _server;
 
-		public TestFixture() : this(
-			//"AspNetCore.ExistingDb"
-			null
-			)
+		public HttpClient Client { get; }
+
+		public string DBKind { get; }
+
+		public TestServerFixture() : this(//"AspNetCore.ExistingDb"
+			null)
 		{
 		}
 
-		protected TestFixture(string relativeTargetProjectParentDir)
+		protected TestServerFixture(string relativeTargetProjectParentDir)
 		{
 			var startupAssembly = typeof(TStartup).GetTypeInfo().Assembly;
 			var contentRoot = GetProjectPath(relativeTargetProjectParentDir, startupAssembly);
@@ -40,19 +40,13 @@ namespace Integration
 
 			_server = new TestServer(builder);
 
+			DBKind = (_server.Host.Services.GetService(typeof(IConfiguration)) as IConfiguration)?["DBKind"];
+			
 			Client = _server.CreateClient();
 			Client.BaseAddress = new Uri("http://localhost");
 		}
 
-		public HttpClient Client { get; }
-
-		public void Dispose()
-		{
-			Client.Dispose();
-			_server.Dispose();
-		}
-
-		protected virtual void InitializeServices(IServiceCollection services)
+		/*protected virtual void InitializeServices(IServiceCollection services)
 		{
 			var startupAssembly = typeof(TStartup).GetTypeInfo().Assembly;
 
@@ -64,7 +58,7 @@ namespace Integration
 			manager.FeatureProviders.Add(new ViewComponentFeatureProvider());
 
 			services.AddSingleton(manager);
-		}
+		}*/
 
 		/// <summary>
 		/// Gets the full path to the target project that we wish to test
@@ -83,7 +77,7 @@ namespace Integration
 			projectRelativePath = projectRelativePath ?? projectName;
 
 			// Get currently executing test project path
-			var applicationBasePath = System.AppContext.BaseDirectory;
+			var applicationBasePath = AppContext.BaseDirectory;
 
 			// Find the path to the target project
 			var directoryInfo = new DirectoryInfo(applicationBasePath);
@@ -91,15 +85,13 @@ namespace Integration
 			{
 				directoryInfo = directoryInfo.Parent;
 
-				//var projectDirectoryInfo = new DirectoryInfo(Path.Combine(directoryInfo.FullName, projectRelativePath));
-				//if (projectDirectoryInfo.Exists)
-				var projectDirectoryInfo = directoryInfo.EnumerateDirectories().ToList().FirstOrDefault(d => d.Name == projectRelativePath);
+				var projectDirectoryInfo = directoryInfo.EnumerateDirectories().FirstOrDefault(d => d.Name == projectRelativePath);
 				if (projectDirectoryInfo != null)
 				{
-					var projectFileInfo = new FileInfo(Path.Combine(projectDirectoryInfo.FullName, /*projectName, */$"{projectName}.csproj"));
+					var projectFileInfo = new FileInfo(Path.Combine(projectDirectoryInfo.FullName, $"{projectName}.csproj"));
 					if (projectFileInfo.Exists)
 					{
-						return /*Path.Combine(*/projectDirectoryInfo.FullName/*, projectName)*/;
+						return projectDirectoryInfo.FullName;
 					}
 				}
 			}
@@ -107,5 +99,50 @@ namespace Integration
 
 			throw new Exception($"Project root could not be located using the application root {applicationBasePath}.");
 		}
+
+		#region IDisposable Support
+		private bool disposedValue = false; // To detect redundant calls
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposedValue)
+			{
+				if (disposing)
+				{
+					// TODO: dispose managed state (managed objects).
+					Client.Dispose();
+					_server.Dispose();
+				}
+
+				// TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+				// TODO: set large fields to null.
+
+				disposedValue = true;
+			}
+		}
+
+		// TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+		// ~TestFixture() {
+		//   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+		//   Dispose(false);
+		// }
+
+		// This code added to correctly implement the disposable pattern.
+		public void Dispose()
+		{
+			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+			Dispose(true);
+			// TODO: uncomment the following line if the finalizer is overridden above.
+			// GC.SuppressFinalize(this);
+		}
+		#endregion IDisposable Support
+	}
+
+	[CollectionDefinition(nameof(TestServerCollection))]
+	public class TestServerCollection : ICollectionFixture<TestServerFixture<EFGetStarted.AspNetCore.ExistingDb.Startup>>
+	{
+		// This class has no code, and is never created. Its purpose is simply
+		// to be the place to apply [CollectionDefinition] and all the
+		// ICollectionFixture<> interfaces.
 	}
 }

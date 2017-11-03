@@ -144,14 +144,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			if (statusCode <= 0)
 				statusCode = Response.StatusCode;
 
-			/*switch (Response.StatusCode)
-			{
-				case StatusCodes.Status404NotFound:
-					break;
-				default:
-					break;
-			}*/
-
 			var reExecute = HttpContext.Features.Get<IStatusCodeReExecuteFeature>();
 			_logger.LogInformation($"Unexpected Status Code: {statusCode}, OriginalPath: {reExecute?.OriginalPath}");
 

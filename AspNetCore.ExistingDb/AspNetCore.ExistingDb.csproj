@@ -5,6 +5,7 @@
 	<NoWarn>$(NOWARN);NU1605</NoWarn>
 	<VersionPrefix>1.0.2-custom</VersionPrefix>
 	<TargetFramework>netcoreapp2.0</TargetFramework>
+	<LangVersion>7.1</LangVersion>
 	<PreserveCompilationContext>true</PreserveCompilationContext>
 	<AssemblyName>AspNetCore.ExistingDb</AssemblyName>
 	<OutputType>Exe</OutputType>

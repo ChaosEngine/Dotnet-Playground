@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Web.CodeGeneration.Templating.Compilation;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 //[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
 
@@ -18,8 +19,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 	public class Startup
 	{
 		public IConfiguration Configuration { get; }
-		
-		public static void Main(string[] args)
+
+		static async Task Main(string[] args)
 		{
 			var host = new WebHostBuilder()
 				.UseKestrel()
@@ -29,7 +30,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				//.UseApplicationInsights()
 				.Build();
 
-			host.Run();
+			await host.RunAsync();
 		}
 
 		public Startup(IHostingEnvironment env)
