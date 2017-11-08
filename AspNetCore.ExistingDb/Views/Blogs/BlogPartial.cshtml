@@ -6,12 +6,12 @@
 	<form method="post" class="form-horizontal" data-id="@Model.BlogId">
 		<div asp-validation-summary="All" class="text-danger"></div>
 		@Html.AntiForgeryToken()
-		<input type="hidden" asp-for="ProtectedID" value="@Model.ProtectedID" />
+		<input type="hidden" id="ProtectedID_@Model.BlogId" name="ProtectedID" value="@Model.ProtectedID" />
 		<input asp-for="Url" value="@Model.Url" id="inp_@Model.BlogId" placeholder="Url" class="edit form-control" />
-		<input name="action" type="submit" value="@(BlogActionEnum.Edit)"
+		<input name="operation" type="submit" value="@(BlogActionEnum.Edit)"
 			   formaction="~/Blogs/@(BlogActionEnum.Edit)/@Model.BlogId/false" 
 			   class="update-case btn btn-default" />
-		<input name="action" type="submit" value="@(BlogActionEnum.Delete)"
+		<input name="operation" type="submit" value="@(BlogActionEnum.Delete)"
 			   formaction="~/Blogs/@(BlogActionEnum.Delete)/@Model.BlogId/false"
 			   class="delete-case btn btn-danger" formnovalidate="formnovalidate" />
 	</form>

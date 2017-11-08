@@ -1,14 +1,10 @@
 ﻿using AspNetCore.ExistingDb.Repositories;
 using EFGetStarted.AspNetCore.ExistingDb.Models;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,6 +19,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 	public class HashesDataTableController : BaseController<ThinHashes>, IHashesDataTableController
 	{
+		public const string ASPX = "HashesDataTable";
+
 		private readonly ILogger<HashesDataTableController> _logger;
 		private readonly IHashesRepository _repo;
 		private static readonly JsonSerializerSettings _serializationSettings =
@@ -48,7 +46,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			_repo.SetReadOnly(true);
 		}
 
-		[HttpGet("HashesDataTable")]
+		[HttpGet(ASPX)]
 		public IActionResult Index()
 		{
 			#region Old code

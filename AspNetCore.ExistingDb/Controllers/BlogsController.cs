@@ -25,6 +25,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 	[Route("[controller]")]
 	public class BlogsController : Controller, IBlogsController
 	{
+		public const string ASPX = "Blogs";
+
 		private readonly ILogger<BlogsController> _logger;
 		private readonly IConfiguration _configuration;
 		private readonly IDataProtector _protector;
@@ -61,11 +63,11 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 		//[HttpPost("Blogs/Edit/{BlogId}/{ajax}")]
 		//[HttpPost("Blogs/Delete/{BlogId}/{ajax}")]
 		//[HttpDelete("Blogs/Delete/{BlogId}/{ajax}")]
-		[Route(@"{x:regex(^(" + nameof(Delete) + "|" + nameof(Edit) + ")$)}" + @"/{BlogId}/{ajax}")]
+		[Route(@"{operation:regex(^(" + nameof(Delete) + "|" + nameof(Edit) + ")$)}/{" + nameof(DecoratedBlog.BlogId) + "}/{ajax}")]
 		[ValidateAntiForgeryToken]
-		public async Task<ActionResult> ItemAction(DecoratedBlog blog, bool ajax, BlogActionEnum action = BlogActionEnum.Unknown)
+		public async Task<ActionResult> ItemAction(DecoratedBlog blog, bool ajax, BlogActionEnum operation = BlogActionEnum.Unknown)
 		{
-			if (action == BlogActionEnum.Delete)
+			if (operation == BlogActionEnum.Delete)
 				ModelState.Remove(nameof(blog.Url));
 
 			if (!ModelState.IsValid)
@@ -75,13 +77,13 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 				else
 				{
 					IEnumerable<DecoratedBlog> lst = await GetBlogs();
-					lst = lst.Where(x => x.ProtectedID != blog.ProtectedID).Union(new[] { blog });
+					lst = lst.Where(l => l.ProtectedID != blog.ProtectedID).Union(new[] { blog });
 					return View(nameof(Index), lst);
 				}
 			}
 
 			ActionResult result;
-			switch (action)
+			switch (operation)
 			{
 				case BlogActionEnum.Edit:
 					result = await Edit(blog.BlogId, blog.Url, ajax);
@@ -91,14 +93,14 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 					break;
 				case BlogActionEnum.Unknown:
 				default:
-					throw new NotSupportedException($"Unknown {nameof(action)} {action.ToString()}");
+					throw new NotSupportedException($"Unknown {nameof(operation)} {operation.ToString()}");
 			}
 			if (ajax)
 				return result;
 			else
 			{
 				var appRootPath = _configuration.AppRootPath();
-				var destination_url = appRootPath + "Blogs";
+				var destination_url = appRootPath + ASPX;
 				return Redirect(destination_url);
 			}
 		}
@@ -168,7 +170,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 				await _repo.AddAsync(blog);
 				await _repo.SaveAsync();
 
-				var route = appRootPath + "Blogs";
+				var route = appRootPath + ASPX;
 				return Redirect(route);
 			}
 

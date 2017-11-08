@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -15,7 +17,7 @@ namespace Integration
 	/// </summary>
 	/// <typeparam name="TStartup"/>Target project's startup type</typeparam>
 	public class TestServerFixture<TStartup> : IDisposable
-	{		
+	{
 		private readonly TestServer _server;
 
 		public HttpClient Client { get; }
@@ -40,10 +42,10 @@ namespace Integration
 
 			_server = new TestServer(builder);
 
-			DBKind = (_server.Host.Services.GetService(typeof(IConfiguration)) as IConfiguration)?["DBKind"];
-			
 			Client = _server.CreateClient();
 			Client.BaseAddress = new Uri("http://localhost");
+
+			DBKind = (_server.Host.Services.GetService(typeof(IConfiguration)) as IConfiguration)?["DBKind"];
 		}
 
 		/*protected virtual void InitializeServices(IServiceCollection services)
