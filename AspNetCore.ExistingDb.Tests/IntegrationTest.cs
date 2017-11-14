@@ -342,9 +342,9 @@ namespace Integration
 		{
 			if (_fixture.DBKind == "sqlite") return;//pass on fake DB with no data
 
-			
+
 			// Arrange
-													// Act
+			// Act
 			using (HttpResponseMessage response = await _client.GetAsync($"/{BlogsController.ASPX}/"))
 			{
 				// Assert
@@ -431,6 +431,28 @@ namespace Integration
 					Match match = Regex.Match(responseString, $@"\<input type=""hidden"" id=""ProtectedID_{last_inserted_id}"" name=""ProtectedID"" value=""([^""]+)"" \/\>");
 					Assert.True(match.Success && match.Groups[1].Captures.Count > 0);
 					last_inserted_ProtectedID = match.Groups[1].Captures[0].Value;
+				}
+
+				data = new DecoratedBlog
+				{
+					BlogId = last_inserted_id,
+					ProtectedID = last_inserted_ProtectedID,
+					Url = $"http://www.changed-{now.Year + 1}-{now.Month}-{now.Day}.com/NewContent{now.Hour}-{now.Minute}-{now.Second}"
+				}.ToDictionary().ToList();
+				data.Add(new KeyValuePair<string, string>("__RequestVerificationToken", antiforgery_token));
+
+				using (var formPostBodyData = new FormUrlEncodedContent(data))
+				{
+					PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, create_get_response);
+					using (var response = await _client.PostAsync($"/{BlogsController.ASPX}/{nameof(BlogActionEnum.Edit)}/{last_inserted_id}/true",
+						formPostBodyData))
+					{
+						Assert.NotNull(response);
+						response.EnsureSuccessStatusCode();
+						Assert.Contains("application/json", response.Content.Headers.GetValues("Content-Type").FirstOrDefault());
+						Assert.Contains("{\"blogId\":" + last_inserted_id + ",\"url\":\"" + $"http://www.changed-{now.Year + 1}-{now.Month}-{now.Day}.com/NewContent{now.Hour}-{now.Minute}-{now.Second}",
+							await response.Content.ReadAsStringAsync());
+					}
 				}
 
 				data = new DecoratedBlog

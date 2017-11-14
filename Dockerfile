@@ -4,9 +4,7 @@ COPY . .
 
 ENV DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/netcoreapp2.0/Blogging.db"
 RUN dotnet test -v n AspNetCore.ExistingDb.Tests
-RUN dotnet publish -c Release \
-	-p:PublishWithAspNetCoreTargetManifest=false #remove this afer prerelease patch publish \
-	AspNetCore.ExistingDb
+RUN dotnet publish -c Release AspNetCore.ExistingDb
 
 RUN find AspNetCore.ExistingDb/bin/Release/netcoreapp2.0/publish/ -type d -exec chmod ug=rwx,o=rx {} \; && \
 	find AspNetCore.ExistingDb/bin/Release/netcoreapp2.0/publish/ -type f -exec chmod ug=rw,o=r {} \; && \

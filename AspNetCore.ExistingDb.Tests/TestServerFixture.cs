@@ -34,6 +34,8 @@ namespace Integration
 			var startupAssembly = typeof(TStartup).GetTypeInfo().Assembly;
 			var contentRoot = GetProjectPath(relativeTargetProjectParentDir, startupAssembly);
 
+			Directory.SetCurrentDirectory(contentRoot);
+
 			var builder = new WebHostBuilder()
 				.UseContentRoot(contentRoot)
 				//.ConfigureServices(InitializeServices)

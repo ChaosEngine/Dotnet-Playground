@@ -1,8 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	<!--unreleases test-patch line change-->
-	<NoWarn>$(NOWARN);NU1605</NoWarn>
     <TargetFramework>netcoreapp2.0</TargetFramework>
 	<LangVersion>7.1</LangVersion>
     <IsPackable>false</IsPackable>
@@ -21,12 +19,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
     <PackageReference Include="xunit" Version="2.3.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
-	<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.0.0" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.0.1" />
 	<PackageReference Include="Moq" Version="4.7.145" />
-	<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="2.0.0" />
+	<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="2.0.1" />
   </ItemGroup>
 
   <ItemGroup>
