@@ -15,8 +15,9 @@ namespace AspNetCore.ExistingDb.Migrations
                 {
                     BlogId = table.Column<int>(nullable: false)
 						.Annotation("Sqlite:Autoincrement", true)
-						.Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Url = table.Column<string>(nullable: false)
+						.Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
+						.Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+					Url = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -27,10 +28,10 @@ namespace AspNetCore.ExistingDb.Migrations
                 name: "Hashes",
                 columns: table => new
                 {
-                    Key = table.Column<string>(type: "varchar(20)", nullable: false),
-                    hashMD5 = table.Column<string>(type: "char(32)", nullable: false),
-                    hashSHA256 = table.Column<string>(type: "char(64)", nullable: false)
-                },
+					Key = table.Column<string>(type: "varchar(20)", nullable: false),
+					hashMD5 = table.Column<string>(type: "char(32)", nullable: false),
+					hashSHA256 = table.Column<string>(type: "char(64)", nullable: false)
+				},
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Hashes", x => x.Key);

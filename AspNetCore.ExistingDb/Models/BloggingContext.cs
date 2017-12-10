@@ -9,6 +9,7 @@ using MySql.Data.MySqlClient;
 using System;
 using System.Data.Common;
 using System.IO;
+using System.Security.Cryptography.X509Certificates;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Models
 {
@@ -71,10 +72,43 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 						dbContextOpts.UseSqlite(conn_str);
 					break;
 
+				case "psql":
+				case "npsql":
+				case "postgres":
+				case "postgresql":
+					conn_str = configuration.GetConnectionString("PostgreSql");
+					if (dbContextOpts != null)
+					{
+						var conn = new Npgsql.NpgsqlConnection(conn_str);
+						conn.ProvideClientCertificatesCallback = MyProvideClientCertificatesCallback;
+
+						dbContextOpts.UseNpgsql(conn);
+					}
+					break;
+
 				default:
 					throw new NotSupportedException($"Bad DBKind name");
 			}
 			return conn_str;
+
+			void MyProvideClientCertificatesCallback(X509CertificateCollection clientCerts)
+			{
+				using (X509Store store = new X509Store(StoreLocation.CurrentUser))
+				{
+					store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);
+
+					var currentCerts = store.Certificates;
+					currentCerts = currentCerts.Find(X509FindType.FindByTimeValid, DateTime.Now, false);
+					currentCerts = currentCerts.Find(X509FindType.FindByIssuerName, "theBrain.ca", false);
+					currentCerts = currentCerts.Find(X509FindType.FindBySubjectName, Environment.MachineName, false);
+					if (currentCerts != null && currentCerts.Count > 0)
+					{
+						var cert = currentCerts[0];
+						clientCerts.Add(cert);
+					}
+				}
+			}
+
 		}
 
 		/// <summary>
@@ -130,6 +164,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 						return "sqlconnection";
 					case "Pomelo.EntityFrameworkCore.MySql":
 						return "mysqlconnection";
+					case "Npgsql.EntityFrameworkCore.PostgreSQL":
+						return "npsqlconnection";
 					default:
 						throw new NotSupportedException($"Bad DBKind name");
 				}
@@ -146,6 +182,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		{
 			modelBuilder.Entity<Blog>(entity =>
 			{
+				entity.Property(e => e.BlogId).ValueGeneratedOnAdd();
 				entity.Property(e => e.Url).IsRequired();
 				entity.ToTable("Blog");
 			});
@@ -160,9 +197,18 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 
 			modelBuilder.Entity<ThinHashes>(entity =>
 			{
-				entity.Property(e => e.Key).IsRequired().HasColumnType("varchar(20)");
-				entity.Property(e => e.HashMD5).IsRequired().HasColumnType("char(32)").HasColumnName("hashMD5");
-				entity.Property(e => e.HashSHA256).IsRequired().HasColumnType("char(64)").HasColumnName("hashSHA256");
+				if (ConnectionTypeName == "npsqlconnection")
+				{
+					entity.Property(e => e.Key).IsRequired().HasColumnType("varchar(20)");
+					entity.Property(e => e.HashMD5).IsRequired().HasColumnType("character(32)").HasColumnName("hashMD5");
+					entity.Property(e => e.HashSHA256).IsRequired().HasColumnType("character(64)").HasColumnName("hashSHA256");
+				}
+				else
+				{
+					entity.Property(e => e.Key).IsRequired().HasColumnType("varchar(20)");
+					entity.Property(e => e.HashMD5).IsRequired().HasColumnType("char(32)").HasColumnName("hashMD5");
+					entity.Property(e => e.HashSHA256).IsRequired().HasColumnType("char(64)").HasColumnName("hashSHA256");
+				}
 
 				//modelBuilder.Entity<ThinHashes>().HasIndex(e => e.HashMD5);
 				//modelBuilder.Entity<ThinHashes>().HasIndex(e => e.HashSHA256);

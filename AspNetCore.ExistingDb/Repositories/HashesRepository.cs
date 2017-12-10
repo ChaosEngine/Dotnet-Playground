@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -85,6 +86,15 @@ namespace AspNetCore.ExistingDb.Repositories
 				case "mysqlconnection":
 					found = (from x in _entities.ThinHashes
 							 where (x.HashMD5.StartsWith(text) || x.HashSHA256.StartsWith(text))
+							 select x)
+						.Take(20)
+						.DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT })
+						.ToListAsync();
+					break;
+
+				case "npsqlconnection":
+					found = (from x in _entities.ThinHashes
+							 where (x.HashMD5.IndexOf(text) > 0 || x.HashSHA256.IndexOf(text) > 0)
 							 select x)
 						.Take(20)
 						.DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT })
@@ -414,6 +424,96 @@ LIMIT @limit OFFSET @offset
 			}
 		}
 
+		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchPostgresAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit, CancellationToken token)
+		{
+			string col_names = string.Join("\",\"", AllColumnNames);
+			string sql =// "SET SESSION SQL_BIG_SELECTS=1;" +
+(string.IsNullOrEmpty(searchText) ?
+@"
+SELECT count(*) cnt FROM ""Hashes"""
+:
+$@"
+CREATE TEMPORARY TABLE tempo AS
+SELECT ""{col_names}""
+FROM ""Hashes""
+WHERE {WhereColumnCondition('"', '"')}
+;
+SELECT count(*) cnt FROM tempo"
+) +
+$@";
+SELECT ""{col_names}""
+FROM {(string.IsNullOrEmpty(searchText) ? "\"Hashes\"" : "tempo")}
+
+{(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY \"{sortColumn}\" {sortOrderDirection}")}
+LIMIT @limit OFFSET @offset
+";
+
+			using (var conn = new NpgsqlConnection(_configuration.GetConnectionString("PostgreSql")))
+			{
+				var found = new List<ThinHashes>(limit);
+				int count = -1;
+
+				await conn.OpenAsync(token);
+				using (var cmd = new NpgsqlCommand(sql, conn))
+				{
+					cmd.CommandText = sql;
+					cmd.CommandTimeout = 240;
+					DbParameter parameter;
+
+					parameter = cmd.CreateParameter();
+					parameter.ParameterName = "@offset";
+					parameter.DbType = DbType.Int32;
+					parameter.Value = offset;
+					cmd.Parameters.Add(parameter);
+
+					parameter = cmd.CreateParameter();
+					parameter.ParameterName = "@limit";
+					parameter.DbType = DbType.Int32;
+					parameter.Value = limit;
+					cmd.Parameters.Add(parameter);
+
+					if (!string.IsNullOrEmpty(searchText))
+					{
+						parameter = cmd.CreateParameter();
+						parameter.ParameterName = "@searchText";
+						parameter.DbType = DbType.String;
+						parameter.Size = 100;
+						parameter.Value =  /*'%' + */searchText + '%';
+						cmd.Parameters.Add(parameter);
+					}
+
+					using (var rdr = await cmd.ExecuteReaderAsync(token))
+					{
+						if (await rdr.ReadAsync(token))
+						{
+							count = rdr.GetInt32(0);
+						}
+
+						if (count > 0 && await rdr.NextResultAsync(token) && rdr.HasRows)
+						{
+							string[] strings = new string[3];
+							while (await rdr.ReadAsync(token))
+							{
+								rdr.GetValues(strings);
+								found.Add(new ThinHashes
+								{
+									Key = strings[0],
+									HashMD5 = strings[1],
+									HashSHA256 = strings[2]
+								});
+							}
+						}
+						else
+						{
+							found.Add(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
+						}
+					}
+				}
+
+				return (found, count);
+			}//end using
+		}
+
 		public async Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchAsync(string sortColumn, string sortOrderDirection, string searchText,
 			int offset, int limit, CancellationToken token)
 		{
@@ -437,6 +537,9 @@ LIMIT @limit OFFSET @offset
 
 				case "sqliteconnection":
 					return await SearchSqliteAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
+
+				case "npsqlconnection":
+					return await SearchPostgresAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
 
 				default:
 					throw new NotSupportedException($"Bad {nameof(BloggingContext.ConnectionTypeName)} name");
