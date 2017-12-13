@@ -90,25 +90,24 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 					throw new NotSupportedException($"Bad DBKind name");
 			}
 			return conn_str;
+		}
 
-			void MyProvideClientCertificatesCallback(X509CertificateCollection clientCerts)
+		internal static void MyProvideClientCertificatesCallback(X509CertificateCollection clientCerts)
+		{
+			using (X509Store store = new X509Store(StoreLocation.CurrentUser))
 			{
-				using (X509Store store = new X509Store(StoreLocation.CurrentUser))
-				{
-					store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);
+				store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);
 
-					var currentCerts = store.Certificates;
-					currentCerts = currentCerts.Find(X509FindType.FindByTimeValid, DateTime.Now, false);
-					currentCerts = currentCerts.Find(X509FindType.FindByIssuerName, "theBrain.ca", false);
-					currentCerts = currentCerts.Find(X509FindType.FindBySubjectName, Environment.MachineName, false);
-					if (currentCerts != null && currentCerts.Count > 0)
-					{
-						var cert = currentCerts[0];
-						clientCerts.Add(cert);
-					}
+				var currentCerts = store.Certificates;
+				currentCerts = currentCerts.Find(X509FindType.FindByTimeValid, DateTime.Now, false);
+				currentCerts = currentCerts.Find(X509FindType.FindByIssuerName, "theBrain.ca", false);
+				currentCerts = currentCerts.Find(X509FindType.FindBySubjectName, Environment.MachineName, false);
+				if (currentCerts != null && currentCerts.Count > 0)
+				{
+					var cert = currentCerts[0];
+					clientCerts.Add(cert);
 				}
 			}
-
 		}
 
 		/// <summary>

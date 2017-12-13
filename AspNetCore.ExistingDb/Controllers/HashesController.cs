@@ -24,12 +24,11 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 	{
 		private static readonly object _locker = new object();
 		private readonly IConfiguration _configuration;
-		private readonly BloggingContext _context;
 		private readonly IHashesRepository _repo;
 		private readonly ILoggerFactory _loggerFactory;
 		private readonly ILogger<HashesController> _logger;
 
-		public HashesController(IHashesRepository repo, ILoggerFactory loggerFactory, IConfiguration configuration, BloggingContext context)
+		public HashesController(IHashesRepository repo, ILoggerFactory loggerFactory, IConfiguration configuration)
 		{
 			_repo = repo;
 			_repo.SetReadOnly(true);
@@ -37,7 +36,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			_loggerFactory = loggerFactory;
 			_logger = loggerFactory.CreateLogger<HashesController>();
 			_configuration = configuration;
-			_context = context;
 		}
 
 		public async Task<IActionResult> Index()
@@ -91,20 +89,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			});
 
 			hi.Search = hi.Search.Trim().ToLower();
-
-			//var found = (await (hi.Kind == KindEnum.MD5 ?
-			//	_repo.FindByAsync(x => x.HashMD5 == hi.Search) :
-			//	_repo.FindByAsync(x => x.HashSHA256 == hi.Search)))
-			//	.DefaultIfEmpty(new ThinHashes { Key = "nothing found" }).FirstOrDefault();
-			var search_param = new Npgsql.NpgsqlParameter("search", NpgsqlDbType.Char, 32)
-			{
-				Value = hi.Search
-			};
-			var found = (await (hi.Kind == KindEnum.MD5 ?
-				_context.ThinHashes.FromSql("SELECT h.* FROM \"Hashes\" h WHERE h.\"hashMD5\" = @search", search_param).FirstOrDefaultAsync() :
-				_context.ThinHashes.FromSql("SELECT h.* FROM \"Hashes\" h WHERE h.\"hashSHA256\" = @search", search_param).FirstOrDefaultAsync()))
-				?? new ThinHashes { Key = "nothing found" };
-
+			
+			var found = await _repo.SearchAsync(hi);
 
 			if (ajax)
 				return Json(new Hashes(found, hi));

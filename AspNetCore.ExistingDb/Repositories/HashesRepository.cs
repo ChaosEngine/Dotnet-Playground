@@ -1,9 +1,11 @@
 ﻿using EFGetStarted.AspNetCore.ExistingDb.Models;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using Npgsql;
+using NpgsqlTypes;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -29,6 +31,8 @@ namespace AspNetCore.ExistingDb.Repositories
 
 		Task<HashesInfo> CalculateHashesInfo(ILoggerFactory _loggerFactory, ILogger _logger, IConfiguration conf,
 			DbContextOptions<BloggingContext> dbContextOptions);
+
+		Task<ThinHashes> SearchAsync(HashInput input);
 	}
 
 	public class HashesRepository : GenericRepository<BloggingContext, ThinHashes>, IHashesRepository
@@ -77,15 +81,16 @@ namespace AspNetCore.ExistingDb.Repositories
 
 		public Task<List<ThinHashes>> AutoComplete(string text)
 		{
-			text = text.Trim().ToLower();
+			text = $"{text.Trim().ToLower()}%";
 			Task<List<ThinHashes>> found = null;
 
 			switch (_entities.ConnectionTypeName)
 			{
 				case "sqliteconnection":
 				case "mysqlconnection":
+				case "sqlconnection":
 					found = (from x in _entities.ThinHashes
-							 where (x.HashMD5.StartsWith(text) || x.HashSHA256.StartsWith(text))
+							 where EF.Functions.Like(x.HashMD5, text) || EF.Functions.Like(x.HashSHA256, text)
 							 select x)
 						.Take(20)
 						.DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT })
@@ -94,27 +99,27 @@ namespace AspNetCore.ExistingDb.Repositories
 
 				case "npsqlconnection":
 					found = (from x in _entities.ThinHashes
-							 where (x.HashMD5.IndexOf(text) > 0 || x.HashSHA256.IndexOf(text) > 0)
+							 where EF.Functions.Like(x.HashMD5, text, "'\\'") || EF.Functions.Like(x.HashSHA256, text, "'\\'")
 							 select x)
 						.Take(20)
 						.DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT })
 						.ToListAsync();
 					break;
 
-				case "sqlconnection":
+				/*case "sqlconnection":
 					found = _entities.ThinHashes.FromSql(
 $@"SELECT TOP 20 * FROM (
-	SELECT x.[{nameof(Hashes.Key)}], x.{nameof(Hashes.HashMD5)}, x.{nameof(Hashes.HashSHA256)}
-	FROM {nameof(Hashes)} AS x
-	WHERE x.{nameof(Hashes.HashMD5)} like cast(@text as varchar)
-	UNION ALL
-	SELECT y.[{nameof(Hashes.Key)}], y.{nameof(Hashes.HashMD5)}, y.{nameof(Hashes.HashSHA256)}
-	FROM {nameof(Hashes)} AS y
-	WHERE y.{nameof(Hashes.HashSHA256)} like cast(@text as varchar)
-) a", new SqlParameter("@text", text + '%'))
+					SELECT x.[{nameof(Hashes.Key)}], x.{nameof(Hashes.HashMD5)}, x.{nameof(Hashes.HashSHA256)}
+					FROM {nameof(Hashes)} AS x
+					WHERE x.{nameof(Hashes.HashMD5)} like cast(@text as varchar)
+					UNION ALL
+					SELECT y.[{nameof(Hashes.Key)}], y.{nameof(Hashes.HashMD5)}, y.{nameof(Hashes.HashSHA256)}
+					FROM {nameof(Hashes)} AS y
+					WHERE y.{nameof(Hashes.HashSHA256)} like cast(@text as varchar)
+				) a", new SqlParameter("@text", text + '%'))
 						.DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT })
 						.ToListAsync();
-					break;
+					break;*/
 
 				default:
 					throw new NotSupportedException($"Bad {nameof(BloggingContext.ConnectionTypeName)} name");
@@ -123,14 +128,15 @@ $@"SELECT TOP 20 * FROM (
 			return found;
 		}
 
-		private string WhereColumnCondition(char colNamePrefix, char colNameSuffix, string searchTextParamName = "searchText")
+		private string WhereColumnCondition(char colNamePrefix, char colNameSuffix, IEnumerable<string> columnNames = null, string searchTextParamName = "searchText")
 		{
 			var sb = new StringBuilder(
 @"
 (
 	");
 			string comma = string.Empty;
-			foreach (var col in AllColumnNames)
+			columnNames = columnNames ?? AllColumnNames;
+			foreach (var col in columnNames)
 			{
 				//([Key] LIKE @searchText) OR
 				sb.AppendFormat("{0}({3}{1}{4} LIKE @{2})", comma, col, searchTextParamName, colNamePrefix, colNameSuffix);
@@ -426,7 +432,8 @@ LIMIT @limit OFFSET @offset
 
 		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchPostgresAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit, CancellationToken token)
 		{
-			string col_names = string.Join("\",\"", AllColumnNames);
+			var cols = AllColumnNames.Select(x => x.Replace("Hash","hash"));
+			string col_names = string.Join("\",\"", cols);
 			string sql =// "SET SESSION SQL_BIG_SELECTS=1;" +
 (string.IsNullOrEmpty(searchText) ?
 @"
@@ -436,7 +443,7 @@ $@"
 CREATE TEMPORARY TABLE tempo AS
 SELECT ""{col_names}""
 FROM ""Hashes""
-WHERE {WhereColumnCondition('"', '"')}
+WHERE {WhereColumnCondition('"', '"', cols)}
 ;
 SELECT count(*) cnt FROM tempo"
 ) +
@@ -444,12 +451,14 @@ $@";
 SELECT ""{col_names}""
 FROM {(string.IsNullOrEmpty(searchText) ? "\"Hashes\"" : "tempo")}
 
-{(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY \"{sortColumn}\" {sortOrderDirection}")}
+{(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY \"{cols.FirstOrDefault(x => string.Compare(x, sortColumn, StringComparison.CurrentCultureIgnoreCase) == 0)}\" {sortOrderDirection}")}
 LIMIT @limit OFFSET @offset
 ";
 
 			using (var conn = new NpgsqlConnection(_configuration.GetConnectionString("PostgreSql")))
 			{
+				conn.ProvideClientCertificatesCallback = BloggingContextFactory.MyProvideClientCertificatesCallback;
+
 				var found = new List<ThinHashes>(limit);
 				int count = -1;
 
@@ -616,6 +625,60 @@ LIMIT @limit OFFSET @offset
 					return hi;
 				}
 			}
+		}
+
+		public async Task<ThinHashes> SearchAsync(HashInput hi)
+		{
+			ThinHashes found;
+			switch (_entities.ConnectionTypeName)
+			{
+				case "sqliteconnection":
+				case "mysqlconnection":
+				case "sqlconnection":
+					if (hi.Kind == KindEnum.MD5)
+					{
+						found = await (from x in _entities.ThinHashes
+									   where x.HashMD5 == hi.Search
+									   select x)
+									   .DefaultIfEmpty(new ThinHashes { Key = "nothing found" })
+									   .FirstOrDefaultAsync();
+					}
+					else
+					{
+						found = await (from x in _entities.ThinHashes
+									   where x.HashSHA256 == hi.Search
+									   select x)
+									   .DefaultIfEmpty(new ThinHashes { Key = "nothing found" })
+									   .FirstOrDefaultAsync();
+					}
+					break;
+
+				case "npsqlconnection":
+					var search = new NpgsqlParameter("search", NpgsqlDbType.Char)
+					{
+						Value = hi.Search
+					};
+					if (hi.Kind == KindEnum.MD5)
+					{
+						search.Size = 32;
+						found = await _entities.ThinHashes.FromSql("SELECT h.* FROM \"Hashes\" h WHERE h.\"hashMD5\" = @search", search)
+							.FirstOrDefaultAsync()
+							?? new ThinHashes { Key = "nothing found" };
+					}
+					else
+					{
+						search.Size = 64;
+						found = await _entities.ThinHashes.FromSql("SELECT h.* FROM \"Hashes\" h WHERE h.\"hashSHA256\" = @search", search)
+							.FirstOrDefaultAsync()
+							?? new ThinHashes { Key = "nothing found" };
+					}
+					break;
+
+				default:
+					throw new NotSupportedException($"Bad {nameof(BloggingContext.ConnectionTypeName)} name");
+			}
+
+			return found;
 		}
 	}
 }
