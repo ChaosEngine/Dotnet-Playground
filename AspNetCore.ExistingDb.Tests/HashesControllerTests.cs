@@ -134,6 +134,17 @@ namespace Controllers
 					return Task.FromResult(tuple);
 				});
 
+			mock.Setup(r => r.SearchAsync(Moq.It.IsAny<HashInput>())).Returns((HashInput inp) =>
+			{
+				ThinHashes th;
+				if (inp.Kind == KindEnum.MD5)
+					th = hashes.FirstOrDefault(x => x.HashMD5 == inp.Search);
+				else
+					th = hashes.FirstOrDefault(x => x.HashSHA256 == inp.Search);
+
+				return Task.FromResult(th ?? new ThinHashes { Key = "nothing found" });
+			});
+
 			mock.Setup(r => r.GetAll()).Returns(() =>
 			{
 				var querable = hashes.AsQueryable();
