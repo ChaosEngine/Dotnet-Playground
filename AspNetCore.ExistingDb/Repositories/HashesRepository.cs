@@ -24,7 +24,7 @@ namespace AspNetCore.ExistingDb.Repositories
 
 		void SetReadOnly(bool value);
 
-		Task<List<ThinHashes>> AutoComplete(string text);
+		Task<IEnumerable<ThinHashes>> AutoComplete(string text);
 
 		Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchAsync(string sortColumn, string sortOrderDirection, string searchText,
 			int offset, int limit, CancellationToken token);
@@ -46,12 +46,23 @@ namespace AspNetCore.ExistingDb.Repositories
 		/// locally cached value for request, refreshed upon every request.
 		/// </summary>
 		private HashesInfo _hi;
+		private static IEnumerable<string> _postgresAllColumnNames;
 		private static readonly object _locker = new object();
 		private readonly IConfiguration _configuration;
 
 		public Task<HashesInfo> CurrentHashesInfo
 		{
 			get { return GetHashesInfoFromDB(_entities); }
+		}
+
+		private static IEnumerable<String> PostgresAllColumnNames
+		{
+			get
+			{
+				if (_postgresAllColumnNames == null)
+					_postgresAllColumnNames = AllColumnNames.Select(x => x.Replace("Hash", "hash"));
+				return _postgresAllColumnNames;
+			}
 		}
 
 		private async Task<HashesInfo> GetHashesInfoFromDB(BloggingContext db)
@@ -79,7 +90,7 @@ namespace AspNetCore.ExistingDb.Repositories
 			_entities.ChangeTracker.QueryTrackingBehavior = value ? QueryTrackingBehavior.NoTracking : QueryTrackingBehavior.TrackAll;
 		}
 
-		public Task<List<ThinHashes>> AutoComplete(string text)
+		public async Task<IEnumerable<ThinHashes>> AutoComplete(string text)
 		{
 			text = $"{text.Trim().ToLower()}%";
 			Task<List<ThinHashes>> found = null;
@@ -93,7 +104,7 @@ namespace AspNetCore.ExistingDb.Repositories
 							 where EF.Functions.Like(x.HashMD5, text) || EF.Functions.Like(x.HashSHA256, text)
 							 select x)
 						.Take(20)
-						.DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT })
+						//.DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT })
 						.ToListAsync();
 					break;
 
@@ -102,13 +113,13 @@ namespace AspNetCore.ExistingDb.Repositories
 							 where EF.Functions.Like(x.HashMD5, text, "'\\'") || EF.Functions.Like(x.HashSHA256, text, "'\\'")
 							 select x)
 						.Take(20)
-						.DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT })
+						//.DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT })
 						.ToListAsync();
 					break;
 
 				/*case "sqlconnection":
 					found = _entities.ThinHashes.FromSql(
-$@"SELECT TOP 20 * FROM (
+					$@"SELECT TOP 20 * FROM (
 					SELECT x.[{nameof(Hashes.Key)}], x.{nameof(Hashes.HashMD5)}, x.{nameof(Hashes.HashSHA256)}
 					FROM {nameof(Hashes)} AS x
 					WHERE x.{nameof(Hashes.HashMD5)} like cast(@text as varchar)
@@ -117,15 +128,15 @@ $@"SELECT TOP 20 * FROM (
 					FROM {nameof(Hashes)} AS y
 					WHERE y.{nameof(Hashes.HashSHA256)} like cast(@text as varchar)
 				) a", new SqlParameter("@text", text + '%'))
-						.DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT })
+						//.DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT })
 						.ToListAsync();
 					break;*/
 
 				default:
 					throw new NotSupportedException($"Bad {nameof(BloggingContext.ConnectionTypeName)} name");
 			}
-
-			return found;
+						
+			return (await found).DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
 		}
 
 		private string WhereColumnCondition(char colNamePrefix, char colNameSuffix, IEnumerable<string> columnNames = null, string searchTextParamName = "searchText")
@@ -432,8 +443,7 @@ LIMIT @limit OFFSET @offset
 
 		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchPostgresAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit, CancellationToken token)
 		{
-			var cols = AllColumnNames.Select(x => x.Replace("Hash","hash"));
-			string col_names = string.Join("\",\"", cols);
+			string col_names = string.Join("\",\"", PostgresAllColumnNames);
 			string sql =// "SET SESSION SQL_BIG_SELECTS=1;" +
 (string.IsNullOrEmpty(searchText) ?
 @"
@@ -443,7 +453,7 @@ $@"
 CREATE TEMPORARY TABLE tempo AS
 SELECT ""{col_names}""
 FROM ""Hashes""
-WHERE {WhereColumnCondition('"', '"', cols)}
+WHERE {WhereColumnCondition('"', '"', PostgresAllColumnNames)}
 ;
 SELECT count(*) cnt FROM tempo"
 ) +
@@ -451,7 +461,7 @@ $@";
 SELECT ""{col_names}""
 FROM {(string.IsNullOrEmpty(searchText) ? "\"Hashes\"" : "tempo")}
 
-{(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY \"{cols.FirstOrDefault(x => string.Compare(x, sortColumn, StringComparison.CurrentCultureIgnoreCase) == 0)}\" {sortOrderDirection}")}
+{(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY \"{PostgresAllColumnNames.FirstOrDefault(x => string.Compare(x, sortColumn, StringComparison.CurrentCultureIgnoreCase) == 0)}\" {sortOrderDirection}")}
 LIMIT @limit OFFSET @offset
 ";
 
@@ -635,12 +645,12 @@ LIMIT @limit OFFSET @offset
 				case "sqliteconnection":
 				case "mysqlconnection":
 				case "sqlconnection":
+				//case "npsqlconnection":
 					if (hi.Kind == KindEnum.MD5)
 					{
 						found = await (from x in _entities.ThinHashes
 									   where x.HashMD5 == hi.Search
 									   select x)
-									   .DefaultIfEmpty(new ThinHashes { Key = "nothing found" })
 									   .FirstOrDefaultAsync();
 					}
 					else
@@ -648,9 +658,9 @@ LIMIT @limit OFFSET @offset
 						found = await (from x in _entities.ThinHashes
 									   where x.HashSHA256 == hi.Search
 									   select x)
-									   .DefaultIfEmpty(new ThinHashes { Key = "nothing found" })
 									   .FirstOrDefaultAsync();
 					}
+					found = found ?? new ThinHashes { Key = _NOTHING_FOUND_TEXT };
 					break;
 
 				case "npsqlconnection":
@@ -663,14 +673,14 @@ LIMIT @limit OFFSET @offset
 						search.Size = 32;
 						found = await _entities.ThinHashes.FromSql("SELECT h.* FROM \"Hashes\" h WHERE h.\"hashMD5\" = @search", search)
 							.FirstOrDefaultAsync()
-							?? new ThinHashes { Key = "nothing found" };
+							?? new ThinHashes { Key = _NOTHING_FOUND_TEXT };
 					}
 					else
 					{
 						search.Size = 64;
 						found = await _entities.ThinHashes.FromSql("SELECT h.* FROM \"Hashes\" h WHERE h.\"hashSHA256\" = @search", search)
 							.FirstOrDefaultAsync()
-							?? new ThinHashes { Key = "nothing found" };
+							?? new ThinHashes { Key = _NOTHING_FOUND_TEXT };
 					}
 					break;
 

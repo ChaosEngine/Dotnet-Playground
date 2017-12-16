@@ -67,7 +67,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		{
 			ConfigureDependencyInjection(services);
 
-			services.AddDbContextPool<BloggingContext>(options =>
+			services.AddDbContext<BloggingContext>(options =>
 			{
 				BloggingContextFactory.ConfigureDBKind(options, Configuration);
 			});

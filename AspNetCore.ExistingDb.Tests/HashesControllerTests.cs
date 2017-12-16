@@ -105,8 +105,7 @@ namespace Controllers
 			{
 				var found = hashes.Where(h =>
 					h.HashMD5.ToLowerInvariant().StartsWith(s) || h.HashSHA256.ToLowerInvariant().StartsWith(s) || h.Key.ToLowerInvariant().StartsWith(s))
-					.DefaultIfEmpty(new ThinHashes { Key = "nothing found" })
-					.ToList();
+					.DefaultIfEmpty(new ThinHashes { Key = "nothing found" });
 
 				return Task.FromResult(found);
 			});
@@ -409,11 +408,11 @@ namespace Controllers
 
 				// Assert
 				Assert.IsType<JsonResult>(result);
-				Assert.IsType<List<ThinHashes>>(((JsonResult)result).Value);
-				var lst = ((List<ThinHashes>)((JsonResult)result).Value);
+				Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(((JsonResult)result).Value);
+				var lst = ((IEnumerable<ThinHashes>)((JsonResult)result).Value);
 				Assert.NotNull(lst);
 				Assert.NotEmpty(lst);
-				Assert.True(1 == lst.Count);
+				Assert.True(1 == lst.Count());
 				Assert.Contains(lst, l => l.Key == "ilfad");
 
 
@@ -422,11 +421,11 @@ namespace Controllers
 
 				// Assert
 				Assert.IsType<JsonResult>(result);
-				Assert.IsType<List<ThinHashes>>(((JsonResult)result).Value);
-				lst = ((List<ThinHashes>)((JsonResult)result).Value);
+				Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(((JsonResult)result).Value);
+				lst = ((IEnumerable<ThinHashes>)((JsonResult)result).Value);
 				Assert.NotNull(lst);
 				Assert.NotEmpty(lst);
-				Assert.True(1 == lst.Count);
+				Assert.True(1 == lst.Count());
 				Assert.Contains(lst, l => l.Key == "ilfad");
 
 
@@ -435,11 +434,11 @@ namespace Controllers
 
 				// Assert
 				Assert.IsType<JsonResult>(result);
-				Assert.IsType<List<ThinHashes>>(((JsonResult)result).Value);
-				lst = ((List<ThinHashes>)((JsonResult)result).Value);
+				Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(((JsonResult)result).Value);
+				lst = ((IEnumerable<ThinHashes>)((JsonResult)result).Value);
 				Assert.NotNull(lst);
 				Assert.NotEmpty(lst);
-				Assert.True(1 == lst.Count);
+				Assert.True(1 == lst.Count());
 				Assert.Equal("nothing found", lst.First().Key);
 				Assert.Null(lst.First().HashMD5);
 				Assert.Null(lst.First().HashSHA256);
@@ -450,11 +449,11 @@ namespace Controllers
 
 				// Assert
 				Assert.IsType<ViewResult>(result);
-				Assert.IsType<List<ThinHashes>>(((ViewResult)result).Model);
-				lst = ((List<ThinHashes>)((ViewResult)result).Model);
+				Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(((ViewResult)result).Model);
+				lst = ((IEnumerable<ThinHashes>)((ViewResult)result).Model);
 				Assert.NotNull(lst);
 				Assert.NotEmpty(lst);
-				Assert.True(1 == lst.Count);
+				Assert.True(1 == lst.Count());
 				Assert.Equal("aaaag", lst.First().Key);
 				Assert.Equal("078b6ba3284302811de5c4a3778a4df5107062f3b8acfb7d0c3705e448a9d761", lst.First().HashSHA256);
 				Assert.Equal("47ce81bbe7521737555cfbd39e7b6a5e", lst.First().HashMD5);
@@ -465,11 +464,11 @@ namespace Controllers
 
 				// Assert
 				Assert.IsType<ViewResult>(result);
-				Assert.IsType<List<ThinHashes>>(((ViewResult)result).Model);
-				lst = ((List<ThinHashes>)((ViewResult)result).Model);
+				Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(((ViewResult)result).Model);
+				lst = ((IEnumerable<ThinHashes>)((ViewResult)result).Model);
 				Assert.NotNull(lst);
 				Assert.NotEmpty(lst);
-				Assert.True(lst.Count >= 2);
+				Assert.True(lst.Count() >= 2);
 				Assert.True(lst.First().HashMD5.StartsWith("e") || lst.First().HashSHA256.StartsWith("e"));
 				Assert.Contains(lst, h =>
 					h.HashSHA256 == "ed968e840d10d2d313a870bc131a4e2c311d7ad09bdf32b3418147221f51a6e2"
