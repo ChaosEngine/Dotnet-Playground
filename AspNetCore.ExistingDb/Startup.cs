@@ -58,7 +58,19 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			services.AddSingleton<ICompilationService, RoslynCompilationService>();
 #endif
 			services.AddScoped<IBloggingRepository, BloggingRepository>();
-			services.AddScoped<IHashesRepository, HashesRepository>();
+			//services.AddScoped<IHashesRepository, HashesRepository>();
+			services.AddScoped<IHashesRepository, ThinHashesDocumentDBRepository>(serviceProvider =>
+			{
+				var conf = Configuration.GetSection("CosmosDB");
+				string endpoint = conf["Endpoint"];
+				string key = conf["Key"];
+				string databaseId = conf["DatabaseId"];
+				string collectionId = conf["CollectionId"];
+
+				var db = new ThinHashesDocumentDBRepository(endpoint, key, databaseId, collectionId);
+				return db;
+			});
+			services.AddScoped<IThinHashesDocumentDBRepository, ThinHashesDocumentDBRepository>();
 			services.AddSingleton<IUrlHelperFactory, DomainUrlHelperFactory>();
 		}
 

@@ -4,11 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using NpgsqlTypes;
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Common;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
