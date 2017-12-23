@@ -40,7 +40,8 @@ namespace Integration
 				.UseContentRoot(contentRoot)
 				//.ConfigureServices(InitializeServices)
 				.UseEnvironment("Development")
-				.UseStartup(typeof(TStartup));
+				.UseStartup(typeof(TStartup))
+				.UseApplicationInsights();
 
 			_server = new TestServer(builder);
 

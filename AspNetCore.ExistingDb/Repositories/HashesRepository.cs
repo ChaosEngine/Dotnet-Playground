@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace AspNetCore.ExistingDb.Repositories
 {
-	public interface IHashesRepository : IGenericRepository<BloggingContext, ThinHashes>
+	public interface IHashesRepositoryPure
 	{
 		Task<HashesInfo> CurrentHashesInfo { get; }
 
@@ -33,6 +33,10 @@ namespace AspNetCore.ExistingDb.Repositories
 			DbContextOptions<BloggingContext> dbContextOptions);
 
 		Task<ThinHashes> SearchAsync(HashInput input);
+	}
+
+	public interface IHashesRepository : IGenericRepository<BloggingContext, ThinHashes>, IHashesRepositoryPure
+	{
 	}
 
 	public class HashesRepository : GenericRepository<BloggingContext, ThinHashes>, IHashesRepository
@@ -135,7 +139,7 @@ namespace AspNetCore.ExistingDb.Repositories
 				default:
 					throw new NotSupportedException($"Bad {nameof(BloggingContext.ConnectionTypeName)} name");
 			}
-						
+
 			return (await found).DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
 		}
 
@@ -645,7 +649,7 @@ LIMIT @limit OFFSET @offset
 				case "sqliteconnection":
 				case "mysqlconnection":
 				case "sqlconnection":
-				//case "npsqlconnection":
+					//case "npsqlconnection":
 					if (hi.Kind == KindEnum.MD5)
 					{
 						found = await (from x in _entities.ThinHashes

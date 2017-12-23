@@ -22,7 +22,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 		public const string ASPX = "HashesDataTable";
 
 		private readonly ILogger<HashesDataTableController> _logger;
-		private readonly IHashesRepository _repo;
+		private readonly IHashesRepositoryPure _repo;
 		private static readonly JsonSerializerSettings _serializationSettings =
 			new JsonSerializerSettings { MetadataPropertyHandling = MetadataPropertyHandling.Ignore, Formatting = Formatting.None };
 
@@ -39,7 +39,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 		}*/
 		#endregion Old code
 
-		public HashesDataTableController(IHashesRepository repo, ILogger<HashesDataTableController> logger) : base()
+		public HashesDataTableController(IHashesRepositoryPure repo, ILogger<HashesDataTableController> logger) : base()
 		{
 			_logger = logger;
 			_repo = repo;

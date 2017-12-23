@@ -2,7 +2,6 @@
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents.Linq;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -11,7 +10,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,7 +25,7 @@ namespace AspNetCore.ExistingDb.Repositories
 		public string Id { get; set; }
 	}
 
-	internal interface IThinHashesDocumentDBRepository : IHashesRepository
+	internal interface IThinHashesDocumentDBRepository : IHashesRepositoryPure
 	{
 		Task<IEnumerable<DocumentDBHash>> GetItemsSortedDescByKeyAsync(int itemsCount = -1);
 		Task<DocumentDBHash> GetByIDAsync(string id);
@@ -37,10 +35,42 @@ namespace AspNetCore.ExistingDb.Repositories
 	internal class ThinHashesDocumentDBRepository : DocumentDBRepository<DocumentDBHash>, IThinHashesDocumentDBRepository, IDisposable
 	{
 		private const string _NOTHING_FOUND_TEXT = "nothing found";
-		private Guid _transactionId;//TODO: kill it
+		/// <summary>
+		/// TODO: The transaction identifier - kill it!
+		/// </summary>
+		private Guid _transactionId;
+		/// <summary>
+		/// Used value or this specific worker node/process or load balancing server
+		/// </summary>
+		private static HashesInfo _hashesInfoStatic;
+		/// <summary>
+		/// locally cached value for request, refreshed upon every request.
+		/// </summary>
+		private HashesInfo _hi;
 
-		//TODO: properly implement
-		public Task<HashesInfo> CurrentHashesInfo => CalculateHashesInfo(null, null, null, null);
+		public Task<HashesInfo> CurrentHashesInfo
+		{
+			get { return GetHashesInfoFromDB(); }
+		}
+
+		/// <summary>
+		/// Gets the hashes information from database.
+		/// </summary>
+		/// <returns></returns>
+		private async Task<HashesInfo> GetHashesInfoFromDB()
+		{
+			if (_hashesInfoStatic == null)
+			{
+				if (_hi == null)            //local value is empty, fill it from DB once
+					_hi = null;//await CalculateHashesInfo(null, null, null, null);
+
+				if (_hi == null || _hi.IsCalculating)
+					return _hi;             //still calculating, return just this local value
+				else
+					_hashesInfoStatic = _hi;//calculation ended, save to global static value
+			}
+			return await Task.FromResult(_hashesInfoStatic);
+		}
 
 		public ThinHashesDocumentDBRepository(string endpoint, string key, string databaseId, string collectionId)
 			: base(endpoint, key, databaseId, collectionId)
@@ -205,35 +235,47 @@ namespace AspNetCore.ExistingDb.Repositories
 		public async Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchAsync(string sortColumn, string sortOrderDirection, string searchText,
 			int offset, int limit, CancellationToken token)
 		{
-			//IDocumentQuery<ThinHashes> query;
 			limit = limit > 0 ? limit : -1;
+			var collectionLink = UriFactory.CreateDocumentCollectionUri(_databaseId, _collectionId);
 
 			IEnumerable<string> columnNames = new string[] { "Key", "HashMD5", "HashSHA256" };
-			var query = _client.CreateDocumentQuery<DocumentDBHash>(
-				UriFactory.CreateDocumentCollectionUri(_databaseId, _collectionId),
-				new FeedOptions { MaxItemCount = limit })
-				//.Where(FilteraDoo)
-				.AsQueryable()
-				//.AsDocumentQuery()
-				;
+			StringBuilder sb = new StringBuilder(750);
+			string separator = string.Empty;
 			if (searchText?.Length > 0)
 			{
-				query = query
-					.Where(FilteraDoo)
-					.AsQueryable();
+				sb.Append("WHERE (");
+				string comma = string.Empty;
+				foreach (string fieldName in columnNames)
+				{
+					sb.AppendFormat("{1}STARTSWITH(c.{0}, \"{2}\")", fieldName, comma, searchText);
+					comma = " OR\r\n";
+				}
+				sb.Append(")");
+				separator = "\r\nAND";
 			}
+			else
+				separator = "\r\nWHERE ";
+
+			string query_str = "SELECT VALUE count(1) FROM c " + sb.ToString()/* + "\r\nORDER BY c.Key DESC"*/;
+			int count = (await _client.CreateDocumentQuery<int>(collectionLink, query_str)
+				.AsDocumentQuery().ExecuteNextAsync<int>())
+				.FirstOrDefault();
+
+			//TODO: not working!
+			//query = query.Where(c => c.Id.CompareTo(offset.ToString()) > 0).Take(limit);
+			if (offset > 0)
+				sb.AppendFormat("{1} udf.ConvertToNumber(c.id) > {0}", offset, separator);
+
 			if (sortColumn?.Length > 0)
 			{
-				if (sortOrderDirection.ToUpperInvariant() == "ASC")
-					query = query.OrderBy(OrderaDoo).AsQueryable();
-				else
-					query = query.OrderByDescending(OrderaDoo).AsQueryable();
+				sb.AppendFormat("\r\nORDER BY c.{0} {1}", sortColumn, sortOrderDirection);
 			}
 
-			int count = query.Count();
-			if (limit <= 0)
-				limit = count;
-			query = query.Skip(offset).Take(limit);
+			query_str = string.Format("SELECT TOP {0} c.Key, c.HashMD5, c.HashSHA256 FROM c " + sb.ToString(), limit);
+			var query = _client.CreateDocumentQuery<DocumentDBHash>(collectionLink,
+				query_str,
+				new FeedOptions { MaxItemCount = limit, MaxDegreeOfParallelism = -1 })
+				.AsQueryable();
 
 			var asDocument = query.AsDocumentQuery();
 			var results = new List<ThinHashes>(limit);
@@ -244,7 +286,8 @@ namespace AspNetCore.ExistingDb.Repositories
 
 			return (results, count);
 
-			//inner method
+			#region Old code
+			/*//inner method
 			object OrderaDoo(DocumentDBHash arg)
 			{
 				object value = typeof(DocumentDBHash).GetProperty(sortColumn,
@@ -268,23 +311,70 @@ namespace AspNetCore.ExistingDb.Repositories
 				}
 
 				return false;
-			}
+			}*/
+			#endregion Old code
 		}
 
-		public Task<HashesInfo> CalculateHashesInfo(ILoggerFactory _loggerFactory, ILogger _logger, IConfiguration conf,
-			DbContextOptions<BloggingContext> dbContextOptions)
+		public async Task<HashesInfo> CalculateHashesInfo(ILoggerFactory _loggerFactory, ILogger _logger, IConfiguration conf,
+			Microsoft.EntityFrameworkCore.DbContextOptions<BloggingContext> dbContextOptions)
 		{
-			//throw new NotImplementedException();
-			//TODO: propertly implement
-			return Task.FromResult(
-				new HashesInfo
+			////throw new NotImplementedException();
+			////TODO: propertly implement
+			//return Task.FromResult(
+			//	new HashesInfo
+			//	{
+			//		ID = 0,
+			//		Alphabet = "fake",
+			//		Count = 1234567,
+			//		IsCalculating = false,
+			//		KeyLength = 5
+			//	});
+
+			using (var client = new DocumentClient(new Uri(_endpoint), _key))
+			{
+				HashesInfo hi = null;
+				try
 				{
-					ID = 0,
-					Alphabet = "fake",
-					Count = 1234567,
-					IsCalculating = false,
-					KeyLength = 5
-				});
+					if (GetHashesInfoFromDB().Result != null)
+					{
+						//logger.LogInformation(0, $"###Leaving calculation of initial Hash parameters; already present");
+						return GetHashesInfoFromDB().Result;
+					}
+					//logger.LogInformation(0, $"###Starting calculation of initial Hash parameters");
+
+					hi = new HashesInfo { ID = 0, IsCalculating = true };
+
+					_hashesInfoStatic = hi;//temporary save to static to indicate calculation and block new calcultion threads
+
+
+					var collection_link = UriFactory.CreateDocumentCollectionUri(_databaseId, _collectionId);
+					//var alphabet = client.CreateDocumentQuery<DocumentDBHash>(collection_link)
+					//	.Select(f => f.Key.First())
+					//	.Distinct()
+					//	.OrderBy(o => o);
+					int.TryParse(client.CreateDocumentQuery<DocumentDBHash>(collection_link)
+						.OrderByDescending(x => x.Key).Take(1).ToArray().FirstOrDefault().Id, out int count);
+					var key_length = client.CreateDocumentQuery<int>(collection_link,
+						"SELECT TOP 1 VALUE LENGTH(c.Key) FROM c").AsEnumerable().First();
+
+					hi.Count = count;
+					hi.KeyLength = key_length;
+					hi.Alphabet = "fakefakefake";//string.Concat(alphabet);
+					hi.IsCalculating = false;
+
+					//logger.LogInformation(0, $"###Calculation of initial Hash parameters ended");
+				}
+				catch (Exception ex)
+				{
+					//logger.LogError(ex, nameof(CalculateHashesInfo));
+					hi = null;
+				}
+				finally
+				{
+					_hashesInfoStatic = hi;
+				}
+				return hi;
+			}
 		}
 
 		/// <summary>
@@ -329,76 +419,6 @@ namespace AspNetCore.ExistingDb.Repositories
 		public void SetReadOnly(bool value)
 		{
 			//dummy
-		}
-
-		public ThinHashes Add(ThinHashes entity)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<ThinHashes> AddAsync(ThinHashes entity)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task AddRangeAsync(IEnumerable<ThinHashes> entities)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void Delete(ThinHashes entity)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void DeleteRange(IEnumerable<ThinHashes> entities)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void DeleteAll()
-		{
-			throw new NotImplementedException();
-		}
-
-		public void Edit(ThinHashes entity)
-		{
-			throw new NotImplementedException();
-		}
-
-		public IQueryable<ThinHashes> FindBy(Expression<Func<ThinHashes, bool>> predicate)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<List<ThinHashes>> FindByAsync(Expression<Func<ThinHashes, bool>> predicate)
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<ThinHashes> GetSingleAsync(params object[] keyValues)
-		{
-			throw new NotImplementedException();
-		}
-
-		public IQueryable<ThinHashes> GetAll()
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<List<ThinHashes>> GetAllAsync()
-		{
-			throw new NotImplementedException();
-		}
-
-		public int Save()
-		{
-			throw new NotImplementedException();
-		}
-
-		public Task<int> SaveAsync()
-		{
-			throw new NotImplementedException();
 		}
 
 		#endregion Dummy implementation fillings

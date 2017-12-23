@@ -1,5 +1,5 @@
 ﻿@inject Microsoft.Extensions.Configuration.IConfiguration Conf
-@*@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet*@
+@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet
 <!DOCTYPE html>
 <html>
 <head>
@@ -18,7 +18,7 @@
 		<link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
 	</environment>
 	@RenderSection("headElements", required: false)
-	@*@Html.Raw(JavaScriptSnippet.FullScript)*@
+	@Html.Raw(JavaScriptSnippet.FullScript)
 </head>
 <body>
 	<environment names="Development">

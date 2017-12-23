@@ -21,11 +21,11 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 	{
 		private static readonly object _locker = new object();
 		private readonly IConfiguration _configuration;
-		private readonly IHashesRepository _repo;
+		private readonly IHashesRepositoryPure _repo;
 		private readonly ILoggerFactory _loggerFactory;
 		private readonly ILogger<HashesController> _logger;
 
-		public HashesController(IHashesRepository repo, ILoggerFactory loggerFactory, IConfiguration configuration)
+		public HashesController(IHashesRepositoryPure repo, ILoggerFactory loggerFactory, IConfiguration configuration)
 		{
 			_repo = repo;
 			_repo.SetReadOnly(true);
