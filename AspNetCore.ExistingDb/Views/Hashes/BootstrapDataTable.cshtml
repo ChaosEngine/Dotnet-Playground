@@ -3,17 +3,13 @@
 }
 
 <div id="toolbar" class="btn-group">
-	<div class="checkbox-inline">
-		<input type="checkbox" value="" />2 digits landcodes
-	</div>&nbsp;
 	<button id="btninfo" class="btn btn-default" type="button"><i class="glyphicon glyphicon-info-sign"></i>&nbsp;row info</button>
+	&nbsp;&nbsp;<span id="spTimeToLoad"></span>
 </div>
 
 <div class="container-fluid">
 	<table id="table"
 		   data-unique-id="Key"
-		   data-sort-name="Key"
-		   data-sort-order="asc"
 		   data-classes="table table-condensed table-hover table-striped"
 		   data-toggle="table"
 		   data-side-pagination="server"
@@ -31,52 +27,76 @@
 				<th data-field="Key" data-sortable="true" data-halign="center" data-align="center">Key</th>
 				<th data-field="HashMD5" data-sortable="true">HashMD5</th>
 				<th data-field="HashSHA256" data-sortable="true">HashSHA256</th>
+				<th data-field="Validate" data-sortable="false" data-halign="center" data-align="center" data-formatter="validateFormatter">Validate</th>
 			</tr>
 		</thead>
 	</table>
 </div>
 
+<environment names="Development">
+@section headElements
+{
+	<link rel="stylesheet" href="~/css/bootstrap-table.css" />
+}
+</environment>
+
 @section scripts
 {
-@await Html.PartialAsync("_BootstrapTablePartial")
+	<environment names="Development">
+		<script src="~/lib/bootstrap-table/dist/bootstrap-table.js"></script>
+	</environment>
+	<environment names="Staging,Production">
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.js" integrity="sha256-eXHLyyVI+v6X1wbfg9NB05IWqOqY4E9185nHZgeDIhg=" crossorigin="anonymous"
+				asp-fallback-src="~/lib/bootstrap-table/dist/bootstrap-table.min.js"
+				asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.bootstrapTable">
+		</script>
+	</environment>
 
-<script type="text/javascript">
+	@await Html.PartialAsync("_CryptoJSScriptsPartial")
 
-    function flagFormatter(value, row) {
-      return '<img src="/images/flags/' + value.toLowerCase() + '.png" >';
-    }
+	<script type="text/javascript">
 
-    function extraServerParams(params) {
-      params.ExtraParam = 2;
-      return params;
-    }
+		function validateFormatter(value, row) {
+			return (row.HashMD5 == null || row.HashSHA256 == null) ? ''
+				: '<button class="btn btn-warning btn-xs" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>';
+		}
 
-    function highLightRow($tr) {
-      $tr.addClass('highlight').siblings().removeClass('highlight');
-    }
+		var _startTime = null;
+		function extraServerParams(params) {
+			_startTime = new Date().getTime();
+			params.ExtraParam = 2;
+			return params;
+		}
 
-    function getId($element) {
-      var result = $($element).closest('tr').data('uniqueid');
-      return result;
-    }
+		function getId($element) {
+			var result = $($element).closest('tr').data('uniqueid');
+			return result;
+		}
+		
+		$(document).ready(function () {
+			var $table = $('#table');
 
-    $(document).ready(function () {
-      var $table = $('#table');
+			$('#btninfo').click(function () {
+				$tr = $table.find('tr.highlight');
+				var id = getId($tr);
 
-      $('#btninfo').click(function () {
-        $tr = $table.find('tr.highlight');
-        var id = getId($tr);
+				var msg = (id === undefined) ? 'No row selected' : 'Country code : ' + id;
+				alert(msg);
+			});
 
-        var msg = (id === undefined) ? 'No row selected' : 'Country code : ' + id;
-        alert(msg);
-      });
+			// register row-click event
+			$table.on('click-row.bs.table', function ($element, row, $tr) {
+				$tr.addClass('highlight').siblings().removeClass('highlight');
+			});
+			// load success
+			$table.on('load-success.bs.table', function (data) {
+				$('#spTimeToLoad').text('Took ' + ((new Date().getTime() - _startTime) + 'ms!'));
+			});
+			// load error
+			$table.on('load-error.bs.table', function (status, res) {
+				$('#spTimeToLoad').text('error!');
+			});
+		});
 
-      // register row-click event
-      $table.on('click-row.bs.table', function ($element, row, $tr) {
-        highLightRow($tr);
-      });
-
-    });
-
-</script>
+	</script>
 }

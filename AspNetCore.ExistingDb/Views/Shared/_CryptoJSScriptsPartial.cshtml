@@ -1,0 +1,22 @@
+﻿<environment names="Development">
+	<script type="text/javascript">
+		var libs2Load = ['../../lib/forge/dist/forge.min.js', 'shared.js'];
+	</script>
+	<script src="~/lib/forge/dist/forge.min.js"></script>
+</environment>
+<environment names="Staging,Production">
+	<script type="text/javascript">
+		var libs2Load = [];
+	</script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/forge/0.7.1/forge.min.js" integrity="sha256-655CXyE1PGckNcogULRlEuSBjZi9r1sZTHV74T+oRuM=" crossorigin="anonymous"
+			asp-fallback-src="~/lib/forge/dist/forge.min.js"
+			asp-fallback-test="(forge.sha256 && libs2Load.push('https://cdnjs.cloudflare.com/ajax/libs/forge/0.7.1/forge.min.js'))"></script>
+	<script type="text/javascript">
+		if(libs2Load.length <= 0)
+		{
+			libs2Load = ['../../lib/forge/dist/forge.min.js', 'shared.js'];
+		}
+		else
+			libs2Load.push('shared.js');
+	</script>
+</environment>

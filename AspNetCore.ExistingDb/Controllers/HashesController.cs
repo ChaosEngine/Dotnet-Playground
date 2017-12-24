@@ -4,21 +4,28 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 {
-	public class HashesController : Controller
+	public interface IHashesController : IDisposable
+	{
+		Task<ActionResult> Autocomplete([Required] string text, bool ajax);
+		Task<IActionResult> Index();
+		Task<ActionResult> Search(HashInput hi, bool ajax);
+	}
+
+	public class HashesController : Controller, IHashesController
 	{
 		private static readonly object _locker = new object();
 		private readonly IConfiguration _configuration;
-		private readonly IHashesRepository _repo;
+		private readonly IHashesRepositoryPure _repo;
 		private readonly ILoggerFactory _loggerFactory;
 		private readonly ILogger<HashesController> _logger;
 
-		public HashesController(IHashesRepository repo, ILoggerFactory loggerFactory, IConfiguration configuration)
+		public HashesController(IHashesRepositoryPure repo, ILoggerFactory loggerFactory, IConfiguration configuration)
 		{
 			_repo = repo;
 			_repo.SetReadOnly(true);
@@ -41,7 +48,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 					Task<HashesInfo> hi = null;
 					lock (_locker)
 					{
-						hi = _repo.CalculateHashesInfo(_loggerFactory, _logger, (IConfiguration)conf);
+						var dbContextOptions = HttpContext.RequestServices.GetService(typeof(DbContextOptions<BloggingContext>)) as DbContextOptions<BloggingContext>;
+
+						hi = _repo.CalculateHashesInfo(_loggerFactory, _logger, (IConfiguration)conf, dbContextOptions);
 					}
 					return await hi;
 				}, _configuration);
@@ -77,10 +86,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			});
 
 			hi.Search = hi.Search.Trim().ToLower();
-
-			var found = (await _repo.FindByAsync(x =>
-				((hi.Kind == KindEnum.MD5 && x.HashMD5 == hi.Search) || (hi.Kind == KindEnum.SHA256 && x.HashSHA256 == hi.Search))))
-				.DefaultIfEmpty(new ThinHashes { Key = "nothing found" }).FirstOrDefault();
+			
+			var found = await _repo.SearchAsync(hi);
 
 			if (ajax)
 				return Json(new Hashes(found, hi));

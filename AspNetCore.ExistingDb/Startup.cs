@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Web.CodeGeneration.Templating.Compilation;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 //[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
 
@@ -19,17 +20,17 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 	{
 		public IConfiguration Configuration { get; }
 
-		public static void Main(string[] args)
+		static async Task Main(string[] args)
 		{
 			var host = new WebHostBuilder()
 				.UseKestrel()
 				.UseContentRoot(Directory.GetCurrentDirectory())
 				.UseIISIntegration()
 				.UseStartup<Startup>()
-				//.UseApplicationInsights()
+				.UseApplicationInsights()
 				.Build();
 
-			host.Run();
+			await host.RunAsync();
 		}
 
 		public Startup(IHostingEnvironment env)
@@ -57,7 +58,27 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			services.AddSingleton<ICompilationService, RoslynCompilationService>();
 #endif
 			services.AddScoped<IBloggingRepository, BloggingRepository>();
-			services.AddScoped<IHashesRepository, HashesRepository>();
+
+			if (Configuration.GetSection("CosmosDB")?["enabled"] == true.ToString())
+			{
+				services.AddScoped<IHashesRepositoryPure, ThinHashesDocumentDBRepository>(serviceProvider =>
+				{
+					var conf = Configuration.GetSection("CosmosDB");
+					string endpoint = conf["Endpoint"];
+					string key = conf["Key"];
+					string databaseId = conf["DatabaseId"];
+					string collectionId = conf["CollectionId"];
+
+					var db = new ThinHashesDocumentDBRepository(endpoint, key, databaseId, collectionId);
+					return db;
+				});
+			}
+			else
+			{
+				services.AddScoped<IHashesRepositoryPure, HashesRepository>();
+			}
+
+			services.AddScoped<IThinHashesDocumentDBRepository, ThinHashesDocumentDBRepository>();
 			services.AddSingleton<IUrlHelperFactory, DomainUrlHelperFactory>();
 		}
 

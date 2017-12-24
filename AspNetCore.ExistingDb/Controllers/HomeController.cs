@@ -144,14 +144,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			if (statusCode <= 0)
 				statusCode = Response.StatusCode;
 
-			/*switch (Response.StatusCode)
-			{
-				case StatusCodes.Status404NotFound:
-					break;
-				default:
-					break;
-			}*/
-
 			var reExecute = HttpContext.Features.Get<IStatusCodeReExecuteFeature>();
 			_logger.LogInformation($"Unexpected Status Code: {statusCode}, OriginalPath: {reExecute?.OriginalPath}");
 
@@ -187,7 +179,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 		[HttpGet("Home/UnintentionalErr/sleep")]
 		//[ValidateAntiForgeryToken]
-		public string GetSleep(/*CancellationToken token*/)
+		public string GetSleep()
 		{
 			try
 			{
@@ -196,30 +188,34 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 				if (token.IsCancellationRequested)
 				{
-					_logger.LogWarning("Aborted0");
-					return "0";
+					_logger.LogWarning("!!!!!!!!!!!!!!!Aborted 0");
+					return "-1";
 				}
 
-				Thread.Sleep(1_000);
+				Thread.Sleep(2_000);
 
 				if (token.IsCancellationRequested)
 				{
-					_logger.LogWarning("Aborted1");
-					return "0";
+					_logger.LogWarning("!!!!!!!!!!!!!!!Aborted 1");
+					return "-2";
 				}
 
 				return Process.GetCurrentProcess().Threads.Count.ToString();
 			}
-			catch (Exception ex)
+			catch (OperationCanceledException ex)
 			{
-				_logger.LogWarning(ex.StackTrace);
+				_logger.LogWarning(ex, $"!!!!!!!!!!!!!!!Cancelled {nameof(GetSleep)}");
+				return "-3";
+			}
+			catch (Exception)
+			{
 				throw;
-			}			
+			}
 		}
 
 		[HttpGet("Home/UnintentionalErr/delay")]
 		//[ValidateAntiForgeryToken]
-		public async Task<string> GetDelay(/*CancellationToken token*/)
+		public async Task<string> GetDelay()
 		{
 			try
 			{
@@ -228,23 +224,27 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 				if (token.IsCancellationRequested)
 				{
-					_logger.LogWarning("Aborted0");
-					return "0";
+					_logger.LogWarning("!!!!!!!!!!!!!!!Aborted 0");
+					return "-1";
 				}
 
-				await Task.Delay(1_000, token);
+				await Task.Delay(2_000, token);
 
 				if (token.IsCancellationRequested)
 				{
-					_logger.LogWarning("Aborted1");
-					return "0";
+					_logger.LogWarning("!!!!!!!!!!!!!!!Aborted 1");
+					return "-2";
 				}
 
 				return Process.GetCurrentProcess().Threads.Count.ToString();
 			}
-			catch (Exception ex)
+			catch (OperationCanceledException ex)
 			{
-				_logger.LogWarning(ex.StackTrace);
+				_logger.LogWarning(ex, $"!!!!!!!!!!!!!!!Cancelled {nameof(GetDelay)}");
+				return "-3";
+			}
+			catch (Exception)
+			{
 				throw;
 			}
 		}

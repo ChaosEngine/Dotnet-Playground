@@ -207,6 +207,5 @@ FakesAssemblies/
 
 project.lock.json
 AspNetCore.ExistingDb/**/wwwroot/lib/
-venv
 /AspNetCore.ExistingDb/wwwroot/css/site.min.css
 /AspNetCore.ExistingDb/wwwroot/js/site.min.js

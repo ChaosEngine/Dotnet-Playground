@@ -67,4 +67,45 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		public string Alphabet { get; set; }
 		public bool IsCalculating { get; set; }
 	}
+
+	public sealed class HashesDataTableLoadInput
+	{
+		[RegularExpression("(Key|HashMD5|HashSHA256)", ErrorMessage = "Characters are not allowed: only Key|HashMD5|HashSHA256")]
+		public string Sort { get; set; }
+
+		[Required, RegularExpression("(asc|desc)", ErrorMessage = "Order not allowed: only asc|desc")]
+		public string Order { get; set; }
+
+		[RegularExpression("[a-zA-Z0-9].*", ErrorMessage = "Characters are not allowed")]
+		public string Search { get; set; }
+
+		[Range(0, int.MaxValue)]
+		public int Limit { get; set; }
+
+		[Range(0, int.MaxValue)]
+		public int Offset { get; set; }
+
+		public string ExtraParam { get; set; }
+
+		public HashesDataTableLoadInput()
+		{
+			//default c'to for MVC (de)serialization
+		}
+
+		public HashesDataTableLoadInput(
+			string sort,
+			string order,
+			string search,
+			int limit,
+			int offset,
+			string extraParam)
+		{
+			Sort = sort;
+			Order = order;
+			Search = search;
+			Limit = limit;
+			Offset = offset;
+			ExtraParam = extraParam;
+		}
+	}
 }
