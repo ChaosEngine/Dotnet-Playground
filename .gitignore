@@ -205,7 +205,7 @@ FakesAssemblies/
 # Visual Studio 6 workspace options file
 *.opt
 
-project.lock.json
 AspNetCore.ExistingDb/**/wwwroot/lib/
 /AspNetCore.ExistingDb/wwwroot/css/site.min.css
 /AspNetCore.ExistingDb/wwwroot/js/site.min.js
+docker-env.txt
