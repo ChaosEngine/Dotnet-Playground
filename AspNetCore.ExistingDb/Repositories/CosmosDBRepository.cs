@@ -315,7 +315,7 @@ namespace AspNetCore.ExistingDb.Repositories
 			#endregion Old code
 		}
 
-		public async Task<HashesInfo> CalculateHashesInfo(ILoggerFactory _loggerFactory, ILogger _logger, IConfiguration conf,
+		public async Task<HashesInfo> CalculateHashesInfo(ILoggerFactory loggerFactory, ILogger logger, IConfiguration conf,
 			Microsoft.EntityFrameworkCore.DbContextOptions<BloggingContext> dbContextOptions)
 		{
 			////throw new NotImplementedException();
@@ -337,10 +337,12 @@ namespace AspNetCore.ExistingDb.Repositories
 				{
 					if (GetHashesInfoFromDB().Result != null)
 					{
-						//logger.LogInformation(0, $"###Leaving calculation of initial Hash parameters; already present");
+						if (logger != null)
+							logger.LogInformation(0, $"###Leaving calculation of initial Hash parameters; already present");
 						return GetHashesInfoFromDB().Result;
 					}
-					//logger.LogInformation(0, $"###Starting calculation of initial Hash parameters");
+					if (logger != null)
+						logger.LogInformation(0, $"###Starting calculation of initial Hash parameters");
 
 					hi = new HashesInfo { ID = 0, IsCalculating = true };
 
@@ -355,18 +357,20 @@ namespace AspNetCore.ExistingDb.Repositories
 					int.TryParse(client.CreateDocumentQuery<DocumentDBHash>(collection_link)
 						.OrderByDescending(x => x.Key).Take(1).ToArray().FirstOrDefault().Id, out int count);
 					var key_length = client.CreateDocumentQuery<int>(collection_link,
-						"SELECT TOP 1 VALUE LENGTH(c.Key) FROM c").AsEnumerable().First();
+						"SELECT TOP 1 VALUE LENGTH(c.Key) FROM c").ToAsyncEnumerable().First();
 
 					hi.Count = count;
-					hi.KeyLength = key_length;
+					hi.KeyLength = await key_length;
 					hi.Alphabet = "fakefakefake";//string.Concat(alphabet);
 					hi.IsCalculating = false;
 
-					//logger.LogInformation(0, $"###Calculation of initial Hash parameters ended");
+					if (logger != null)
+						logger.LogInformation(0, $"###Calculation of initial Hash parameters ended");
 				}
 				catch (Exception ex)
 				{
-					//logger.LogError(ex, nameof(CalculateHashesInfo));
+					if (logger != null)
+						logger.LogError(ex, nameof(CalculateHashesInfo));
 					hi = null;
 				}
 				finally
