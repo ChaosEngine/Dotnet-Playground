@@ -1,18 +1,18 @@
-﻿@{
-    ViewData["Title"] = "Contact";
-}
-<h2>@ViewData["Title"].</h2>
+﻿@model Bogus.Faker
+<h2>Contact.</h2>
 
 <h4>@Html.Raw(ViewData["Message"])</h4>
 
 <address>
-    One Microsoft Way<br />
-    Redmond, WA 98052-6399<br />
-    <abbr title="Phone">P:</abbr>
-    425.555.0100
+	@Model.Address.StreetName()<br />
+	@Model.Address.City(), @Model.Address.StateAbbr() @Model.Address.ZipCode()<br />
+	<abbr title="Phone">P:</abbr>
+	@Model.Phone.PhoneNumber()
 </address>
-
 <address>
-    <strong>Support:</strong> <a href="mailto:Support@example.com">Support@example.com</a><br />
-    <strong>Marketing:</strong> <a href="mailto:Marketing@example.com">Marketing@example.com</a>
+@{ 
+	string email0 = Model.Internet.ExampleEmail(), email1 = Model.Internet.ExampleEmail();
+}
+	<strong>Support:</strong> <a href="mailto:@email0">@email0</a><br />
+	<strong>Marketing:</strong> <a href="mailto:@email1">@email1</a>
 </address>

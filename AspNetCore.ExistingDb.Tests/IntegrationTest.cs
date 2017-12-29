@@ -141,7 +141,7 @@ namespace Integration
 				response.EnsureSuccessStatusCode();
 
 				var responseString = await response.Content.ReadAsStringAsync();
-				Assert.Contains("<title>Home Page - EFGetStarted.AspNetCore.ExistingDb</title>", responseString);
+				Assert.Contains("<title>Home Page - Dotnet Core Playground</title>", responseString);
 				Assert.Contains("<h2>Links</h2>", responseString);
 			}
 		}
@@ -351,7 +351,7 @@ namespace Integration
 				response.EnsureSuccessStatusCode();
 
 				var responseString = await response.Content.ReadAsStringAsync();
-				Assert.Contains("<title>Blogs - EFGetStarted.AspNetCore.ExistingDb</title>", responseString);
+				Assert.Contains("<title>Blogs - Dotnet Core Playground</title>", responseString);
 				Assert.Contains("function FormSubmit(form)", responseString);
 			}
 		}
@@ -367,7 +367,7 @@ namespace Integration
 				response.EnsureSuccessStatusCode();
 
 				var responseString = await response.Content.ReadAsStringAsync();
-				Assert.Contains("<title>New Blog - EFGetStarted.AspNetCore.ExistingDb</title>", responseString);
+				Assert.Contains("<title>New Blog - Dotnet Core Playground</title>", responseString);
 				Assert.Contains("<label class=\"col-md-2 control-label\" for=\"Url\">Url</label>", responseString);
 			}
 		}
