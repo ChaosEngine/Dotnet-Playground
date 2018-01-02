@@ -59,6 +59,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 #endif
 			services.AddScoped<IBloggingRepository, BloggingRepository>();
 
+			string dbs_config;
 			if (Configuration.GetSection("CosmosDB")?["enabled"] == true.ToString())
 			{
 				services.AddScoped<IHashesRepositoryPure, ThinHashesDocumentDBRepository>(serviceProvider =>
@@ -72,12 +73,18 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 					var db = new ThinHashesDocumentDBRepository(endpoint, key, databaseId, collectionId);
 					return db;
 				});
+				dbs_config = Configuration["DBKind"]?.ToLower() + "+CosmosDB";
 			}
 			else
 			{
 				services.AddScoped<IHashesRepositoryPure, HashesRepository>();
+				dbs_config = Configuration["DBKind"]?.ToLower();
 			}
-
+			services.Configure<DBConfigShower>(options =>
+			{
+				options.DBConfig = dbs_config;
+			});
+			
 			services.AddScoped<IThinHashesDocumentDBRepository, ThinHashesDocumentDBRepository>();
 			services.AddSingleton<IUrlHelperFactory, DomainUrlHelperFactory>();
 		}

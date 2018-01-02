@@ -7,9 +7,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.MySqlClient;
 using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Text.RegularExpressions;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Models
 {
@@ -92,6 +95,15 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 			return conn_str;
 		}
 
+		private Dictionary<string, string> GetConnStringAsDictionary(string connectionString)
+		{
+			Dictionary<string, string> dict =
+				Regex.Matches(connectionString, @"\s*(?<key>[^;=]+)\s*=\s*((?<value>[^'][^;]*)|'(?<value>[^']*)')")
+				.Cast<Match>()
+				.ToDictionary(m => m.Groups["key"].Value, m => m.Groups["value"].Value);
+			return dict;
+		}
+		
 		internal static void MyProvideClientCertificatesCallback(X509CertificateCollection clientCerts)
 		{
 			using (X509Store store = new X509Store(StoreLocation.CurrentUser))
