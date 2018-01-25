@@ -54,7 +54,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			return View(lst);
 		}
 
-		[HttpGet(nameof(Create))]
+		[HttpGet("[action]")]
 		public IActionResult Create()
 		{
 			return View();
@@ -154,7 +154,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 				return NotFound();
 		}
 
-		[HttpPost(nameof(Create))]
+		[HttpPost("[action]")]
 		[ValidateAntiForgeryToken]
 		public async Task<ActionResult> Create(Blog blog)
 		{

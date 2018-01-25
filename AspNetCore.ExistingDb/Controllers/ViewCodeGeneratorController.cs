@@ -22,7 +22,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			return View();
 		}
 
-		[HttpPost(nameof(CompiledContent))]
+		[HttpPost("[action]")]
 		[ValidateAntiForgeryToken]
 		public IActionResult CompiledContent(string text)
 		{
