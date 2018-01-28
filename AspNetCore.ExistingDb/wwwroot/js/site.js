@@ -16,6 +16,27 @@ function ajaxLog(level, message, url, line, col, error) {
 	});
 };
 
+function clientValidate(button) {
+	var tr = $(button).parent().parent();
+
+	var key = tr.find("td").eq(0).text();
+	var orig_md5 = tr.find("td").eq(1).text();
+	var orig_sha = tr.find("td").eq(2).text();
+
+	if (orig_md5 == '' || orig_sha == '')
+		return;
+
+	var md = forge.md.md5.create();
+	md.update(key);
+	md5 = md.digest().toHex();
+	md = forge.md.sha256.create();
+	md.update(key);
+	sha = md.digest().toHex();
+
+	tr.find("td").eq(1).html("<strong style='color:" + (md5 == orig_md5 ? "green" : "red") + "'>" + orig_md5 + "</strong>");
+	tr.find("td").eq(2).html("<strong style='color:" + (sha == orig_sha ? "green" : "red") + "'>" + orig_sha + "</strong>");
+};
+
 (function () {
 	if (window.location.pathname.indexOf("/dotnet") == 0)
 		g_AppRootPath = "/dotnet/Home/ClientsideLog";

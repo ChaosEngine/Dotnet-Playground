@@ -1,8 +1,7 @@
-﻿using AspNetCore.ExistingDb.Repositories;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
 namespace EFGetStarted.AspNetCore.ExistingDb
@@ -46,6 +45,16 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			return value == null ?
 				default(T) :
 				JsonConvert.DeserializeObject<T>((string)value);
+		}
+	}
+
+	public sealed class DBConfigShower
+	{
+		public string DBConfig { get; set; }
+
+		public DBConfigShower()
+		{
+			//DBConfig = "<null>";
 		}
 	}
 }

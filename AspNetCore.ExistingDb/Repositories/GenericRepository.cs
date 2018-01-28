@@ -15,9 +15,12 @@ namespace AspNetCore.ExistingDb.Repositories
 	{
 		//Cont Context { get; }
 
-		EntityEntry<Ent> Add(Ent entity);
-		Task<EntityEntry<Ent>> AddAsync(Ent entity);
+		Ent Add(Ent entity);
+		Task<Ent> AddAsync(Ent entity);
+		Task AddRangeAsync(IEnumerable<Ent> entities);
 		void Delete(Ent entity);
+		void DeleteRange(IEnumerable<Ent> entities);
+		void DeleteAll();
 		void Edit(Ent entity);
 		IQueryable<Ent> FindBy(Expression<Func<Ent, bool>> predicate);
 		Task<List<Ent>> FindByAsync(Expression<Func<Ent, bool>> predicate);
@@ -58,10 +61,10 @@ namespace AspNetCore.ExistingDb.Repositories
 			return query;
 		}
 
-		public virtual Task<List<Ent>> GetAllAsync()
+		public virtual async Task<List<Ent>> GetAllAsync()
 		{
 			var tsk = _entities.Set<Ent>().ToListAsync();
-			return tsk;
+			return await tsk;
 		}
 
 		public virtual IQueryable<Ent> FindBy(Expression<Func<Ent, bool>> predicate)
@@ -70,31 +73,49 @@ namespace AspNetCore.ExistingDb.Repositories
 			return query;
 		}
 
-		public virtual Task<List<Ent>> FindByAsync(Expression<Func<Ent, bool>> predicate)
+		public virtual async Task<List<Ent>> FindByAsync(Expression<Func<Ent, bool>> predicate)
 		{
 			var query = _entities.Set<Ent>().Where(predicate).ToListAsync();
-			return query;
+			return await query;
 		}
 
-		public virtual Task<Ent> GetSingleAsync(params object[] keyValues)
+		public virtual async Task<Ent> GetSingleAsync(params object[] keyValues)
 		{
 			var query = _entities.Set<Ent>().FindAsync(keyValues);
-			return query;
+			return await query;
 		}
 
-		public virtual EntityEntry<Ent> Add(Ent entity)
+		public virtual Ent Add(Ent entity)
 		{
-			return _entities.Set<Ent>().Add(entity);
+			var ent_entry = _entities.Set<Ent>().Add(entity);
+			return ent_entry.Entity;
 		}
 
-		public virtual Task<EntityEntry<Ent>> AddAsync(Ent entity)
+		public virtual async Task<Ent> AddAsync(Ent entity)
 		{
-			return _entities.Set<Ent>().AddAsync(entity);
+			var ent_entry = await _entities.Set<Ent>().AddAsync(entity);
+			return ent_entry.Entity;
+		}
+
+		public virtual Task AddRangeAsync(IEnumerable<Ent> entities)
+		{
+			return _entities.Set<Ent>().AddRangeAsync(entities);
 		}
 
 		public virtual void Delete(Ent entity)
 		{
 			_entities.Set<Ent>().Remove(entity);
+		}
+
+		public virtual void DeleteRange(IEnumerable<Ent> entities)
+		{
+			_entities.Set<Ent>().RemoveRange(entities);
+		}
+
+		public virtual void DeleteAll()
+		{
+			IQueryable<Ent> query = _entities.Set<Ent>();
+			_entities.Set<Ent>().RemoveRange(query);
 		}
 
 		public virtual void Edit(Ent entity)
@@ -107,9 +128,9 @@ namespace AspNetCore.ExistingDb.Repositories
 			return _entities.SaveChanges();
 		}
 
-		public virtual Task<int> SaveAsync()
+		public virtual async Task<int> SaveAsync()
 		{
-			return _entities.SaveChangesAsync();
+			return await _entities.SaveChangesAsync();
 		}
 	}
 }

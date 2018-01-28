@@ -1,12 +1,17 @@
-﻿@inject Microsoft.Extensions.Configuration.IConfiguration Conf
-@*@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet*@
+﻿@using Microsoft.Extensions.Options
+@inject Microsoft.Extensions.Configuration.IConfiguration Conf
+@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet
+@inject IOptions<DBConfigShower> DBConfigShowerOptions
+@{ 
+	string dbs_config = DBConfigShowerOptions.Value.DBConfig;
+}
 <!DOCTYPE html>
 <html>
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<link rel="icon" type="image/x-icon" href="~/favicon.ico" />
-	<title>@ViewData["Title"] - EFGetStarted.AspNetCore.ExistingDb</title>
+	<title>@ViewData["Title"] - Dotnet Core Playground</title>
 	<environment names="Development">
 		<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
 		<link rel="stylesheet" href="~/css/site.css" />
@@ -15,13 +20,18 @@
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous"
 			  asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
 			  asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
-		@*<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" asp-append-version="true" />*@
 		<link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
 	</environment>
-	@*@Html.Raw(JavaScriptSnippet.FullScript)*@
+	@RenderSection("headElements", required: false)
+	@Html.Raw(JavaScriptSnippet.FullScript)
 </head>
 <body>
-	<div class="navbar navbar-inverse navbar-fixed-top">
+	<environment names="Development">
+		<div class="navbar navbar-inverse navbar-fixed-top" style="background-color: darkslateblue">
+	</environment>
+	<environment names="Staging,Production">
+		<div class="navbar navbar-inverse navbar-fixed-top" style="background-color: darkred">
+	</environment>
 		<div class="container">
 			<div class="navbar-header">
 				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -30,7 +40,7 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</button>
-				<a href="~/" class="navbar-brand" title="@Conf["DBKind"]?.ToLower()">@Environment.MachineName</a>
+				<a href="~/" class="navbar-brand" title="@dbs_config">@Environment.MachineName</a>
 			</div>
 			<div class="navbar-collapse collapse">
 				<ul class="nav navbar-nav">
@@ -53,6 +63,7 @@
 						<ul class="dropdown-menu">
 							<li><a href="~/Hashes/">Hashes</a></li>
 							<li><a href="~/HashesDataTable/">Hashes Data Table</a></li>
+							<li><a href="~/BruteForce/">Brute Force</a></li>
 						</ul>
 					</li>
 					<li><a href="@Conf.AppRootPath()Hashes">My Rainbow</a></li>
@@ -69,21 +80,17 @@
 		@RenderBody()
 		<hr />
 		<footer>
-			<p>&copy; 2016 - EFGetStarted.AspNetCore.ExistingDb</p>
+			<p>&copy; 2017 - Dotnet Core Playground</p>
 		</footer>
 	</div>
 
 	<environment names="Development">
-		@*<script src="~/lib/jquery/dist/jquery.js"></script>
-			<script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>*@
-
-		<script src="https://cdn.jsdelivr.net/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-		<script src="https://cdn.jsdelivr.net/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
-
+		<script src="~/lib/jquery/dist/jquery.js"></script>
+		<script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
 		<script src="~/js/site.js" asp-append-version="true"></script>
 	</environment>
 	<environment names="Staging,Production">
-		<script src="https://cdn.jsdelivr.net/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"
+		<script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"
 				asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
 				asp-fallback-test="window.jQuery">
 		</script>

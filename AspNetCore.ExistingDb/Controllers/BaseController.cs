@@ -4,7 +4,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Dynamic.Core;
 using System.Reflection;
 using System.Text;
 
@@ -15,90 +14,79 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 		private static readonly IEnumerable<string> _allColumnNames =
 			typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance).Select(p => p.Name).ToArray();
 
-		protected readonly ILogger<BaseController<T>> _logger;
-
 		public static IEnumerable<string> AllColumnNames => _allColumnNames;
 
-		public BaseController(ILogger<BaseController<T>> logger)
+		public static (IEnumerable<T> Itemz, int Count) ItemsToJson(IEnumerable<T> items, string sort, string order, int limit, int offset)
 		{
-			_logger = logger;
-		}
-
-		protected string ItemsToJson(IQueryable<T> items, IEnumerable<string> columnNames, string sort, string order, int limit, int offset)
-		{
-			try
+			if (sort?.Length > 0)
 			{
-				// where clause is set, count total records
-				int count = items.Count();
-
 				// Skip requires sorting, so make sure there is always sorting
-				string sortExpression;
-
-				if (sort?.Length > 0)
-					sortExpression = string.Format("{0} {1}", sort, order);
+				//string sortExpression = string.Format("{0} {1}", sort, order);
+				//items = items.OrderBy(sortExpression);
+				if (order.ToUpperInvariant() == "ASC")
+					items = items.OrderBy(OrderaDoo);
 				else
-					sortExpression = string.Empty;
-
-				// show ALL records if limit is not set
-				if (limit == 0)
-					limit = count;
-
-				// Prepare json structure
-				var result = new
-				{
-					total = count,
-					rows = items.OrderBy(sortExpression).Skip(offset).Take(limit)//.Select("new (" + string.Join(',', columnNames) + ")")
-				};
-
-				return JsonConvert.SerializeObject(result, Formatting.None,
-					new JsonSerializerSettings() { MetadataPropertyHandling = MetadataPropertyHandling.Ignore });
+					items = items.OrderByDescending(OrderaDoo);
 			}
-			catch (Exception ex)
+
+			if (limit <= 0)
+				limit = items.Count();
+
+			items = items.Skip(offset).Take(limit);
+
+			return (items, items.Count());
+
+			//inner method
+			object OrderaDoo(T arg)
 			{
-				_logger.LogError(ex, ex.Message);
-				return null;
+				object value = typeof(T).GetProperty(sort,
+					BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public)
+					.GetValue(arg);
+				return value;
 			}
 		}
 
 		// needs System.Linq.Dynamic.Core
-		protected IQueryable<T> SearchItems(IQueryable<T> items, string search, IEnumerable<string> columnNames)
+		public static IEnumerable<T> SearchItems(IQueryable<T> items, string search, IEnumerable<string> columnNames)
 		{
 			// Apply filtering to all visible column names
 			if (search?.Length > 0)
 			{
-				StringBuilder sb = new StringBuilder(1000);
+				/*StringBuilder sb = new StringBuilder(1000);
 				// Create dynamic Linq expression
 				string comma = string.Empty;
 				foreach (string fieldName in columnNames)
 				{
-					sb.AppendFormat("{1}({0} == null ? false : {0}.ToString().IndexOf(@0, @1) >=0)", fieldName, comma);
+					//sb.AppendFormat("{1}({0} == null ? false : {0}.ToString().IndexOf(@0, @1) >=0)", fieldName, comma);
+					sb.AppendFormat("{1}({0} == null ? false : {0}.ToString().StartsWith(@0, @1))", fieldName, comma);
 					comma = " or\r\n";
 				}
 				// Get search expression
 				string searchExpression = sb.ToString();
 				// Apply filtering, 
-				items = items.Where(searchExpression, search, StringComparison.OrdinalIgnoreCase);
+				items = items.Where(searchExpression, search, StringComparison.OrdinalIgnoreCase);*/
 
-				//items = items.Where(FilteraDoo).AsQueryable();
+				return items.Where(FilteraDoo);
 			}
 
 			return items;
 
 			//inner method
-			//bool FilteraDoo(T arg)
-			//{
-			//	foreach (var col in columnNames)
-			//	{
-			//		var value = typeof(T).GetProperty(col,
-			//			BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public)
-			//			.GetValue(arg);
+			bool FilteraDoo(T arg)
+			{
+				foreach (var col in columnNames)
+				{
+					object value = typeof(T).GetProperty(col,
+						BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public)
+						.GetValue(arg);
 
-			//		if (value?.ToString().IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0)
-			//			return true;
-			//	}
+					//if (value?.ToString().IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0)
+					if (value != null && value.ToString().StartsWith(search, StringComparison.OrdinalIgnoreCase))
+						return true;
+				}
 
-			//	return false;
-			//}
+				return false;
+			}
 		}
 	}
 }

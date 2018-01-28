@@ -1,66 +1,19 @@
-﻿using System;
-using System.Linq;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using System.Security.Cryptography;
+﻿using AspNetCore.ExistingDb.Models;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using System.IO;
-using System.Threading;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Diagnostics;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 {
 	public class HomeController : Controller
 	{
-		class RandomData
-		{
-			private static HashAlgorithm _hasher;
-
-			public byte[] Buffer { get; set; }
-
-			public RandomData()
-			{
-			}
-
-			public RandomData(int size)
-			{
-				var rnd = new Random(Environment.TickCount);
-				Buffer = new byte[size];
-
-				rnd.NextBytes(Buffer);
-			}
-
-			public RandomData(int randomMinLength, int randomMaxLength)
-			{
-				var rnd = new Random(Environment.TickCount);
-				var size = rnd.Next(randomMinLength, randomMaxLength);
-				Buffer = new byte[size];
-
-				rnd.NextBytes(Buffer);
-			}
-
-			public static string RandomStr()
-			{
-				string rStr = Path.GetRandomFileName();
-				rStr = rStr.Replace(".", ""); // For Removing the .
-				return rStr;
-			}
-
-			public override string ToString()
-			{
-				if (_hasher == null)
-					_hasher = SHA256.Create();
-
-				string hash_str = null;
-				if (Buffer != null && Buffer.Length > 0)
-					hash_str = BitConverter.ToString(_hasher.ComputeHash(Buffer)).Replace("-", "").ToLowerInvariant();
-				return hash_str;
-			}
-		}
-
 		const string SessionKeyName = "_Name";
 		const string SessionKeyYearsMember = "_YearsMember";
 		const string SessionKeyDate = "_Date";
@@ -91,6 +44,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 		public async Task<IActionResult> About()
 		{
 			ViewData["Message"] = "Your application description page.";
+			ViewData["LoremIpsum"] = new Bogus.DataSets.Lorem().Sentence(100);
 
 			return await Task.FromResult(View());
 		}
@@ -110,7 +64,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			ViewData["Message"] = $"Name: '{name}'<br />Membership years: '{yearsMember}'<br />time: '{time}'<br />"
 				+ $"BigBlob: '{big_blob}'";
 
-			return await Task.FromResult(View());
+			Bogus.Faker f = new Bogus.Faker();
+			
+			return await Task.FromResult(View(f));
 		}
 
 		[HttpGet]
@@ -143,14 +99,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 		{
 			if (statusCode <= 0)
 				statusCode = Response.StatusCode;
-
-			/*switch (Response.StatusCode)
-			{
-				case StatusCodes.Status404NotFound:
-					break;
-				default:
-					break;
-			}*/
 
 			var reExecute = HttpContext.Features.Get<IStatusCodeReExecuteFeature>();
 			_logger.LogInformation($"Unexpected Status Code: {statusCode}, OriginalPath: {reExecute?.OriginalPath}");
@@ -187,7 +135,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 		[HttpGet("Home/UnintentionalErr/sleep")]
 		//[ValidateAntiForgeryToken]
-		public string GetSleep(/*CancellationToken token*/)
+		public string GetSleep()
 		{
 			try
 			{
@@ -196,30 +144,34 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 				if (token.IsCancellationRequested)
 				{
-					_logger.LogWarning("Aborted0");
-					return "0";
+					_logger.LogWarning("!!!!!!!!!!!!!!!Aborted 0");
+					return "-1";
 				}
 
-				Thread.Sleep(1_000);
+				Thread.Sleep(2_000);
 
 				if (token.IsCancellationRequested)
 				{
-					_logger.LogWarning("Aborted1");
-					return "0";
+					_logger.LogWarning("!!!!!!!!!!!!!!!Aborted 1");
+					return "-2";
 				}
 
 				return Process.GetCurrentProcess().Threads.Count.ToString();
 			}
-			catch (Exception ex)
+			catch (OperationCanceledException ex)
 			{
-				_logger.LogWarning(ex.StackTrace);
+				_logger.LogWarning(ex, $"!!!!!!!!!!!!!!!Cancelled {nameof(GetSleep)}");
+				return "-3";
+			}
+			catch (Exception)
+			{
 				throw;
-			}			
+			}
 		}
 
 		[HttpGet("Home/UnintentionalErr/delay")]
 		//[ValidateAntiForgeryToken]
-		public async Task<string> GetDelay(/*CancellationToken token*/)
+		public async Task<string> GetDelay()
 		{
 			try
 			{
@@ -228,23 +180,27 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 				if (token.IsCancellationRequested)
 				{
-					_logger.LogWarning("Aborted0");
-					return "0";
+					_logger.LogWarning("!!!!!!!!!!!!!!!Aborted 0");
+					return "-1";
 				}
 
-				await Task.Delay(1_000, token);
+				await Task.Delay(2_000, token);
 
 				if (token.IsCancellationRequested)
 				{
-					_logger.LogWarning("Aborted1");
-					return "0";
+					_logger.LogWarning("!!!!!!!!!!!!!!!Aborted 1");
+					return "-2";
 				}
 
 				return Process.GetCurrentProcess().Threads.Count.ToString();
 			}
-			catch (Exception ex)
+			catch (OperationCanceledException ex)
 			{
-				_logger.LogWarning(ex.StackTrace);
+				_logger.LogWarning(ex, $"!!!!!!!!!!!!!!!Cancelled {nameof(GetDelay)}");
+				return "-3";
+			}
+			catch (Exception)
+			{
 				throw;
 			}
 		}

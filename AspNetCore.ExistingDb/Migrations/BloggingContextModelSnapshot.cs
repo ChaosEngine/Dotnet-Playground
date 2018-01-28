@@ -43,7 +43,8 @@ namespace AspNetCore.ExistingDb.Migrations
                 {
                     b.Property<int>("BlogId")
                         .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
+						.HasAnnotation("Npgsql:ValueGeneratedOnAdd", NpgsqlValueGenerationStrategy.SerialColumn);
 
                     b.Property<string>("Url")
                         .IsRequired();

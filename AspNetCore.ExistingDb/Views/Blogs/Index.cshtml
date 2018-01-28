@@ -43,21 +43,21 @@
 			var tr = $(form).parents('tr:first');
 			var id = $(form).data('id');
 			var url = $(form).find('#inp_' + id).val();
-			var action = $(form).find("input[type=submit]:focus").val();
-			var delete_action = '@(BlogActionEnum.Delete)';
+			var operation = $(form).find("input[type=submit]:focus").val();
+			var delete_operation = '@(BlogActionEnum.Delete)';
 
-			if (action != delete_action && (url == '' || url == tr.find('span.displaying').text()))
+			if (operation != delete_operation && (url == '' || url == tr.find('span.displaying').text()))
 				return;
 
 			var hedrs = { 'RequestVerificationToken': $(form).find('input[name="__RequestVerificationToken"]').val() }
 			var serialized_form = $(form).serialize();
 
 			$.ajax({
-				method: action == delete_action ? 'DELETE' : 'POST',
-				url: 'Blogs/' + action + '/' + id + '/true',
+				method: operation == delete_operation ? 'DELETE' : 'POST',
+				url: 'Blogs/' + operation + '/' + id + '/true',
 				dataType: 'json',
 				data: serialized_form,
-				headers: action == delete_action ? hedrs : null
+				headers: operation == delete_operation ? hedrs : null
 			}).done(function (blog, textStatus, jqXHR) {
 				if (blog == "error") {
 					alert("error");
