@@ -13,14 +13,15 @@
   },
   "dependencies": {
     "bootstrap": "v3.3.7",
-    "bootstrap-table": "1.11.1",
+    "bootstrap-table": "1.11.2",
     "node-forge": "0.7.1",
     "jquery": "3.3.1",
     "jquery-validation": "1.17.0",
     "jquery-validation-unobtrusive": "3.2.6",
-    "blueimp-gallery": "2.30.0"
+    "blueimp-gallery": "2.30.0",
+    "video.js": "6.6.3"
   },
   "scripts": {
-    "postinstall": "node -e \"try { require('fs-extra').copySync(require('path').resolve('node_modules/bootstrap'), 'wwwroot/lib/bootstrap'); require('fs-extra').copySync(require('path').resolve('node_modules/bootstrap-table'), 'wwwroot/lib/bootstrap-table'); require('fs-extra').copySync(require('path').resolve('node_modules/node-forge'), 'wwwroot/lib/forge'); require('fs-extra').copySync(require('path').resolve('node_modules/jquery'), 'wwwroot/lib/jquery'); require('fs-extra').copySync(require('path').resolve('node_modules/jquery-validation'), 'wwwroot/lib/jquery-validation'); require('fs-extra').copySync(require('path').resolve('node_modules/jquery-validation-unobtrusive'), 'wwwroot/lib/jquery-validation-unobtrusive'); require('fs-extra').copySync(require('path').resolve('node_modules/blueimp-gallery'), 'wwwroot/lib/blueimp-gallery') } catch (e) { }\""
+    "postinstall": "node -e \"try { require('fs-extra').copySync(require('path').resolve('node_modules/bootstrap'), 'wwwroot/lib/bootstrap'); require('fs-extra').copySync(require('path').resolve('node_modules/bootstrap-table'), 'wwwroot/lib/bootstrap-table'); require('fs-extra').copySync(require('path').resolve('node_modules/node-forge'), 'wwwroot/lib/forge'); require('fs-extra').copySync(require('path').resolve('node_modules/jquery'), 'wwwroot/lib/jquery'); require('fs-extra').copySync(require('path').resolve('node_modules/jquery-validation'), 'wwwroot/lib/jquery-validation'); require('fs-extra').copySync(require('path').resolve('node_modules/jquery-validation-unobtrusive'), 'wwwroot/lib/jquery-validation-unobtrusive'); require('fs-extra').copySync(require('path').resolve('node_modules/blueimp-gallery'), 'wwwroot/lib/blueimp-gallery'); require('fs-extra').copySync(require('path').resolve('node_modules/video.js'), 'wwwroot/lib/video.js') } catch (e) { }\""
   }
 }

@@ -6,11 +6,19 @@
 }
 @section headElements
 {
-	<link rel="stylesheet" href="~/lib/blueimp-gallery/css/blueimp-gallery.min.css">
+	<link rel="stylesheet" href="~/lib/blueimp-gallery/css/blueimp-gallery.min.css" />
+	<link rel="stylesheet" href="~/lib/video.js/dist/video-js.css" />
 	<style type="text/css">
 		#links a > img {
 			width: 5%;
 			height: 5%
+		}
+		.vjs-default-skin .vjs-big-play-button {
+			top: 50%;
+			left: 50%;
+			margin: -1em auto auto -2em;
+			width: 80px;
+			height: 50px;
 		}
 	</style>
 }
@@ -18,33 +26,47 @@
 @{
 	if (!string.IsNullOrEmpty(Model.LiveWebCamURL))
 	{
-		<a href="@Model.LiveWebCamURL" title="live">
-			<img src="@Model.LiveWebCamURL" alt="live" style="width:50%; height:50%" />
+		<a onclick="document.getElementById('live').src = '@Model.LiveWebCamURL' + '?' + Math.random()" title='live'>
+			<img src='@Model.LiveWebCamURL' id='live' alt='live' />
 		</a>
 	}
-}
-<div id="links">
-@{
-	foreach (var name in Model.Jpgs)
+
+	if (!string.IsNullOrEmpty(Model.TimelapsVideoURL))
 	{
-		<a href="/WebCamImages/@name" title="@name"><img src="/WebCamImages/@name" alt="@name" /></a>
+		<!-- Begin VideoJS -->
+		<div class="video-js-box">
+			<video id="example_video_1" width="1280" height="960" class="video-js vjs-default-skin" controls preload="auto" poster="@Model.TimelapsVideoURL/poster.jpeg" data-setup="{}">
+				<source src="@Model.TimelapsVideoURL/video.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"' />
+				<source src="@Model.TimelapsVideoURL/video.webm" type='video/webm; codecs="vp8, vorbis"' />
+			</video>
+		</div>
+		<!-- End VideoJS -->
+	}
+
+	if (Model.Jpgs != null)
+	{
+		@:<div id="links">
+		foreach (var name in Model.Jpgs)
+		{
+			<a href="~/WebCamImages/@name" title="@name"><img src="~/WebCamImages/@name" alt="@name" /></a>
+		}
+		@:</div>
+		<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">
+			<div class="slides"></div>
+			<h3 class="title"></h3>
+			<a class="prev">‹</a>
+			<a class="next">›</a>
+			<a class="close">×</a>
+			<a class="play-pause"></a>
+			<ol class="indicator"></ol>
+		</div>
 	}
 }
-</div>
-<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">
-	<div class="slides"></div>
-	<h3 class="title"></h3>
-	<a class="prev">‹</a>
-	<a class="next">›</a>
-	<a class="close">×</a>
-	<a class="play-pause"></a>
-	<ol class="indicator"></ol>
-</div>
-
 
 @section Scripts
 {
 	<script type="text/javascript" src="~/lib/blueimp-gallery/js/blueimp-gallery.min.js"></script>
+	<script type="text/javascript" src="~/lib/video.js/dist/video.min.js"></script>
 	<script type="text/javascript">
 		document.getElementById('links').onclick = function (event) {
 			event = event || window.event;

@@ -17,11 +17,14 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 
 		public string LiveWebCamURL { get; private set; }
 
+		public string TimelapsVideoURL { get; private set; }
+
 		public WebCamGallery(IConfiguration configuration)
 		{
 			var imageDirectory = configuration["ImageDirectory"];
 			_imageDirectory = imageDirectory;
 			LiveWebCamURL = configuration["LiveWebCamURL"];
+			TimelapsVideoURL = configuration["TimelapsVideoURL"];
 		}
 
 		public void OnGet()
