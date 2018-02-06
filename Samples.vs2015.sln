@@ -1,13 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2005
+VisualStudioVersion = 15.0.27130.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{70096DE4-F6A8-4444-95A0-0DC01AC27A19}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		buildDockerImage.sh = buildDockerImage.sh
+		Dockerfile = Dockerfile
 		global.json = global.json
 		NuGet.config = NuGet.config
+		startApp.sh = startApp.sh
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.ExistingDb", "AspNetCore.ExistingDb\AspNetCore.ExistingDb.csproj", "{13016FDE-F139-4B64-A916-14CCA10ACA2A}"

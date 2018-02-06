@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Net.Http.Headers;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Models
 {
@@ -13,7 +14,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 	{
 		private readonly string _imageDirectory;
 
-		public IEnumerable<string> Jpgs { get; private set; }
+		public IEnumerable<FileInfo> Jpgs { get; private set; }
 
 		public string LiveWebCamURL { get; private set; }
 
@@ -34,8 +35,12 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 				var di = new DirectoryInfo(_imageDirectory);
 				var files = di.EnumerateFiles("*.jpg", SearchOption.TopDirectoryOnly);
 
-				Jpgs = files.OrderByDescending(f => f.LastWriteTime).Select(x => x.Name);
+				Jpgs = files.OrderByDescending(f => f.LastWriteTime)/*.Select(x => x.Name)*/;
 			}
+			
+			int durationInSeconds = (60 * 60) * (10 - (DateTime.Now.Minute % 10)) + (60 - DateTime.Now.Second);
+			HttpContext.Response.Headers[HeaderNames.CacheControl] =
+				$"public,max-age={durationInSeconds}, must-revalidate";
 		}
 	}
 }

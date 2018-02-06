@@ -15,4 +15,9 @@
 	chmod 777 shared
 
 #
-# dotnet AspNetCore.ExistingDb.dll & sleep 2s && chmod 666 /sockets/www.sock && fg
+# Build:
+# docker build -t chaosengine/aspnetcore:latest .
+#
+# Run:
+# docker run -it --rm -p 8080:5000 --name aspnetcore --env-file docker-env.txt -v /home/container/EntityFramework.Docs/sockets:/sockets -v /home/container/EntityFramework.Docs/shared:/shared -v /var/www/localhost/htdocs/webcamgallery:/webcamgallery chaosengine/aspnetcore
+#

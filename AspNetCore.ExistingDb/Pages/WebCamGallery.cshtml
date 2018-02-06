@@ -9,9 +9,13 @@
 	<link rel="stylesheet" href="~/lib/blueimp-gallery/css/blueimp-gallery.min.css" />
 	<link rel="stylesheet" href="~/lib/video.js/dist/video-js.css" />
 	<style type="text/css">
-		#links a > img {
-			width: 5%;
-			height: 5%
+		#links a > img.active {
+			width: 133px;
+			height: 100px;
+		}
+		#links a > img.inactive {
+			width: 133px;
+			height: 100px;
 		}
 		.vjs-default-skin .vjs-big-play-button {
 			top: 50%;
@@ -46,9 +50,22 @@
 	if (Model.Jpgs != null)
 	{
 		@:<div id="links">
-		foreach (var name in Model.Jpgs)
+		int i = 0;
+		foreach (var jpg in Model.Jpgs)
 		{
-			<a href="~/WebCamImages/@name" title="@name"><img src="~/WebCamImages/@name" alt="@name" /></a>
+			var name = jpg.Name;
+			if (i++ < 7)
+			{
+				<a href="~/WebCamImages/@name" title="@jpg.LastWriteTime">
+					<img src="~/WebCamImages/@name" alt="@name" class='active' onmouseover='ReplImg(this);' />
+				</a>
+			}
+			else
+			{
+				<a href="~/WebCamImages/@name" title="@jpg.LastWriteTime">
+					<img src='https://haos.hopto.org/webcamgallery/images/no_img.gif' alt='no img' class='inactive' onmouseover='ReplImg(this);' />
+				</a>
+			}
 		}
 		@:</div>
 		<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">
@@ -76,5 +93,19 @@
 				links = this.getElementsByTagName('a');
 			blueimp.Gallery(links, options);
 		};
+
+		function ReplImg(This)
+		{
+			if (This.tagName != 'IMG')
+			{
+				This.firstChild.src = This.href;
+				This.firstChild.class = 'active';
+			}
+			else
+			{
+				This.src = This.parentNode.href;
+				This.class = 'active';
+			}
+		}
 	</script>
 }
