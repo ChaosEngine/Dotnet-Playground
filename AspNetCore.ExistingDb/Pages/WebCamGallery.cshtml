@@ -6,17 +6,31 @@
 }
 @section headElements
 {
-	<link rel="stylesheet" href="~/lib/blueimp-gallery/css/blueimp-gallery.min.css" />
-	<link rel="stylesheet" href="~/lib/video.js/dist/video-js.css" />
+	<environment include="Development">
+		<link rel="stylesheet" href="~/lib/blueimp-gallery/css/blueimp-gallery.min.css" />
+		<link rel="stylesheet" href="~/lib/video.js/dist/video-js.css" />
+	</environment>
+	<environment exclude="Development">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/blueimp-gallery@2.30.0/css/blueimp-gallery.min.css"
+			  asp-fallback-href="~/lib/blueimp-gallery/css/blueimp-gallery.min.css"
+			  asp-fallback-test-class="blueimp-gallery" asp-fallback-test-property="position" asp-fallback-test-value="absolute"
+			  integrity="sha256-Y0i7rzAjNSxOrq/x6gK6k0OeK1V2WNWwjh0/l+KapNk=" crossorigin="anonymous" />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/video.js@6.6.3/dist/video-js.min.css"
+			  asp-fallback-href="~/lib/video.js/dist/video-js.css"
+			  asp-fallback-test-class="video-js" asp-fallback-test-property="position" asp-fallback-test-value="absolute"
+			  integrity="sha256-DNGk8kIkk+qHvV2WVsOCbcswekeLHR2kB3I6AdoKGWc=" crossorigin="anonymous" />
+	</environment>
 	<style type="text/css">
 		#links a > img.active {
 			width: 133px;
 			height: 100px;
 		}
+
 		#links a > img.inactive {
 			width: 133px;
 			height: 100px;
 		}
+
 		.vjs-default-skin .vjs-big-play-button {
 			top: 50%;
 			left: 50%;
@@ -50,23 +64,23 @@
 	if (Model.Jpgs != null)
 	{
 		@:<div id="links">
-		int i = 0;
-		foreach (var jpg in Model.Jpgs)
-		{
-			var name = jpg.Name;
-			if (i++ < 7)
+			int i = 0;
+			foreach (var jpg in Model.Jpgs)
 			{
-				<a href="~/WebCamImages/@name" title="@jpg.LastWriteTime">
-					<img src="~/WebCamImages/@name" alt="@name" class='active' onmouseover='ReplImg(this);' />
-				</a>
+				var name = jpg.Name;
+				if (i++ < 7)
+				{
+					<a href="~/WebCamImages/@name" title="@jpg.LastWriteTime">
+						<img src="~/WebCamImages/@name" alt="@name" class='active' onmouseover='ReplImg(this);' />
+					</a>
+				}
+				else
+				{
+					<a href="~/WebCamImages/@name" title="@jpg.LastWriteTime">
+						<img src='https://haos.hopto.org/webcamgallery/images/no_img.gif' alt='no img' class='inactive' onmouseover='ReplImg(this);' />
+					</a>
+				}
 			}
-			else
-			{
-				<a href="~/WebCamImages/@name" title="@jpg.LastWriteTime">
-					<img src='https://haos.hopto.org/webcamgallery/images/no_img.gif' alt='no img' class='inactive' onmouseover='ReplImg(this);' />
-				</a>
-			}
-		}
 		@:</div>
 		<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">
 			<div class="slides"></div>
@@ -82,8 +96,20 @@
 
 @section Scripts
 {
-	<script type="text/javascript" src="~/lib/blueimp-gallery/js/blueimp-gallery.min.js"></script>
-	<script type="text/javascript" src="~/lib/video.js/dist/video.min.js"></script>
+	<environment include="Development">
+		<script type="text/javascript" src="~/lib/blueimp-gallery/js/blueimp-gallery.min.js"></script>
+		<script type="text/javascript" src="~/lib/video.js/dist/video.min.js"></script>
+	</environment>
+	<environment exclude="Development">
+		<script src="https://cdn.jsdelivr.net/npm/blueimp-gallery@2.30.0/js/blueimp-gallery.min.js"
+				asp-fallback-src="~/lib/blueimp-gallery/js/blueimp-gallery.min.js"
+				asp-fallback-test="window.jQuery && window.blueimp"
+				integrity="sha256-w3YQk45ZaiQHeRGeJOXG9J+Z41uW+FisGSLwRg/URQw=" crossorigin="anonymous"></script>
+		<script src="https://cdn.jsdelivr.net/npm/video.js@6.6.3/dist/video.min.js"
+				asp-fallback-src="~/lib/video.js/dist/video.min.js"
+				asp-fallback-test="window.jQuery && videojs.options"
+				integrity="sha256-/XiWLi6np/WaxpyJkrGwGtDNQGmsnk8L+sErpqff+us=" crossorigin="anonymous"></script>
+	</environment>
 	<script type="text/javascript">
 		document.getElementById('links').onclick = function (event) {
 			event = event || window.event;
