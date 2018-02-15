@@ -17,6 +17,9 @@ FROM microsoft/aspnetcore
 WORKDIR /app
 COPY --from=build /build/AspNetCore.ExistingDb/bin/Release/netcoreapp2.0/publish/ /build/startApp.sh ./
 
+ENV TZ=Europe/Warsaw
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 ENV USER=www-data ASPNETCORE_URLS=http://+:5000
 RUN	chown -R $USER:$USER .
 USER "$USER"
