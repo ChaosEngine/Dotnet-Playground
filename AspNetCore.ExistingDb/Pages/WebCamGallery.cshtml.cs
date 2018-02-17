@@ -36,11 +36,14 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 				var files = di.EnumerateFiles("*.jpg", SearchOption.TopDirectoryOnly);
 
 				Jpgs = files.OrderByDescending(f => f.LastWriteTime)/*.Select(x => x.Name)*/;
+
+				if (Jpgs.Any())
+				{
+					var expire_date = Jpgs.First().LastWriteTime.AddMinutes(10);
+					Response.Headers[HeaderNames.CacheControl] =
+						$"public,expires={expire_date.ToUniversalTime().ToString("R")}";
+				}
 			}
-			
-			int durationInSeconds = (60 * 60) * (10 - (DateTime.Now.Minute % 10)) + (60 - DateTime.Now.Second);
-			HttpContext.Response.Headers[HeaderNames.CacheControl] =
-				$"public,max-age={durationInSeconds}, must-revalidate";
 		}
 	}
 }

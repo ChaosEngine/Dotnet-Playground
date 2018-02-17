@@ -1,4 +1,5 @@
-﻿using EFGetStarted.AspNetCore.ExistingDb.Models;
+﻿using EFGetStarted.AspNetCore.ExistingDb;
+using EFGetStarted.AspNetCore.ExistingDb.Models;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +7,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
+using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -110,6 +113,17 @@ namespace AspNetCore.ExistingDb.Tests
 
 	public class BaseControllerTest
 	{
+		static string AssemblyDirectory
+		{
+			get
+			{
+				string codeBase = Assembly.GetExecutingAssembly().CodeBase;
+				UriBuilder uri = new UriBuilder(codeBase);
+				string path = Uri.UnescapeDataString(uri.Path);
+				return Path.GetDirectoryName(path);
+			}
+		}
+
 		protected ILoggerFactory LoggerFactory { get; private set; }
 
 		protected IConfiguration Configuration { get; private set; }
@@ -118,13 +132,15 @@ namespace AspNetCore.ExistingDb.Tests
 
 		protected IConfiguration CreateConfiguration()
 		{
+			var cwd = Path.Combine(AssemblyDirectory, string.Format("..{0}..{0}..{0}..{0}AspNetCore.ExistingDb", Path.DirectorySeparatorChar.ToString()));
+			var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 			var builder = new ConfigurationBuilder()
-				//.SetBasePath("wwww")
-				.AddJsonFile(@"..\..\AspNetCore.ExistingDb\appsettings.json", optional: true, reloadOnChange: true)
-				//.AddJsonFile($@"..\..\AspNetCore.ExistingDb\appsettings.{env.EnvironmentName}.json", optional: true)
+				.SetBasePath(cwd)
+				.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+				//.AddJsonFile($@"appsettings.{env.EnvironmentName}.json", optional: true)
 				.AddEnvironmentVariables();
-			//if (env.IsDevelopment())
-			//	builder.AddUserSecrets<Startup>();
+			if (string.IsNullOrEmpty(env) || env == "Development")
+				builder.AddUserSecrets<Startup>();
 			return builder.Build();
 		}
 
