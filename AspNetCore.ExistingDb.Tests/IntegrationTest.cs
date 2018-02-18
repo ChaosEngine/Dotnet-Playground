@@ -1,6 +1,7 @@
 ﻿using EFGetStarted.AspNetCore.ExistingDb;
 using EFGetStarted.AspNetCore.ExistingDb.Controllers;
 using EFGetStarted.AspNetCore.ExistingDb.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
@@ -10,6 +11,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Xunit;
@@ -475,6 +477,109 @@ namespace Integration
 					}
 				}
 			}//end using (var create_get_response
+		}
+	}
+
+	[Collection(nameof(TestServerCollection))]
+	public class WebCamGalleryPage
+	{
+		private readonly TestServerFixture<Startup> _fixture;
+		private readonly HttpClient _client;
+
+		public WebCamGalleryPage(TestServerFixture<Startup> fixture)
+		{
+			_fixture = fixture;
+			_client = fixture.Client;
+		}
+
+		[Fact]
+		public async Task Show_Index()
+		{
+			// Arrange
+			// Act
+			using (HttpResponseMessage response = await _client.GetAsync($"/{WebCamGallery.ASPX}/"))
+			{
+				// Assert
+				response.EnsureSuccessStatusCode();
+
+				var responseString = await response.Content.ReadAsStringAsync();
+				Assert.Contains("<title>WebCam Gallery - Dotnet Core Playground</title>", responseString);
+				Assert.Contains("function ReplImg(This)", responseString);
+
+				if (!string.IsNullOrEmpty(_fixture.ImageDirectory))
+				{
+					/**
+					 <a href="/WebCamImages/out-91.jpg" title="18.02.2018 00:20:01">
+						<img src="/WebCamImages/out-91.jpg" alt="out-91.jpg" class='active' onmouseover='ReplImg(this);' />
+					</a>
+					<a href="/WebCamImages/out-90.jpg" title="18.02.2018 00:10:02">
+						<img src='https://haos.hopto.org/webcamgallery/images/no_img.gif' alt='no img' class='inactive' onmouseover='ReplImg(this);' />
+					</a>*/
+
+					MatchCollection matches = Regex.Matches(responseString, @"\<img src=""/WebCamImages/(.*\.jpg)"" alt=""(.*\.jpg)"" class='active' onmouseover='ReplImg\(this\);' /\>");
+					Assert.NotEmpty(matches);
+					var images = new List<string>(matches.Count);
+					foreach (Match m in matches)
+					{
+						var match_count = m.Success ? m.Groups[1].Captures.Count : 0;
+						Assert.True(match_count > 0);
+						var id = m.Groups[1].Captures[match_count - 1].Value;
+						images.Add(id);
+					}
+					Assert.True(images.Count > 4);
+				}
+			}
+		}
+
+		[Theory]
+		[InlineData("out-1.jpg")]
+		public async Task GetImage(string imageName)
+		{
+			string etag = null;
+
+			// Arrange
+			// Act
+			using (HttpResponseMessage response = await _client.GetAsync($"/{WebCamImagesModel.ASPX}/{imageName}", HttpCompletionOption.ResponseHeadersRead))
+			{
+				// Assert
+				Assert.NotNull(response);
+
+				if (!string.IsNullOrEmpty(_fixture.ImageDirectory))
+				{
+					response.EnsureSuccessStatusCode();
+
+					Assert.IsType<StreamContent>(response.Content);
+					Assert.True(response.Content.Headers.TryGetValues("Content-Type", out IEnumerable<string> c_type));
+					Assert.NotNull(c_type);
+					Assert.Equal(response.Content.Headers.ContentType.MediaType, MediaTypeNames.Image.Jpeg);
+					Assert.NotNull(response.Headers.ETag);
+
+					etag = response.Headers.ETag.Tag;
+				}
+				else
+				{
+					Assert.False(response.IsSuccessStatusCode);
+					Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+				}
+			}//end using
+
+			/*//test getting the same mage ut with ETAG set - we shoud get HTTP NotModified (304) response code
+			if (!string.IsNullOrEmpty(etag))
+			{
+				// Arrange
+				var request = new HttpRequestMessage(HttpMethod.Get, $"/{WebCamImagesModel.ASPX}/{imageName}");
+				//request.Headers.Add(HeaderNames.IfNoneMatch, etag);
+				//request.Headers.TryAddWithoutValidation(HeaderNames.ETag, etag);
+				request.Headers.IfMatch.Add(new System.Net.Http.Headers.EntityTagHeaderValue(etag));
+
+				// Act
+				using (HttpResponseMessage response = await _client.SendAsync(request))
+				{
+					// Assert
+					Assert.NotNull(response);
+					Assert.Equal(HttpStatusCode.NotModified, response.StatusCode);
+				}
+			}*/
 		}
 	}
 }

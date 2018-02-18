@@ -14,6 +14,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 {
 	public class WebCamImagesModel : PageModel
 	{
+		public const string ASPX = "WebCamImages";
+
 		public IActionResult OnGet([FromServices]IConfiguration configuration, string fileName)
 		{
 			string imageDirectory = configuration["ImageDirectory"];

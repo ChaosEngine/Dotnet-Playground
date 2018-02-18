@@ -22,7 +22,9 @@ namespace Integration
 
 		public HttpClient Client { get; }
 
-		public string DBKind { get; }
+		internal string DBKind { get; }
+
+		internal string ImageDirectory { get; }
 
 		public TestServerFixture() : this(//"AspNetCore.ExistingDb"
 			null)
@@ -48,7 +50,10 @@ namespace Integration
 			Client = _server.CreateClient();
 			Client.BaseAddress = new Uri("http://localhost");
 
-			DBKind = (_server.Host.Services.GetService(typeof(IConfiguration)) as IConfiguration)?["DBKind"];
+			var configuration = _server.Host.Services.GetService(typeof(IConfiguration)) as IConfiguration;
+
+			DBKind = configuration?["DBKind"];
+			ImageDirectory = configuration?["ImageDirectory"];
 		}
 
 		/*protected virtual void InitializeServices(IServiceCollection services)

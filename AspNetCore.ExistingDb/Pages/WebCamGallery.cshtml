@@ -1,5 +1,5 @@
 ﻿@page
-@model EFGetStarted.AspNetCore.ExistingDb.Models.WebCamGallery
+@model WebCamGallery
 @{
 	Layout = @"..\Views\Shared\_Layout.cshtml";
 	ViewData["Title"] = "WebCam Gallery";
@@ -21,16 +21,10 @@
 			  integrity="sha256-DNGk8kIkk+qHvV2WVsOCbcswekeLHR2kB3I6AdoKGWc=" crossorigin="anonymous" />
 	</environment>
 	<style type="text/css">
-		#links a > img.active {
+		#links a > img {
 			width: 133px;
 			height: 100px;
 		}
-
-		#links a > img.inactive {
-			width: 133px;
-			height: 100px;
-		}
-
 		.vjs-default-skin .vjs-big-play-button {
 			top: 50%;
 			left: 50%;
@@ -63,6 +57,7 @@
 
 	if (Model.Jpgs != null)
 	{
+		<button id="btnReplAllImg" type="button" class="btn btn-default" value="strng" title="Load all images">Load all</button>
 		@:<div id="links">
 			int i = 0;
 			foreach (var jpg in Model.Jpgs)
@@ -111,14 +106,23 @@
 				integrity="sha256-/XiWLi6np/WaxpyJkrGwGtDNQGmsnk8L+sErpqff+us=" crossorigin="anonymous"></script>
 	</environment>
 	<script type="text/javascript">
-		document.getElementById('links').onclick = function (event) {
-			event = event || window.event;
-			var target = event.target || event.srcElement,
-				link = target.src ? target.parentNode : target,
-				options = {index: link, event: event},
-				links = this.getElementsByTagName('a');
-			blueimp.Gallery(links, options);
-		};
+		$(document).ready(function () {
+
+			$('#links').click(function (event) {
+				event = event || window.event;
+				var target = event.target || event.srcElement,
+					link = target.src ? target.parentNode : target,
+					options = { index: link, event: event },
+					links = this.getElementsByTagName('a');
+				blueimp.Gallery(links, options);
+			});
+
+			$('#btnReplAllImg').click(function (event) {
+				$(".inactive").each(function (index, value) {
+					ReplImg(value);
+				});
+			});
+		});
 
 		function ReplImg(This)
 		{

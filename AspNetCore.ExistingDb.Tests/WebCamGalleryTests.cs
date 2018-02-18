@@ -1,4 +1,5 @@
-﻿using EFGetStarted.AspNetCore.ExistingDb.Models;
+﻿using AspNetCore.ExistingDb.Tests;
+using EFGetStarted.AspNetCore.ExistingDb.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -13,9 +14,9 @@ using System.Net;
 using System.Net.Mime;
 using Xunit;
 
-namespace AspNetCore.ExistingDb.Tests
+namespace RazorPages
 {
-	public class RazorPagesTests : BaseControllerTest
+	public class WebCamGalleryTests : BaseControllerTest
 	{
 		PageContext LocalPageContext
 		{
@@ -35,7 +36,7 @@ namespace AspNetCore.ExistingDb.Tests
 			}
 		}
 
-		public RazorPagesTests() : base()
+		public WebCamGalleryTests() : base()
 		{
 			SetupServices();
 		}

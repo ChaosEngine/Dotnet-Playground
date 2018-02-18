@@ -14,6 +14,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 	{
 		private readonly string _imageDirectory;
 
+		public const string ASPX = "WebCamGallery";
+
 		public IEnumerable<FileInfo> Jpgs { get; private set; }
 
 		public string LiveWebCamURL { get; private set; }
