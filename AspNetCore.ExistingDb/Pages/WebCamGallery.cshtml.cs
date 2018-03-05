@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Lib.AspNetCore.ServerTiming;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
@@ -12,9 +14,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 {
 	public class WebCamGallery : PageModel
 	{
-		private readonly string _imageDirectory;
-
 		public const string ASPX = "WebCamGallery";
+		private readonly string _imageDirectory;
+		private readonly IServerTiming _serverTiming;
 
 		public IEnumerable<FileInfo> Jpgs { get; private set; }
 
@@ -22,16 +24,24 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 
 		public string TimelapsVideoURL { get; private set; }
 
-		public WebCamGallery(IConfiguration configuration)
+		public Stopwatch Watch { get; private set; }
+
+		public WebCamGallery(IConfiguration configuration, IServerTiming serverTiming)
 		{
-			var imageDirectory = configuration["ImageDirectory"];
-			_imageDirectory = imageDirectory;
+			Watch = new Stopwatch();
+			Watch.Start();
+			
+			_imageDirectory = configuration["ImageDirectory"];
 			LiveWebCamURL = configuration["LiveWebCamURL"];
 			TimelapsVideoURL = configuration["TimelapsVideoURL"];
+			_serverTiming = serverTiming;
 		}
 
 		public void OnGet()
 		{
+			_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("ctor", Watch.ElapsedMilliseconds, "from ctor till GET"));
+			Watch.Restart();
+
 			if (Directory.Exists(_imageDirectory))
 			{
 				var di = new DirectoryInfo(_imageDirectory);
@@ -46,6 +56,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 						$"public,expires={expire_date.ToUniversalTime().ToString("R")}";
 				}
 			}
+
+			_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("READY", Watch.ElapsedMilliseconds, "GET ready"));
 		}
 	}
 }

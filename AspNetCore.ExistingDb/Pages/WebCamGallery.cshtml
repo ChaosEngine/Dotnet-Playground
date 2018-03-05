@@ -1,6 +1,8 @@
 ﻿@page
+@inject Lib.AspNetCore.ServerTiming.IServerTiming serverTiming
 @model WebCamGallery
 @{
+	Model.Watch.Restart();
 	Layout = @"..\Views\Shared\_Layout.cshtml";
 	ViewData["Title"] = "WebCam Gallery";
 }
@@ -138,4 +140,7 @@
 			}
 		}
 	</script>
+}
+@{ 
+	serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("view", Model.Watch.ElapsedMilliseconds, "after view is generated"));
 }

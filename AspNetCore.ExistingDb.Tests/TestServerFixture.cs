@@ -1,9 +1,15 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -40,7 +46,7 @@ namespace Integration
 
 			var builder = new WebHostBuilder()
 				.UseContentRoot(contentRoot)
-				//.ConfigureServices(InitializeServices)
+				.ConfigureServices(InitializeServices)
 				.UseEnvironment("Development")
 				.UseStartup(typeof(TStartup))
 				.UseApplicationInsights();
@@ -56,7 +62,7 @@ namespace Integration
 			ImageDirectory = configuration?["ImageDirectory"];
 		}
 
-		/*protected virtual void InitializeServices(IServiceCollection services)
+		protected virtual void InitializeServices(IServiceCollection services)
 		{
 			var startupAssembly = typeof(TStartup).GetTypeInfo().Assembly;
 
@@ -68,7 +74,7 @@ namespace Integration
 			manager.FeatureProviders.Add(new ViewComponentFeatureProvider());
 
 			services.AddSingleton(manager);
-		}*/
+		}
 
 		/// <summary>
 		/// Gets the full path to the target project that we wish to test

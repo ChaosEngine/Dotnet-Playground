@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Lib.AspNetCore.ServerTiming;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Mime;
@@ -16,11 +18,17 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 	{
 		public const string ASPX = "WebCamImages";
 
-		public IActionResult OnGet([FromServices]IConfiguration configuration, string fileName)
+		public IActionResult OnGet([FromServices]IConfiguration configuration, [FromServices]IServerTiming serverTiming, string fileName)
 		{
+			var watch = new Stopwatch();
+			watch.Start();
+
 			string imageDirectory = configuration["ImageDirectory"];
 			if (string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(imageDirectory))
+			{
+				serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("GET", watch.ElapsedMilliseconds, "error"));
 				return NotFound("No image directory present");
+			}
 
 			string path = Path.Combine(imageDirectory, fileName);
 			if (System.IO.File.Exists(path))
@@ -41,6 +49,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 					{
 						Response.Clear();
 						Response.StatusCode = (int)HttpStatusCode.NotModified;
+						serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("GET", watch.ElapsedMilliseconds, "NotModified GET"));
+
 						return new StatusCodeResult((int)HttpStatusCode.NotModified);
 					}
 					var etag = new EntityTagHeaderValue(etag_str);
@@ -49,10 +59,12 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 					PhysicalFileResult pfr = base.PhysicalFile(path, MediaTypeNames.Image.Jpeg);
 					pfr.EntityTag = etag;
 					//pfr.LastModified = lastModified;
+					serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("GET", watch.ElapsedMilliseconds, "full file GET"));
 
 					return pfr;
 				}
 			}
+			serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("GET", watch.ElapsedMilliseconds, "not found GET"));
 			return NotFound();
 		}
 	}

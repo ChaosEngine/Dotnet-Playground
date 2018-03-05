@@ -45,7 +45,12 @@ namespace RazorPages
 		public void OnGetTest()
 		{
 			//Arrange
-			WebCamGallery wcg = new WebCamGallery(base.Configuration)
+			var serverTiming_mock = new Moq.Mock<Lib.AspNetCore.ServerTiming.IServerTiming>();
+			serverTiming_mock.SetupGet(m => m.Metrics).Returns(() =>
+			{
+				return new List<Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric>();
+			});
+			WebCamGallery wcg = new WebCamGallery(base.Configuration, serverTiming_mock.Object)
 			{
 				PageContext = this.LocalPageContext
 			};
@@ -78,13 +83,18 @@ namespace RazorPages
 		public void OnImageGetTest(string imageName)
 		{
 			//Arrange
+			var serverTiming_mock = new Moq.Mock<Lib.AspNetCore.ServerTiming.IServerTiming>();
+			serverTiming_mock.SetupGet(m => m.Metrics).Returns(() =>
+			{
+				return new List<Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric>();
+			});
 			WebCamImagesModel wcim = new WebCamImagesModel()
 			{
 				PageContext = this.LocalPageContext
 			};
 
 			//Act
-			var result = wcim.OnGet(base.Configuration, imageName);
+			var result = wcim.OnGet(base.Configuration, serverTiming_mock.Object, imageName);
 
 			//Assert
 			if (!string.IsNullOrEmpty(Configuration["ImageDirectory"]))
@@ -109,7 +119,7 @@ namespace RazorPages
 				wcim.Request.Headers.Add(HeaderNames.IfNoneMatch, new StringValues(etag_str));
 
 				//Act
-				result = wcim.OnGet(base.Configuration, imageName);
+				result = wcim.OnGet(base.Configuration, serverTiming_mock.Object, imageName);
 
 				//Assert			
 				Assert.NotNull(result);
@@ -123,6 +133,11 @@ namespace RazorPages
 		public void On_NonExisting_ImageGetTest(params string[] badImageNames)
 		{
 			//Arrange
+			var serverTiming_mock = new Moq.Mock<Lib.AspNetCore.ServerTiming.IServerTiming>();
+			serverTiming_mock.SetupGet(m => m.Metrics).Returns(() =>
+			{
+				return new List<Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric>();
+			});
 			WebCamImagesModel wcim = new WebCamImagesModel()
 			{
 				PageContext = this.LocalPageContext
@@ -131,7 +146,7 @@ namespace RazorPages
 			//Act
 			foreach (var image_name in badImageNames)
 			{
-				var result = wcim.OnGet(base.Configuration, image_name);
+				var result = wcim.OnGet(base.Configuration, serverTiming_mock.Object, image_name);
 
 				//Assert
 				Assert.NotNull(result);

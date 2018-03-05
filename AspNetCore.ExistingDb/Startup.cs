@@ -123,6 +123,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				services.AddDataProtection()
 					.SetDefaultKeyLifetime(TimeSpan.FromDays(14));
 			}
+
+			services.AddServerTiming();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -146,6 +148,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			app.UseStatusCodePagesWithReExecute("/Home/Error/{0}");
 
 			app.UseStaticFiles();
+
+			app.UseServerTiming();
 
 			app.UseSession();
 
