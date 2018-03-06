@@ -14,7 +14,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "EFGetStarted.AspNetCore.ExistingDb": {
+    "Web-Kestrel": {
       "commandName": "Project",
       "environmentVariables": {
         "ASPNETCORE_URLS": "http://+:4553",
