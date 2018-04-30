@@ -114,7 +114,7 @@ namespace AspNetCore.ExistingDb.Repositories
 
 				case "npsqlconnection":
 					found = (from x in _entities.ThinHashes
-							 where EF.Functions.Like(x.HashMD5, text, "'\\'") || EF.Functions.Like(x.HashSHA256, text, "'\\'")
+							 where EF.Functions.Like(x.HashMD5, text) || EF.Functions.Like(x.HashSHA256, text)
 							 select x)
 						.Take(20)
 						//.DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT })
