@@ -24,10 +24,11 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		{
 			var host = new WebHostBuilder()
 				.UseKestrel()
+				.UseSockets()
 				.UseContentRoot(Directory.GetCurrentDirectory())
-				.UseIISIntegration()
+				//.UseIISIntegration()
 				.UseStartup<Startup>()
-				.UseApplicationInsights()
+				//.UseApplicationInsights()
 				.Build();
 
 			await host.RunAsync();

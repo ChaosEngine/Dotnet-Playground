@@ -1,6 +1,6 @@
 ﻿@using Microsoft.Extensions.Options
 @inject Microsoft.Extensions.Configuration.IConfiguration Conf
-@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet
+@*@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet*@
 @inject IOptions<DBConfigShower> DBConfigShowerOptions
 @{ 
 	string dbs_config = DBConfigShowerOptions.Value.DBConfig;
@@ -23,7 +23,7 @@
 		<link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
 	</environment>
 	@RenderSection("headElements", required: false)
-	@Html.Raw(JavaScriptSnippet.FullScript)
+	@*@Html.Raw(JavaScriptSnippet.FullScript)*@
 </head>
 <body>
 	<environment names="Development">

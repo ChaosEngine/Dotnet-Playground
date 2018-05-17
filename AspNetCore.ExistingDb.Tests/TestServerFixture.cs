@@ -49,7 +49,8 @@ namespace Integration
 				.ConfigureServices(InitializeServices)
 				.UseEnvironment("Development")
 				.UseStartup(typeof(TStartup))
-				.UseApplicationInsights();
+				//.UseApplicationInsights()
+				;
 
 			_server = new TestServer(builder);
 

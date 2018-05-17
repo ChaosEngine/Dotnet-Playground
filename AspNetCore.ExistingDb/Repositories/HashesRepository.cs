@@ -1,5 +1,4 @@
 ﻿using EFGetStarted.AspNetCore.ExistingDb.Models;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;

@@ -82,7 +82,7 @@ namespace Integration
 		{
 			foreach (var kvp in cookies)
 			{
-				newHttpRequestMessage.Headers.Add("Cookie", new CookieHeaderValue(kvp.Key, kvp.Value).ToString());
+				newHttpRequestMessage.Headers.Add("Cookie", new Microsoft.Net.Http.Headers.CookieHeaderValue(kvp.Key, kvp.Value).ToString());
 			}
 
 			return newHttpRequestMessage;
@@ -115,7 +115,7 @@ namespace Integration
 
 			foreach (var kvp in cookies)
 			{
-				headers.Add("Cookie", new CookieHeaderValue(kvp.Key, kvp.Value).ToString());
+				headers.Add("Cookie", new Microsoft.Net.Http.Headers.CookieHeaderValue(kvp.Key, kvp.Value).ToString());
 			}
 		}
 	}
