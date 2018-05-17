@@ -30,7 +30,6 @@
 	<PackageReference Include="Lib.AspNetCore.ServerTiming" Version="2.0.0" />
 	<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.1.0-rc1-final" />
 	<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="1.10.0" />
-	<!--<PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.8" />-->
   </ItemGroup>
 
   <Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
@@ -40,10 +39,10 @@
   </Target>
 
   <ItemGroup>
-	<DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.1" />
+	<!--<DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.1" />
 	<DotNetCliToolReference Include="Microsoft.Extensions.SecretManager.Tools" Version="2.0.0" />
 	<DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="2.0.0" />
-	<DotNetCliToolReference Include="Microsoft.Extensions.Caching.SqlConfig.Tools" Version="2.0.0" />
+	<DotNetCliToolReference Include="Microsoft.Extensions.Caching.SqlConfig.Tools" Version="2.0.0" />-->
 	<DotNetCliToolReference Include="Pomelo.Extensions.Caching.MySqlConfig.Tools" Version="1.0.0-preview2-final" />
   </ItemGroup>
 
