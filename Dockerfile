@@ -1,4 +1,4 @@
-FROM microsoft/aspnetcore-build:latest AS build
+FROM microsoft/aspnetcore-build:2.0 AS build
 WORKDIR /build
 COPY . .
 
