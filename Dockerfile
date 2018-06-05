@@ -1,4 +1,4 @@
-FROM microsoft/dotnet-nightly:2.1-sdk-alpine AS build
+FROM microsoft/dotnet:2.1-sdk-alpine AS build
 RUN apk add --update nodejs nodejs-npm
 RUN npm i gulp -g
 WORKDIR /build
@@ -16,7 +16,7 @@ RUN find AspNetCore.ExistingDb/bin/Release/netcoreapp2.1/publish/ -type d -exec 
 
 
 
-FROM microsoft/dotnet-nightly:2.1-aspnetcore-runtime-alpine
+FROM microsoft/dotnet:2.1-aspnetcore-runtime-alpine
 RUN apk add --no-cache libuv #&& ln -s /usr/lib/libuv.so.1 /usr/lib/libuv.so
 WORKDIR /app
 COPY --from=build /build/AspNetCore.ExistingDb/bin/Release/netcoreapp2.1/publish/ /build/startApp.sh ./
