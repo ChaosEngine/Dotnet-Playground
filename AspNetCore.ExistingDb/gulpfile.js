@@ -28,7 +28,7 @@ gulp.task("clean:css", function (cb) {
     rimraf(paths.concatCssDest, cb);
 });
 
-gulp.task("clean", ["clean:js", "clean:css"]);
+gulp.task("clean", gulp.series("clean:js", "clean:css"));
 
 gulp.task("min:js", function () {
     return gulp.src([paths.js, "!" + paths.minJs], { base: "." })
@@ -51,6 +51,7 @@ gulp.task("min:css", function () {
         .pipe(gulp.dest("."));
 });
 
-gulp.task("min", ["min:js",
+gulp.task("min", gulp.series("min:js",
 	//"MyBootstapColors:css",
-	"min:css"]);
+	"min:css"));
+

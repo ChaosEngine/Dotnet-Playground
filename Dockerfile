@@ -1,6 +1,6 @@
 FROM microsoft/dotnet:2.1-sdk-alpine AS build
 RUN apk add --update nodejs nodejs-npm
-RUN npm i gulp -g
+RUN npm i gulp@next -g
 WORKDIR /build
 COPY . .
 
