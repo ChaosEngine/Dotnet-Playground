@@ -1,5 +1,7 @@
 ﻿using AspNetCore.ExistingDb.Repositories;
+using AspNetCore.ExistingDb.Services;
 using EFGetStarted.AspNetCore.ExistingDb.Models;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
@@ -24,6 +26,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		{
 			var host = new WebHostBuilder()
 				.UseKestrel()
+				//.UseLibuv()
 				.UseSockets()
 				.UseContentRoot(Directory.GetCurrentDirectory())
 				//.UseIISIntegration()
@@ -32,7 +35,13 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				.Build();
 
 			await host.RunAsync();
+
+			//await CreateWebHostBuilder(args).Build().RunAsync();
 		}
+
+		//public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+		//	WebHost.CreateDefaultBuilder(args)
+		//		.UseStartup<Startup>();
 
 		public Startup(IHostingEnvironment env)
 		{
@@ -85,9 +94,13 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			{
 				options.DBConfig = dbs_config;
 			});
-			
+			//1st time init of static vars
+			HashesRepository.HashesInfoExpiration = TimeSpan.FromSeconds(Configuration.GetValue<int>(nameof(HashesRepository.HashesInfoExpiration)));
+
 			services.AddScoped<IThinHashesDocumentDBRepository, ThinHashesDocumentDBRepository>();
 			services.AddSingleton<IUrlHelperFactory, DomainUrlHelperFactory>();
+			services.AddHostedService<BackgroundOperationService>();
+			services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 		}
 
 		// This method gets called by the runtime. Use this method to add services to the container.

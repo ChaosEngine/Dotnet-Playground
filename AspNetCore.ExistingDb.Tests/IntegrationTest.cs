@@ -224,6 +224,90 @@ namespace Integration
 	}
 
 	[Collection(nameof(TestServerCollection))]
+	public class HashesPage
+	{
+		private readonly TestServerFixture<Startup> _fixture;
+		private readonly HttpClient _client;
+
+		public HashesPage(TestServerFixture<Startup> fixture)
+		{
+			_fixture = fixture;
+			_client = fixture.Client;
+		}
+
+		[Fact]
+		public async Task GET()
+		{
+			if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return;//pass on fake DB with no data
+
+			// Arrange
+			bool? is_HashesInfo_table_empty = default;
+			string calculating_content_substr = @"<p>Calculating...wait about 10 secs or so...and refresh the page</p>",
+				calculated_content_substr = @"<p>
+				Search for <strong>([0-9].*)</strong> character MD5 or SHA256 hash source string. Alphabet is '(.*)'
+			</p>
+			<p>
+				Hashes count: <strong>([0-9].*)</strong>
+				last updated (.*)
+			</p>";
+
+			// Act
+			using (HttpResponseMessage response = await _client.GetAsync($"/{HashesController.ASPX}/"))
+			{
+				// Assert
+				response.EnsureSuccessStatusCode();
+				var responseString = await response.Content.ReadAsStringAsync();
+
+				Assert.True(
+					responseString.Contains("Hashes count: <strong>") ||
+					responseString.Contains(calculating_content_substr)
+					);
+
+				MatchCollection matches_empty = Regex.Matches(responseString, calculating_content_substr);
+				MatchCollection matches_not_empty = Regex.Matches(responseString, calculated_content_substr);
+
+				Assert.True(
+					(matches_empty.Count > 0 && matches_not_empty.Count <= 0) ||
+					(matches_empty.Count <= 0 && matches_not_empty.Count > 0)
+					);
+
+				is_HashesInfo_table_empty = matches_empty.Count > 0 && matches_not_empty.Count <= 0;
+			}
+
+			//if not yet calculated, we wait until it finaly is calculated and assert new page content
+			if (is_HashesInfo_table_empty.GetValueOrDefault(false) == true)
+			{
+				// Arrange
+				int wait_tries_count = 15;
+
+				// Act
+				do
+				{
+					using (HttpResponseMessage response = await _client.GetAsync($"/{HashesController.ASPX}/"))
+					{
+						// Assert
+						response.EnsureSuccessStatusCode();
+						var responseString = await response.Content.ReadAsStringAsync();
+
+						if (responseString.Contains("Hashes count: <strong>"))
+						{
+							MatchCollection matches_not_empty = Regex.Matches(responseString, calculated_content_substr);
+							Assert.NotEmpty(matches_not_empty);
+							break;
+						}
+					}
+
+					await Task.Delay(2_000);
+				}
+				while (--wait_tries_count > 0);
+
+				Assert.True(wait_tries_count > 0, "not enough tries for HashInfo calculation to succeed");
+			}
+		}
+
+	}
+
+	[Collection(nameof(TestServerCollection))]
 	public class HashesDataTablePage
 	{
 		private readonly TestServerFixture<Startup> _fixture;
@@ -256,7 +340,7 @@ namespace Integration
 		[Fact]
 		public async Task Load_Valid()
 		{
-			if (_fixture.DBKind == "sqlite") return;//pass on fake DB with no data
+			if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return;//pass on fake DB with no data
 
 
 			// Arrange
@@ -342,7 +426,7 @@ namespace Integration
 		[Fact]
 		public async Task Show_Index()
 		{
-			if (_fixture.DBKind == "sqlite") return;//pass on fake DB with no data
+			if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return;//pass on fake DB with no data
 
 
 			// Arrange
@@ -377,7 +461,7 @@ namespace Integration
 		[Fact]
 		public async Task Blog_CRUD_Test()
 		{
-			if (_fixture.DBKind == "sqlite") return;//pass on fake DB with no data
+			if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return;//pass on fake DB with no data
 
 
 			// Arrange

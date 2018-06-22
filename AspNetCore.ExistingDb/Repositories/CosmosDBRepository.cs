@@ -2,7 +2,6 @@
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents.Linq;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -315,21 +314,9 @@ namespace AspNetCore.ExistingDb.Repositories
 			#endregion Old code
 		}
 
-		public async Task<HashesInfo> CalculateHashesInfo(ILoggerFactory loggerFactory, ILogger logger, IConfiguration conf,
-			Microsoft.EntityFrameworkCore.DbContextOptions<BloggingContext> dbContextOptions)
+		public async Task<HashesInfo> CalculateHashesInfo(ILogger logger, Microsoft.EntityFrameworkCore.DbContextOptions<BloggingContext> dbContextOptions,
+			CancellationToken token = default)
 		{
-			////throw new NotImplementedException();
-			////TODO: propertly implement
-			//return Task.FromResult(
-			//	new HashesInfo
-			//	{
-			//		ID = 0,
-			//		Alphabet = "fake",
-			//		Count = 1234567,
-			//		IsCalculating = false,
-			//		KeyLength = 5
-			//	});
-
 			using (var client = new DocumentClient(new Uri(_endpoint), _key))
 			{
 				HashesInfo hi = null;

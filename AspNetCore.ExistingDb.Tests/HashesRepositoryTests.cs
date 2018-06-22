@@ -27,7 +27,7 @@ namespace Repositories
 				// Run the test against one instance of the context
 				using (var context = new BloggingContext(Setup.DbOpts))
 				{
-					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf);
+					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf, Setup.Cache);
 					var all = await repository.GetAllAsync();
 
 					Assert.Empty(all);
@@ -50,7 +50,7 @@ namespace Repositories
 				// Run the test against one instance of the context
 				using (var context = new BloggingContext(Setup.DbOpts))
 				{
-					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf);
+					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf, Setup.Cache);
 					await repository.AddAsync(new ThinHashes
 					{
 						Key = "alamakota",
@@ -62,7 +62,7 @@ namespace Repositories
 
 				using (var context = new BloggingContext(Setup.DbOpts))
 				{
-					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf);
+					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf, Setup.Cache);
 					var found = await repository.FindByAsync(x => x.HashSHA256 == "63b347973bb99fed9277b33cb4646b205e9a31331acfa574add3d2351f445e43");
 					Assert.NotNull(found);
 					Assert.NotEmpty(found);
@@ -83,7 +83,7 @@ namespace Repositories
 				// Run the test against one instance of the context
 				using (var context = new BloggingContext(Setup.DbOpts))
 				{
-					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf);
+					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf, Setup.Cache);
 					await repository.AddRangeAsync(new[]{
 						new ThinHashes
 						{
@@ -103,7 +103,7 @@ namespace Repositories
 
 				using (var context = new BloggingContext(Setup.DbOpts))
 				{
-					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf);
+					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf, Setup.Cache);
 					var found = await repository.AutoComplete("NOEXIST");
 					Assert.NotNull(found);
 					Assert.NotEmpty(found);
@@ -139,7 +139,7 @@ namespace Repositories
 				// Run the test against one instance of the context
 				using (var context = new BloggingContext(Setup.DbOpts))
 				{
-					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf);
+					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf, Setup.Cache);
 					await repository.AddRangeAsync(new[]{
 						new ThinHashes
 						{
@@ -159,7 +159,7 @@ namespace Repositories
 
 				using (var context = new BloggingContext(Setup.DbOpts))
 				{
-					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf);
+					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf, Setup.Cache);
 					var found = await repository.SearchAsync("Key", "desc", "dummy", 0, 10, CancellationToken);
 					Assert.Equal(0, found.Count);
 					Assert.NotEmpty(found.Itemz);
@@ -181,7 +181,7 @@ namespace Repositories
 				// Run the test against one instance of the context
 				using (var context = new BloggingContext(Setup.DbOpts))
 				{
-					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf);
+					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf, Setup.Cache);
 					await repository.AddRangeAsync(new[]{
 						new ThinHashes
 						{
@@ -201,7 +201,7 @@ namespace Repositories
 
 				using (var context = new BloggingContext(Setup.DbOpts))
 				{
-					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf);
+					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf, Setup.Cache);
 					var found = await repository.SearchAsync("Key", "desc", "fake", 0, 10, CancellationToken);
 					Assert.True(found.Count > 0);
 					Assert.NotEmpty(found.Itemz);
@@ -224,7 +224,7 @@ namespace Repositories
 				// Run the test against one instance of the context
 				using (var context = new BloggingContext(Setup.DbOpts))
 				{
-					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf);
+					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf, Setup.Cache);
 					var tasks = new List<Task>(itemsCount + 1);
 					for (int i = 0; i < itemsCount; i++)
 					{
@@ -249,7 +249,7 @@ namespace Repositories
 
 				using (var context = new BloggingContext(Setup.DbOpts))
 				{
-					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf);
+					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf, Setup.Cache);
 					var found = await repository.SearchAsync("Key", "asc", "fake", 2, 10, CancellationToken);
 					Assert.True(found.Count > 0);
 					Assert.NotEmpty(found.Itemz);
@@ -277,7 +277,7 @@ namespace Repositories
 				// Run the test against one instance of the context
 				using (var context = new BloggingContext(Setup.DbOpts))
 				{
-					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf);
+					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf, Setup.Cache);
 					var tasks = new List<Task>(itemsCount + 1);
 					for (int i = 0; i < itemsCount; i++)
 					{
@@ -302,7 +302,7 @@ namespace Repositories
 
 				using (var context = new BloggingContext(Setup.DbOpts))
 				{
-					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf);
+					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf, Setup.Cache);
 					var found = await repository.SearchAsync("Key", "asc", "63b347973bb99f", 2, 10, CancellationToken);
 					Assert.True(found.Count > 0);
 					Assert.NotEmpty(found.Itemz);
@@ -326,7 +326,7 @@ namespace Repositories
 				// Run the test against one instance of the context
 				using (var context = new BloggingContext(Setup.DbOpts))
 				{
-					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf);
+					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf, Setup.Cache);
 					int count = 100;
 					var tasks = new List<Task>(count + 1);
 					for (int i = 0; i < count; i++)
@@ -359,14 +359,18 @@ namespace Repositories
 
 				using (var context = new BloggingContext(Setup.DbOpts))
 				{
-					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf);
+					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf, Setup.Cache);
 					var factory = new LoggerFactory();
 					var logger = factory.CreateLogger<HashesRepository>();
-					var res0 = await repository.CalculateHashesInfo(factory, logger, Setup.Conf, Setup.DbOpts);
 
+					var expected = await repository.CurrentHashesInfo;
+					Assert.Null(expected);
+
+					var res0 = await repository.CalculateHashesInfo(logger, Setup.DbOpts);
 					Assert.NotNull(res0);
 
-					var res1 = await repository.CalculateHashesInfo(factory, logger, Setup.Conf, Setup.DbOpts);
+					var res1 = await repository.CalculateHashesInfo(logger, Setup.DbOpts);
+					Assert.NotNull(res1);
 
 					Assert.Same(res0, res1);
 					Assert.Equal("abc", res0.Alphabet);
@@ -374,8 +378,9 @@ namespace Repositories
 					Assert.False(res0.IsCalculating);
 					Assert.Equal(12, res0.KeyLength);
 
-					var expected = await repository.CurrentHashesInfo;
+					expected = await repository.CurrentHashesInfo;
 
+					Assert.NotNull(expected);
 					Assert.Equal(res1.ID, expected.ID);
 					Assert.Equal(res1.Alphabet, expected.Alphabet);
 					Assert.Equal(res1.Count, expected.Count);

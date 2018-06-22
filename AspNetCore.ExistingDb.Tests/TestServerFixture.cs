@@ -1,15 +1,12 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using AspNetCore.ExistingDb.Repositories;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -31,6 +28,8 @@ namespace Integration
 		internal string DBKind { get; }
 
 		internal string ImageDirectory { get; }
+
+		internal bool DOTNET_RUNNING_IN_CONTAINER { get; }
 
 		public TestServerFixture() : this(//"AspNetCore.ExistingDb"
 			null)
@@ -58,9 +57,12 @@ namespace Integration
 			Client.BaseAddress = new Uri("http://localhost");
 
 			var configuration = _server.Host.Services.GetService(typeof(IConfiguration)) as IConfiguration;
-
 			DBKind = configuration?["DBKind"];
 			ImageDirectory = configuration?["ImageDirectory"];
+
+			string temp = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER");
+			DOTNET_RUNNING_IN_CONTAINER = !string.IsNullOrEmpty(temp) && temp.Equals(true.ToString(), StringComparison.InvariantCultureIgnoreCase);
+			//Console.WriteLine($"### temp = {temp}, DOTNET_RUNNING_IN_CONTAINER = {DOTNET_RUNNING_IN_CONTAINER}");
 		}
 
 		protected virtual void InitializeServices(IServiceCollection services)

@@ -3,6 +3,7 @@ using EFGetStarted.AspNetCore.ExistingDb.Models;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -16,7 +17,7 @@ namespace AspNetCore.ExistingDb.Tests
 {
 	public abstract class BaseRepositoryTests : IDisposable
 	{
-		public (SqliteConnection Conn, DbContextOptions<BloggingContext> DbOpts, IConfiguration Conf) Setup
+		public (SqliteConnection Conn, DbContextOptions<BloggingContext> DbOpts, IConfiguration Conf, IMemoryCache Cache) Setup
 		{
 			get; set;
 		}
@@ -31,7 +32,7 @@ namespace AspNetCore.ExistingDb.Tests
 			}
 		}
 
-		protected async Task<(SqliteConnection, DbContextOptions<BloggingContext>, IConfiguration)> SetupInMemoryDB()
+		protected async Task<(SqliteConnection, DbContextOptions<BloggingContext>, IConfiguration, IMemoryCache)> SetupInMemoryDB()
 		{
 			var builder = new ConfigurationBuilder()
 				.AddJsonFile("config.json", optional: false, reloadOnChange: true);
@@ -52,7 +53,15 @@ namespace AspNetCore.ExistingDb.Tests
 				await context.Database.EnsureCreatedAsync();
 			}
 
-			return (connection, options, config);
+			var serviceCollection = new ServiceCollection()
+				.AddMemoryCache()
+				.AddLogging();
+			serviceCollection.AddDataProtection();
+			var serviceProvider = serviceCollection.BuildServiceProvider();
+
+			IMemoryCache cache = serviceProvider.GetService<IMemoryCache>();
+
+			return (connection, options, config, cache);
 		}
 
 		public BaseRepositoryTests()
@@ -144,7 +153,7 @@ namespace AspNetCore.ExistingDb.Tests
 			return builder.Build();
 		}
 
-		protected void SetupServices()
+		protected virtual void SetupServices()
 		{
 			var serviceCollection = new ServiceCollection()
 				.AddLogging();

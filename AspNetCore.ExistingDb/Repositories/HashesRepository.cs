@@ -1,6 +1,9 @@
-﻿using EFGetStarted.AspNetCore.ExistingDb.Models;
+﻿using AspNetCore.ExistingDb.Services;
+using EFGetStarted.AspNetCore.ExistingDb.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using Npgsql;
@@ -9,7 +12,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -28,8 +30,8 @@ namespace AspNetCore.ExistingDb.Repositories
 		Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchAsync(string sortColumn, string sortOrderDirection, string searchText,
 			int offset, int limit, CancellationToken token);
 
-		Task<HashesInfo> CalculateHashesInfo(ILoggerFactory _loggerFactory, ILogger _logger, IConfiguration conf,
-			DbContextOptions<BloggingContext> dbContextOptions);
+		Task<HashesInfo> CalculateHashesInfo(ILogger logger, DbContextOptions<BloggingContext> dbContextOptions,
+			CancellationToken token = default);
 
 		Task<ThinHashes> SearchAsync(HashInput input);
 	}
@@ -38,25 +40,26 @@ namespace AspNetCore.ExistingDb.Repositories
 	{
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <seealso cref="AspNetCore.ExistingDb.Repositories.GenericRepository{EFGetStarted.AspNetCore.ExistingDb.Models.BloggingContext, EFGetStarted.AspNetCore.ExistingDb.Models.ThinHashes}" />
+	/// <seealso cref="AspNetCore.ExistingDb.Repositories.IHashesRepository" />
 	public class HashesRepository : GenericRepository<BloggingContext, ThinHashes>, IHashesRepository
 	{
 		private const string _NOTHING_FOUND_TEXT = "nothing found";
+		private static IEnumerable<string> _postgresAllColumnNames;
 		/// <summary>
 		/// Used value or this specific worker node/process or load balancing server
 		/// </summary>
-		private static HashesInfo _hashesInfoStatic;
+		//private static HashesInfo _hashesInfoStatic;
+		public static TimeSpan HashesInfoExpiration = TimeSpan.FromHours(1);
 		/// <summary>
 		/// locally cached value for request, refreshed upon every request.
 		/// </summary>
 		private HashesInfo _hi;
-		private static IEnumerable<string> _postgresAllColumnNames;
-		private static readonly object _locker = new object();
 		private readonly IConfiguration _configuration;
-
-		public Task<HashesInfo> CurrentHashesInfo
-		{
-			get { return GetHashesInfoFromDB(_entities); }
-		}
+		private readonly IMemoryCache _memoryCache;
 
 		private static IEnumerable<String> PostgresAllColumnNames
 		{
@@ -68,24 +71,50 @@ namespace AspNetCore.ExistingDb.Repositories
 			}
 		}
 
-		private async Task<HashesInfo> GetHashesInfoFromDB(BloggingContext db)
+		public Task<HashesInfo> CurrentHashesInfo
 		{
-			if (_hashesInfoStatic == null)
+			get { return GetHashesInfoFromDB(_entities); }
+		}
+
+		/// <summary>
+		/// Gets the hashes information from database.
+		/// </summary>
+		/// <param name="db">The database.</param>
+		/// <param name="token">The token.</param>
+		/// <returns></returns>
+		private async Task<HashesInfo> GetHashesInfoFromDB(BloggingContext db, CancellationToken token = default)
+		{
+			//if (_hashesInfoStatic == null)
+			if (!_memoryCache.TryGetValue<HashesInfo>(nameof(HashesInfo), out var hashesInfoStatic))
 			{
 				if (_hi == null)            //local value is empty, fill it from DB once
-					_hi = await db.HashesInfo.FirstOrDefaultAsync(x => x.ID == 0);
+					_hi = await db.HashesInfo.FirstOrDefaultAsync(x => x.ID == 0, token);
 
 				if (_hi == null || _hi.IsCalculating)
 					return _hi;             //still calculating, return just this local value
 				else
-					_hashesInfoStatic = _hi;//calculation ended, save to global static value
+				{
+					//calculation ended, save to global static value
+					//_hashesInfoStatic = _hi;
+					hashesInfoStatic = await _memoryCache.GetOrCreateAsync(nameof(HashesInfo), (ce) =>
+					{
+						ce.SetAbsoluteExpiration(HashesInfoExpiration);
+						return Task.FromResult(_hi);
+					});
+				}
 			}
-			return _hashesInfoStatic;
+			return hashesInfoStatic;
 		}
 
-		public HashesRepository(BloggingContext context, IConfiguration configuration) : base(context)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="HashesRepository" /> class.
+		/// </summary>
+		/// <param name="context">The context.</param>
+		/// <param name="configuration">The configuration.</param>
+		public HashesRepository(BloggingContext context, IConfiguration configuration, IMemoryCache memoryCache) : base(context)
 		{
 			_configuration = configuration;
+			_memoryCache = memoryCache;
 		}
 
 		public void SetReadOnly(bool value)
@@ -93,6 +122,11 @@ namespace AspNetCore.ExistingDb.Repositories
 			_entities.ChangeTracker.QueryTrackingBehavior = value ? QueryTrackingBehavior.NoTracking : QueryTrackingBehavior.TrackAll;
 		}
 
+		/// <summary>
+		/// Automatics the complete.
+		/// </summary>
+		/// <param name="text">The text.</param>
+		/// <returns></returns>
 		public async Task<IEnumerable<ThinHashes>> AutoComplete(string text)
 		{
 			text = $"{text.Trim().ToLower()}%";
@@ -142,6 +176,14 @@ namespace AspNetCore.ExistingDb.Repositories
 			return (await found).DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
 		}
 
+		/// <summary>
+		/// creating Sql WHERE statment Column conditions.
+		/// </summary>
+		/// <param name="colNamePrefix">The col name prefix.</param>
+		/// <param name="colNameSuffix">The col name suffix.</param>
+		/// <param name="columnNames">The column names.</param>
+		/// <param name="searchTextParamName">Name of the search text parameter.</param>
+		/// <returns></returns>
 		private string WhereColumnCondition(char colNamePrefix, char colNameSuffix, IEnumerable<string> columnNames = null, string searchTextParamName = "searchText")
 		{
 			var sb = new StringBuilder(
@@ -162,8 +204,18 @@ namespace AspNetCore.ExistingDb.Repositories
 			return sb.ToString();
 		}
 
+		/// <summary>
+		/// Searches the SQL server asynchronous.
+		/// </summary>
+		/// <param name="sortColumn">The sort column.</param>
+		/// <param name="sortOrderDirection">The sort order direction.</param>
+		/// <param name="searchText">The search text.</param>
+		/// <param name="offset">The offset.</param>
+		/// <param name="limit">The limit.</param>
+		/// <param name="token">The token.</param>
+		/// <returns></returns>
 		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchSqlServerAsync(string sortColumn, string sortOrderDirection,
-			string searchText, int offset, int limit, CancellationToken token)
+					string searchText, int offset, int limit, CancellationToken token)
 		{
 			string col_names = string.Join("],[", AllColumnNames);
 			string sql =
@@ -258,8 +310,18 @@ FETCH NEXT @limit ROWS ONLY
 			}
 		}
 
+		/// <summary>
+		/// Searches my SQL asynchronous.
+		/// </summary>
+		/// <param name="sortColumn">The sort column.</param>
+		/// <param name="sortOrderDirection">The sort order direction.</param>
+		/// <param name="searchText">The search text.</param>
+		/// <param name="offset">The offset.</param>
+		/// <param name="limit">The limit.</param>
+		/// <param name="token">The token.</param>
+		/// <returns></returns>
 		private async Task<(List<ThinHashes> Itemz, int Count)> SearchMySqlAsync(string sortColumn, string sortOrderDirection, string searchText,
-			int offset, int limit, CancellationToken token)
+					int offset, int limit, CancellationToken token)
 		{
 			string col_names = string.Join("`,`", AllColumnNames);
 			string sql =// "SET SESSION SQL_BIG_SELECTS=1;" +
@@ -349,8 +411,18 @@ LIMIT @limit OFFSET @offset
 			}//end using
 		}
 
+		/// <summary>
+		/// Searches the sqlite asynchronous.
+		/// </summary>
+		/// <param name="sortColumn">The sort column.</param>
+		/// <param name="sortOrderDirection">The sort order direction.</param>
+		/// <param name="searchText">The search text.</param>
+		/// <param name="offset">The offset.</param>
+		/// <param name="limit">The limit.</param>
+		/// <param name="token">The token.</param>
+		/// <returns></returns>
 		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchSqliteAsync(string sortColumn, string sortOrderDirection,
-			string searchText, int offset, int limit, CancellationToken token)
+					string searchText, int offset, int limit, CancellationToken token)
 		{
 			string col_names = string.Join("],[", AllColumnNames);
 			string sql =
@@ -444,6 +516,16 @@ LIMIT @limit OFFSET @offset
 			}
 		}
 
+		/// <summary>
+		/// Searches the postgres asynchronous.
+		/// </summary>
+		/// <param name="sortColumn">The sort column.</param>
+		/// <param name="sortOrderDirection">The sort order direction.</param>
+		/// <param name="searchText">The search text.</param>
+		/// <param name="offset">The offset.</param>
+		/// <param name="limit">The limit.</param>
+		/// <param name="token">The token.</param>
+		/// <returns></returns>
 		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchPostgresAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit, CancellationToken token)
 		{
 			string col_names = string.Join("\",\"", PostgresAllColumnNames);
@@ -536,8 +618,18 @@ LIMIT @limit OFFSET @offset
 			}//end using
 		}
 
+		/// <summary>
+		/// Searches the asynchronous.
+		/// </summary>
+		/// <param name="sortColumn">The sort column.</param>
+		/// <param name="sortOrderDirection">The sort order direction.</param>
+		/// <param name="searchText">The search text.</param>
+		/// <param name="offset">The offset.</param>
+		/// <param name="limit">The limit.</param>
+		/// <param name="token">The token.</param>
+		/// <returns></returns>
 		public async Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchAsync(string sortColumn, string sortOrderDirection, string searchText,
-			int offset, int limit, CancellationToken token)
+					int offset, int limit, CancellationToken token)
 		{
 			if (!string.IsNullOrEmpty(sortColumn) && !AllColumnNames.Contains(sortColumn))
 			{
@@ -569,50 +661,52 @@ LIMIT @limit OFFSET @offset
 		}
 
 		/// <summary>
-		/// Sync running method
+		/// Creates hashes info
 		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="loggerFactory"></param>
-		/// <param name="logger"></param>
-		/// <param name="configuration"></param>
+		/// <param name="logger">The logger.</param>
+		/// <param name="dbContextOptions">The database context options.</param>
+		/// <param name="token">The token.</param>
 		/// <returns></returns>
-		public async Task<HashesInfo> CalculateHashesInfo(ILoggerFactory loggerFactory, ILogger logger, IConfiguration configuration,
-			DbContextOptions<BloggingContext> dbContextOptions)
+		public async Task<HashesInfo> CalculateHashesInfo(ILogger logger, DbContextOptions<BloggingContext> dbContextOptions,
+			CancellationToken token = default)
 		{
 			HashesInfo hi = null;
 
-			//var bc = new DbContextOptionsBuilder<BloggingContext>();
-			//bc.UseLoggerFactory(loggerFactory);
-			//BloggingContextFactory.ConfigureDBKind(bc, configuration, null);
-
-			using (var db = new BloggingContext(/*bc.Options*/dbContextOptions))
+			using (var db = new BloggingContext(dbContextOptions))
 			{
 				db.Database.SetCommandTimeout(180);//long long running. timeouts prevention
 												   //in sqlite only serializable - https://sqlite.org/isolation.html
 				var isolation_level = db.ConnectionTypeName == "sqliteconnection" ? IsolationLevel.Serializable : IsolationLevel.ReadUncommitted;
-				using (var trans = await db.Database.BeginTransactionAsync(isolation_level))//needed, other web nodes will read saved-caculating-state and exit thread
+				using (var trans = await db.Database.BeginTransactionAsync(isolation_level, token))//needed, other web nodes will read saved-caculating-state and exit thread
 				{
 					try
 					{
-						if (GetHashesInfoFromDB(db).Result != null)
+						if (GetHashesInfoFromDB(db, token).Result != null)
 						{
 							logger.LogInformation(0, $"###Leaving calculation of initial Hash parameters; already present");
-							return GetHashesInfoFromDB(db).Result;
+							hi = GetHashesInfoFromDB(db, token).Result;
+							return hi;
 						}
 						logger.LogInformation(0, $"###Starting calculation of initial Hash parameters");
 
 						hi = new HashesInfo { ID = 0, IsCalculating = true };
 
-						await db.HashesInfo.AddAsync(hi);
-						await db.SaveChangesAsync(true);
-						_hashesInfoStatic = hi;//temporary save to static to indicate calculation and block new calcultion threads
+						await db.HashesInfo.AddAsync(hi, token);
+						await db.SaveChangesAsync(true, token);
+						//temporary save to static to indicate calculation and block new calcultion threads
+						//_hashesInfoStatic = hi;
+						await _memoryCache.GetOrCreateAsync(nameof(HashesInfo), (ce) =>
+						{
+							ce.SetAbsoluteExpiration(HashesInfoExpiration.Multiply(2));
+							return Task.FromResult(hi);
+						});
 
 						var alphabet = (from h in db.ThinHashes
 										select h.Key.First()
 										).Distinct()
 										.OrderBy(o => o);
-						var count = db.ThinHashes.CountAsync();
-						var key_length = db.ThinHashes.MaxAsync(x => x.Key.Length);
+						var count = db.ThinHashes.CountAsync(token);
+						var key_length = db.ThinHashes.MaxAsync(x => x.Key.Length, token);
 
 						hi.Count = await count;
 						hi.KeyLength = await key_length;
@@ -620,7 +714,7 @@ LIMIT @limit OFFSET @offset
 						hi.IsCalculating = false;
 
 						db.Update(hi);
-						await db.SaveChangesAsync(true);
+						await db.SaveChangesAsync(true, token);
 
 						trans.Commit();
 						logger.LogInformation(0, $"###Calculation of initial Hash parameters ended");
@@ -633,13 +727,19 @@ LIMIT @limit OFFSET @offset
 					}
 					finally
 					{
-						_hashesInfoStatic = hi;
+						//_hashesInfoStatic = hi;
+						_memoryCache.Set(nameof(HashesInfo), hi, HashesInfoExpiration);
 					}
 					return hi;
 				}
 			}
 		}
 
+		/// <summary>
+		/// Search in asynchronous way.
+		/// </summary>
+		/// <param name="hi">The hi.</param>
+		/// <returns></returns>
 		public async Task<ThinHashes> SearchAsync(HashInput hi)
 		{
 			ThinHashes found;
@@ -692,6 +792,28 @@ LIMIT @limit OFFSET @offset
 			}
 
 			return found;
+		}
+	}
+
+	public sealed class CalculateHashesInfoBackgroundOperation : BackgroundOperationBase
+	{
+		/// <summary>
+		/// Does the work.
+		/// </summary>
+		/// <param name="services">The services.</param>
+		/// <param name="token">The token.</param>
+		/// <returns></returns>
+		public override async Task DoWork(IServiceProvider services, CancellationToken token)
+		{
+			using (var scope = services.CreateScope())
+			{
+				var repo = scope.ServiceProvider.GetRequiredService<IHashesRepositoryPure>();
+				var dbContextOptions = scope.ServiceProvider.GetRequiredService<DbContextOptions<BloggingContext>>();
+				var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
+				var logger = loggerFactory.CreateLogger<CalculateHashesInfoBackgroundOperation>();
+
+				var hi = await repo.CalculateHashesInfo(logger, dbContextOptions, token);
+			}
 		}
 	}
 }

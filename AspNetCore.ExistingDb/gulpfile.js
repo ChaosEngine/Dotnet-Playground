@@ -54,4 +54,3 @@ gulp.task("min:css", function () {
 gulp.task("min", gulp.series("min:js",
 	//"MyBootstapColors:css",
 	"min:css"));
-
