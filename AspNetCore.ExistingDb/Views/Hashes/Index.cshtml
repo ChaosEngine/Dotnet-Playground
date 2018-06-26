@@ -4,6 +4,30 @@
 @{
 	ViewBag.Title = "MyRainbow rainbow table";
 }
+@section headElements
+{
+<style type="text/css">
+	.glyphicon-refresh-animate {
+		text-align:center;
+		font-weight:bold;
+		font-size: x-large;
+		display:inline-block;
+
+		animation-name: spin;
+		animation-duration: 750ms;
+		animation-iteration-count: infinite;
+		animation-timing-function: linear;
+		/* transform: rotate(3deg); */
+		/* transform: rotate(0.3rad);/ */
+		/* transform: rotate(3grad); */
+		/* transform: rotate(.03turn); */
+	}
+	@@keyframes spin {
+		from { transform:rotate(0deg); }
+		to { transform:rotate(360deg); }
+	}
+</style>
+}
 <h2>Rainbow table trivial example</h2>
 @{
 	if (((HashesInfo)ViewBag.Info) != null && ((HashesInfo)ViewBag.Info).IsCalculating == false)
@@ -42,24 +66,24 @@
 	</div>
 	<div class="form-group">
 		<div class="col-md-10">
-			<button type="submit" id="btnSearch" class="btn btn-lg btn-warning"><span class='disabled-animation'></span>Search</button>
+			<button type="submit" id="btnSearch" class="btn btn-lg btn-warning"><div style='display:inline-block'></div> Search</button>
 		</div>
 	</div>
 	<div class="form-group">
 		<div id="divResult" class="col-md-10">@(Model != null && Model.Key.StartsWith("error") ? Model.Key : "")</div>
 	</div>
 </form>
-<table id="result_tab" class="table table-striped table-bordered" style='@(Model != null && !Model.Key.StartsWith("error") ? "" : "display:none")'>
+<table id="result_tab" class="table table-striped table-sm" style='@(Model != null && !Model.Key.StartsWith("error") ? "" : "display:none")'>
 	<thead><tr><th>Key</th><th>MD5</th><th>SHA256</th>
-		<th>Validation <button class="btn btn-warning btn-xs" title="ValidateAll" value="ValidateAll" onclick="clientValidateAll()">ALL ⇩</button></th>
-		</tr></thead>
+		<th><button class="btn btn-success font-weight-bold" title="ValidateAll" value="ValidateAll" onclick="clientValidateAll()">&nbsp;ALL ⇩ &nbsp;</button></th>
+	</tr></thead>
 	<tbody>
 		<tr id="trFirstResult">
 			<td id="res_cel_key">@Model?.Key</td>
 			<td id="res_cel_md5">@Model?.HashMD5</td>
 			<td id="res_cel_sha256">@Model?.HashSHA256</td>
 			<td id="res_cel_clientValidate">
-				<button class="btn btn-warning btn-xs" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>
+				<button class="btn btn-success btn-xs" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>
 			</td>
 		</tr>
 	</tbody>
@@ -115,7 +139,7 @@
 
 						var button = $('#btnSearch');//simulate button click-like behaviour: disable
 						button.prop('disabled', true);
-						button.html("<span class='glyphicon glyphicon-refresh glyphicon-refresh-animate'></span> Loading...");
+						button.html("<div class='glyphicon-refresh-animate'>&#8635;</div> Loading...");
 
 						var hedrs = { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() }
 
@@ -128,7 +152,7 @@
 							$('#trFirstResult').hide();
 
 							button.prop('disabled', false);//simulate button click-like behaviour: enable
-							button.html("<span class='disabled-animation'></span> Search");
+							button.html("<div style='display:inline-block'></div> Search");
 
 							var t = $('#result_tab tbody');
 							t.find('tr:visible').not('#trFirstResult').remove();
@@ -139,7 +163,7 @@
 									$('<td>').text(item.hashMD5),
 									$('<td>').text(item.hashSHA256),
 									$('<td>').html((item.hashMD5 == null || item.hashSHA256 == null) ? ''
-										: '<button class="btn btn-warning btn-xs" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>')
+										: '<button class="btn btn-success btn-xs" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>')
 								).appendTo('#result_tab');
 								//console.log($tr.wrap('<p>').html());
 							});
@@ -178,7 +202,7 @@
 
 			var button = $('#btnSearch');
 			button.prop('disabled', true);
-			button.html("<span class='glyphicon glyphicon-refresh glyphicon-refresh-animate'></span> Loading...");
+			button.html("<div class='glyphicon-refresh-animate'>&#8635;</div> Loading...");
 			divResult.text('');
 			$('#result_tab').hide();
 
@@ -192,7 +216,7 @@
 				},
 			}).done(function (found) {
 				button.prop('disabled', false);
-				button.html("<span class='disabled-animation'></span> Search");
+				button.html("<div style='display:inline-block'></div> Search");
 
 				if (/^error.*/.test(found)) {
 					divResult.text(found);
@@ -208,7 +232,7 @@
 				$('#res_cel_md5').text(found.hashMD5);
 				$('#res_cel_sha256').text(found.hashSHA256);
 				$('#res_cel_clientValidate').html((found.hashMD5 == null || found.hashSHA256 == null) ? ''
-					: '<button class="btn btn-warning btn-xs" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>');
+					: '<button class="btn btn-success btn-xs" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>');
 			});
 		}
 

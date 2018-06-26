@@ -1,18 +1,22 @@
 ﻿@model DecoratedBlog
+@using EFGetStarted.AspNetCore.ExistingDb.Controllers
 @inject Microsoft.Extensions.Configuration.IConfiguration Conf
-<div class="form-inline">
-	<span class='displaying'>@Html.DisplayFor(modelItem => Model.Url)</span>
 
-	<form method="post" class="form-horizontal" data-id="@Model.BlogId">
-		<div asp-validation-summary="All" class="text-danger"></div>
+<form method="post" data-id="@Model.BlogId">
+	<span class='displaying'>@Html.DisplayFor(modelItem => Model.Url)</span>
+	<div asp-validation-summary="All" class="text-danger"></div>
+
+	<div class="form-inline">
 		@Html.AntiForgeryToken()
 		<input type="hidden" id="ProtectedID_@Model.BlogId" name="ProtectedID" value="@Model.ProtectedID" />
-		<input asp-for="Url" value="@Model.Url" id="inp_@Model.BlogId" placeholder="Url" class="edit form-control" />
+		<input asp-for="Url" value="@Model.Url" id="inp_@Model.BlogId" placeholder="Url"
+			   class="edit form-control col-md-6" />
+
 		<input name="operation" type="submit" value="@(BlogActionEnum.Edit)"
-			   formaction="~/Blogs/@(BlogActionEnum.Edit)/@Model.BlogId/false" 
-			   class="update-case btn btn-default" />
+			   formaction="~/@(BlogsController.ASPX)/@(BlogActionEnum.Edit)/@Model.BlogId/false"
+			   class="update-case form-control mx-sm-1 btn btn-secondary" />
 		<input name="operation" type="submit" value="@(BlogActionEnum.Delete)"
-			   formaction="~/Blogs/@(BlogActionEnum.Delete)/@Model.BlogId/false"
-			   class="delete-case btn btn-danger" formnovalidate="formnovalidate" />
-	</form>
-</div>
+			   formaction="~/@(BlogsController.ASPX)/@(BlogActionEnum.Delete)/@Model.BlogId/false"
+			   class="delete-case form-control mx-sm-1 btn btn-danger" formnovalidate="formnovalidate" />
+	</div>
+</form>

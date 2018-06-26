@@ -330,8 +330,7 @@ namespace Integration
 				response.EnsureSuccessStatusCode();
 
 				var responseString = await response.Content.ReadAsStringAsync();
-				Assert.Contains("<button id=\"btninfo\" class=\"btn btn-default\" type=\"button\">" +
-					"<i class=\"glyphicon glyphicon-info-sign\"></i>&nbsp;row info</button>",
+				Assert.Contains("<button id=\"btninfo\" class=\"btn btn-default\" type=\"button\" data-toggle=\"modal\" data-target=\"#exampleModal\">&#9432;&nbsp;Row info</button>",
 					responseString);
 				Assert.Contains("data-page-list=\"[5,10,20,50,500,2000]\"", responseString);
 			}
@@ -503,7 +502,7 @@ namespace Integration
 				using (var index_response = await _client.GetAsync($"/{BlogsController.ASPX}/", HttpCompletionOption.ResponseContentRead))
 				{
 					var responseString = await index_response.Content.ReadAsStringAsync();
-					MatchCollection matches = Regex.Matches(responseString, @"\<form method=""post"" class=""form-horizontal"" data-id=""([0-9].*)""\>");
+					MatchCollection matches = Regex.Matches(responseString, @"\<form method=""post"" data-id=""([0-9].*)""\>");
 					Assert.NotEmpty(matches);
 					var ids = new List<int>(matches.Count);
 					foreach (Match m in matches)

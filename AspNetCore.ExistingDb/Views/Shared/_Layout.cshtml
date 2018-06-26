@@ -17,7 +17,7 @@
 		<link rel="stylesheet" href="~/css/site.css" />
 	</environment>
 	<environment exclude="Development">
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous"
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.1/dist/css/bootstrap.min.css" integrity="sha256-Md8eaeo67OiouuXAi8t/Xpd8t2+IaJezATVTWbZqSOw=" crossorigin="anonymous"
 			  asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
 			  asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
 		<link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
@@ -127,6 +127,7 @@
 	</footer>
 	<environment include="Development">
 		<script src="~/lib/jquery/dist/jquery.js"></script>
+		<script src="~/lib/popper.js/dist/umd/popper.js"></script>
 		<script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
 		<script src="~/js/site.js" asp-append-version="true"></script>
 	</environment>
@@ -135,7 +136,11 @@
 				asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
 				asp-fallback-test="window.jQuery">
 		</script>
-		<script src="https://cdn.jsdelivr.net/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"
+				asp-fallback-src="~/lib/popper.js/dist/popper.js"
+				asp-fallback-test="window.Popper">
+		</script>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.1/dist/js/bootstrap.min.js" integrity="sha256-xaF9RpdtRxzwYMWg4ldJoyPWqyDPCRD0Cv7YEEe6Ie8=" crossorigin="anonymous"
 				asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
 				asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal">
 		</script>

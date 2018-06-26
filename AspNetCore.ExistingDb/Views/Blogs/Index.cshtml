@@ -1,12 +1,13 @@
 ﻿@model IEnumerable<DecoratedBlog>
 @inject Microsoft.Extensions.Configuration.IConfiguration Conf
+@using EFGetStarted.AspNetCore.ExistingDb.Controllers
 @{
 	ViewBag.Title = "Blogs";
 }
 
 <h2>@ViewData["Title"]</h2>
 <p>
-	<a href="~/Blogs/@(nameof(EFGetStarted.AspNetCore.ExistingDb.Controllers.BlogsController.Create))">Create New</a>
+	<a href="~/@(BlogsController.ASPX)/@(nameof(BlogsController.Create))">Create New</a>
 </p>
 
 <table class="table">

@@ -63,6 +63,9 @@ namespace Integration
 			string temp = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER");
 			DOTNET_RUNNING_IN_CONTAINER = !string.IsNullOrEmpty(temp) && temp.Equals(true.ToString(), StringComparison.InvariantCultureIgnoreCase);
 			//Console.WriteLine($"### temp = {temp}, DOTNET_RUNNING_IN_CONTAINER = {DOTNET_RUNNING_IN_CONTAINER}");
+
+			var db = _server.Host.Services.GetRequiredService<EFGetStarted.AspNetCore.ExistingDb.Models.BloggingContext>();
+			db.Database.EnsureCreated();
 		}
 
 		protected virtual void InitializeServices(IServiceCollection services)
