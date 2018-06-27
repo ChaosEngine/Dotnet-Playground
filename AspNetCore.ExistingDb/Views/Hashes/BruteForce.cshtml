@@ -64,11 +64,25 @@
 }
 <h1>Brute forcing hashes to plain text (with trivial strings)</h1>
 <p id="pParagraph">Based on <a target="_blank" href="http://embed.plnkr.co/mnlQ6P">http://embed.plnkr.co/mnlQ6P</a></p>
-<input id="txtHash" placeholder="hash to crack" class="form-control" style="margin-bottom: 5px" />
-<label>Alphabet</label><input id="txtAlphabet" class="form-control" style="margin-bottom: 5px" value="abcdefghijklmnopqrstuvwxyz0123456789" />
-<label>Worker count&nbsp;</label><select id="ddlWorkerCount"><option>1</option><option>2</option><option>4</option><option>8</option></select>
-<label>Update rate&nbsp;</label><select id="ddlUpdateRate"><option>20</option><option>100</option><option>200</option><option>500</option></select> ms
+
+<label>Pass to be hashed and cracked - simulation</label>
+<input id="txtHash" type="text" placeholder="hash to crack" class="form-control" />
+
+<label>Alphabet</label>
+<input id="txtAlphabet" class="form-control" style="margin-bottom: 5px" value="abcdefghijklmnopqrstuvwxyz0123456789" />
+
+<label>Worker count&nbsp;</label>
+<select id="ddlWorkerCount" class="custom-select col-md-1">
+	<option>1</option><option>2</option><option>4</option><option>8</option>
+</select>
+
+<label>Update rate&nbsp;</label>
+<select id="ddlUpdateRate" class="custom-select col-md-1">
+	<option>20</option><option>100</option><option>200</option><option>500</option>
+</select> ms
+
 <button type="submit" id="btnCrack" class="btn btn-warning">Crack</button>
+
 <div class="workers">
 	<div class="global-message"></div>
 </div>
