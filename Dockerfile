@@ -1,4 +1,4 @@
-FROM microsoft/dotnet:2.1.301-sdk-bionic AS build
+FROM microsoft/dotnet:2.1-sdk-stretch AS build
 RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
 	apt-get install -y nodejs
 RUN npm i gulp@next -g
@@ -17,7 +17,7 @@ RUN find AspNetCore.ExistingDb/bin/Release/netcoreapp2.1/publish/ -type d -exec 
 
 
 
-FROM microsoft/aspnetcore
+FROM microsoft/dotnet:2.1.1-aspnetcore-runtime-stretch-slim
 WORKDIR /app
 COPY --from=build /build/AspNetCore.ExistingDb/bin/Release/netcoreapp2.1/publish/ /build/startApp.sh ./
 
