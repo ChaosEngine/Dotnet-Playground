@@ -705,11 +705,13 @@ LIMIT @limit OFFSET @offset
 										select h.Key.First()
 										).Distinct()
 										.OrderBy(o => o);
-						var count = db.ThinHashes.CountAsync(token);
-						var key_length = db.ThinHashes.MaxAsync(x => x.Key.Length, token);
+						var count = await db.ThinHashes.CountAsync(token);
+						var key_length = 0;
+						if (count > 0)
+							key_length = await db.ThinHashes.MaxAsync(x => x.Key.Length, token);
 
-						hi.Count = await count;
-						hi.KeyLength = await key_length;
+						hi.Count = count;
+						hi.KeyLength = key_length;
 						hi.Alphabet = string.Concat(alphabet);
 						hi.IsCalculating = false;
 

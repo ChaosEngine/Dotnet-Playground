@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -65,7 +66,10 @@ namespace Integration
 			//Console.WriteLine($"### temp = {temp}, DOTNET_RUNNING_IN_CONTAINER = {DOTNET_RUNNING_IN_CONTAINER}");
 
 			var db = _server.Host.Services.GetRequiredService<EFGetStarted.AspNetCore.ExistingDb.Models.BloggingContext>();
-			db.Database.EnsureCreated();
+			if (DBKind.Equals("sqlite",StringComparison.InvariantCultureIgnoreCase))
+				db.Database.Migrate();
+			else
+				db.Database.EnsureCreated();
 		}
 
 		protected virtual void InitializeServices(IServiceCollection services)

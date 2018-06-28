@@ -240,8 +240,14 @@ namespace Integration
 		{
 			if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return;//pass on fake DB with no data
 
+
+			//Arrange
+			//get number of all total rows from previous tests :-)
+			int total_hashes_count = await new HashesDataTablePage(_fixture).Load_Valid("Key", "asc", "aaa", 5, 0);
+
+
 			// Arrange
-			bool? is_HashesInfo_table_empty = default;
+			bool? is_HashesInfo_table_empty = total_hashes_count <= 0 ? true : default;
 			string calculating_content_substr = @"<p>Calculating...wait about 10 secs or so...and refresh the page</p>",
 				calculated_content_substr = @"<p>
 				Search for <strong>([0-9].*)</strong> character MD5 or SHA256 hash source string. Alphabet is '(.*)'
@@ -275,7 +281,7 @@ namespace Integration
 			}
 
 			//if not yet calculated, we wait until it finaly is calculated and assert new page content
-			if (is_HashesInfo_table_empty.GetValueOrDefault(false) == true)
+			if (is_HashesInfo_table_empty.HasValue && total_hashes_count > 0)
 			{
 				// Arrange
 				int wait_tries_count = 15;
@@ -302,6 +308,10 @@ namespace Integration
 				while (--wait_tries_count > 0);
 
 				Assert.True(wait_tries_count > 0, "not enough tries for HashInfo calculation to succeed");
+			}
+			else
+			{
+				//proof that HashesTable is empty
 			}
 		}
 
@@ -336,20 +346,22 @@ namespace Integration
 			}
 		}
 
-		[Fact]
-		public async Task Load_Valid()
+		[Theory]
+		[InlineData("Key", "desc", "kawa", 5, 1)]
+		[InlineData("Key", "asc", "awak", 5, 1)]
+		public async Task<int> Load_Valid(string sort, string order, string search, int limit, int offset)
 		{
-			if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return;//pass on fake DB with no data
+			if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return 0;//pass on fake DB with no data
 
 
 			// Arrange
 			var data = new HashesDataTableLoadInput
 			{
-				Sort = "Key",
-				Order = "desc",
-				Search = "kawa",
-				Limit = 5,
-				Offset = 1,
+				Sort = sort,
+				Order = order,
+				Search = search,
+				Limit = limit,
+				Offset = offset,
 			}.ToDictionary();
 			using (var content = new FormUrlEncodedContent(data))
 			{
@@ -373,9 +385,13 @@ namespace Integration
 					var deserialized = JsonConvert.DeserializeObject(jsonString, typed_result.GetType()) as dynamic;
 					Assert.IsType(typed_result.GetType(), deserialized);
 					Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(deserialized.rows);
-					Assert.True(deserialized.rows.Length == 5);
-					Assert.True(deserialized.total > 0);
-					Assert.NotNull((deserialized.rows as ThinHashes[]).FirstOrDefault(r => r.Key.StartsWith("kawa")));
+					Assert.True(deserialized.rows.Length == 5 ||
+						(deserialized.rows.Length == 1 && ((string)deserialized.rows[0].Key).Equals("nothing found", StringComparison.InvariantCultureIgnoreCase)));
+					Assert.True(deserialized.total >= 0);
+					if (deserialized.rows.Length > 0)
+						Assert.NotNull(deserialized.rows[0].Key.StartsWith(search));
+
+					return deserialized.total;
 				}
 			}
 		}
