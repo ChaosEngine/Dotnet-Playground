@@ -269,22 +269,23 @@ namespace Integration
 					responseString.Contains(calculating_content_substr)
 					);
 
-				MatchCollection matches_empty = Regex.Matches(responseString, calculating_content_substr);
-				MatchCollection matches_not_empty = Regex.Matches(responseString, calculated_content_substr);
+				var empty_hashes_response_match =Regex.Matches(responseString, calculating_content_substr);
+				var hashes_not_empty_response_match = Regex.Matches(responseString, calculated_content_substr);
 
 				Assert.True(
-					(matches_empty.Count > 0 && matches_not_empty.Count <= 0) ||
-					(matches_empty.Count <= 0 && matches_not_empty.Count > 0)
+					(empty_hashes_response_match.Count > 0 && hashes_not_empty_response_match.Count <= 0) ||
+					(empty_hashes_response_match.Count <= 0 && hashes_not_empty_response_match.Count > 0)
 					);
 
-				is_HashesInfo_table_empty = matches_empty.Count > 0 && matches_not_empty.Count <= 0;
+				is_HashesInfo_table_empty = empty_hashes_response_match.Count > 0 && hashes_not_empty_response_match.Count <= 0;
 			}
 
 			//if not yet calculated, we wait until it finaly is calculated and assert new page content
+			//only hapening if we are sure there are _any records_ inside table hashes
 			if (is_HashesInfo_table_empty.HasValue && total_hashes_count > 0)
 			{
 				// Arrange
-				int wait_tries_count = 15;
+				int wait_tries_count = 15;//15x try out
 
 				// Act
 				do

@@ -4,88 +4,56 @@
 @section headElements
 {
 	<style type="text/css">
-.workers {
-  color: rgba(0, 0, 0, 0.8);
-  margin-top: 20px; }
-  .workers:after {
-	content: '';
-	display: table;
-	clear: both; }
-  .workers h1 {
-	color: rgba(0, 0, 0, 0.7);
-	text-align: center;
-	text-transform: uppercase;
-	font-size: 3em;
-	letter-spacing: -1px; }
-  .workers > .global-message {
-	text-align: left;
-	margin-bottom: 2rem; }
-  .workers .worker {
-	overflow: hidden;
-	float: left;
-	width: 320px;
-	padding: 1rem;
-	margin: 0 2rem 2rem 0;
-	background-color: #d3d3d3;
-	border-radius: 10px;
-	font-size: small;
-	text-align: center;
-	opacity: 1;
-	transition: opacity 0.3s ease-out; }
-	.workers .worker.found > header {
-	  background-color: rgba(0, 114, 0, 0.5); }
-	.workers .worker.done:not(.found) {
-	  opacity: 0.4; }
-	  .workers .worker.done:not(.found) > header {
-		background-color: rgba(110, 6, 6, 0.5); }
-	.workers .worker > header {
-	  margin: -1rem -1rem 1rem -1rem;
-	  padding: 0.5rem;
-	  background-color: rgba(80, 0, 0, 0.5);
-	  color: rgba(255, 255, 255, 0.9);
-	  transition: background 0.3s ease-out; }
-	  .workers .worker > header > .title {
-		font-weight: 600;
-		font-size: 2em;
-		text-transform: uppercase; }
-	.workers .worker > .data-element {
-	  margin-bottom: 1rem; }
-	  .workers .worker > .data-element > .label {
-		font-size: 1.3em;
-		text-transform: uppercase; }
-	  .workers .worker > .data-element > .value {
-		display: block;
-
-		font-size: 1.5rem; }
-	  .workers .worker > .data-element.remaining > .value {
-		font-weight: 400;
-		font-size: 1.5rem; }
+		.workers .worker {
+			opacity: 1;
+			transition: opacity 0.3s ease-out;
+		}
+		.workers .worker.found .title {
+			background-color: rgba(0, 114, 0, 0.5);
+		}
+		.workers .worker.done:not(.found) {
+			opacity: 0.4;
+		}
+		.workers .worker.done:not(.found) .title {
+			background-color: rgba(110, 6, 6, 0.5);
+		}
+		.workers .worker .title {
+			background-color: rgba(80, 0, 0, 0.5);
+			color: rgba(255, 255, 255, 0.9);
+			transition: background 0.3s ease-out;
+		}
 	</style>
 }
 <h1>Brute forcing hashes to plain text (with trivial strings)</h1>
 <p id="pParagraph">Based on <a target="_blank" href="http://embed.plnkr.co/mnlQ6P">http://embed.plnkr.co/mnlQ6P</a></p>
 
-<label>Pass to be hashed and cracked - simulation</label>
-<input id="txtHash" type="text" placeholder="hash to crack" class="form-control" />
+<div class="form-row">
+	<div class="form-group col-md-6">
+		<label>Pass to be hashed and cracked - simulation</label>
+		<input id="txtHash" type="text" placeholder="hash to crack" class="form-control" />
+	</div>
+	
+	<div class="form-group col-md-6">
+		<label>Alphabet</label>
+		<input id="txtAlphabet" class="form-control" style="margin-bottom: 5px" value="abcdefghijklmnopqrstuvwxyz0123456789" />
+	</div>
 
-<label>Alphabet</label>
-<input id="txtAlphabet" class="form-control" style="margin-bottom: 5px" value="abcdefghijklmnopqrstuvwxyz0123456789" />
-
-<label>Worker count&nbsp;</label>
-<select id="ddlWorkerCount" class="custom-select col-md-1">
-	<option>1</option><option>2</option><option>4</option><option>8</option>
-</select>
-
-<label>Update rate&nbsp;</label>
-<select id="ddlUpdateRate" class="custom-select col-md-1">
-	<option>20</option><option>100</option><option>200</option><option>500</option>
-</select> ms
-
-<button type="submit" id="btnCrack" class="btn btn-warning">Crack</button>
-
-<div class="workers">
-	<div class="global-message"></div>
+	<div class="form-group col-md-6">
+		<label>Worker count&nbsp;</label>
+		<select id="ddlWorkerCount" class="custom-select col-md-3">
+			<option>1</option><option>2</option><option>4</option><option>8</option>
+		</select>
+		<label>Update rate (millisec)</label>
+		<select id="ddlUpdateRate" class="custom-select col-md-3">
+			<option>20</option><option>100</option><option>200</option><option>500</option>
+		</select>
+	</div>
 </div>
+<button type="button" id="btnCrack" class="btn btn-warning">Crack</button>
+
+<div class="global-message" style="margin-top:1rem;margin-bottom:1rem"></div>
+<div class="workers row"></div>
+
 @section scripts
 {
 	@await Html.PartialAsync("_CryptoJSScriptsPartial")
