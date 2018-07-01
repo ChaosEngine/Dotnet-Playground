@@ -243,7 +243,7 @@ namespace Integration
 
 			//Arrange
 			//get number of all total rows from previous tests :-)
-			int total_hashes_count = await new HashesDataTablePage(_fixture).Load_Valid("Key", "asc", "aaa", 5, 0);
+			int total_hashes_count = await new HashesDataTablePage(_fixture).Load_Valid("Key", "asc", "aaa", 5, 0, "2");
 
 
 			// Arrange
@@ -269,7 +269,7 @@ namespace Integration
 					responseString.Contains(calculating_content_substr)
 					);
 
-				var empty_hashes_response_match =Regex.Matches(responseString, calculating_content_substr);
+				var empty_hashes_response_match = Regex.Matches(responseString, calculating_content_substr);
 				var hashes_not_empty_response_match = Regex.Matches(responseString, calculated_content_substr);
 
 				Assert.True(
@@ -348,23 +348,28 @@ namespace Integration
 		}
 
 		[Theory]
-		[InlineData("Key", "desc", "kawa", 5, 1)]
-		[InlineData("Key", "asc", "awak", 5, 1)]
-		public async Task<int> Load_Valid(string sort, string order, string search, int limit, int offset)
+		[InlineData("Key", "desc", "kawa", 5, 1, "2")]
+		[InlineData("Key", "asc", "awak", 5, 1, "2")]
+		[InlineData("Key", "desc", "kawa", 5, 1, "1")]
+		[InlineData("Key", "asc", "awak", 5, 1, "1")]
+		[InlineData("Key", "asc", "none_existing", 5, 1, "2")]
+		[InlineData("Key", "asc", "none_existing", 5, 1, "1")]
+		public async Task<int> Load_Valid(string sort, string order, string search, int limit, int offset, string extraParam)
 		{
 			if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return 0;//pass on fake DB with no data
 
 
 			// Arrange
-			var data = new HashesDataTableLoadInput
+			var query_input = new HashesDataTableLoadInput
 			{
 				Sort = sort,
 				Order = order,
 				Search = search,
 				Limit = limit,
 				Offset = offset,
+				ExtraParam = extraParam,
 			}.ToDictionary();
-			using (var content = new FormUrlEncodedContent(data))
+			using (var content = new FormUrlEncodedContent(query_input))
 			{
 				var queryString = await content.ReadAsStringAsync();
 				// Act
@@ -383,31 +388,57 @@ namespace Integration
 					};
 
 					// Deserialize JSON String into concrete class
-					var deserialized = JsonConvert.DeserializeObject(jsonString, typed_result.GetType()) as dynamic;
-					Assert.IsType(typed_result.GetType(), deserialized);
-					Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(deserialized.rows);
-					Assert.True(deserialized.rows.Length == 5 ||
-						(deserialized.rows.Length == 1 && ((string)deserialized.rows[0].Key).Equals("nothing found", StringComparison.InvariantCultureIgnoreCase)));
-					Assert.True(deserialized.total >= 0);
-					if (deserialized.rows.Length > 0)
-						Assert.NotNull(deserialized.rows[0].Key.StartsWith(search));
+					var data = JsonConvert.DeserializeObject(jsonString, typed_result.GetType()) as dynamic;
+					Assert.IsType(typed_result.GetType(), data);
+					Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(data.rows);
 
-					return deserialized.total;
+					Assert.True(data.rows.Length == 5 || data.rows.Length == 0);
+					Assert.True(data.total >= 0);
+
+					if (data.rows.Length > 0)
+					{
+						Assert.NotNull(data.rows[0].Key.StartsWith(search));
+
+						if (query_input.TryGetValue("ExtraParam", out string value) && value == "2")
+						{
+							Assert.True(response.Headers.CacheControl.Public &&
+								response.Headers.CacheControl.MaxAge == TimeSpan.FromSeconds(
+#if DEBUG
+									60
+#else
+									60 * 60
+#endif
+									));
+						}
+						else
+						{
+							Assert.Null(response.Headers.CacheControl?.Public);
+						}
+					}
+					else
+					{
+						Assert.Null(response.Headers.CacheControl?.Public);
+					}
+
+					return data.total;
 				}
 			}
 		}
 
-		[Fact]
-		public async Task Load_Invalid()
+		[Theory]
+		[InlineData("dead", "string", "is", 0xDEAD, 0xBEEF, "1")]
+		[InlineData("Key", "asc", "awak", 5, 1, "bad")]
+		public async Task Load_Invalid(string sort, string order, string search, int limit, int offset, string extraParam)
 		{
 			// Arrange
 			var data = new HashesDataTableLoadInput
 			{
-				Sort = "dead",
-				Order = "string",
-				Search = "is",
-				Limit = 0xDEAD,
-				Offset = 0xBEEF,
+				Sort = sort,
+				Order = order,
+				Search = search,
+				Limit = limit,
+				Offset = offset,
+				ExtraParam = extraParam,
 			}.ToDictionary();
 			using (var content = new FormUrlEncodedContent(data))
 			{

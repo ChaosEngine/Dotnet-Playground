@@ -1,10 +1,12 @@
 ﻿using AspNetCore.ExistingDb.Repositories;
 using EFGetStarted.AspNetCore.ExistingDb.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -60,7 +62,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			//	return Redirect((path + "/Index").Replace("//", "/"));
 			#endregion Old code
 
-			string view_name = "Views/Hashes/BootstrapDataTable.cshtml";
+			string view_name = "Views/Hashes/HashesDataTable.cshtml";
 			return View(view_name);
 		}
 
@@ -93,28 +95,10 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 		[HttpGet]
 		public async Task<IActionResult> Load(HashesDataTableLoadInput input)
 		{
-			#region Old code
-			// Get entity fieldnames
-			/*IEnumerable<string> columnNames = AllColumnNames;
-
-			// Create a seperate list for searchable field names   
-			//IEnumerable<string> searchFields = new List<string>(columnNames);
-			// Exclude field Iso2 for filtering 
-			//searchFields.Remove("ISO2");
-
-
-
-			// Perform filtering
-			IQueryable<ThinHashes> items = SearchItems(BaseItems, search, columnNames);
-
-			// Sort the filtered items and apply paging
-			var found = ItemsToJson(items, columnNames, sort, order, limit, offset);*/
-			#endregion Old code
-
 			if (!ModelState.IsValid)
 			{
 #if DEBUG
-				//_logger.LogWarning("!!!!!!!validation error" +Environment.NewLine +
+				//_logger.LogWarning("!!!!!!!validation error" + Environment.NewLine +
 				//	ModelState.Values.Where(m => m.ValidationState != Microsoft.AspNetCore.Mvc.ModelBinding.ModelValidationState.Valid)
 				//	.SelectMany(m => m.Errors)
 				//	.Select(m => m.ErrorMessage + Environment.NewLine)
@@ -135,6 +119,23 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 					total = found.Count,
 					rows = found.Itemz
 				};
+
+				if (input.ExtraParam == "2" && found.Itemz.Count() > 0)
+				{
+					HttpContext.Response.GetTypedHeaders().CacheControl =
+						new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
+						{
+							Public = true,
+#if DEBUG
+							MaxAge = TimeSpan.FromSeconds(60)
+#else
+							MaxAge = TimeSpan.FromSeconds(60 * 60)
+#endif
+						};
+				}
+				//else
+				//{
+				//}
 
 				return Json(result, _serializationSettings);
 			}

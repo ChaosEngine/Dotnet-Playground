@@ -83,7 +83,7 @@
 			<td id="res_cel_md5">@Model?.HashMD5</td>
 			<td id="res_cel_sha256">@Model?.HashSHA256</td>
 			<td id="res_cel_clientValidate">
-				<button class="btn btn-success btn-xs" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>
+				<button class="btn btn-success btn-sm" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>
 			</td>
 		</tr>
 	</tbody>
@@ -163,7 +163,7 @@
 									$('<td>').text(item.hashMD5),
 									$('<td>').text(item.hashSHA256),
 									$('<td>').html((item.hashMD5 == null || item.hashSHA256 == null) ? ''
-										: '<button class="btn btn-success btn-xs" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>')
+										: '<button class="btn btn-success btn-sm" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>')
 								).appendTo('#result_tab');
 								//console.log($tr.wrap('<p>').html());
 							});
@@ -232,7 +232,7 @@
 				$('#res_cel_md5').text(found.hashMD5);
 				$('#res_cel_sha256').text(found.hashSHA256);
 				$('#res_cel_clientValidate').html((found.hashMD5 == null || found.hashSHA256 == null) ? ''
-					: '<button class="btn btn-success btn-xs" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>');
+					: '<button class="btn btn-success btn-sm" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>');
 			});
 		}
 

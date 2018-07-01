@@ -44,7 +44,6 @@
 		   data-page-list="[5,10,20,50,500,2000]">
 		<thead>
 			<tr>
-				@*<th data-field="ISO2" data-sortable="false" data-halign="center" data-align="center" data-formatter="flagFormatter">Flag</th>*@
 				<th data-field="Key" data-sortable="true" data-halign="center" data-align="center">Key</th>
 				<th data-field="HashMD5" data-sortable="true">HashMD5</th>
 				<th data-field="HashSHA256" data-sortable="true">HashSHA256</th>
@@ -87,16 +86,18 @@
 	@await Html.PartialAsync("_CryptoJSScriptsPartial")
 
 	<script type="text/javascript">
+		var _startTime = null;
+		var _refreshClicked = null;
 
 		function validateFormatter(value, row) {
 			return (row.HashMD5 == null || row.HashSHA256 == null) ? ''
-				: '<button class="btn btn-success btn-xs" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>';
+				: '<button class="btn btn-success btn-sm" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>';
 		}
 
-		var _startTime = null;
 		function extraServerParams(params) {
 			_startTime = new Date().getTime();
-			params.ExtraParam = 2;
+			params.ExtraParam = _refreshClicked === true ? 1 : 2;
+			_refreshClicked = null;
 			return params;
 		}
 
@@ -104,17 +105,9 @@
 			var result = $($element).closest('tr').data('uniqueid');
 			return result;
 		}
-
+		
 		$(document).ready(function () {
 			var $table = $('#table');
-
-			/*$('#btninfo').click(function () {
-				$tr = $table.find('tr.highlight');
-				var id = getId($tr);
-
-				var msg = (id === undefined) ? 'No row selected' : 'Country code : ' + id;
-				alert(msg);
-			});*/
 
 			$('#exampleModal').on('show.bs.modal', function (event) {
 				$tr = $table.find('tr.highlight');
@@ -123,9 +116,15 @@
 			  
 				var modal = $(this);
 				modal.find('.modal-body').text(msg);
-				//modal.find('.modal-body input').val(recipient)
 			})
 
+			$("button[name='refresh']").bindFirst('click', function (event) {
+				_refreshClicked = true;
+			});
+			$table.on('refresh.bs.table', function (params) {
+				var opts = $table.bootstrapTable('getOptions');
+				params.ExtraParam = 1;
+			});
 			// register row-click event
 			$table.on('click-row.bs.table', function ($element, row, $tr) {
 				$tr.addClass('highlight').siblings().removeClass('highlight');

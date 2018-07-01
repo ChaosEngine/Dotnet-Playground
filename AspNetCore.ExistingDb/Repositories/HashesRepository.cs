@@ -297,7 +297,7 @@ FETCH NEXT @limit ROWS ONLY
 						}
 						else
 						{
-							found.Add(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
+							//found.Add(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
 						}
 					}
 				}
@@ -402,7 +402,7 @@ LIMIT @limit OFFSET @offset
 						}
 						else
 						{
-							found.Add(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
+							//found.Add(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
 						}
 					}
 				}
@@ -503,7 +503,7 @@ LIMIT @limit OFFSET @offset
 						}
 						else
 						{
-							found.Add(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
+							//found.Add(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
 						}
 					}
 				}
@@ -609,7 +609,7 @@ LIMIT @limit OFFSET @offset
 						}
 						else
 						{
-							found.Add(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
+							//found.Add(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
 						}
 					}
 				}

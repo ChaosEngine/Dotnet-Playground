@@ -25,6 +25,9 @@
 			width: 133px;
 			height: 100px;
 		}
+		#links a {
+			text-decoration: none;
+		}
 		.vjs-default-skin .vjs-big-play-button {
 			top: 50%;
 			left: 50%;
@@ -57,7 +60,7 @@
 
 	if (Model.Jpgs != null)
 	{
-		<button id="btnReplAllImg" type="button" class="btn btn-default" value="strng" title="Load all images">Load all</button>
+		<button id="btnReplAllImg" type="button" class="btn btn-primary" value="strng" title="Load all images">Load all</button>
 		@:<div id="links">
 			int i = 0;
 			foreach (var jpg in Model.Jpgs)
@@ -72,7 +75,7 @@
 				else
 				{
 					<a href="~/WebCamImages/@name" title="@jpg.LastWriteTime">
-						<img src='https://haos.hopto.org/webcamgallery/images/no_img.gif' alt='no img' class='inactive' onmouseover='ReplImg(this);' />
+						<img alt='no img' class='inactive' onmouseover='ReplImg(this);' />
 					</a>
 				}
 			}
@@ -113,6 +116,10 @@
 					options = { index: link, event: event },
 					links = this.getElementsByTagName('a');
 				blueimp.Gallery(links, options);
+			});
+
+			$(".inactive").each(function (index, value) {
+				value.src = 'https://haos.hopto.org/webcamgallery/images/no_img.gif';
 			});
 
 			$('#btnReplAllImg').click(function (event) {

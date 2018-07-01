@@ -65,7 +65,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		{
 			services.AddSingleton(Configuration);
 #if DEBUG
-			services.AddSingleton<ICompilationService, RoslynCompilationService>();
+			//services.AddSingleton<ICompilationService, RoslynCompilationService>();
+			services.AddSingleton<Microsoft.AspNetCore.Razor.Language.RazorTemplateEngine, CustomTemplateEngine>();
 #endif
 			services.AddScoped<IBloggingRepository, BloggingRepository>();
 

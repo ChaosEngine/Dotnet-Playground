@@ -162,9 +162,7 @@ namespace Repositories
 					var repository = new AspNetCore.ExistingDb.Repositories.HashesRepository(context, Setup.Conf, Setup.Cache);
 					var found = await repository.SearchAsync("Key", "desc", "dummy", 0, 10, CancellationToken);
 					Assert.Equal(0, found.Count);
-					Assert.NotEmpty(found.Itemz);
-					Assert.True(1 == found.Itemz.Count());
-					Assert.Equal("nothing found", found.Itemz.First().Key);
+					Assert.Empty(found.Itemz);
 				}
 			}
 			catch (Exception)
