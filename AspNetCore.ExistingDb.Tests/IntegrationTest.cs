@@ -402,13 +402,7 @@ namespace Integration
 						if (query_input.TryGetValue("ExtraParam", out string value) && value == "2")
 						{
 							Assert.True(response.Headers.CacheControl.Public &&
-								response.Headers.CacheControl.MaxAge == TimeSpan.FromSeconds(
-#if DEBUG
-									60
-#else
-									60 * 60
-#endif
-									));
+								response.Headers.CacheControl.MaxAge == AspNetCore.ExistingDb.Repositories.HashesRepository.HashesInfoExpirationInMinutes);
 						}
 						else
 						{

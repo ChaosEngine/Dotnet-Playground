@@ -53,7 +53,7 @@ namespace AspNetCore.ExistingDb.Repositories
 		/// Used value or this specific worker node/process or load balancing server
 		/// </summary>
 		//private static HashesInfo _hashesInfoStatic;
-		public static TimeSpan HashesInfoExpiration = TimeSpan.FromHours(1);
+		public static TimeSpan HashesInfoExpirationInMinutes = TimeSpan.FromHours(1);
 		/// <summary>
 		/// locally cached value for request, refreshed upon every request.
 		/// </summary>
@@ -98,7 +98,7 @@ namespace AspNetCore.ExistingDb.Repositories
 					//_hashesInfoStatic = _hi;
 					hashesInfoStatic = await _memoryCache.GetOrCreateAsync(nameof(HashesInfo), (ce) =>
 					{
-						ce.SetAbsoluteExpiration(HashesInfoExpiration);
+						ce.SetAbsoluteExpiration(HashesInfoExpirationInMinutes);
 						return Task.FromResult(_hi);
 					});
 				}
@@ -697,7 +697,7 @@ LIMIT @limit OFFSET @offset
 						//_hashesInfoStatic = hi;
 						await _memoryCache.GetOrCreateAsync(nameof(HashesInfo), (ce) =>
 						{
-							ce.SetAbsoluteExpiration(HashesInfoExpiration.Multiply(2));
+							ce.SetAbsoluteExpiration(HashesInfoExpirationInMinutes.Multiply(2));
 							return Task.FromResult(hi);
 						});
 
@@ -730,7 +730,7 @@ LIMIT @limit OFFSET @offset
 					finally
 					{
 						//_hashesInfoStatic = hi;
-						_memoryCache.Set(nameof(HashesInfo), hi, HashesInfoExpiration);
+						_memoryCache.Set(nameof(HashesInfo), hi, HashesInfoExpirationInMinutes);
 					}
 					return hi;
 				}

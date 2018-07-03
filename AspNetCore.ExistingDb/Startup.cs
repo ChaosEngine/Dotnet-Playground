@@ -96,7 +96,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				options.DBConfig = dbs_config;
 			});
 			//1st time init of static vars
-			HashesRepository.HashesInfoExpiration = TimeSpan.FromSeconds(Configuration.GetValue<int>(nameof(HashesRepository.HashesInfoExpiration)));
+			HashesRepository.HashesInfoExpirationInMinutes = TimeSpan.FromMinutes(Configuration.GetValue<int>(nameof(HashesRepository.HashesInfoExpirationInMinutes)));
 
 			services.AddScoped<IThinHashesDocumentDBRepository, ThinHashesDocumentDBRepository>();
 			services.AddSingleton<IUrlHelperFactory, DomainUrlHelperFactory>();

@@ -32,7 +32,7 @@
 @{
 	if (((HashesInfo)ViewBag.Info) != null && ((HashesInfo)ViewBag.Info).IsCalculating == false)
 	{
-		<cache expires-after="@(AspNetCore.ExistingDb.Repositories.HashesRepository.HashesInfoExpiration)">
+		<cache expires-after="@(AspNetCore.ExistingDb.Repositories.HashesRepository.HashesInfoExpirationInMinutes)">
 			<p>
 				Search for <strong>@(((HashesInfo)ViewBag.Info).KeyLength)</strong> character MD5 or SHA256 hash source string. Alphabet is '@(((HashesInfo)ViewBag.Info).Alphabet)'
 			</p>

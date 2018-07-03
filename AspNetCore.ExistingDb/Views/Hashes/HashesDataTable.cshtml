@@ -87,7 +87,7 @@
 
 	<script type="text/javascript">
 		var _startTime = null;
-		var _refreshClicked = null;
+		var _refreshClicked = "2";
 
 		function validateFormatter(value, row) {
 			return (row.HashMD5 == null || row.HashSHA256 == null) ? ''
@@ -96,8 +96,8 @@
 
 		function extraServerParams(params) {
 			_startTime = new Date().getTime();
-			params.ExtraParam = _refreshClicked === true ? 1 : 2;
-			_refreshClicked = null;
+			params.ExtraParam = _refreshClicked;
+			_refreshClicked = "2";
 			return params;
 		}
 
@@ -119,7 +119,7 @@
 			})
 
 			$("button[name='refresh']").bindFirst('click', function (event) {
-				_refreshClicked = true;
+				_refreshClicked = "1";
 			});
 			$table.on('refresh.bs.table', function (params) {
 				var opts = $table.bootstrapTable('getOptions');

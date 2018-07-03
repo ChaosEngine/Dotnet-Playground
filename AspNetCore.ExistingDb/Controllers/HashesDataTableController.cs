@@ -126,11 +126,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 						new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
 						{
 							Public = true,
-#if DEBUG
-							MaxAge = TimeSpan.FromSeconds(60)
-#else
-							MaxAge = TimeSpan.FromSeconds(60 * 60)
-#endif
+							MaxAge = HashesRepository.HashesInfoExpirationInMinutes
 						};
 				}
 				//else
