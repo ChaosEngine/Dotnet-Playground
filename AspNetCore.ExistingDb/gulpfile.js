@@ -2,7 +2,7 @@
 "use strict";
 
 var gulp = require("gulp"),
-	less = require("gulp-less"),
+	//sass = require("gulp-sass"),
     rimraf = require("rimraf"),
     concat = require("gulp-concat"),
     cssmin = require("gulp-cssmin"),
@@ -17,7 +17,7 @@ var paths = {
     minCss: webroot + "css/**/*.min.css",
     concatJsDest: webroot + "js/site.min.js",
 	concatCssDest: webroot + "css/site.min.css",
-	boostrapLess: webroot + "css/bootstrap.less"
+	boostrapSass: webroot + "css/bootstrap.scss"
 };
 
 gulp.task("clean:js", function (cb) {
@@ -37,10 +37,10 @@ gulp.task("min:js", function () {
         .pipe(gulp.dest("."));
 });
 
-gulp.task("MyBootstapColors:css", function () {
-	return gulp.src([paths.boostrapLess])
-		.pipe(less())
-		.pipe(cssmin())
+gulp.task("MyBootstrapColors:scss", function () {
+	return gulp.src([paths.boostrapSass])
+		.pipe(sass().on('error', sass.logError))
+		//.pipe(cssmin())
 		.pipe(gulp.dest(webroot + "lib/bootstrap/dist/css"));
 });
 
@@ -52,5 +52,5 @@ gulp.task("min:css", function () {
 });
 
 gulp.task("min", gulp.series("min:js",
-	//"MyBootstapColors:css",
+	//"MyBootstrapColors:scss",
 	"min:css"));

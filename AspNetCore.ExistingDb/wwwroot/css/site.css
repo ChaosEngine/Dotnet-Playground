@@ -36,3 +36,17 @@ body {
 		display: none;
 	}
 }
+
+
+/*My custom styling*/
+.bg-dark-development {
+	background-color: darkslateblue;
+}
+
+.bg-dark-production {
+	background-color: darkred;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+	color: #fff;
+}
