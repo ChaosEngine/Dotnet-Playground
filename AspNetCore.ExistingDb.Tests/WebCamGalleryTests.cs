@@ -61,11 +61,11 @@ namespace RazorPages
 			//Assert
 			if (!string.IsNullOrEmpty(Configuration["ImageDirectory"]))
 			{
-				Assert.IsAssignableFrom<IEnumerable<FileInfo>>(wcg.Jpgs);
-				Assert.NotNull(wcg.Jpgs);
-				Assert.NotEmpty(wcg.Jpgs);
+				Assert.IsAssignableFrom<IEnumerable<FileInfo>>(wcg.ThumbnailJpgs);
+				Assert.NotNull(wcg.ThumbnailJpgs);
+				Assert.NotEmpty(wcg.ThumbnailJpgs);
 				DateTime? date = null;
-				Assert.All(wcg.Jpgs, (j) =>
+				Assert.All(wcg.ThumbnailJpgs, (j) =>
 				{
 					Assert.IsType<FileInfo>(j);
 					if (date.HasValue)
@@ -74,12 +74,12 @@ namespace RazorPages
 						date = j.LastWriteTime;
 				});
 			}
-			Assert.NotNull(wcg.LiveWebCamURL);
-			Assert.NotNull(wcg.TimelapsVideoURL);
+			Assert.NotNull(wcg.BaseWebCamURL);
 		}
 
 		[Theory]
 		[InlineData("out-1.jpg")]
+		[InlineData("thumbnail-1.jpg")]
 		public void OnImageGetTest(string imageName)
 		{
 			//Arrange

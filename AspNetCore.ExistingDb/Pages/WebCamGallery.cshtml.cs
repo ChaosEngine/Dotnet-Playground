@@ -18,11 +18,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		private readonly string _imageDirectory;
 		private readonly IServerTiming _serverTiming;
 
-		public IEnumerable<FileInfo> Jpgs { get; private set; }
+		public IEnumerable<FileInfo> ThumbnailJpgs { get; private set; }
 
-		public string LiveWebCamURL { get; private set; }
-
-		public string TimelapsVideoURL { get; private set; }
+		public string BaseWebCamURL { get; private set; }
 
 		public Stopwatch Watch { get; private set; }
 
@@ -30,10 +28,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		{
 			Watch = new Stopwatch();
 			Watch.Start();
-			
+
 			_imageDirectory = configuration["ImageDirectory"];
-			LiveWebCamURL = configuration["LiveWebCamURL"];
-			TimelapsVideoURL = configuration["TimelapsVideoURL"];
+			BaseWebCamURL = configuration["BaseWebCamURL"];
 			_serverTiming = serverTiming;
 		}
 
@@ -45,13 +42,17 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 			if (Directory.Exists(_imageDirectory))
 			{
 				var di = new DirectoryInfo(_imageDirectory);
-				var files = di.EnumerateFiles("*.jpg", SearchOption.TopDirectoryOnly);
 
-				Jpgs = files.OrderByDescending(f => f.LastWriteTime)/*.Select(x => x.Name)*/;
+				var files = di.EnumerateFiles("thumbnail*.jpg", SearchOption.TopDirectoryOnly);
+				ThumbnailJpgs = files.OrderByDescending(f => f.LastWriteTime)/*.Select(x => x.Name)*/;
 
-				if (Jpgs.Any())
+				//files = di.EnumerateFiles("out*.jpg", SearchOption.TopDirectoryOnly);
+				//FullImageJpgs = files.OrderByDescending(f => f.LastWriteTime)/*.Select(x => x.Name)*/;
+
+				FileInfo img = ThumbnailJpgs.FirstOrDefault();
+				if (img != null)
 				{
-					var expire_date = Jpgs.First().LastWriteTime.AddMinutes(10);
+					var expire_date = img.LastWriteTime.AddMinutes(10);
 					Response.Headers[HeaderNames.CacheControl] =
 						$"public,expires={expire_date.ToUniversalTime().ToString("R")}";
 				}

@@ -1,5 +1,6 @@
 ﻿@page
 @inject Lib.AspNetCore.ServerTiming.IServerTiming serverTiming
+@inject Microsoft.Extensions.Configuration.IConfiguration Conf
 @model WebCamGallery
 @{
 	Model.Watch.Restart();
@@ -39,46 +40,44 @@
 }
 
 @{
-	if (!string.IsNullOrEmpty(Model.LiveWebCamURL))
+	if (!string.IsNullOrEmpty(Model.BaseWebCamURL))
 	{
-		<a onclick="document.getElementById('live').src = '@Model.LiveWebCamURL' + '?' + Math.random()" title='live'>
-			<img src='@Model.LiveWebCamURL' id='live' alt='live' />
+		<a onclick="document.getElementById('live').src = '@Model.BaseWebCamURL/live'" title='live'>
+			<img src='@Model.BaseWebCamURL/live' id='live' alt='live' />
 		</a>
-	}
-
-	if (!string.IsNullOrEmpty(Model.TimelapsVideoURL))
-	{
+	
 		<!-- Begin VideoJS -->
 		<div class="video-js-box">
-			<video id="example_video_1" width="1280" height="960" class="video-js vjs-default-skin" controls preload="auto" poster="@Model.TimelapsVideoURL/poster.jpeg" data-setup="{}">
-				<source src="@Model.TimelapsVideoURL/video.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"' />
-				<source src="@Model.TimelapsVideoURL/video.webm" type='video/webm; codecs="vp8, vorbis"' />
+			<video id="example_video_1" width="1280" height="960" class="video-js vjs-default-skin" controls preload="auto" poster="@Model.BaseWebCamURL/poster.jpeg" data-setup="{}">
+				<source src="@Model.BaseWebCamURL/video.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"' />
+				<source src="@Model.BaseWebCamURL/video.webm" type='video/webm; codecs="vp8, vorbis"' />
 			</video>
 		</div>
 		<!-- End VideoJS -->
 	}
 
-	if (Model.Jpgs != null)
+	if (Model.ThumbnailJpgs != null)
 	{
 		<button id="btnReplAllImg" type="button" class="btn btn-primary" value="strng" title="Load all images">Load all</button>
 		@:<div id="links">
-			int i = 0;
-			foreach (var jpg in Model.Jpgs)
+		int i = 0;
+		foreach (var jpg in Model.ThumbnailJpgs)
+		{
+			var thumbnail = jpg.Name;
+			var full = thumbnail.Replace("thumbnail", "out");
+			if (i++ < 7)
 			{
-				var name = jpg.Name;
-				if (i++ < 7)
-				{
-					<a href="~/WebCamImages/@name" title="@jpg.LastWriteTime">
-						<img src="~/WebCamImages/@name" alt="@name" class='active' onmouseover='ReplImg(this);' />
-					</a>
-				}
-				else
-				{
-					<a href="~/WebCamImages/@name" title="@jpg.LastWriteTime">
-						<img alt='no img' class='inactive' onmouseover='ReplImg(this);' />
-					</a>
-				}
+				<a href="~/WebCamImages/@full" title="@jpg.LastWriteTime">
+					<img src="~/WebCamImages/@thumbnail" alt="@thumbnail" class='active' onmouseover='ReplImg(this);' />
+				</a>
 			}
+			else
+			{
+				<a href="~/WebCamImages/@full" title="@jpg.LastWriteTime">
+					<img alt='no img' class='inactive' onmouseover='ReplImg(this);' />
+				</a>
+			}
+		}
 		@:</div>
 		<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">
 			<div class="slides"></div>
@@ -107,25 +106,46 @@
 				asp-fallback-test="window.jQuery && videojs.options"></script>
 	</environment>
 	<script type="text/javascript">
+		@*if ('serviceWorker' in navigator) {
+			const swUrl = '@Conf.AppRootPath()sw.min.js?domain=' + encodeURIComponent('@Conf.AppRootPath()');
+
+			navigator.serviceWorker
+				.register(swUrl, { scope: '@Conf.AppRootPath()' })
+				.then(function () {
+					console.log("Service Worker Registered");
+				});
+
+			navigator.serviceWorker
+				.ready
+				.then(function (registration) {
+					console.log('Service Worker Ready');
+				});
+		}*@
+
 		$(document).ready(function () {
 
 			$('#links').click(function (event) {
 				event = event || window.event;
 				var target = event.target || event.srcElement,
 					link = target.src ? target.parentNode : target,
-					options = { index: link, event: event },
+					options = {
+						index: link,
+						event: event,
+						onopen: function () {
+							// Callback function executed when the Gallery is initialized
+							ReplAllImg();
+						},
+					},
 					links = this.getElementsByTagName('a');
 				blueimp.Gallery(links, options);
 			});
 
 			$(".inactive").each(function (index, value) {
-				value.src = 'https://haos.hopto.org/webcamgallery/images/no_img.gif';
+				value.src = '@(Model.BaseWebCamURL)/images/no_img.gif';
 			});
 
 			$('#btnReplAllImg').click(function (event) {
-				$(".inactive").each(function (index, value) {
-					ReplImg(value);
-				});
+				ReplAllImg()
 			});
 		});
 
@@ -133,14 +153,21 @@
 		{
 			if (This.tagName != 'IMG')
 			{
-				This.firstChild.src = This.href;
+				This.firstChild.src = This.href.replace("out", "thumbnail");
 				This.firstChild.class = 'active';
 			}
 			else
 			{
-				This.src = This.parentNode.href;
+				This.src = This.parentNode.href.replace("out", "thumbnail");
 				This.class = 'active';
 			}
+		}
+
+		function ReplAllImg()
+		{
+			$(".inactive").each(function (index, value) {
+				ReplImg(value);
+			});
 		}
 	</script>
 }
