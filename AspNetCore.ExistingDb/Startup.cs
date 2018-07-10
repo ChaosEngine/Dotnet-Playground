@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Web.CodeGeneration.Templating.Compilation;
 using System;
 using System.IO;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 //[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
@@ -102,6 +103,13 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			services.AddSingleton<IUrlHelperFactory, DomainUrlHelperFactory>();
 			services.AddHostedService<BackgroundOperationService>();
 			services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
+			services.AddServerTiming();
+
+			//services.AddTransient<MjpgStreamerDelegatingHandler>();
+			services.AddTransient<MjpgStreamerHttpClientHandler>();
+			services.AddHttpClient<MjpgStreamerHttpClient>()
+				//.AddHttpMessageHandler<MjpgStreamerDelegatingHandler>()
+				.ConfigurePrimaryHttpMessageHandler<MjpgStreamerHttpClientHandler>();
 		}
 
 		// This method gets called by the runtime. Use this method to add services to the container.
@@ -139,7 +147,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 					.SetDefaultKeyLifetime(TimeSpan.FromDays(14));
 			}
 
-			services.AddServerTiming();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

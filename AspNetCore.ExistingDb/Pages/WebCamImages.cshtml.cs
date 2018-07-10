@@ -10,7 +10,9 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Net.Mime;
+using System.Threading.Tasks;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Models
 {
@@ -18,6 +20,13 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 	{
 		public const string ASPX = "WebCamImages";
 
+		/// <summary>
+		/// Called on GET.
+		/// </summary>
+		/// <param name="configuration">The configuration.</param>
+		/// <param name="serverTiming">The server timing.</param>
+		/// <param name="fileName">Name of the file.</param>
+		/// <returns></returns>
 		public IActionResult OnGet([FromServices]IConfiguration configuration, [FromServices]IServerTiming serverTiming, string fileName)
 		{
 			var watch = new Stopwatch();
@@ -66,6 +75,34 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 			}
 			serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("GET", watch.ElapsedMilliseconds, "not found GET"));
 			return NotFound();
+		}
+
+		/// <summary>
+		/// Called on live image GET.
+		/// </summary>
+		/// <param name="configuration">The configuration.</param>
+		/// <param name="serverTiming">The server timing.</param>
+		/// <param name="fileName">Name of the file.</param>
+		/// <returns></returns>
+		public async Task<IActionResult> OnGetLiveAsync([FromServices]IServerTiming serverTiming,
+			[FromServices]MjpgStreamerHttpClient client)
+		{
+			try
+			{
+				var container = await client.GetLiveImage();
+
+				var file = base.File(container.bytes, "image/jpg");
+				file.LastModified = container.date;
+				return file;
+			}
+			catch (Exception ex)
+			{
+				throw;
+			}
+			finally
+			{
+				//client.Dispose();
+			}
 		}
 	}
 }

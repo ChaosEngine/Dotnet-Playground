@@ -42,8 +42,8 @@
 @{
 	if (!string.IsNullOrEmpty(Model.BaseWebCamURL))
 	{
-		<a onclick="document.getElementById('live').src = '@Model.BaseWebCamURL/live'" title='live'>
-			<img src='@Model.BaseWebCamURL/live' id='live' alt='live' />
+		<a onclick="document.getElementById('live').src = '/WebCamImages/?handler=live&' + Math.random()" title='live'>
+			<img src='~/WebCamImages/?handler=live' id='live' alt='live' />
 		</a>
 	
 		<!-- Begin VideoJS -->
