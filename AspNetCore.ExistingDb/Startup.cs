@@ -105,11 +105,11 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 			services.AddServerTiming();
 
-			//services.AddTransient<MjpgStreamerDelegatingHandler>();
-			services.AddTransient<MjpgStreamerHttpClientHandler>();
-			services.AddHttpClient<MjpgStreamerHttpClient>()
-				//.AddHttpMessageHandler<MjpgStreamerDelegatingHandler>()
+			services.AddTransient<MjpgStreamerHttpClientHandler>()
+				.AddHttpClient<IMjpgStreamerHttpClient, MjpgStreamerHttpClient>()
 				.ConfigurePrimaryHttpMessageHandler<MjpgStreamerHttpClientHandler>();
+			//if (!string.IsNullOrEmpty(Configuration["LiveWebCamURL"]))
+			//	MjpgStreamerHttpClientHandler.AddressWithProxy = Configuration["LiveWebCamURL"];
 		}
 
 		// This method gets called by the runtime. Use this method to add services to the container.

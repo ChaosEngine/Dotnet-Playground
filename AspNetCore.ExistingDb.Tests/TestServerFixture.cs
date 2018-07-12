@@ -30,6 +30,8 @@ namespace Integration
 
 		internal string ImageDirectory { get; }
 
+		internal string LiveWebCamURL { get; }
+
 		internal bool DOTNET_RUNNING_IN_CONTAINER { get; }
 
 		public TestServerFixture() : this(//"AspNetCore.ExistingDb"
@@ -60,6 +62,7 @@ namespace Integration
 			var configuration = _server.Host.Services.GetService(typeof(IConfiguration)) as IConfiguration;
 			DBKind = configuration?["DBKind"];
 			ImageDirectory = configuration?["ImageDirectory"];
+			LiveWebCamURL = configuration?["LiveWebCamURL"];
 
 			string temp = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER");
 			DOTNET_RUNNING_IN_CONTAINER = !string.IsNullOrEmpty(temp) && temp.Equals(true.ToString(), StringComparison.InvariantCultureIgnoreCase);

@@ -20,9 +20,11 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 
 		public IEnumerable<FileInfo> ThumbnailJpgs { get; private set; }
 
-		public string BaseWebCamURL { get; private set; }
+		public string BaseWebCamURL { get; }
 
-		public Stopwatch Watch { get; private set; }
+		public string LiveWebCamURL { get; }
+
+		public Stopwatch Watch { get; }
 
 		public WebCamGallery(IConfiguration configuration, IServerTiming serverTiming)
 		{
@@ -30,8 +32,10 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 			Watch.Start();
 
 			_imageDirectory = configuration["ImageDirectory"];
-			BaseWebCamURL = configuration["BaseWebCamURL"];
 			_serverTiming = serverTiming;
+
+			BaseWebCamURL = configuration["BaseWebCamURL"];
+			LiveWebCamURL = configuration["LiveWebCamURL"];
 		}
 
 		public void OnGet()

@@ -85,23 +85,23 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		/// <param name="fileName">Name of the file.</param>
 		/// <returns></returns>
 		public async Task<IActionResult> OnGetLiveAsync([FromServices]IServerTiming serverTiming,
-			[FromServices]MjpgStreamerHttpClient client)
+			[FromServices]IMjpgStreamerHttpClient client)
 		{
+			var watch = new Stopwatch();
+			watch.Start();
+
 			try
 			{
-				var container = await client.GetLiveImage();
-
-				var file = base.File(container.bytes, "image/jpg");
-				file.LastModified = container.date;
+				var file = await client.GetLiveImage(HttpContext.RequestAborted);
 				return file;
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
 				throw;
 			}
 			finally
 			{
-				//client.Dispose();
+				serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("GET", watch.ElapsedMilliseconds, "live image get"));
 			}
 		}
 	}

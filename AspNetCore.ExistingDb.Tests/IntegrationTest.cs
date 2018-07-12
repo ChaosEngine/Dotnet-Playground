@@ -676,7 +676,7 @@ namespace Integration
 					Assert.IsType<StreamContent>(response.Content);
 					Assert.True(response.Content.Headers.TryGetValues("Content-Type", out IEnumerable<string> c_type));
 					Assert.NotNull(c_type);
-					Assert.Equal(response.Content.Headers.ContentType.MediaType, MediaTypeNames.Image.Jpeg);
+					Assert.Equal(MediaTypeNames.Image.Jpeg, response.Content.Headers.ContentType.MediaType);
 					Assert.NotNull(response.Headers.ETag);
 
 					etag = response.Headers.ETag.Tag;
@@ -705,6 +705,31 @@ namespace Integration
 					Assert.Equal(HttpStatusCode.NotModified, response.StatusCode);
 				}
 			}*/
+		}
+
+		[Fact]
+		public async Task GetLiveImage()
+		{
+			if (string.IsNullOrEmpty(_fixture.LiveWebCamURL)) return;
+
+			// Arrange
+			// Act
+			using (HttpResponseMessage response = await _client.GetAsync($"/{WebCamImagesModel.ASPX}/?handler=live", HttpCompletionOption.ResponseContentRead))
+			{
+				// Assert
+				Assert.NotNull(response);
+				response.EnsureSuccessStatusCode();
+
+				Assert.IsType<StreamContent>(response.Content);
+				Assert.True(response.Content.Headers.TryGetValues("Content-Type", out IEnumerable<string> c_type));
+				Assert.NotNull(c_type);
+				Assert.True(response.Headers.TryGetValues("Server-Timing", out var serverTiming_headers));
+				Assert.NotEmpty(serverTiming_headers);
+				Assert.Matches("GET;dur=([0-9].*);desc=\"live image get\"", serverTiming_headers.First());
+				Assert.True(MediaTypeNames.Image.Jpeg == response.Content.Headers.ContentType.MediaType ||
+					"image/png" == response.Content.Headers.ContentType.MediaType);
+
+			}//end using
 		}
 	}
 }

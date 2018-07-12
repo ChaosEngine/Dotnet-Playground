@@ -1,105 +1,118 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using System.Net;
 using System.Net.Http;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
+using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace EFGetStarted.AspNetCore.ExistingDb
 {
-	/*public class MjpgStreamerDelegatingHandler : DelegatingHandler
+	public interface IMjpgStreamerHttpClient
 	{
-		public MjpgStreamerDelegatingHandler()
-		{
-		}
-
-		public MjpgStreamerDelegatingHandler(HttpMessageHandler innerHandler) : base(innerHandler)
-		{
-		}
-
-		protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-		{
-			return base.SendAsync(request, cancellationToken);
-		}
-	}*/
+		Task<FileContentResult> GetLiveImage(CancellationToken token);
+	}
 
 	public class MjpgStreamerHttpClientHandler : HttpClientHandler
 	{
-		public MjpgStreamerHttpClientHandler()
+		public static string Address { get; set; }
+
+		public MjpgStreamerHttpClientHandler(IConfiguration configuration)
 		{
 			CheckCertificateRevocationList = false;
-			ClientCertificateOptions = ClientCertificateOption.Automatic;
-			//ServerCertificateCustomValidationCallback = CertValidator;
+			ClientCertificateOptions = ClientCertificateOption.Manual;
+			ServerCertificateCustomValidationCallback = DangerousAcceptAnyServerCertificateValidator;
 			UseCookies = false;
-		}
 
-		private bool CertValidator(HttpRequestMessage httpRequestMessage, X509Certificate2 cert,
-			X509Chain cetChain, SslPolicyErrors policyErrors)
-		{
-			return true;
-		}
+			var addressWithProxy = configuration["LiveWebCamURL"];
+			if (!string.IsNullOrEmpty(addressWithProxy))
+			{
+				var addr_opts = addressWithProxy.Split(';', 2, StringSplitOptions.RemoveEmptyEntries);
+				if (addr_opts.Length > 1)
+				{
+					Proxy = new WebProxy(addr_opts[0], true);
+					UseProxy = true;
 
-		protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-		{
-			var resp = base.SendAsync(request, cancellationToken);
-			return resp;
+					Address = addr_opts[1];
+				}
+				else
+					Address = addr_opts[0];
+
+				MjpgStreamerHttpClient.GetContentDelegate = MjpgStreamerHttpClient.GetHttpContent;
+			}
+			else
+			{
+				MjpgStreamerHttpClient.GetContentDelegate = MjpgStreamerHttpClient.GetFileContent;
+			}
 		}
 	}
 
 	/// <summary>
-	///  Cached Mjpg-Streamer HttpClient
+	/// Cached Mjpg-Streamer HttpClient
 	/// </summary>
-	public class MjpgStreamerHttpClient
+	public class MjpgStreamerHttpClient : IMjpgStreamerHttpClient
 	{
 		private const string CacheKey = "liveImage";
-		private const int ExpireTimeInSeconds = 15;
+		public const int LiveImageExpireTimeInSeconds = 1;
+		private const int ErrorImageExpireTimeInSeconds = 60 * 60 * 24;
+		private const string ErrorImageFileLocalPath = "lib/blueimp-gallery/img/error.png";
+		private readonly HttpClient _client;
+		private readonly IMemoryCache _cache;
+		private readonly IHostingEnvironment _env;
 
-		private HttpClient _client;
-		private IMemoryCache _cache;
 
-		public MjpgStreamerHttpClient(HttpClient client, IConfiguration configuration, IMemoryCache cache)
+		internal static Func<HttpClient, IHostingEnvironment, CancellationToken,
+			Task<(DateTime lastModified, byte[] bytes, string contentType, TimeSpan cacheExpiration)>> GetContentDelegate;
+
+		
+		public MjpgStreamerHttpClient(HttpClient client, IHostingEnvironment env, IMemoryCache cache)
 		{
-			var addr = configuration["BaseWebCamURL"] + "/live";
-
-			client.BaseAddress = new Uri(addr);
-
 			_client = client;
 			_cache = cache;
+			_env = env;
 		}
 
-		public async Task<(DateTime date, byte[] bytes)> GetLiveImage()
+		internal static async Task<(DateTime, byte[], string, TimeSpan)> GetFileContent(HttpClient client, IHostingEnvironment env, CancellationToken token)
 		{
-			//if (_cache.TryGetValue(Key, out (DateTime date, byte[] bytes) container))
-			//{
-			//	return container;
-			//}
-			//else
-			//{
-			//	byte[] fetched = await _client.GetByteArrayAsync(_client.BaseAddress);
+			byte[] fetched = await File.ReadAllBytesAsync(Path.Combine(env.WebRootPath, ErrorImageFileLocalPath), token);
 
-			//	container = (DateTime.UtcNow, fetched);
-			//	_cache.Set(Key, container, TimeSpan.FromSeconds(ExpireTimeInSeconds));
+			var just_created = (DateTime.UtcNow, fetched, "image/png", TimeSpan.FromDays(ErrorImageExpireTimeInSeconds));
+			return just_created;
+		}
 
-			//	return container;
-			//}
+		internal static async Task<(DateTime, byte[], string, TimeSpan)> GetHttpContent(HttpClient client, IHostingEnvironment env, CancellationToken token)
+		{
+			client.BaseAddress = new Uri(MjpgStreamerHttpClientHandler.Address);
 
+			var resp = await client.GetAsync(client.BaseAddress, token);
+			//byte[] fetched = await _client.GetByteArrayAsync(_client.BaseAddress);
+			////string str = System.Text.Encoding.Default.GetString(fetched);
+			resp.EnsureSuccessStatusCode();
+			var fetched = await resp.Content.ReadAsByteArrayAsync();
 
+			var just_created = (DateTime.UtcNow, fetched, MediaTypeNames.Image.Jpeg, TimeSpan.FromSeconds(LiveImageExpireTimeInSeconds));
+			return just_created;
+		}
+
+		public async Task<FileContentResult> GetLiveImage(CancellationToken token)
+		{
 			var container = await _cache.GetOrCreateAsync(CacheKey, async (cache_entry) =>
 			{
-				cache_entry.SetAbsoluteExpiration(TimeSpan.FromSeconds(ExpireTimeInSeconds));
+				var cont = await GetContentDelegate(_client, _env, token);
 
-				byte[] fetched = await _client.GetByteArrayAsync(_client.BaseAddress);
-				var just_created = (DateTime.UtcNow, fetched);
+				cache_entry.SetAbsoluteExpiration(cont.cacheExpiration);
 
-				return just_created;
+				return cont;
 			});
 
-			return container;
+			return new FileContentResult(container.bytes, container.contentType)
+			{
+				LastModified = container.lastModified,
+			};
 		}
 	}
 }

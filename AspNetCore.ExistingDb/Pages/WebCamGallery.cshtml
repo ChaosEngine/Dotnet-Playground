@@ -40,12 +40,14 @@
 }
 
 @{
+	if (!string.IsNullOrEmpty(Model.LiveWebCamURL))
+	{
+		<a onclick="RefreshLiveImage()" title='live'>
+			<img id='live' alt='live' data-last-modified="" />
+		</a>
+	}
 	if (!string.IsNullOrEmpty(Model.BaseWebCamURL))
 	{
-		<a onclick="document.getElementById('live').src = '/WebCamImages/?handler=live&' + Math.random()" title='live'>
-			<img src='~/WebCamImages/?handler=live' id='live' alt='live' />
-		</a>
-	
 		<!-- Begin VideoJS -->
 		<div class="video-js-box">
 			<video id="example_video_1" width="1280" height="960" class="video-js vjs-default-skin" controls preload="auto" poster="@Model.BaseWebCamURL/poster.jpeg" data-setup="{}">
@@ -145,8 +147,10 @@
 			});
 
 			$('#btnReplAllImg').click(function (event) {
-				ReplAllImg()
+				ReplAllImg();
 			});
+
+			RefreshLiveImage();
 		});
 
 		function ReplImg(This)
@@ -169,6 +173,59 @@
 				ReplImg(value);
 			});
 		}
+
+		function LoadImageAsBinaryArray()
+		{
+			// Simulate a call to Dropbox or other service that can
+			// return an image as an ArrayBuffer.
+			var xhr = new XMLHttpRequest();
+			// Use JSFiddle logo as a sample image to avoid complicating
+			// this example with cross-domain issues.
+			xhr.open("GET", "@Conf.AppRootPath()WebCamImages/?handler=live", true);
+			xhr.setRequestHeader('Cache-Control', 'no-cache');
+			// Ask for the result as an ArrayBuffer.
+			xhr.responseType = "arraybuffer";
+			xhr.onload = function (e) {
+				// Obtain a blob: URL for the image data.
+				var arrayBufferView = new Uint8Array(this.response);
+				var blob = new Blob([arrayBufferView], { type: "image/jpeg" });
+
+				var hdr_last_modified = this.getResponseHeader('Last-Modified');
+
+				var urlCreator = window.URL || window.webkitURL;
+				var imageUrl = urlCreator.createObjectURL(blob);
+				var img = document.querySelector("#live");
+				img.src = imageUrl;
+				img.setAttribute('data-last-modified', hdr_last_modified);
+			};
+			xhr.send();
+		}
+
+		function RefreshLiveImage()
+		{
+			//document.getElementById('live').src = '/WebCamImages/?handler=live&' + Math.random();
+			var live = document.querySelector("#live");
+			if (live != null)
+			{
+				var last_modified = live.getAttribute('data-last-modified');
+				if (last_modified == "")
+				{
+					LoadImageAsBinaryArray();
+				}
+				else
+				{
+					var gmt_last_modified = Date.parse(last_modified);
+					var now = new Date();
+					var secs_between = (now - gmt_last_modified) / 1000;
+					console.log('Elapsed time: ' + String(secs_between) + ' milliseconds');
+					if (secs_between > @(MjpgStreamerHttpClient.LiveImageExpireTimeInSeconds))
+					{
+						LoadImageAsBinaryArray();
+					}
+				}
+			}
+		}
+
 	</script>
 }
 @{ 

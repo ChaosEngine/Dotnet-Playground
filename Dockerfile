@@ -17,7 +17,7 @@ RUN find AspNetCore.ExistingDb/bin/Release/netcoreapp2.1/publish/ -type d -exec 
 
 
 
-FROM microsoft/dotnet:2.1.1-aspnetcore-runtime-stretch-slim
+FROM microsoft/dotnet:2.1-aspnetcore-runtime-stretch-slim
 WORKDIR /app
 COPY --from=build /build/AspNetCore.ExistingDb/bin/Release/netcoreapp2.1/publish/ /build/startApp.sh ./
 
