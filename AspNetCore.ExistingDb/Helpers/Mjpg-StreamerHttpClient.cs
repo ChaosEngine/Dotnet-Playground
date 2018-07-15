@@ -42,11 +42,11 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				else
 					Address = addr_opts[0];
 
-				MjpgStreamerHttpClient.GetContentDelegate = MjpgStreamerHttpClient.GetHttpContent;
+				MjpgStreamerHttpClient.GetContent = MjpgStreamerHttpClient.GetHttpContent;
 			}
 			else
 			{
-				MjpgStreamerHttpClient.GetContentDelegate = MjpgStreamerHttpClient.GetFileContent;
+				MjpgStreamerHttpClient.GetContent = MjpgStreamerHttpClient.GetFileContent;
 			}
 		}
 	}
@@ -63,12 +63,10 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		private readonly HttpClient _client;
 		private readonly IMemoryCache _cache;
 		private readonly IHostingEnvironment _env;
-
-
-		internal static Func<HttpClient, IHostingEnvironment, CancellationToken,
-			Task<(DateTime lastModified, byte[] bytes, string contentType, TimeSpan cacheExpiration)>> GetContentDelegate;
-
 		
+		internal static Func<HttpClient, IHostingEnvironment, CancellationToken,
+			Task<(DateTime lastModified, byte[] bytes, string contentType, TimeSpan cacheExpiration)>> GetContent;
+				
 		public MjpgStreamerHttpClient(HttpClient client, IHostingEnvironment env, IMemoryCache cache)
 		{
 			_client = client;
@@ -102,7 +100,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		{
 			var container = await _cache.GetOrCreateAsync(CacheKey, async (cache_entry) =>
 			{
-				var cont = await GetContentDelegate(_client, _env, token);
+				var cont = await GetContent(_client, _env, token);
 
 				cache_entry.SetAbsoluteExpiration(cont.cacheExpiration);
 

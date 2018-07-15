@@ -231,7 +231,7 @@ namespace AspNetCore.ExistingDb.Repositories
 		/// <param name="limit"></param>
 		/// <param name="token"></param>
 		/// <returns></returns>
-		public async Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchAsync(string sortColumn, string sortOrderDirection, string searchText,
+		public async Task<(IEnumerable<ThinHashes> Itemz, int Count)> PagedSearchAsync(string sortColumn, string sortOrderDirection, string searchText,
 			int offset, int limit, CancellationToken token)
 		{
 			limit = limit > 0 ? limit : -1;

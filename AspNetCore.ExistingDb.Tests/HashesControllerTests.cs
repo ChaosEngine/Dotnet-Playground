@@ -113,7 +113,7 @@ namespace Controllers
 				return Task.FromResult(0);
 			});
 
-			mock.Setup(r => r.SearchAsync(Moq.It.IsAny<string>(), Moq.It.IsAny<string>(), Moq.It.IsAny<string>(),
+			mock.Setup(r => r.PagedSearchAsync(Moq.It.IsAny<string>(), Moq.It.IsAny<string>(), Moq.It.IsAny<string>(),
 				Moq.It.IsAny<int>(), Moq.It.IsAny<int>(), Moq.It.IsAny<CancellationToken>()))
 				.Returns((string sort, string order, string search, int offset, int limit, CancellationToken token) =>
 				{

@@ -17,7 +17,7 @@ namespace AspNetCore.ExistingDb.Tests
 {
 	public abstract class BaseRepositoryTests : IDisposable
 	{
-		public (SqliteConnection Conn, DbContextOptions<BloggingContext> DbOpts, IConfiguration Conf, IMemoryCache Cache) Setup
+		public (SqliteConnection Conn, DbContextOptions<BloggingContext> DbOpts, IConfiguration Conf, IMemoryCache Cache, ILogger<Repositories.HashesRepository> Logger) Setup
 		{
 			get; set;
 		}
@@ -32,7 +32,7 @@ namespace AspNetCore.ExistingDb.Tests
 			}
 		}
 
-		protected async Task<(SqliteConnection, DbContextOptions<BloggingContext>, IConfiguration, IMemoryCache)> SetupInMemoryDB()
+		protected async Task<(SqliteConnection, DbContextOptions<BloggingContext>, IConfiguration, IMemoryCache, ILogger<Repositories.HashesRepository>)> SetupInMemoryDB()
 		{
 			var builder = new ConfigurationBuilder()
 				.AddJsonFile("config.json", optional: false, reloadOnChange: true);
@@ -61,7 +61,10 @@ namespace AspNetCore.ExistingDb.Tests
 
 			IMemoryCache cache = serviceProvider.GetService<IMemoryCache>();
 
-			return (connection, options, config, cache);
+			var logger = serviceProvider.GetService<ILoggerFactory>()
+				.CreateLogger<Repositories.HashesRepository>();
+			
+			return (connection, options, config, cache, logger);
 		}
 
 		public BaseRepositoryTests()

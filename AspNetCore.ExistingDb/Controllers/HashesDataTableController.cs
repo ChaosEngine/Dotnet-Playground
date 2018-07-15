@@ -112,7 +112,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			{
 				//await Task.Delay(2_000, token);
 
-				var found = await _repo.SearchAsync(input.Sort, input.Order, input.Search, input.Offset, input.Limit, token);
+				var found = await _repo.PagedSearchAsync(input.Sort, input.Order, input.Search, input.Offset, input.Limit, token);
 
 				var result = new
 				{
