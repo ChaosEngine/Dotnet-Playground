@@ -102,14 +102,19 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			services.AddScoped<IThinHashesDocumentDBRepository, ThinHashesDocumentDBRepository>();
 			services.AddSingleton<IUrlHelperFactory, DomainUrlHelperFactory>();
 			services.AddHostedService<BackgroundOperationService>();
-			services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
+			services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>((serv) =>
+			{
+				var btq = new BackgroundTaskQueue();
+				//Initially add and start file watching task for watching video file inside image direcory
+				btq.QueueBackgroundWorkItem(new VideoFileWatcherBackgroundTask(Configuration["ImageDirectory"],
+					"*.webm", TimeSpan.FromSeconds(3)));
+				return btq;
+			});
 			services.AddServerTiming();
 
 			services.AddTransient<MjpgStreamerHttpClientHandler>()
 				.AddHttpClient<IMjpgStreamerHttpClient, MjpgStreamerHttpClient>()
 				.ConfigurePrimaryHttpMessageHandler<MjpgStreamerHttpClientHandler>();
-			//if (!string.IsNullOrEmpty(Configuration["LiveWebCamURL"]))
-			//	MjpgStreamerHttpClientHandler.AddressWithProxy = Configuration["LiveWebCamURL"];
 		}
 
 		// This method gets called by the runtime. Use this method to add services to the container.
