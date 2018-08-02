@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Web.CodeGeneration.Templating.Compilation;
 using System;
 using System.IO;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 //[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
@@ -65,7 +66,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		{
 			services.AddSingleton(Configuration);
 #if DEBUG
-			services.AddSingleton<ICompilationService, RoslynCompilationService>();
+			//services.AddSingleton<ICompilationService, RoslynCompilationService>();
+			services.AddSingleton<Microsoft.AspNetCore.Razor.Language.RazorTemplateEngine, CustomTemplateEngine>();
 #endif
 			services.AddScoped<IBloggingRepository, BloggingRepository>();
 
@@ -95,12 +97,35 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				options.DBConfig = dbs_config;
 			});
 			//1st time init of static vars
-			HashesRepository.HashesInfoExpiration = TimeSpan.FromSeconds(Configuration.GetValue<int>(nameof(HashesRepository.HashesInfoExpiration)));
+			HashesRepository.HashesInfoExpirationInMinutes = TimeSpan.FromMinutes(Configuration.GetValue<int>(nameof(HashesRepository.HashesInfoExpirationInMinutes)));
 
 			services.AddScoped<IThinHashesDocumentDBRepository, ThinHashesDocumentDBRepository>();
 			services.AddSingleton<IUrlHelperFactory, DomainUrlHelperFactory>();
 			services.AddHostedService<BackgroundOperationService>();
-			services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
+			services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>((serv) =>
+			{
+				var btq = new BackgroundTaskQueue();
+
+				////Initially add and start file watching task for watching video file change
+				////inside image directory
+				//btq.QueueBackgroundWorkItem(new FileWatcherBackgroundOperation(
+				//	directoryToWatch: Configuration["ImageDirectory"],
+				//	filterGlobing: "video.webm",
+				//	initialDelay: TimeSpan.FromSeconds(3),
+				//	onChangeFunction: (counter, directoryToWatch, filterGlobb) =>
+				//	{
+				//		btq.QueueBackgroundWorkItem(new YouTubeUploadOperation("fill_it_in", "fill_it_in", "fill_it_in", "fill_it_in"));
+
+				//		return true;
+				//	}));
+
+				return btq;
+			});
+			services.AddServerTiming();
+
+			services.AddTransient<MjpgStreamerHttpClientHandler>()
+				.AddHttpClient<IMjpgStreamerHttpClient, MjpgStreamerHttpClient>()
+				.ConfigurePrimaryHttpMessageHandler<MjpgStreamerHttpClientHandler>();
 		}
 
 		// This method gets called by the runtime. Use this method to add services to the container.
@@ -138,7 +163,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 					.SetDefaultKeyLifetime(TimeSpan.FromDays(14));
 			}
 
-			services.AddServerTiming();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

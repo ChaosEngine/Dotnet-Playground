@@ -45,9 +45,12 @@ namespace AspNetCore.ExistingDb.Services
 			{
 				var work_item = await _queue.DequeueAsync(_shutdown.Token);
 
-				await work_item.DoWork(_services, _shutdown.Token);
+				var backgroundTask = Task.Run(() =>
+				{
+					work_item.DoWorkAsync(_services, _shutdown.Token).ConfigureAwait(false);
+				}, _shutdown.Token).ConfigureAwait(false);
 
-				await Task.Delay(TimeSpan.FromSeconds(1), _shutdown.Token);
+				await Task.Delay(TimeSpan.FromMilliseconds(500), _shutdown.Token);
 			}
 
 			_logger.LogInformation($"### worker ending");

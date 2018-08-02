@@ -9,6 +9,7 @@
 	<OutputType>Exe</OutputType>
 	<PackageId>AspNetCore.ExistingDb</PackageId>
 	<UserSecretsId>aspnet-AspNetCore.ExistingDb-20161230022416</UserSecretsId>
+	<TypeScriptToolsVersion>2.8</TypeScriptToolsVersion>
 	<!--<MvcRazorCompileOnPublish>true</MvcRazorCompileOnPublish>-->
   </PropertyGroup>
 
@@ -19,21 +20,21 @@
   </ItemGroup>
 
   <ItemGroup>
-	<PackageReference Include="Bogus" Version="22.1.3" />
-	<PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.1" />
+	<PackageReference Include="Bogus" Version="22.3.2" />
+	<PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.2" />
 	<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.1.1" />
 	<PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.1.1" />
 	<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration" Version="2.1.1" />
-	<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.1.0" />
-	<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.1.0-rc2-20180603202706" />
+	<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.1.1.1" />
+	<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.1.1" />
 	<PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="2.1.1" />
-	<PackageReference Include="Lib.AspNetCore.ServerTiming" Version="2.0.0" />
+	<PackageReference Include="Lib.AspNetCore.ServerTiming" Version="2.1.0" />
 	<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.1.1" />
 	<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.0.0-preview" />
   </ItemGroup>
 
   <Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
-	<Exec Command="npm install" />
+	<Exec Command="npm install --unsafe-perm" />
 	<Exec Command="gulp clean" />
 	<Exec Command="gulp min" />
   </Target>

@@ -1,10 +1,10 @@
-﻿<environment names="Development">
+﻿<environment include="Development">
 	<script type="text/javascript">
 		var libs2Load = ['../../lib/forge/dist/forge.min.js', 'shared.js'];
 	</script>
 	<script src="~/lib/forge/dist/forge.min.js"></script>
 </environment>
-<environment names="Staging,Production">
+<environment exclude="Development">
 	<script type="text/javascript">
 		var libs2Load = [];
 	</script>

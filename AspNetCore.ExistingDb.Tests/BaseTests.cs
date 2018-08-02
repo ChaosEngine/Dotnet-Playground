@@ -17,7 +17,7 @@ namespace AspNetCore.ExistingDb.Tests
 {
 	public abstract class BaseRepositoryTests : IDisposable
 	{
-		public (SqliteConnection Conn, DbContextOptions<BloggingContext> DbOpts, IConfiguration Conf, IMemoryCache Cache) Setup
+		public (SqliteConnection Conn, DbContextOptions<BloggingContext> DbOpts, IConfiguration Conf, IMemoryCache Cache, ILogger<Repositories.HashesRepository> Logger) Setup
 		{
 			get; set;
 		}
@@ -32,7 +32,7 @@ namespace AspNetCore.ExistingDb.Tests
 			}
 		}
 
-		protected async Task<(SqliteConnection, DbContextOptions<BloggingContext>, IConfiguration, IMemoryCache)> SetupInMemoryDB()
+		protected async Task<(SqliteConnection, DbContextOptions<BloggingContext>, IConfiguration, IMemoryCache, ILogger<Repositories.HashesRepository>)> SetupInMemoryDB()
 		{
 			var builder = new ConfigurationBuilder()
 				.AddJsonFile("config.json", optional: false, reloadOnChange: true);
@@ -61,7 +61,10 @@ namespace AspNetCore.ExistingDb.Tests
 
 			IMemoryCache cache = serviceProvider.GetService<IMemoryCache>();
 
-			return (connection, options, config, cache);
+			var logger = serviceProvider.GetService<ILoggerFactory>()
+				.CreateLogger<Repositories.HashesRepository>();
+			
+			return (connection, options, config, cache, logger);
 		}
 
 		public BaseRepositoryTests()
@@ -139,12 +142,15 @@ namespace AspNetCore.ExistingDb.Tests
 
 		protected IDataProtectionProvider DataProtectionProvider { get; private set; }
 
+		protected string ContentRoot { get; private set; }
+
 		protected IConfiguration CreateConfiguration()
 		{
-			var cwd = Path.Combine(AssemblyDirectory, string.Format("..{0}..{0}..{0}..{0}AspNetCore.ExistingDb", Path.DirectorySeparatorChar.ToString()));
+			ContentRoot = Path.Combine(AssemblyDirectory, string.Format("..{0}..{0}..{0}..{0}AspNetCore.ExistingDb", Path.DirectorySeparatorChar.ToString()));
+
 			var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 			var builder = new ConfigurationBuilder()
-				.SetBasePath(cwd)
+				.SetBasePath(ContentRoot)
 				.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
 				//.AddJsonFile($@"appsettings.{env.EnvironmentName}.json", optional: true)
 				.AddEnvironmentVariables();
@@ -169,6 +175,9 @@ namespace AspNetCore.ExistingDb.Tests
 
 			var configuration = CreateConfiguration();
 			Configuration = configuration;
+
+			if (string.IsNullOrEmpty(Configuration["LiveWebCamURL"]))
+				Configuration["LiveWebCamURL"] = "https://127.0.0.1/webcamgalleryFake/Fakelive";
 		}
 	}
 }
