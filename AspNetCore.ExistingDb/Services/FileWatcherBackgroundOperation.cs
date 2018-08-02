@@ -1,11 +1,8 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,22 +12,26 @@ namespace AspNetCore.ExistingDb.Services
 	/// Watches changes of specific files inside directory and executes action on file add/change/delete
 	/// </summary>
 	/// <seealso cref="AspNetCore.ExistingDb.Services.BackgroundOperationBase" />
-	internal class VideoFileWatcherBackgroundTask : BackgroundOperationBase
+	internal class FileWatcherBackgroundOperation : BackgroundOperationBase
 	{
-		private readonly string _filterGlobb, _imageDirectory;
+		private readonly string _filterGlobb, _directoryToWatch;
 		private readonly TimeSpan? _initialDelay;
+		private readonly Func<int, string, string, bool> _onChangeFunction;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="VideoFileWatcherBackgroundTask"/> class.
+		/// Initializes a new instance of the <see cref="FileWatcherBackgroundOperation" /> class.
 		/// </summary>
-		/// <param name="imageDirectory">The image directory.</param>
-		/// <param name="filterGlobb">The filter globb.</param>
+		/// <param name="directoryToWatch">The directory to watch.</param>
+		/// <param name="filterGlobing">The filter globing.</param>
 		/// <param name="initialDelay">The initial delay.</param>
-		public VideoFileWatcherBackgroundTask(string imageDirectory, string filterGlobb, TimeSpan? initialDelay)
+		/// <param name="onChangeFunction">The on change function.</param>
+		public FileWatcherBackgroundOperation(string directoryToWatch, string filterGlobing, TimeSpan? initialDelay,
+			Func<int, string, string, bool> onChangeFunction)
 		{
-			_imageDirectory = imageDirectory;
-			_filterGlobb = filterGlobb;
+			_directoryToWatch = directoryToWatch;
+			_filterGlobb = filterGlobing;
 			_initialDelay = initialDelay;
+			_onChangeFunction = onChangeFunction;
 		}
 
 		/// <summary>
@@ -39,17 +40,16 @@ namespace AspNetCore.ExistingDb.Services
 		/// <param name="services">The services.</param>
 		/// <param name="cancellation">The cancellation.</param>
 		/// <returns></returns>
-		public async override Task DoWork(IServiceProvider services, CancellationToken cancellation)
+		public async override Task DoWorkAsync(IServiceProvider services, CancellationToken cancellation)
 		{
 			if (_initialDelay.HasValue)
 				await Task.Delay(_initialDelay.Value);
 
 			using (var scope = services.CreateScope())
 			{
-				var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
-				var logger = loggerFactory.CreateLogger<VideoFileWatcherBackgroundTask>();
+				var logger = scope.ServiceProvider.GetRequiredService<ILogger<FileWatcherBackgroundOperation>>();
 
-				if (string.IsNullOrEmpty(_imageDirectory))
+				if (string.IsNullOrEmpty(_directoryToWatch))
 				{
 					logger.LogWarning("'ImageDirectory' directory not found from configuration");
 					return;
@@ -57,8 +57,8 @@ namespace AspNetCore.ExistingDb.Services
 				PhysicalFileProvider fileProvider = null;
 				try
 				{
-					fileProvider = new PhysicalFileProvider(_imageDirectory);
-					logger.LogInformation("Starting to watch for '{0}' inside '{1}'", _filterGlobb, _imageDirectory);
+					fileProvider = new PhysicalFileProvider(_directoryToWatch);
+					logger.LogInformation("Starting to watch for '{0}' inside '{1}'", _filterGlobb, _directoryToWatch);
 
 					int counter = 0;
 					while (!cancellation.IsCancellationRequested)
@@ -80,8 +80,9 @@ namespace AspNetCore.ExistingDb.Services
 								counter++;
 								logger.LogInformation("'{0}' changed {1} of times", _filterGlobb, counter);
 
-								TaskCompletionSource<int> completion = (TaskCompletionSource<int>)state;
-								completion.TrySetResult(counter);
+								_onChangeFunction?.Invoke(counter, _directoryToWatch, _filterGlobb);
+
+								((TaskCompletionSource<int>)state).TrySetResult(counter);
 							}, tcs);
 
 							await tcs.Task.ConfigureAwait(false);
