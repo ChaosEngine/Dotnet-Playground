@@ -7,14 +7,24 @@ namespace AspNetCore.ExistingDb.Services
 {
 	public interface IBaseBackgroundOperation
 	{
-		Task DoWork(IServiceProvider services, CancellationToken token);
+		Task DoWorkAsync(IServiceProvider services, CancellationToken token);
 	}
 
 	public abstract class BackgroundOperationBase : IBaseBackgroundOperation
 	{
-		protected delegate Task TaskCalculationFunction(IServiceProvider services, CancellationToken token);
+		//protected delegate Task TaskCalculationFunction(IServiceProvider services, CancellationToken token);
 
-		public abstract Task DoWork(IServiceProvider services, CancellationToken token);
+		public abstract Task DoWorkAsync(IServiceProvider services, CancellationToken token);
+	}
+
+	public class DummyBackgroundOperation : BackgroundOperationBase
+	{
+		public DummyBackgroundOperation() { }
+
+		public override Task DoWorkAsync(IServiceProvider services, CancellationToken token)
+		{
+			return Task.CompletedTask;
+		}
 	}
 
 	public interface IBackgroundTaskQueue

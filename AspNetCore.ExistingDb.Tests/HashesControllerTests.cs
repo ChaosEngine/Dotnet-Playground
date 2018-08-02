@@ -219,6 +219,18 @@ namespace Controllers
 								}
 								break;
 
+							case BeepBackgroundOperation beep:
+								await beep.DoWorkAsync(null, token);
+								break;
+
+							case DummyBackgroundOperation dummy:
+								await dummy.DoWorkAsync(null, token);
+								break;
+
+							case YouTubeUploadOperation youtube:
+								await youtube.DoWorkAsync(null, token);
+								break;
+
 							default:
 								throw new NotSupportedException();
 						}

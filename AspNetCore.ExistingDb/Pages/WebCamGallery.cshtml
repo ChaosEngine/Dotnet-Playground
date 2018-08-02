@@ -53,7 +53,7 @@
 	if (!string.IsNullOrEmpty(Model.LiveWebCamURL))
 	{
 		<a onclick="RefreshLiveImage()" title='live'>
-			<img id='live' alt='live' class="img-fluid" data-last-modified="" />
+			<img id='live' alt='live' class="img-fluid" src="~/WebCamImages/?handler=live" data-last-modified="" />
 		</a>
 	}
 	if (!string.IsNullOrEmpty(Model.BaseWebCamURL))
@@ -134,8 +134,6 @@
 				});
 		}*@
 
-		RefreshLiveImage();
-
 		$(document).ready(function () {
 
 			$('#links').click(function (event) {
@@ -162,6 +160,8 @@
 				ReplAllImg();
 			});
 
+			//RefreshLiveImage();
+
 		});
 
 		function ReplImg(This)
@@ -185,8 +185,11 @@
 			});
 		}
 
-		function LoadImageAsBinaryArray()
+		var last_refresh = new Date();
+		function LoadImageAsBinaryArray(img)
 		{
+			img.setAttribute('data-last-modified', 'refreshing');
+
 			// Simulate a call to Dropbox or other service that can
 			// return an image as an ArrayBuffer.
 			var xhr = new XMLHttpRequest();
@@ -205,9 +208,10 @@
 
 				var urlCreator = window.URL || window.webkitURL;
 				var imageUrl = urlCreator.createObjectURL(blob);
-				var img = document.querySelector("#live");
 				img.src = imageUrl;
 				img.setAttribute('data-last-modified', hdr_last_modified);
+
+				last_refresh = new Date();
 			};
 			xhr.send();
 		}
@@ -218,22 +222,21 @@
 			var live = document.querySelector("#live");
 			if (live != null)
 			{
-				var last_modified = live.getAttribute('data-last-modified');
-				if (last_modified == "")
+				var data_last_modified = live.getAttribute('data-last-modified');
+				if (data_last_modified != "refreshing")
 				{
-					LoadImageAsBinaryArray();
-				}
-				else
-				{
-					var gmt_last_modified = Date.parse(last_modified);
 					var now = new Date();
-					var secs_between = (now - gmt_last_modified) / 1000;
-					console.log('Elapsed time: ' + String(secs_between) + ' milliseconds');
+					var secs_between = (now - last_refresh) * 0.001;
+					var msg = String(secs_between) + ' secs elapsed since last live-image load';
 					if (secs_between > @(MjpgStreamerHttpClient.LiveImageExpireTimeInSeconds))
 					{
-						LoadImageAsBinaryArray();
+						msg += ', reloading!';
+						LoadImageAsBinaryArray(live);
 					}
+					console.log(msg);
 				}
+				else
+					console.log('still reloading!');
 			}
 		}
 

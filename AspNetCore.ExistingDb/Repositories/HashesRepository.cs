@@ -899,7 +899,7 @@ LIMIT @limit OFFSET @offset
 		/// <param name="services">The services.</param>
 		/// <param name="token">The token.</param>
 		/// <returns></returns>
-		public override async Task DoWork(IServiceProvider services, CancellationToken token)
+		public override async Task DoWorkAsync(IServiceProvider services, CancellationToken token)
 		{
 			using (var scope = services.CreateScope())
 			{

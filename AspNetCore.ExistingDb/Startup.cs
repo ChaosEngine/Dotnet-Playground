@@ -105,9 +105,20 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>((serv) =>
 			{
 				var btq = new BackgroundTaskQueue();
-				//Initially add and start file watching task for watching video file inside image direcory
-				btq.QueueBackgroundWorkItem(new VideoFileWatcherBackgroundTask(Configuration["ImageDirectory"],
-					"*.webm", TimeSpan.FromSeconds(3)));
+
+				////Initially add and start file watching task for watching video file change
+				////inside image directory
+				//btq.QueueBackgroundWorkItem(new FileWatcherBackgroundOperation(
+				//	directoryToWatch: Configuration["ImageDirectory"],
+				//	filterGlobing: "video.webm",
+				//	initialDelay: TimeSpan.FromSeconds(3),
+				//	onChangeFunction: (counter, directoryToWatch, filterGlobb) =>
+				//	{
+				//		btq.QueueBackgroundWorkItem(new YouTubeUploadOperation("fill_it_in", "fill_it_in", "fill_it_in", "fill_it_in"));
+
+				//		return true;
+				//	}));
+
 				return btq;
 			});
 			services.AddServerTiming();
