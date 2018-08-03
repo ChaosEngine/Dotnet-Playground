@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Web.CodeGeneration.Templating.Compilation;
 using System;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -110,13 +111,17 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				//inside image directory
 				btq.QueueBackgroundWorkItem(new FileWatcherBackgroundOperation(
 					directoryToWatch: Configuration["ImageDirectory"],
-					filterGlobing: "video.webm",
+					filterGlobing: "*.webm",
 					initialDelay: TimeSpan.FromSeconds(3),
-					onChangeFunction: (counter, directoryToWatch, filterGlobb) =>
+					onChangeFunction: (counter, dirToWatch, filter) =>
 					{
-						btq.QueueBackgroundWorkItem(new YouTubeUploadOperation("fill_it_in", "fill_it_in", "fill_it_in", "fill_it_in"));
-
-						return true;
+						if (Directory.EnumerateFiles(dirToWatch, filter).FirstOrDefault() is string found
+							&& found != null && File.Exists("client_secrets.json"))
+						{
+							btq.QueueBackgroundWorkItem(new YouTubeUploadOperation(found, "client_secrets.json"));
+							return true;
+						}
+						return false;
 					}));
 
 				return btq;

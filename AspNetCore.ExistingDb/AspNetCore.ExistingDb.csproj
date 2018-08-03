@@ -21,6 +21,7 @@
 
   <ItemGroup>
 	<PackageReference Include="Bogus" Version="22.3.2" />
+	<PackageReference Include="Google.Apis.YouTube.v3" Version="1.34.0.1226" />
 	<PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.2" />
 	<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.1.1" />
 	<PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.1.1" />
@@ -49,6 +50,12 @@
 
   <ItemGroup>
 	<ProjectReference Include="..\Caching-MySQL\src\Pomelo.Extensions.Caching.MySql\Pomelo.Extensions.Caching.MySql.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="client_secrets.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

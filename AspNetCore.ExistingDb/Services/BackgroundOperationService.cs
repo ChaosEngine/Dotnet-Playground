@@ -45,9 +45,17 @@ namespace AspNetCore.ExistingDb.Services
 			{
 				var work_item = await _queue.DequeueAsync(_shutdown.Token);
 
-				var backgroundTask = Task.Run(() =>
+				var backgroundTask = Task.Run(async () =>
 				{
-					work_item.DoWorkAsync(_services, _shutdown.Token).ConfigureAwait(false);
+					try
+					{
+						await work_item.DoWorkAsync(_services, _shutdown.Token).ConfigureAwait(false);
+					}
+					catch (Exception ex)
+					{
+						_logger.LogError(ex, "{0} : {1}", nameof(work_item), work_item.GetType().ToString());
+						//throw;
+					}
 				}, _shutdown.Token).ConfigureAwait(false);
 
 				await Task.Delay(TimeSpan.FromMilliseconds(500), _shutdown.Token);
