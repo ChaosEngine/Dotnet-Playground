@@ -17,6 +17,7 @@ namespace AspNetCore.ExistingDb.Services
 		private readonly string _filterGlobb, _directoryToWatch;
 		private readonly TimeSpan? _initialDelay;
 		private readonly Func<int, string, string, bool> _onChangeFunction;
+		private readonly int? _failRetryCount;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="FileWatcherBackgroundOperation" /> class.
@@ -25,13 +26,15 @@ namespace AspNetCore.ExistingDb.Services
 		/// <param name="filterGlobing">The filter globing.</param>
 		/// <param name="initialDelay">The initial delay.</param>
 		/// <param name="onChangeFunction">The on change function.</param>
+		/// <param name="failRetryCount">The fail retry count.</param>
 		public FileWatcherBackgroundOperation(string directoryToWatch, string filterGlobing, TimeSpan? initialDelay,
-			Func<int, string, string, bool> onChangeFunction)
+			Func<int, string, string, bool> onChangeFunction, int? failRetryCount = null)
 		{
 			_directoryToWatch = directoryToWatch;
 			_filterGlobb = filterGlobing;
 			_initialDelay = initialDelay;
 			_onChangeFunction = onChangeFunction;
+			_failRetryCount = failRetryCount;
 		}
 
 		/// <summary>
@@ -78,9 +81,15 @@ namespace AspNetCore.ExistingDb.Services
 							callback = change_token.RegisterChangeCallback(state =>
 							{
 								counter++;
-								logger.LogInformation("'{0}' changed {1} of times", _filterGlobb, counter);
-
-								_onChangeFunction?.Invoke(counter, _directoryToWatch, _filterGlobb);
+								bool? result;
+								int fail_count = _failRetryCount ?? 1;
+								do
+								{
+									result = _onChangeFunction?.Invoke(counter, _directoryToWatch, _filterGlobb);
+									logger.LogInformation("'{0}' changed {1} of times, scheduled action with {state}", _filterGlobb,
+										counter, result.GetValueOrDefault(false) ? "success" : "fail");
+								}
+								while (--fail_count > 0 && !result.GetValueOrDefault(false));
 
 								((TaskCompletionSource<int>)state).TrySetResult(counter);
 							}, tcs);

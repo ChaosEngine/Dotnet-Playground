@@ -3,7 +3,7 @@
   <PropertyGroup>
 	<VersionPrefix>1.0.2-custom</VersionPrefix>
 	<TargetFramework>netcoreapp2.1</TargetFramework>
-	<LangVersion>7.1</LangVersion>
+	<LangVersion>7.3</LangVersion>
 	<PreserveCompilationContext>true</PreserveCompilationContext>
 	<AssemblyName>AspNetCore.ExistingDb</AssemblyName>
 	<OutputType>Exe</OutputType>
@@ -21,7 +21,7 @@
 
   <ItemGroup>
 	<PackageReference Include="Bogus" Version="22.3.2" />
-	<PackageReference Include="Google.Apis.YouTube.v3" Version="1.34.0.1226" />
+	<PackageReference Include="Google.Apis.YouTube.v3" Version="1.35.1.1226" />
 	<PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.2" />
 	<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.1.1" />
 	<PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.1.1" />

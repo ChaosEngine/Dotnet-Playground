@@ -109,15 +109,16 @@ namespace AspNetCore.ExistingDb.Services
 
 					foreach (var item in playlistItemsListResponse.Items)
 					{
+						// Print information about each video.
+						logger.LogInformation("'{title}' [{description}] {publishedAt}", item.Snippet.Title, item.Snippet.Description,
+							item.Snippet.PublishedAt);
+
 						if (item.Snippet.Title == new_video_title)
 						{
 							already_uploaded = true;
 							logger.LogWarning("'{title}' already uploaded aborting", item.Snippet.Title);
 							break;
 						}
-						// Print information about each video.
-						logger.LogInformation("'{title}' [{description}] {publishedAt}", item.Snippet.Title, item.Snippet.Description,
-							item.Snippet.PublishedAt);
 					}
 
 					nextPageToken = playlistItemsListResponse.NextPageToken;
@@ -144,7 +145,7 @@ namespace AspNetCore.ExistingDb.Services
 				};
 
 				string successVideoID = null;
-				using (var fileStream = new FileStream(_videoFileNameToUpload, FileMode.Open))
+				using (var fileStream = new FileStream(_videoFileNameToUpload, FileMode.Open, FileAccess.Read))
 				{
 					var videosInsertRequest = youtubeService.Videos.Insert(video, "snippet,status", fileStream, "video/*");
 					videosInsertRequest.ProgressChanged += (IUploadProgress progress) =>

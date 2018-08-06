@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-	<LangVersion>7.1</LangVersion>
+	<LangVersion>7.3</LangVersion>
     <IsPackable>false</IsPackable>
     <AssemblyName>AspNetCore.ExistingDb.Tests</AssemblyName>
     <RootNamespace>AspNetCore.ExistingDb.Tests</RootNamespace>
