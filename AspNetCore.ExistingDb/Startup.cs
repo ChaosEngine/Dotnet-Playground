@@ -115,13 +115,19 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 					initialDelay: TimeSpan.FromSeconds(3),
 					onChangeFunction: (counter, dirToWatch, filter) =>
 					{
-						if (Directory.EnumerateFiles(dirToWatch, filter).FirstOrDefault() is string found
-							&& found != null && File.Exists("client_secrets.json"))
+						string found = Directory.EnumerateFiles(dirToWatch, filter, SearchOption.TopDirectoryOnly).FirstOrDefault();
+						if (found == null)
+							return (int)YouTubeUploadOperation.ErrorCodes.NO_VIDEO_FILE;
+						else if (!File.Exists("client_secrets.json"))
+							return (int)YouTubeUploadOperation.ErrorCodes.CLIENT_SECRETS_NOT_EXISTING;
+						else if (!File.Exists(found))
+							return (int)YouTubeUploadOperation.ErrorCodes.VIDEO_FILE_NOT_EXISTING;
+						else
 						{
+							//btq.QueueBackgroundWorkItem(new BeepBackgroundOperation(500, 250));
 							btq.QueueBackgroundWorkItem(new YouTubeUploadOperation(found, "client_secrets.json"));
-							return true;
+							return (int)YouTubeUploadOperation.ErrorCodes.OK;
 						}
-						return false;
 					}, 5));
 
 				return btq;

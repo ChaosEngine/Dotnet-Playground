@@ -23,6 +23,15 @@ namespace AspNetCore.ExistingDb.Services
 	/// <seealso cref="AspNetCore.ExistingDb.Services.BackgroundOperationBase" />
 	public class YouTubeUploadOperation : BackgroundOperationBase
 	{
+		public enum ErrorCodes
+		{
+			UNKNOWN_ERROR = -1,
+			OK = 0,
+			NO_VIDEO_FILE = 1,
+			CLIENT_SECRETS_NOT_EXISTING = 2,
+			VIDEO_FILE_NOT_EXISTING = 3,
+		}
+
 		private readonly string _videoFileNameToUpload;
 		private readonly string _clientSecretsJsonFileName;
 

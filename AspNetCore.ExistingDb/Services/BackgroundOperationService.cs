@@ -34,7 +34,7 @@ namespace AspNetCore.ExistingDb.Services
 
 			_shutdown = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
-			_worker = Task.Run(DoWork, cancellationToken);
+			_worker = Task.Factory.StartNew(DoWork, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
 
 			return Task.CompletedTask;
 		}
