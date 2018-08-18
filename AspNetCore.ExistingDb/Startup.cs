@@ -63,6 +63,38 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			BloggingContextFactory.ConfigureDBKind(null, configuration, services);
 		}
 
+		private BackgroundTaskQueue CreateBackgroundTaskQueue(IServiceProvider serv)
+		{
+			var btq = new BackgroundTaskQueue();
+
+			//Initially add and start file watching task for watching video file change
+			//inside image directory
+			btq.QueueBackgroundWorkItem(new FileWatcherBackgroundOperation(
+				directoryToWatch: Configuration["ImageDirectory"],
+				filterGlobing: "*.webm",
+				initialDelay: TimeSpan.FromSeconds(3),
+				onChangeFunction: (counter, dirToWatch, filter) =>
+				{
+					string found = Directory.EnumerateFiles(dirToWatch, filter, SearchOption.TopDirectoryOnly).FirstOrDefault();
+					if (found == null)
+						return (int)YouTubeUploadOperation.ErrorCodes.NO_VIDEO_FILE;
+					else if (!File.Exists("client_secrets.json"))
+						return (int)YouTubeUploadOperation.ErrorCodes.CLIENT_SECRETS_NOT_EXISTING;
+					else if (!File.Exists(found))
+						return (int)YouTubeUploadOperation.ErrorCodes.VIDEO_FILE_NOT_EXISTING;
+					else
+					{
+						//btq.QueueBackgroundWorkItem(new BeepBackgroundOperation(500, 250));
+						btq.QueueBackgroundWorkItem(new YouTubeUploadOperation(found, "client_secrets.json"));
+						return (int)YouTubeUploadOperation.ErrorCodes.OK;
+					}
+				},
+				failRetryCount: 5)
+			);
+
+			return btq;
+		}
+
 		void ConfigureDependencyInjection(IServiceCollection services)
 		{
 			services.AddSingleton(Configuration);
@@ -103,35 +135,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			services.AddScoped<IThinHashesDocumentDBRepository, ThinHashesDocumentDBRepository>();
 			services.AddSingleton<IUrlHelperFactory, DomainUrlHelperFactory>();
 			services.AddHostedService<BackgroundOperationService>();
-			services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>((serv) =>
-			{
-				var btq = new BackgroundTaskQueue();
-
-				//Initially add and start file watching task for watching video file change
-				//inside image directory
-				btq.QueueBackgroundWorkItem(new FileWatcherBackgroundOperation(
-					directoryToWatch: Configuration["ImageDirectory"],
-					filterGlobing: "*.webm",
-					initialDelay: TimeSpan.FromSeconds(3),
-					onChangeFunction: (counter, dirToWatch, filter) =>
-					{
-						string found = Directory.EnumerateFiles(dirToWatch, filter, SearchOption.TopDirectoryOnly).FirstOrDefault();
-						if (found == null)
-							return (int)YouTubeUploadOperation.ErrorCodes.NO_VIDEO_FILE;
-						else if (!File.Exists("client_secrets.json"))
-							return (int)YouTubeUploadOperation.ErrorCodes.CLIENT_SECRETS_NOT_EXISTING;
-						else if (!File.Exists(found))
-							return (int)YouTubeUploadOperation.ErrorCodes.VIDEO_FILE_NOT_EXISTING;
-						else
-						{
-							//btq.QueueBackgroundWorkItem(new BeepBackgroundOperation(500, 250));
-							btq.QueueBackgroundWorkItem(new YouTubeUploadOperation(found, "client_secrets.json"));
-							return (int)YouTubeUploadOperation.ErrorCodes.OK;
-						}
-					}, 5));
-
-				return btq;
-			});
+			services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>(CreateBackgroundTaskQueue);
 			services.AddServerTiming();
 
 			services.AddTransient<MjpgStreamerHttpClientHandler>()
@@ -144,7 +148,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		{
 			ConfigureDependencyInjection(services);
 
-			services.AddDbContext<BloggingContext>(options =>
+			services.AddDbContextPool<BloggingContext>(options =>
 			{
 				BloggingContextFactory.ConfigureDBKind(options, Configuration);
 			});
@@ -180,8 +184,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
 		{
 			loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-
-			//app.UseEnvironmentTitleDisplay();
 
 			if (env.IsDevelopment())
 			{

@@ -58,7 +58,7 @@ namespace AspNetCore.ExistingDb.Services
 					}
 				}, _shutdown.Token).ConfigureAwait(false);
 
-				await Task.Delay(TimeSpan.FromMilliseconds(500), _shutdown.Token);
+				await Task.Delay(TimeSpan.FromMilliseconds(250), _shutdown.Token);
 			}
 
 			_logger.LogInformation($"### worker ending");
