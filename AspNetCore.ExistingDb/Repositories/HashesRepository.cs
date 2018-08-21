@@ -342,7 +342,7 @@ FETCH NEXT @limit ROWS ONLY
 					int offset, int limit, CancellationToken token)
 		{
 			string col_names = string.Join("`,`", AllColumnNames);
-			string sql =// "SET SESSION SQL_BIG_SELECTS=1;" +
+			string sql = "SET SESSION SQL_BIG_SELECTS=1;" +
 (string.IsNullOrEmpty(searchText) ?
 @"
 SELECT count(*) cnt FROM Hashes"
@@ -724,29 +724,49 @@ LIMIT @limit OFFSET @offset
 			{
 				var hashes = _entities.ThinHashes.AsNoTracking();
 				_entities.Database.SetCommandTimeout(240);
-				if (!string.IsNullOrEmpty(searchText))
-				{
-					//students = students.Where(s =>
-					//	s.Key.StartsWith(searchText) || s.HashMD5.StartsWith(searchText) || s.HashSHA256.StartsWith(searchText));
-					searchText = searchText + '%';
-					hashes = hashes.Where(s =>
-						EF.Functions.Like(s.Key, searchText) ||
-						EF.Functions.Like(s.HashMD5, searchText) ||
-						EF.Functions.Like(s.HashSHA256, searchText)
-						);
-				}
 
-				if (!string.IsNullOrEmpty(sortColumn))
+				Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction trans = null;
+				try
 				{
-					bool descending = sortOrderDirection.EndsWith("desc", StringComparison.InvariantCultureIgnoreCase);
+					if (_entities.ConnectionTypeName == "mysqlconnection")
+					{
+						trans = await _entities.Database.BeginTransactionAsync(IsolationLevel.ReadUncommitted, token);
+						await _entities.Database.ExecuteSqlCommandAsync("SET SESSION SQL_BIG_SELECTS=1;", token);
+					}
 
-					if (descending)
-						hashes = hashes.OrderByDescending(s => EF.Property<ThinHashes>(s, sortColumn));
-					else
-						hashes = hashes.OrderBy(s => EF.Property<ThinHashes>(s, sortColumn));
+					if (!string.IsNullOrEmpty(searchText))
+					{
+						//students = students.Where(s =>
+						//	s.Key.StartsWith(searchText) || s.HashMD5.StartsWith(searchText) || s.HashSHA256.StartsWith(searchText));
+						searchText = searchText + '%';
+						hashes = hashes.Where(s =>
+							EF.Functions.Like(s.Key, searchText) ||
+							EF.Functions.Like(s.HashMD5, searchText) ||
+							EF.Functions.Like(s.HashSHA256, searchText)
+							);
+					}
+
+					if (!string.IsNullOrEmpty(sortColumn))
+					{
+						bool descending = sortOrderDirection.EndsWith("desc", StringComparison.InvariantCultureIgnoreCase);
+
+						if (descending)
+							hashes = hashes.OrderByDescending(s => EF.Property<ThinHashes>(s, sortColumn));
+						else
+							hashes = hashes.OrderBy(s => EF.Property<ThinHashes>(s, sortColumn));
+					}
+					var found = await PaginatedList<ThinHashes>.CreateAsync(hashes, offset, limit, token);
+
+					return (found, found.FoundCount);
 				}
-				var found = await PaginatedList<ThinHashes>.CreateAsync(hashes, offset, limit, token);
-				return (found, found.FoundCount);
+				finally
+				{
+					if (_entities.ConnectionTypeName == "mysqlconnection")
+					{
+						trans.Commit();
+						trans.Dispose();
+					}
+				}
 			}
 		}
 
@@ -766,7 +786,7 @@ LIMIT @limit OFFSET @offset
 			{
 				db.Database.SetCommandTimeout(180);//long long running. timeouts prevention
 												   //in sqlite only serializable - https://sqlite.org/isolation.html
-				var isolation_level = db.ConnectionTypeName == "sqliteconnection" ? IsolationLevel.Serializable : IsolationLevel.ReadUncommitted;
+				IsolationLevel isolation_level = db.ConnectionTypeName == "sqliteconnection" ? IsolationLevel.Serializable : IsolationLevel.ReadUncommitted;
 				using (var trans = await db.Database.BeginTransactionAsync(isolation_level, token))//needed, other web nodes will read saved-caculating-state and exit thread
 				{
 					try
@@ -781,6 +801,8 @@ LIMIT @limit OFFSET @offset
 
 						hi = new HashesInfo { ID = 0, IsCalculating = true };
 
+						if (db.ConnectionTypeName == "mysqlconnection")
+							await db.Database.ExecuteSqlCommandAsync("SET SQL_BIG_SELECTS=1", token);
 						await db.HashesInfo.AddAsync(hi, token);
 						await db.SaveChangesAsync(true, token);
 						//temporary save to static to indicate calculation and block new calcultion threads
