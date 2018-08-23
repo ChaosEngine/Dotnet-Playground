@@ -32,6 +32,7 @@
 	<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.1.1" />
 	<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.0.0-preview" />
 	<PackageReference Include="Google.Apis.YouTube.v3" Version="1.35.1.1226" />
+	<PackageReference Include="RedHat.AspNetCore.Server.Kestrel.Transport.Linux" Version="2.1.0-preview1" />
   </ItemGroup>
 
   <Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
