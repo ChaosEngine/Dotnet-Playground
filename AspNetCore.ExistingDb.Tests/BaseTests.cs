@@ -1,5 +1,6 @@
 ﻿using EFGetStarted.AspNetCore.ExistingDb;
 using EFGetStarted.AspNetCore.ExistingDb.Models;
+using Lib.AspNetCore.ServerTiming;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Threading;
@@ -17,7 +19,12 @@ namespace AspNetCore.ExistingDb.Tests
 {
 	public abstract class BaseRepositoryTests : IDisposable
 	{
-		public (SqliteConnection Conn, DbContextOptions<BloggingContext> DbOpts, IConfiguration Conf, IMemoryCache Cache, ILogger<Repositories.HashesRepository> Logger) Setup
+		public (SqliteConnection Conn,
+				DbContextOptions<BloggingContext> DbOpts,
+				IConfiguration Conf, IMemoryCache Cache,
+				ILogger<Repositories.HashesRepository> Logger,
+                IServerTiming ServerTiming
+				) Setup
 		{
 			get; set;
 		}
@@ -32,7 +39,12 @@ namespace AspNetCore.ExistingDb.Tests
 			}
 		}
 
-		protected async Task<(SqliteConnection, DbContextOptions<BloggingContext>, IConfiguration, IMemoryCache, ILogger<Repositories.HashesRepository>)> SetupInMemoryDB()
+		protected async Task<(SqliteConnection,
+								DbContextOptions<BloggingContext>,
+								IConfiguration,
+								IMemoryCache,
+								ILogger<Repositories.HashesRepository>,
+                                IServerTiming)> SetupInMemoryDB()
 		{
 			var builder = new ConfigurationBuilder()
 				.AddJsonFile("config.json", optional: false, reloadOnChange: true);
@@ -63,8 +75,14 @@ namespace AspNetCore.ExistingDb.Tests
 
 			var logger = serviceProvider.GetService<ILoggerFactory>()
 				.CreateLogger<Repositories.HashesRepository>();
-			
-			return (connection, options, config, cache, logger);
+
+            var serverTiming_mock = new Moq.Mock<IServerTiming>();
+			serverTiming_mock.SetupGet(m => m.Metrics).Returns(() =>
+			{
+				return new List<Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric>();
+			});
+
+            return (connection, options, config, cache, logger, serverTiming_mock.Object);
 		}
 
 		public BaseRepositoryTests()
