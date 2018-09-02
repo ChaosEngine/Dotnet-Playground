@@ -63,10 +63,10 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		private readonly HttpClient _client;
 		private readonly IMemoryCache _cache;
 		private readonly IHostingEnvironment _env;
-		
+
 		internal static Func<HttpClient, IHostingEnvironment, CancellationToken,
 			Task<(DateTime lastModified, byte[] bytes, string contentType, TimeSpan cacheExpiration)>> GetContent;
-				
+
 		public MjpgStreamerHttpClient(HttpClient client, IHostingEnvironment env, IMemoryCache cache)
 		{
 			_client = client;
@@ -86,14 +86,16 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		{
 			client.BaseAddress = new Uri(MjpgStreamerHttpClientHandler.Address);
 
-			var resp = await client.GetAsync(client.BaseAddress, token);
-			//byte[] fetched = await _client.GetByteArrayAsync(_client.BaseAddress);
-			////string str = System.Text.Encoding.Default.GetString(fetched);
-			resp.EnsureSuccessStatusCode();
-			var fetched = await resp.Content.ReadAsByteArrayAsync();
+			using (HttpResponseMessage resp = await client.GetAsync(client.BaseAddress, token))
+			{
+				//byte[] fetched = await _client.GetByteArrayAsync(_client.BaseAddress);
+				////string str = System.Text.Encoding.Default.GetString(fetched);
+				resp.EnsureSuccessStatusCode();
+				var fetched = await resp.Content.ReadAsByteArrayAsync();
 
-			var just_created = (DateTime.UtcNow, fetched, MediaTypeNames.Image.Jpeg, TimeSpan.FromSeconds(LiveImageExpireTimeInSeconds));
-			return just_created;
+				var just_created = (DateTime.UtcNow, fetched, MediaTypeNames.Image.Jpeg, TimeSpan.FromSeconds(LiveImageExpireTimeInSeconds));
+				return just_created;
+			}
 		}
 
 		public async Task<FileContentResult> GetLiveImage(CancellationToken token)
