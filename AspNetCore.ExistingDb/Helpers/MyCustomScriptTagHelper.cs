@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection;
-using Microsoft.ApplicationInsights.AspNetCore;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel;
@@ -27,13 +26,13 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 	/// <remarks>
 	/// The tag helper won't process for cases with just the 'src' attribute.
 	/// </remarks>
-	[HtmlTargetElement("script", Attributes = SrcIncludeAttributeName)]
-	[HtmlTargetElement("script", Attributes = SrcExcludeAttributeName)]
-	[HtmlTargetElement("script", Attributes = FallbackSrcAttributeName)]
-	[HtmlTargetElement("script", Attributes = FallbackSrcIncludeAttributeName)]
-	[HtmlTargetElement("script", Attributes = FallbackSrcExcludeAttributeName)]
-	[HtmlTargetElement("script", Attributes = FallbackTestExpressionAttributeName)]
-	[HtmlTargetElement("script", Attributes = AppendVersionAttributeName)]
+	//[HtmlTargetElement("script", Attributes = SrcIncludeAttributeName)]
+	//[HtmlTargetElement("script", Attributes = SrcExcludeAttributeName)]
+	//[HtmlTargetElement("script", Attributes = FallbackSrcAttributeName)]
+	//[HtmlTargetElement("script", Attributes = FallbackSrcIncludeAttributeName)]
+	//[HtmlTargetElement("script", Attributes = FallbackSrcExcludeAttributeName)]
+	//[HtmlTargetElement("script", Attributes = FallbackTestExpressionAttributeName)]
+	//[HtmlTargetElement("script", Attributes = AppendVersionAttributeName)]
 	public class MyCustomScriptTagHelper : UrlResolutionTagHelper
 	{
 		private const string SrcIncludeAttributeName = "asp-src-include";

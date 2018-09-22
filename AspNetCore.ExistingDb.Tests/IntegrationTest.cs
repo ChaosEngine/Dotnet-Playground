@@ -1,6 +1,7 @@
 ﻿using EFGetStarted.AspNetCore.ExistingDb;
 using EFGetStarted.AspNetCore.ExistingDb.Controllers;
 using EFGetStarted.AspNetCore.ExistingDb.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
@@ -10,6 +11,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Mime;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Xunit;
@@ -80,7 +82,7 @@ namespace Integration
 		{
 			foreach (var kvp in cookies)
 			{
-				newHttpRequestMessage.Headers.Add("Cookie", new CookieHeaderValue(kvp.Key, kvp.Value).ToString());
+				newHttpRequestMessage.Headers.Add("Cookie", new Microsoft.Net.Http.Headers.CookieHeaderValue(kvp.Key, kvp.Value).ToString());
 			}
 
 			return newHttpRequestMessage;
@@ -113,7 +115,7 @@ namespace Integration
 
 			foreach (var kvp in cookies)
 			{
-				headers.Add("Cookie", new CookieHeaderValue(kvp.Key, kvp.Value).ToString());
+				headers.Add("Cookie", new Microsoft.Net.Http.Headers.CookieHeaderValue(kvp.Key, kvp.Value).ToString());
 			}
 		}
 	}
@@ -222,6 +224,101 @@ namespace Integration
 	}
 
 	[Collection(nameof(TestServerCollection))]
+	public class HashesPage
+	{
+		private readonly TestServerFixture<Startup> _fixture;
+		private readonly HttpClient _client;
+
+		public HashesPage(TestServerFixture<Startup> fixture)
+		{
+			_fixture = fixture;
+			_client = fixture.Client;
+		}
+
+		[Fact]
+		public async Task GET()
+		{
+			if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return;//pass on fake DB with no data
+
+
+			//Arrange
+			//get number of all total rows from previous tests :-)
+			int total_hashes_count = await new HashesDataTablePage(_fixture).Load_Valid("Key", "asc", "aaa", 5, 0, "2");
+
+
+			// Arrange
+			bool? is_HashesInfo_table_empty = total_hashes_count <= 0 ? true : default;
+			string calculating_content_substr = @"<p>Calculating...wait about 10 secs or so...and refresh the page</p>",
+				calculated_content_substr = @"<p>
+				Search for <strong>([0-9].*)</strong> character MD5 or SHA256 hash source string. Alphabet is '(.*)'
+			</p>
+			<p>
+				Hashes count: <strong>([0-9].*)</strong>
+				last updated (.*)
+			</p>";
+
+			// Act
+			using (HttpResponseMessage response = await _client.GetAsync($"/{HashesController.ASPX}/"))
+			{
+				// Assert
+				response.EnsureSuccessStatusCode();
+				var responseString = await response.Content.ReadAsStringAsync();
+
+				Assert.True(
+					responseString.Contains("Hashes count: <strong>") ||
+					responseString.Contains(calculating_content_substr)
+					);
+
+				var empty_hashes_response_match = Regex.Matches(responseString, calculating_content_substr);
+				var hashes_not_empty_response_match = Regex.Matches(responseString, calculated_content_substr);
+
+				Assert.True(
+					(empty_hashes_response_match.Count > 0 && hashes_not_empty_response_match.Count <= 0) ||
+					(empty_hashes_response_match.Count <= 0 && hashes_not_empty_response_match.Count > 0)
+					);
+
+				is_HashesInfo_table_empty = empty_hashes_response_match.Count > 0 && hashes_not_empty_response_match.Count <= 0;
+			}
+
+			//if not yet calculated, we wait until it finaly is calculated and assert new page content
+			//only hapening if we are sure there are _any records_ inside table hashes
+			if (is_HashesInfo_table_empty.HasValue && total_hashes_count > 0)
+			{
+				// Arrange
+				int wait_tries_count = 15;//15x try out
+
+				// Act
+				do
+				{
+					using (HttpResponseMessage response = await _client.GetAsync($"/{HashesController.ASPX}/"))
+					{
+						// Assert
+						response.EnsureSuccessStatusCode();
+						var responseString = await response.Content.ReadAsStringAsync();
+
+						if (responseString.Contains("Hashes count: <strong>"))
+						{
+							MatchCollection matches_not_empty = Regex.Matches(responseString, calculated_content_substr);
+							Assert.NotEmpty(matches_not_empty);
+							break;
+						}
+					}
+
+					await Task.Delay(2_000);
+				}
+				while (--wait_tries_count > 0);
+
+				Assert.True(wait_tries_count > 0, "not enough tries for HashInfo calculation to succeed");
+			}
+			else
+			{
+				//proof that HashesTable is empty
+			}
+		}
+
+	}
+
+	[Collection(nameof(TestServerCollection))]
 	public class HashesDataTablePage
 	{
 		private readonly TestServerFixture<Startup> _fixture;
@@ -244,29 +341,35 @@ namespace Integration
 				response.EnsureSuccessStatusCode();
 
 				var responseString = await response.Content.ReadAsStringAsync();
-				Assert.Contains("<button id=\"btninfo\" class=\"btn btn-default\" type=\"button\">" +
-					"<i class=\"glyphicon glyphicon-info-sign\"></i>&nbsp;row info</button>",
+				Assert.Contains("<button id=\"btninfo\" class=\"btn btn-default\" type=\"button\" data-toggle=\"modal\" data-target=\"#exampleModal\">&#9432;&nbsp;Row info</button>",
 					responseString);
 				Assert.Contains("data-page-list=\"[5,10,20,50,500,2000]\"", responseString);
 			}
 		}
 
-		[Fact]
-		public async Task Load_Valid()
+		[Theory]
+		[InlineData("Key", "desc", "kawa", 5, 1, "2")]
+		[InlineData("Key", "asc", "awak", 5, 1, "2")]
+		[InlineData("Key", "desc", "kawa", 5, 1, "1")]
+		[InlineData("Key", "asc", "awak", 5, 1, "1")]
+		[InlineData("Key", "asc", "none_existing", 5, 1, "2")]
+		[InlineData("Key", "asc", "none_existing", 5, 1, "1")]
+		public async Task<int> Load_Valid(string sort, string order, string search, int limit, int offset, string extraParam)
 		{
-			if (_fixture.DBKind == "sqlite") return;//pass on fake DB with no data
+			if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return 0;//pass on fake DB with no data
 
 
 			// Arrange
-			var data = new HashesDataTableLoadInput
+			var query_input = new HashesDataTableLoadInput
 			{
-				Sort = "Key",
-				Order = "desc",
-				Search = "kawa",
-				Limit = 5,
-				Offset = 1,
+				Sort = sort,
+				Order = order,
+				Search = search,
+				Limit = limit,
+				Offset = offset,
+				ExtraParam = extraParam,
 			}.ToDictionary();
-			using (var content = new FormUrlEncodedContent(data))
+			using (var content = new FormUrlEncodedContent(query_input))
 			{
 				var queryString = await content.ReadAsStringAsync();
 				// Act
@@ -285,27 +388,51 @@ namespace Integration
 					};
 
 					// Deserialize JSON String into concrete class
-					var deserialized = JsonConvert.DeserializeObject(jsonString, typed_result.GetType()) as dynamic;
-					Assert.IsType(typed_result.GetType(), deserialized);
-					Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(deserialized.rows);
-					Assert.True(deserialized.rows.Length == 5);
-					Assert.True(deserialized.total > 0);
-					Assert.NotNull((deserialized.rows as ThinHashes[]).FirstOrDefault(r => r.Key.StartsWith("kawa")));
+					var data = JsonConvert.DeserializeObject(jsonString, typed_result.GetType()) as dynamic;
+					Assert.IsType(typed_result.GetType(), data);
+					Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(data.rows);
+
+					Assert.True(data.rows.Length == 5 || data.rows.Length == 0);
+					Assert.True(data.total >= 0);
+
+					if (data.rows.Length > 0)
+					{
+						Assert.NotNull(data.rows[0].Key.StartsWith(search));
+
+						if (query_input.TryGetValue("ExtraParam", out string value) && value == "2")
+						{
+							Assert.True(response.Headers.CacheControl.Public &&
+								response.Headers.CacheControl.MaxAge == AspNetCore.ExistingDb.Repositories.HashesRepository.HashesInfoExpirationInMinutes);
+						}
+						else
+						{
+							Assert.Null(response.Headers.CacheControl?.Public);
+						}
+					}
+					else
+					{
+						Assert.Null(response.Headers.CacheControl?.Public);
+					}
+
+					return data.total;
 				}
 			}
 		}
 
-		[Fact]
-		public async Task Load_Invalid()
+		[Theory]
+		[InlineData("dead", "string", "is", 0xDEAD, 0xBEEF, "1")]
+		[InlineData("Key", "asc", "awak", 5, 1, "bad")]
+		public async Task Load_Invalid(string sort, string order, string search, int limit, int offset, string extraParam)
 		{
 			// Arrange
 			var data = new HashesDataTableLoadInput
 			{
-				Sort = "dead",
-				Order = "string",
-				Search = "is",
-				Limit = 0xDEAD,
-				Offset = 0xBEEF,
+				Sort = sort,
+				Order = order,
+				Search = search,
+				Limit = limit,
+				Offset = offset,
+				ExtraParam = extraParam,
 			}.ToDictionary();
 			using (var content = new FormUrlEncodedContent(data))
 			{
@@ -340,7 +467,7 @@ namespace Integration
 		[Fact]
 		public async Task Show_Index()
 		{
-			if (_fixture.DBKind == "sqlite") return;//pass on fake DB with no data
+			if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return;//pass on fake DB with no data
 
 
 			// Arrange
@@ -375,7 +502,7 @@ namespace Integration
 		[Fact]
 		public async Task Blog_CRUD_Test()
 		{
-			if (_fixture.DBKind == "sqlite") return;//pass on fake DB with no data
+			if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return;//pass on fake DB with no data
 
 
 			// Arrange
@@ -417,7 +544,7 @@ namespace Integration
 				using (var index_response = await _client.GetAsync($"/{BlogsController.ASPX}/", HttpCompletionOption.ResponseContentRead))
 				{
 					var responseString = await index_response.Content.ReadAsStringAsync();
-					MatchCollection matches = Regex.Matches(responseString, @"\<form method=""post"" class=""form-horizontal"" data-id=""([0-9].*)""\>");
+					MatchCollection matches = Regex.Matches(responseString, @"\<form method=""post"" data-id=""([0-9].*)""\>");
 					Assert.NotEmpty(matches);
 					var ids = new List<int>(matches.Count);
 					foreach (Match m in matches)
@@ -475,6 +602,134 @@ namespace Integration
 					}
 				}
 			}//end using (var create_get_response
+		}
+	}
+
+	[Collection(nameof(TestServerCollection))]
+	public class WebCamGalleryPage
+	{
+		private readonly TestServerFixture<Startup> _fixture;
+		private readonly HttpClient _client;
+
+		public WebCamGalleryPage(TestServerFixture<Startup> fixture)
+		{
+			_fixture = fixture;
+			_client = fixture.Client;
+		}
+
+		[Fact]
+		public async Task Show_Index()
+		{
+			// Arrange
+			// Act
+			using (HttpResponseMessage response = await _client.GetAsync($"/{WebCamGallery.ASPX}/"))
+			{
+				// Assert
+				response.EnsureSuccessStatusCode();
+
+				var responseString = await response.Content.ReadAsStringAsync();
+				Assert.Contains("<title>WebCam Gallery - Dotnet Core Playground</title>", responseString);
+				Assert.Contains("function ReplImg(This)", responseString);
+
+				if (!string.IsNullOrEmpty(_fixture.ImageDirectory))
+				{
+					/**
+					 <a href="/WebCamImages/out-91.jpg" title="18.02.2018 00:20:01">
+						<img src="/WebCamImages/out-91.jpg" alt="out-91.jpg" class='active' onmouseover='ReplImg(this);' />
+					</a>
+					<a href="/WebCamImages/out-90.jpg" title="18.02.2018 00:10:02">
+						<img src='https://haos.hopto.org/webcamgallery/images/no_img.gif' alt='no img' class='inactive' onmouseover='ReplImg(this);' />
+					</a>*/
+
+					MatchCollection matches = Regex.Matches(responseString, @"\<img src=""/WebCamImages/(.*\.jpg)"" alt=""(.*\.jpg)"" class='active' onmouseover='ReplImg\(this\);' /\>");
+					Assert.NotEmpty(matches);
+					var images = new List<string>(matches.Count);
+					foreach (Match m in matches)
+					{
+						var match_count = m.Success ? m.Groups[1].Captures.Count : 0;
+						Assert.True(match_count > 0);
+						var id = m.Groups[1].Captures[match_count - 1].Value;
+						images.Add(id);
+					}
+					Assert.True(images.Count > 4);
+				}
+			}
+		}
+
+		[Theory]
+		[InlineData("out-1.jpg")]
+		public async Task GetImage(string imageName)
+		{
+			string etag = null;
+
+			// Arrange
+			// Act
+			using (HttpResponseMessage response = await _client.GetAsync($"/{WebCamImagesModel.ASPX}/{imageName}", HttpCompletionOption.ResponseHeadersRead))
+			{
+				// Assert
+				Assert.NotNull(response);
+
+				if (!string.IsNullOrEmpty(_fixture.ImageDirectory))
+				{
+					response.EnsureSuccessStatusCode();
+
+					Assert.IsType<StreamContent>(response.Content);
+					Assert.True(response.Content.Headers.TryGetValues("Content-Type", out IEnumerable<string> c_type));
+					Assert.NotNull(c_type);
+					Assert.Equal(MediaTypeNames.Image.Jpeg, response.Content.Headers.ContentType.MediaType);
+					Assert.NotNull(response.Headers.ETag);
+
+					etag = response.Headers.ETag.Tag;
+				}
+				else
+				{
+					Assert.False(response.IsSuccessStatusCode);
+					Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+				}
+			}//end using
+
+			/*//test getting the same mage ut with ETAG set - we shoud get HTTP NotModified (304) response code
+			if (!string.IsNullOrEmpty(etag))
+			{
+				// Arrange
+				var request = new HttpRequestMessage(HttpMethod.Get, $"/{WebCamImagesModel.ASPX}/{imageName}");
+				//request.Headers.Add(HeaderNames.IfNoneMatch, etag);
+				//request.Headers.TryAddWithoutValidation(HeaderNames.ETag, etag);
+				request.Headers.IfMatch.Add(new System.Net.Http.Headers.EntityTagHeaderValue(etag));
+
+				// Act
+				using (HttpResponseMessage response = await _client.SendAsync(request))
+				{
+					// Assert
+					Assert.NotNull(response);
+					Assert.Equal(HttpStatusCode.NotModified, response.StatusCode);
+				}
+			}*/
+		}
+
+		[Fact]
+		public async Task GetLiveImage()
+		{
+			if (string.IsNullOrEmpty(_fixture.LiveWebCamURL)) return;
+
+			// Arrange
+			// Act
+			using (HttpResponseMessage response = await _client.GetAsync($"/{WebCamImagesModel.ASPX}/?handler=live", HttpCompletionOption.ResponseContentRead))
+			{
+				// Assert
+				Assert.NotNull(response);
+				response.EnsureSuccessStatusCode();
+
+				Assert.IsType<StreamContent>(response.Content);
+				Assert.True(response.Content.Headers.TryGetValues("Content-Type", out IEnumerable<string> c_type));
+				Assert.NotNull(c_type);
+				Assert.True(response.Headers.TryGetValues("Server-Timing", out var serverTiming_headers));
+				Assert.NotEmpty(serverTiming_headers);
+				Assert.Matches("GET;dur=([0-9].*);desc=\"live image get\"", serverTiming_headers.First());
+				Assert.True(MediaTypeNames.Image.Jpeg == response.Content.Headers.ContentType.MediaType ||
+					"image/png" == response.Content.Headers.ContentType.MediaType);
+
+			}//end using
 		}
 	}
 }

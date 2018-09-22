@@ -1,0 +1,279 @@
+﻿@page
+@inject Lib.AspNetCore.ServerTiming.IServerTiming serverTiming
+@inject Microsoft.Extensions.Configuration.IConfiguration Conf
+@model WebCamGallery
+@{
+	Model.Watch.Restart();
+	Layout = @"..\Views\Shared\_Layout.cshtml";
+	ViewData["Title"] = "WebCam Gallery";
+}
+@section headElements
+{
+	<environment include="Development">
+		<link rel="stylesheet" href="~/lib/blueimp-gallery/css/blueimp-gallery.min.css" />
+		<link rel="stylesheet" href="~/lib/video.js/dist/video-js.min.css" />
+	</environment>
+	<environment exclude="Development">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/blueimp-gallery@2.33.0/css/blueimp-gallery.min.css" integrity="sha256-Y0i7rzAjNSxOrq/x6gK6k0OeK1V2WNWwjh0/l+KapNk=" crossorigin="anonymous"
+			  asp-fallback-href="~/lib/blueimp-gallery/css/blueimp-gallery.min.css"
+			  asp-fallback-test-class="blueimp-gallery" asp-fallback-test-property="position" asp-fallback-test-value="fixed" />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/video.js@7.2.2/dist/video-js.min.css" integrity="sha256-fRRh8wAHObBnLKwq1LdT6o4jjc68e01Sd+nZtUEWDjI=" crossorigin="anonymous"
+			  asp-fallback-href="~/lib/video.js/dist/video-js.min.css"
+			  asp-fallback-test-class="video-js" asp-fallback-test-property="position" asp-fallback-test-value="relative" />
+	</environment>
+	<style type="text/css">
+		#links a > img {
+			width: 133px;
+			height: 100px;
+		}
+		#links a {
+			text-decoration: none;
+		}
+		.vjs-default-skin .vjs-big-play-button {
+			top: 50%;
+			left: 50%;
+			margin: -1em auto auto -2em;
+			width: 80px;
+			height: 50px;
+		}
+		/* Extra large devices (large desktops, 1200px and up) */
+		@@media (min-width: 1200px) {
+			.video-js-box {
+				width: 1280px !important;
+				height: 960px !important;
+			}
+			#live.img-fluid {
+				max-width: 1280px !important;
+			}
+		}
+	</style>
+}
+
+<!-- Nav tabs -->
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+	@{
+		if (!string.IsNullOrEmpty(Model.LiveWebCamURL))
+		{
+			<li class="nav-item">
+				<a class="nav-link active" data-toggle="tab" href="#live-tab" role="tab" aria-controls="live-tab" aria-selected="true">Live</a>
+			</li>
+		}
+		if (!string.IsNullOrEmpty(Model.BaseWebCamURL))
+		{
+			<li class="nav-item">
+				<a class="nav-link" data-toggle="tab" href="#video-tab" role="tab" aria-controls="video-tab" aria-selected="false">Daily video</a>
+			</li>
+		}
+		if (Model.ThumbnailJpgs != null)
+		{
+			<li class="nav-item">
+				<a class="nav-link" data-toggle="tab" href="#gallery-tab" role="tab" aria-controls="gallery-tab" aria-selected="false">Gallery</a>
+			</li>
+		}
+	}
+</ul>
+
+<div class="tab-content">
+@{
+	if (!string.IsNullOrEmpty(Model.LiveWebCamURL))
+	{
+  		<div class="tab-pane active" id="live-tab" role="tabpanel" aria-labelledby="live-tab">
+			<a onclick="RefreshLiveImage()" title='live'>
+				<img id='live' alt='live' class="img-fluid" src="~/WebCamImages/?handler=live" data-last-modified="" />
+			</a>
+		</div>
+	}
+	if (!string.IsNullOrEmpty(Model.BaseWebCamURL))
+	{
+  		<div class="tab-pane" id="video-tab" role="tabpanel" aria-labelledby="video-tab">
+			<!-- Begin VideoJS -->
+			<div class="video-js-box">
+				<video id="example_video_1" width="1280" height="960" class="video-js vjs-default-skin vjs-4-3 vjs-fluid vjs-big-play-centered" controls preload="auto" poster="@Model.BaseWebCamURL/poster.jpeg" data-setup="{}">
+					<source src="@Model.BaseWebCamURL/video.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"' />
+					<source src="@Model.BaseWebCamURL/video.webm" type='video/webm; codecs="vp8, vorbis"' />
+				</video>
+			</div>
+			<!-- End VideoJS -->
+		</div>
+	}
+
+	if (Model.ThumbnailJpgs != null)
+	{
+		@:<div class="tab-pane" id="gallery-tab" role="tabpanel" aria-labelledby="gallery-tab">
+			<button id="btnReplAllImg" type="button" class="btn btn-primary" value="strng" title="Load all images">Load all</button>
+			@:<div id="links">
+			int i = 0;
+			foreach (var jpg in Model.ThumbnailJpgs)
+			{
+				var thumbnail = jpg.Name;
+				var full = thumbnail.Replace("thumbnail", "out");
+				if (i++ < 7)
+				{
+					<a href="~/WebCamImages/@full" title="@jpg.LastWriteTime">
+						<img src="~/WebCamImages/@thumbnail" alt="@thumbnail" class='active' onmouseover='ReplImg(this);' />
+					</a>
+				}
+				else
+				{
+					<a href="~/WebCamImages/@full" title="@jpg.LastWriteTime">
+						<img alt='no img' class='inactive' onmouseover='ReplImg(this);' />
+					</a>
+				}
+			}
+			@:</div>
+			<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">
+				<div class="slides"></div>
+				<h3 class="title"></h3>
+				<a class="prev">‹</a>
+				<a class="next">›</a>
+				<a class="close">×</a>
+				<a class="play-pause"></a>
+				<ol class="indicator"></ol>
+			</div>
+		@:</div>
+	}
+}
+</div>
+
+@section Scripts
+{
+	<environment include="Development">
+		<script type="text/javascript" src="~/lib/blueimp-gallery/js/blueimp-gallery.min.js"></script>
+		<script type="text/javascript" src="~/lib/video.js/dist/video.min.js"></script>
+	</environment>
+	<environment exclude="Development">
+		<script src="https://cdn.jsdelivr.net/npm/blueimp-gallery@2.33.0/js/blueimp-gallery.min.js" integrity="sha256-ZbBVsWhU9YSV3AZky7xcIVDC4to1i3hUBLmOZ5JkMbQ=" crossorigin="anonymous"
+				asp-fallback-src="~/lib/blueimp-gallery/js/blueimp-gallery.min.js"
+				asp-fallback-test="window.jQuery && window.blueimp"></script>
+		<script src="https://cdn.jsdelivr.net/npm/video.js@7.2.2/dist/video.min.js" integrity="sha256-nOalGlHM44TEt3NjBs0jMq09S4FiMZVNqy4etDo+cUE=" crossorigin="anonymous"
+				asp-fallback-src="~/lib/video.js/dist/video.min.js"
+				asp-fallback-test="window.jQuery && videojs.options"></script>
+	</environment>
+	<script type="text/javascript">
+		@*if ('serviceWorker' in navigator) {
+			const swUrl = '@Conf.AppRootPath()sw.min.js?domain=' + encodeURIComponent('@Conf.AppRootPath()');
+
+			navigator.serviceWorker
+				.register(swUrl, { scope: '@Conf.AppRootPath()' })
+				.then(function () {
+					console.log("Service Worker Registered");
+				});
+
+			navigator.serviceWorker
+				.ready
+				.then(function (registration) {
+					console.log('Service Worker Ready');
+				});
+		}*@
+
+		$(document).ready(function () {
+
+			$('#links').click(function (event) {
+				event = event || window.event;
+				var target = event.target || event.srcElement,
+					link = target.src ? target.parentNode : target,
+					options = {
+						index: link,
+						event: event,
+						onopen: function () {
+							// Callback function executed when the Gallery is initialized
+							ReplAllImg();
+						},
+					},
+					links = this.getElementsByTagName('a');
+				blueimp.Gallery(links, options);
+			});
+
+			$(".inactive").each(function (index, value) {
+				value.src = '@(Model.BaseWebCamURL)/images/no_img.gif';
+			});
+
+			$('#btnReplAllImg').click(function (event) {
+				ReplAllImg();
+			});
+
+			//RefreshLiveImage();
+
+		});
+
+		function ReplImg(This)
+		{
+			if (This.tagName != 'IMG')
+			{
+				This.firstChild.src = This.href.replace("out", "thumbnail");
+				This.firstChild.class = 'active';
+			}
+			else
+			{
+				This.src = This.parentNode.href.replace("out", "thumbnail");
+				This.class = 'active';
+			}
+		}
+
+		function ReplAllImg()
+		{
+			$(".inactive").each(function (index, value) {
+				ReplImg(value);
+			});
+		}
+
+		var last_refresh = new Date();
+		function LoadImageAsBinaryArray(img)
+		{
+			img.setAttribute('data-last-modified', 'refreshing');
+
+			// Simulate a call to Dropbox or other service that can
+			// return an image as an ArrayBuffer.
+			var xhr = new XMLHttpRequest();
+			// Use JSFiddle logo as a sample image to avoid complicating
+			// this example with cross-domain issues.
+			xhr.open("GET", "@Conf.AppRootPath()WebCamImages/?handler=live", true);
+			xhr.setRequestHeader('Cache-Control', 'no-cache');
+			// Ask for the result as an ArrayBuffer.
+			xhr.responseType = "arraybuffer";
+			xhr.onload = function (e) {
+				// Obtain a blob: URL for the image data.
+				var arrayBufferView = new Uint8Array(this.response);
+				var blob = new Blob([arrayBufferView], { type: "image/jpeg" });
+
+				var hdr_last_modified = this.getResponseHeader('Last-Modified');
+
+				var urlCreator = window.URL || window.webkitURL;
+				var imageUrl = urlCreator.createObjectURL(blob);
+				img.src = imageUrl;
+				img.setAttribute('data-last-modified', hdr_last_modified);
+
+				last_refresh = new Date();
+			};
+			xhr.send();
+		}
+
+		function RefreshLiveImage()
+		{
+			//document.getElementById('live').src = '/WebCamImages/?handler=live&' + Math.random();
+			var live = document.querySelector("#live");
+			if (live != null)
+			{
+				var data_last_modified = live.getAttribute('data-last-modified');
+				if (data_last_modified != "refreshing")
+				{
+					var now = new Date();
+					var secs_between = (now - last_refresh) * 0.001;
+					var msg = String(secs_between) + ' secs elapsed since last live-image load';
+					if (secs_between > @(MjpgStreamerHttpClient.LiveImageExpireTimeInSeconds))
+					{
+						msg += ', reloading!';
+						LoadImageAsBinaryArray(live);
+					}
+					console.log(msg);
+				}
+				else
+					console.log('still reloading!');
+			}
+		}
+
+	</script>
+}
+@{ 
+	serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("view", Model.Watch.ElapsedMilliseconds, "after view is generated"));
+}

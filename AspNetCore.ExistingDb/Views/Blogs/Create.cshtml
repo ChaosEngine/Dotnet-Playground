@@ -1,17 +1,18 @@
 ﻿@model EFGetStarted.AspNetCore.ExistingDb.Models.Blog
-@inject  Microsoft.Extensions.Configuration.IConfiguration Conf
+@using EFGetStarted.AspNetCore.ExistingDb.Controllers
+@inject Microsoft.Extensions.Configuration.IConfiguration Conf
 @{
     ViewBag.Title = "New Blog";
 }
 
 <h2>@ViewData["Title"]</h2>
 <p>
-	<a href="~/Blogs">Blogs</a>
+	<a href="~/@(BlogsController.ASPX)">Blogs</a>
 </p>
 
-<form action="~/Blogs/@(nameof(EFGetStarted.AspNetCore.ExistingDb.Controllers.BlogsController.Create))" method="post" class="form-horizontal" role="form">
+<form action="~/@(BlogsController.ASPX)/@(nameof(BlogsController.Create))" method="post" role="form">
 	@Html.AntiForgeryToken()
-    <div class="form-horizontal">
+    <div class="form-group">
         <div asp-validation-summary="All" class="text-danger"></div>
         <div class="form-group">
             <label asp-for="Url" class="col-md-2 control-label"></label>
@@ -22,7 +23,7 @@
         </div>
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="@(nameof(EFGetStarted.AspNetCore.ExistingDb.Controllers.BlogsController.Create))" class="btn btn-default" />
+                <input type="submit" value="@(nameof(BlogsController.Create))" class="btn btn-default" />
             </div>
         </div>
     </div>

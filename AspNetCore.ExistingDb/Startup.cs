@@ -1,5 +1,7 @@
 ﻿using AspNetCore.ExistingDb.Repositories;
+using AspNetCore.ExistingDb.Services;
 using EFGetStarted.AspNetCore.ExistingDb.Models;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
@@ -10,6 +12,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Web.CodeGeneration.Templating.Compilation;
 using System;
 using System.IO;
+using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 //[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
@@ -24,14 +28,26 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		{
 			var host = new WebHostBuilder()
 				.UseKestrel()
+				//.UseLibuv()
+				.UseSockets()
+				.UseLinuxTransport(async opts =>
+				{
+					await Console.Out.WriteLineAsync("Using Linux Transport");
+				})
 				.UseContentRoot(Directory.GetCurrentDirectory())
-				.UseIISIntegration()
+				//.UseIISIntegration()
 				.UseStartup<Startup>()
-				.UseApplicationInsights()
+				//.UseApplicationInsights()
 				.Build();
 
 			await host.RunAsync();
+
+			//await CreateWebHostBuilder(args).Build().RunAsync();
 		}
+
+		//public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+		//	WebHost.CreateDefaultBuilder(args)
+		//		.UseStartup<Startup>();
 
 		public Startup(IHostingEnvironment env)
 		{
@@ -51,11 +67,44 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			BloggingContextFactory.ConfigureDBKind(null, configuration, services);
 		}
 
+		private BackgroundTaskQueue CreateBackgroundTaskQueue(IServiceProvider serv)
+		{
+			var btq = new BackgroundTaskQueue();
+
+			//Initially add and start file watching task for watching video file change
+			//inside image directory
+			btq.QueueBackgroundWorkItem(new FileWatcherBackgroundOperation(
+				directoryToWatch: Configuration["ImageDirectory"],
+				filterGlobing: "*.webm",
+				initialDelay: TimeSpan.FromSeconds(3),
+				onChangeFunction: (counter, dirToWatch, filter) =>
+				{
+					string found = Directory.EnumerateFiles(dirToWatch, filter, SearchOption.TopDirectoryOnly).FirstOrDefault();
+					if (found == null)
+						return (int)YouTubeUploadOperation.ErrorCodes.NO_VIDEO_FILE;
+					else if (!File.Exists("client_secrets.json"))
+						return (int)YouTubeUploadOperation.ErrorCodes.CLIENT_SECRETS_NOT_EXISTING;
+					else if (!File.Exists(found))
+						return (int)YouTubeUploadOperation.ErrorCodes.VIDEO_FILE_NOT_EXISTING;
+					else
+					{
+						//btq.QueueBackgroundWorkItem(new BeepBackgroundOperation(500, 250));
+						btq.QueueBackgroundWorkItem(new YouTubeUploadOperation(found, "client_secrets.json"));
+						return (int)YouTubeUploadOperation.ErrorCodes.OK;
+					}
+				},
+				failRetryCount: 5)
+			);
+
+			return btq;
+		}
+
 		void ConfigureDependencyInjection(IServiceCollection services)
 		{
 			services.AddSingleton(Configuration);
 #if DEBUG
-			services.AddSingleton<ICompilationService, RoslynCompilationService>();
+			//services.AddSingleton<ICompilationService, RoslynCompilationService>();
+			services.AddSingleton<Microsoft.AspNetCore.Razor.Language.RazorTemplateEngine, CustomTemplateEngine>();
 #endif
 			services.AddScoped<IBloggingRepository, BloggingRepository>();
 
@@ -84,9 +133,18 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			{
 				options.DBConfig = dbs_config;
 			});
-			
+			//1st time init of static vars
+			HashesRepository.HashesInfoExpirationInMinutes = TimeSpan.FromMinutes(Configuration.GetValue<int>(nameof(HashesRepository.HashesInfoExpirationInMinutes)));
+
 			services.AddScoped<IThinHashesDocumentDBRepository, ThinHashesDocumentDBRepository>();
 			services.AddSingleton<IUrlHelperFactory, DomainUrlHelperFactory>();
+			services.AddHostedService<BackgroundOperationService>();
+			services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>(CreateBackgroundTaskQueue);
+			services.AddServerTiming();
+
+			services.AddTransient<MjpgStreamerHttpClientHandler>()
+				.AddHttpClient<IMjpgStreamerHttpClient, MjpgStreamerHttpClient>()
+				.ConfigurePrimaryHttpMessageHandler<MjpgStreamerHttpClientHandler>();
 		}
 
 		// This method gets called by the runtime. Use this method to add services to the container.
@@ -94,7 +152,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		{
 			ConfigureDependencyInjection(services);
 
-			services.AddDbContext<BloggingContext>(options =>
+			services.AddDbContextPool<BloggingContext>(options =>
 			{
 				BloggingContextFactory.ConfigureDBKind(options, Configuration);
 			});
@@ -123,14 +181,13 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				services.AddDataProtection()
 					.SetDefaultKeyLifetime(TimeSpan.FromDays(14));
 			}
+
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
 		{
 			loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-
-			//app.UseEnvironmentTitleDisplay();
 
 			if (env.IsDevelopment())
 			{
@@ -146,6 +203,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			app.UseStatusCodePagesWithReExecute("/Home/Error/{0}");
 
 			app.UseStaticFiles();
+
+			app.UseServerTiming();
 
 			app.UseSession();
 

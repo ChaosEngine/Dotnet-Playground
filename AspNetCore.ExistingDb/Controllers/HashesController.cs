@@ -1,4 +1,5 @@
 ﻿using AspNetCore.ExistingDb.Repositories;
+using AspNetCore.ExistingDb.Services;
 using EFGetStarted.AspNetCore.ExistingDb.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,20 +20,20 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 	public class HashesController : Controller, IHashesController
 	{
+		public const string ASPX = "Hashes";
+
 		private static readonly object _locker = new object();
-		private readonly IConfiguration _configuration;
+		private readonly IBackgroundTaskQueue _backgroundTaskQueue;
 		private readonly IHashesRepositoryPure _repo;
-		private readonly ILoggerFactory _loggerFactory;
 		private readonly ILogger<HashesController> _logger;
 
-		public HashesController(IHashesRepositoryPure repo, ILoggerFactory loggerFactory, IConfiguration configuration)
+		public HashesController(IHashesRepositoryPure repo, ILogger<HashesController> logger, IBackgroundTaskQueue backgroundTaskQueue)
 		{
 			_repo = repo;
 			_repo.SetReadOnly(true);
 
-			_loggerFactory = loggerFactory;
-			_logger = loggerFactory.CreateLogger<HashesController>();
-			_configuration = configuration;
+			_logger = logger;
+			_backgroundTaskQueue = backgroundTaskQueue;
 		}
 
 		public async Task<IActionResult> Index()
@@ -41,19 +42,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 			if (curr_has_inf == null || (!curr_has_inf.IsCalculating && curr_has_inf.Count <= 0))
 			{
-				var task = Task.Factory.StartNew(async (conf) =>
-				{
-					_logger.LogInformation(0, $"###Starting calculation thread");
-
-					Task<HashesInfo> hi = null;
-					lock (_locker)
-					{
-						var dbContextOptions = HttpContext.RequestServices.GetService(typeof(DbContextOptions<BloggingContext>)) as DbContextOptions<BloggingContext>;
-
-						hi = _repo.CalculateHashesInfo(_loggerFactory, _logger, (IConfiguration)conf, dbContextOptions);
-					}
-					return await hi;
-				}, _configuration);
+				_backgroundTaskQueue.QueueBackgroundWorkItem(new CalculateHashesInfoBackgroundOperation());
 			}
 
 			_logger.LogInformation(0,
@@ -86,7 +75,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			});
 
 			hi.Search = hi.Search.Trim().ToLower();
-			
+
 			var found = await _repo.SearchAsync(hi);
 
 			if (ajax)

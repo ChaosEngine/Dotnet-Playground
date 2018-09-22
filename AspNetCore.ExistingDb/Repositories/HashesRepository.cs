@@ -1,7 +1,11 @@
-﻿using EFGetStarted.AspNetCore.ExistingDb.Models;
-using Microsoft.Data.Sqlite;
+﻿using AspNetCore.ExistingDb.Helpers;
+using AspNetCore.ExistingDb.Services;
+using EFGetStarted.AspNetCore.ExistingDb.Models;
+using Lib.AspNetCore.ServerTiming;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using Npgsql;
@@ -10,7 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -26,11 +30,11 @@ namespace AspNetCore.ExistingDb.Repositories
 
 		Task<IEnumerable<ThinHashes>> AutoComplete(string text);
 
-		Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchAsync(string sortColumn, string sortOrderDirection, string searchText,
+		Task<(IEnumerable<ThinHashes> Itemz, int Count)> PagedSearchAsync(string sortColumn, string sortOrderDirection, string searchText,
 			int offset, int limit, CancellationToken token);
 
-		Task<HashesInfo> CalculateHashesInfo(ILoggerFactory _loggerFactory, ILogger _logger, IConfiguration conf,
-			DbContextOptions<BloggingContext> dbContextOptions);
+		Task<HashesInfo> CalculateHashesInfo(ILogger logger, DbContextOptions<BloggingContext> dbContextOptions,
+			CancellationToken token = default);
 
 		Task<ThinHashes> SearchAsync(HashInput input);
 	}
@@ -39,25 +43,29 @@ namespace AspNetCore.ExistingDb.Repositories
 	{
 	}
 
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <seealso cref="AspNetCore.ExistingDb.Repositories.GenericRepository{EFGetStarted.AspNetCore.ExistingDb.Models.BloggingContext, EFGetStarted.AspNetCore.ExistingDb.Models.ThinHashes}" />
+	/// <seealso cref="AspNetCore.ExistingDb.Repositories.IHashesRepository" />
 	public class HashesRepository : GenericRepository<BloggingContext, ThinHashes>, IHashesRepository
 	{
 		private const string _NOTHING_FOUND_TEXT = "nothing found";
+		private static IEnumerable<string> _postgresAllColumnNames;
 		/// <summary>
 		/// Used value or this specific worker node/process or load balancing server
 		/// </summary>
-		private static HashesInfo _hashesInfoStatic;
+		//private static HashesInfo _hashesInfoStatic;
+		public static TimeSpan HashesInfoExpirationInMinutes = TimeSpan.FromHours(1);
 		/// <summary>
 		/// locally cached value for request, refreshed upon every request.
 		/// </summary>
 		private HashesInfo _hi;
-		private static IEnumerable<string> _postgresAllColumnNames;
-		private static readonly object _locker = new object();
 		private readonly IConfiguration _configuration;
-
-		public Task<HashesInfo> CurrentHashesInfo
-		{
-			get { return GetHashesInfoFromDB(_entities); }
-		}
+		private readonly IMemoryCache _memoryCache;
+		private readonly ILogger<HashesRepository> _logger;
+		private readonly IServerTiming _serverTiming;
+		public Stopwatch Watch { get; private set; }
 
 		private static IEnumerable<String> PostgresAllColumnNames
 		{
@@ -69,24 +77,56 @@ namespace AspNetCore.ExistingDb.Repositories
 			}
 		}
 
-		private async Task<HashesInfo> GetHashesInfoFromDB(BloggingContext db)
+		public Task<HashesInfo> CurrentHashesInfo
 		{
-			if (_hashesInfoStatic == null)
+			get { return GetHashesInfoFromDB(_entities); }
+		}
+
+		/// <summary>
+		/// Gets the hashes information from database.
+		/// </summary>
+		/// <param name="db">The database.</param>
+		/// <param name="token">The token.</param>
+		/// <returns></returns>
+		private async Task<HashesInfo> GetHashesInfoFromDB(BloggingContext db, CancellationToken token = default)
+		{
+			//if (_hashesInfoStatic == null)
+			if (!_memoryCache.TryGetValue<HashesInfo>(nameof(HashesInfo), out var hashesInfoStatic))
 			{
 				if (_hi == null)            //local value is empty, fill it from DB once
-					_hi = await db.HashesInfo.FirstOrDefaultAsync(x => x.ID == 0);
+					_hi = await db.HashesInfo.FirstOrDefaultAsync(x => x.ID == 0, token);
 
 				if (_hi == null || _hi.IsCalculating)
 					return _hi;             //still calculating, return just this local value
 				else
-					_hashesInfoStatic = _hi;//calculation ended, save to global static value
+				{
+					//calculation ended, save to global static value
+					//_hashesInfoStatic = _hi;
+					hashesInfoStatic = await _memoryCache.GetOrCreateAsync(nameof(HashesInfo), (ce) =>
+					{
+						ce.SetAbsoluteExpiration(HashesInfoExpirationInMinutes);
+						return Task.FromResult(_hi);
+					});
+				}
 			}
-			return _hashesInfoStatic;
+			return hashesInfoStatic;
 		}
 
-		public HashesRepository(BloggingContext context, IConfiguration configuration) : base(context)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="HashesRepository" /> class.
+		/// </summary>
+		/// <param name="context">The context.</param>
+		/// <param name="configuration">The configuration.</param>
+		public HashesRepository(BloggingContext context, IConfiguration configuration, IMemoryCache memoryCache,
+			ILogger<HashesRepository> logger, IServerTiming serverTiming) : base(context)
 		{
 			_configuration = configuration;
+			_memoryCache = memoryCache;
+			_logger = logger;
+			_serverTiming = serverTiming;
+
+			Watch = new Stopwatch();
+			Watch.Start();
 		}
 
 		public void SetReadOnly(bool value)
@@ -94,8 +134,16 @@ namespace AspNetCore.ExistingDb.Repositories
 			_entities.ChangeTracker.QueryTrackingBehavior = value ? QueryTrackingBehavior.NoTracking : QueryTrackingBehavior.TrackAll;
 		}
 
+		/// <summary>
+		/// Automatics the complete.
+		/// </summary>
+		/// <param name="text">The text.</param>
+		/// <returns></returns>
 		public async Task<IEnumerable<ThinHashes>> AutoComplete(string text)
 		{
+			_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("ctor", Watch.ElapsedMilliseconds,
+				"from ctor till AutoComplete"));
+
 			text = $"{text.Trim().ToLower()}%";
 			Task<List<ThinHashes>> found = null;
 
@@ -114,7 +162,7 @@ namespace AspNetCore.ExistingDb.Repositories
 
 				case "npsqlconnection":
 					found = (from x in _entities.ThinHashes
-							 where EF.Functions.Like(x.HashMD5, text, "'\\'") || EF.Functions.Like(x.HashSHA256, text, "'\\'")
+							 where EF.Functions.Like(x.HashMD5, text) || EF.Functions.Like(x.HashSHA256, text)
 							 select x)
 						.Take(20)
 						//.DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT })
@@ -140,9 +188,19 @@ namespace AspNetCore.ExistingDb.Repositories
 					throw new NotSupportedException($"Bad {nameof(BloggingContext.ConnectionTypeName)} name");
 			}
 
+			_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("READY",
+				Watch.ElapsedMilliseconds, "AutoComplete ready"));
 			return (await found).DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
 		}
 
+		/// <summary>
+		/// creating Sql WHERE statment Column conditions.
+		/// </summary>
+		/// <param name="colNamePrefix">The col name prefix.</param>
+		/// <param name="colNameSuffix">The col name suffix.</param>
+		/// <param name="columnNames">The column names.</param>
+		/// <param name="searchTextParamName">Name of the search text parameter.</param>
+		/// <returns></returns>
 		private string WhereColumnCondition(char colNamePrefix, char colNameSuffix, IEnumerable<string> columnNames = null, string searchTextParamName = "searchText")
 		{
 			var sb = new StringBuilder(
@@ -154,7 +212,7 @@ namespace AspNetCore.ExistingDb.Repositories
 			foreach (var col in columnNames)
 			{
 				//([Key] LIKE @searchText) OR
-				sb.AppendFormat("{0}({3}{1}{4} LIKE @{2})", comma, col, searchTextParamName, colNamePrefix, colNameSuffix);
+				sb.AppendFormat("{0}({3}{1}{4} LIKE @{2}_{5})", comma, col, searchTextParamName, colNamePrefix, colNameSuffix, col);
 				comma = " OR" + Environment.NewLine + '\t';
 			}
 			sb.Append(@"
@@ -163,8 +221,18 @@ namespace AspNetCore.ExistingDb.Repositories
 			return sb.ToString();
 		}
 
-		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchSqlServerAsync(string sortColumn, string sortOrderDirection,
-			string searchText, int offset, int limit, CancellationToken token)
+		/// <summary>
+		/// Searches the SQL server asynchronous.
+		/// </summary>
+		/// <param name="sortColumn">The sort column.</param>
+		/// <param name="sortOrderDirection">The sort order direction.</param>
+		/// <param name="searchText">The search text.</param>
+		/// <param name="offset">The offset.</param>
+		/// <param name="limit">The limit.</param>
+		/// <param name="token">The token.</param>
+		/// <returns></returns>
+		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> PagedSearchSqlServerAsync(string sortColumn, string sortOrderDirection,
+					string searchText, int offset, int limit, CancellationToken token)
 		{
 			string col_names = string.Join("],[", AllColumnNames);
 			string sql =
@@ -198,6 +266,7 @@ FETCH NEXT @limit ROWS ONLY
 				using (var cmd = conn.CreateCommand())
 				{
 					cmd.CommandText = sql;
+					_logger.LogInformation("sql => {0}", sql);
 					cmd.CommandTimeout = 240;
 					DbParameter parameter;
 
@@ -216,9 +285,23 @@ FETCH NEXT @limit ROWS ONLY
 					if (!string.IsNullOrEmpty(searchText))
 					{
 						parameter = cmd.CreateParameter();
-						parameter.ParameterName = "@searchText";
+						parameter.ParameterName = $"@searchText_{nameof(ThinHashes.Key)}";
 						parameter.DbType = DbType.String;
-						parameter.Size = 100;
+						parameter.Size = 20;
+						parameter.Value =  /*'%' + */searchText + '%';
+						cmd.Parameters.Add(parameter);
+
+						parameter = cmd.CreateParameter();
+						parameter.ParameterName = $"@searchText_{nameof(ThinHashes.HashMD5)}";
+						parameter.DbType = DbType.String;
+						parameter.Size = 32;
+						parameter.Value =  /*'%' + */searchText + '%';
+						cmd.Parameters.Add(parameter);
+
+						parameter = cmd.CreateParameter();
+						parameter.ParameterName = $"@searchText_{nameof(ThinHashes.HashSHA256)}";
+						parameter.DbType = DbType.String;
+						parameter.Size = 64;
 						parameter.Value =  /*'%' + */searchText + '%';
 						cmd.Parameters.Add(parameter);
 					}
@@ -246,7 +329,7 @@ FETCH NEXT @limit ROWS ONLY
 						}
 						else
 						{
-							found.Add(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
+							//found.Add(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
 						}
 					}
 				}
@@ -259,11 +342,21 @@ FETCH NEXT @limit ROWS ONLY
 			}
 		}
 
-		private async Task<(List<ThinHashes> Itemz, int Count)> SearchMySqlAsync(string sortColumn, string sortOrderDirection, string searchText,
-			int offset, int limit, CancellationToken token)
+		/// <summary>
+		/// Searches my SQL asynchronous.
+		/// </summary>
+		/// <param name="sortColumn">The sort column.</param>
+		/// <param name="sortOrderDirection">The sort order direction.</param>
+		/// <param name="searchText">The search text.</param>
+		/// <param name="offset">The offset.</param>
+		/// <param name="limit">The limit.</param>
+		/// <param name="token">The token.</param>
+		/// <returns></returns>
+		private async Task<(List<ThinHashes> Itemz, int Count)> PagedSearchMySqlAsync(string sortColumn, string sortOrderDirection, string searchText,
+					int offset, int limit, CancellationToken token)
 		{
 			string col_names = string.Join("`,`", AllColumnNames);
-			string sql =// "SET SESSION SQL_BIG_SELECTS=1;" +
+			string sql = "SET SESSION SQL_BIG_SELECTS=1;" +
 (string.IsNullOrEmpty(searchText) ?
 @"
 SELECT count(*) cnt FROM Hashes"
@@ -293,6 +386,7 @@ LIMIT @limit OFFSET @offset
 				using (var cmd = new MySqlCommand(sql, conn))
 				{
 					cmd.CommandText = sql;
+					_logger.LogInformation("sql => {0}", sql);
 					cmd.CommandTimeout = 240;
 					DbParameter parameter;
 
@@ -311,9 +405,23 @@ LIMIT @limit OFFSET @offset
 					if (!string.IsNullOrEmpty(searchText))
 					{
 						parameter = cmd.CreateParameter();
-						parameter.ParameterName = "@searchText";
+						parameter.ParameterName = $"@searchText_{nameof(ThinHashes.Key)}";
 						parameter.DbType = DbType.String;
-						parameter.Size = 100;
+						parameter.Size = 20;
+						parameter.Value =  /*'%' + */searchText + '%';
+						cmd.Parameters.Add(parameter);
+
+						parameter = cmd.CreateParameter();
+						parameter.ParameterName = $"@searchText_{nameof(ThinHashes.HashMD5)}";
+						parameter.DbType = DbType.String;
+						parameter.Size = 32;
+						parameter.Value =  /*'%' + */searchText + '%';
+						cmd.Parameters.Add(parameter);
+
+						parameter = cmd.CreateParameter();
+						parameter.ParameterName = $"@searchText_{nameof(ThinHashes.HashSHA256)}";
+						parameter.DbType = DbType.String;
+						parameter.Size = 64;
 						parameter.Value =  /*'%' + */searchText + '%';
 						cmd.Parameters.Add(parameter);
 					}
@@ -341,7 +449,7 @@ LIMIT @limit OFFSET @offset
 						}
 						else
 						{
-							found.Add(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
+							//found.Add(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
 						}
 					}
 				}
@@ -350,8 +458,18 @@ LIMIT @limit OFFSET @offset
 			}//end using
 		}
 
-		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchSqliteAsync(string sortColumn, string sortOrderDirection,
-			string searchText, int offset, int limit, CancellationToken token)
+		/// <summary>
+		/// Searches the sqlite asynchronous.
+		/// </summary>
+		/// <param name="sortColumn">The sort column.</param>
+		/// <param name="sortOrderDirection">The sort order direction.</param>
+		/// <param name="searchText">The search text.</param>
+		/// <param name="offset">The offset.</param>
+		/// <param name="limit">The limit.</param>
+		/// <param name="token">The token.</param>
+		/// <returns></returns>
+		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> PagedSearchSqliteAsync(string sortColumn, string sortOrderDirection,
+					string searchText, int offset, int limit, CancellationToken token)
 		{
 			string col_names = string.Join("],[", AllColumnNames);
 			string sql =
@@ -384,6 +502,7 @@ LIMIT @limit OFFSET @offset
 				using (var cmd = conn.CreateCommand())
 				{
 					cmd.CommandText = sql;
+					_logger.LogInformation("sql => {0}", sql);
 					cmd.CommandTimeout = 240;
 					DbParameter parameter;
 
@@ -402,9 +521,23 @@ LIMIT @limit OFFSET @offset
 					if (!string.IsNullOrEmpty(searchText))
 					{
 						parameter = cmd.CreateParameter();
-						parameter.ParameterName = "@searchText";
+						parameter.ParameterName = $"@searchText_{nameof(ThinHashes.Key)}";
 						parameter.DbType = DbType.String;
-						parameter.Size = 100;
+						parameter.Size = 20;
+						parameter.Value =  /*'%' + */searchText + '%';
+						cmd.Parameters.Add(parameter);
+
+						parameter = cmd.CreateParameter();
+						parameter.ParameterName = $"@searchText_{nameof(ThinHashes.HashMD5)}";
+						parameter.DbType = DbType.String;
+						parameter.Size = 32;
+						parameter.Value =  /*'%' + */searchText + '%';
+						cmd.Parameters.Add(parameter);
+
+						parameter = cmd.CreateParameter();
+						parameter.ParameterName = $"@searchText_{nameof(ThinHashes.HashSHA256)}";
+						parameter.DbType = DbType.String;
+						parameter.Size = 64;
 						parameter.Value =  /*'%' + */searchText + '%';
 						cmd.Parameters.Add(parameter);
 					}
@@ -432,7 +565,7 @@ LIMIT @limit OFFSET @offset
 						}
 						else
 						{
-							found.Add(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
+							//found.Add(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
 						}
 					}
 				}
@@ -445,7 +578,17 @@ LIMIT @limit OFFSET @offset
 			}
 		}
 
-		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchPostgresAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit, CancellationToken token)
+		/// <summary>
+		/// Searches the postgres asynchronous.
+		/// </summary>
+		/// <param name="sortColumn">The sort column.</param>
+		/// <param name="sortOrderDirection">The sort order direction.</param>
+		/// <param name="searchText">The search text.</param>
+		/// <param name="offset">The offset.</param>
+		/// <param name="limit">The limit.</param>
+		/// <param name="token">The token.</param>
+		/// <returns></returns>
+		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> PagedSearchPostgresAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit, CancellationToken token)
 		{
 			string col_names = string.Join("\",\"", PostgresAllColumnNames);
 			string sql =// "SET SESSION SQL_BIG_SELECTS=1;" +
@@ -480,6 +623,7 @@ LIMIT @limit OFFSET @offset
 				using (var cmd = new NpgsqlCommand(sql, conn))
 				{
 					cmd.CommandText = sql;
+					_logger.LogInformation("sql => {0}", sql);
 					cmd.CommandTimeout = 240;
 					DbParameter parameter;
 
@@ -498,9 +642,23 @@ LIMIT @limit OFFSET @offset
 					if (!string.IsNullOrEmpty(searchText))
 					{
 						parameter = cmd.CreateParameter();
-						parameter.ParameterName = "@searchText";
+						parameter.ParameterName = $"@searchText_{nameof(ThinHashes.Key)}";
 						parameter.DbType = DbType.String;
-						parameter.Size = 100;
+						parameter.Size = 20;
+						parameter.Value =  /*'%' + */searchText + '%';
+						cmd.Parameters.Add(parameter);
+
+						parameter = cmd.CreateParameter();
+						parameter.ParameterName = $"@searchText_{nameof(ThinHashes.HashMD5)}";
+						parameter.DbType = DbType.String;
+						parameter.Size = 32;
+						parameter.Value =  /*'%' + */searchText + '%';
+						cmd.Parameters.Add(parameter);
+
+						parameter = cmd.CreateParameter();
+						parameter.ParameterName = $"@searchText_{nameof(ThinHashes.HashSHA256)}";
+						parameter.DbType = DbType.String;
+						parameter.Size = 64;
 						parameter.Value =  /*'%' + */searchText + '%';
 						cmd.Parameters.Add(parameter);
 					}
@@ -528,7 +686,7 @@ LIMIT @limit OFFSET @offset
 						}
 						else
 						{
-							found.Add(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
+							//found.Add(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
 						}
 					}
 				}
@@ -537,91 +695,159 @@ LIMIT @limit OFFSET @offset
 			}//end using
 		}
 
-		public async Task<(IEnumerable<ThinHashes> Itemz, int Count)> SearchAsync(string sortColumn, string sortOrderDirection, string searchText,
+		/// <summary>
+		/// Searches the asynchronous.
+		/// </summary>
+		/// <param name="sortColumn">The sort column.</param>
+		/// <param name="sortOrderDirection">The sort order direction.</param>
+		/// <param name="searchText">The search text.</param>
+		/// <param name="offset">The offset.</param>
+		/// <param name="limit">The limit.</param>
+		/// <param name="token">The token.</param>
+		/// <returns></returns>
+		public async Task<(IEnumerable<ThinHashes> Itemz, int Count)> PagedSearchAsync(string sortColumn, string sortOrderDirection, string searchText,
 			int offset, int limit, CancellationToken token)
 		{
+			_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("ctor", Watch.ElapsedMilliseconds,
+				"from ctor till PagedSearchAsync"));
+
 			if (!string.IsNullOrEmpty(sortColumn) && !AllColumnNames.Contains(sortColumn))
 			{
 				throw new ArgumentException("bad sort column");
 			}
 			else if (!string.IsNullOrEmpty(sortOrderDirection) &&
-				   sortOrderDirection != "asc" && sortOrderDirection != "desc")
+				sortOrderDirection != "asc" && sortOrderDirection != "desc")
 			{
 				throw new ArgumentException("bad sort direction");
 			}
 
-			switch (_entities.ConnectionTypeName)
+			if (string.IsNullOrEmpty(searchText) || searchText.Length > 2)
 			{
-				case "mysqlconnection":
-					return await SearchMySqlAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
+				switch (_entities.ConnectionTypeName)
+				{
+					case "mysqlconnection":
+						return await PagedSearchMySqlAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
+					case "sqlconnection":
+						return await PagedSearchSqlServerAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
+					case "sqliteconnection":
+						return await PagedSearchSqliteAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
+					case "npsqlconnection":
+						return await PagedSearchPostgresAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
+					default:
+						throw new NotSupportedException($"Bad {nameof(BloggingContext.ConnectionTypeName)} name");
+				}
+			}
+			else
+			{
+				var hashes = _entities.ThinHashes.AsNoTracking();
+				_entities.Database.SetCommandTimeout(240);
 
-				case "sqlconnection":
-					return await SearchSqlServerAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
+				Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction trans = null;
+				try
+				{
+					if (_entities.ConnectionTypeName == "mysqlconnection")
+					{
+						trans = await _entities.Database.BeginTransactionAsync(IsolationLevel.ReadUncommitted, token);
+						await _entities.Database.ExecuteSqlCommandAsync("SET SESSION SQL_BIG_SELECTS=1;", token);
+					}
 
-				case "sqliteconnection":
-					return await SearchSqliteAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
+					if (!string.IsNullOrEmpty(searchText))
+					{
+						//students = students.Where(s =>
+						//	s.Key.StartsWith(searchText) || s.HashMD5.StartsWith(searchText) || s.HashSHA256.StartsWith(searchText));
+						searchText = searchText + '%';
+						hashes = hashes.Where(s =>
+							EF.Functions.Like(s.Key, searchText) ||
+							EF.Functions.Like(s.HashMD5, searchText) ||
+							EF.Functions.Like(s.HashSHA256, searchText)
+							);
+					}
 
-				case "npsqlconnection":
-					return await SearchPostgresAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
+					if (!string.IsNullOrEmpty(sortColumn))
+					{
+						bool descending = sortOrderDirection.EndsWith("desc", StringComparison.InvariantCultureIgnoreCase);
 
-				default:
-					throw new NotSupportedException($"Bad {nameof(BloggingContext.ConnectionTypeName)} name");
+						if (descending)
+							hashes = hashes.OrderByDescending(s => EF.Property<ThinHashes>(s, sortColumn));
+						else
+							hashes = hashes.OrderBy(s => EF.Property<ThinHashes>(s, sortColumn));
+					}
+					var found = await PaginatedList<ThinHashes>.CreateAsync(hashes, offset, limit, token);
+
+					_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("READY",
+						Watch.ElapsedMilliseconds, "PagedSearchAsync ready"));
+					return (found, found.FoundCount);
+				}
+				finally
+				{
+					if (_entities.ConnectionTypeName == "mysqlconnection")
+					{
+						trans.Commit();
+						trans.Dispose();
+					}
+				}
 			}
 		}
 
 		/// <summary>
-		/// Sync running method
+		/// Creates hashes info
 		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="loggerFactory"></param>
-		/// <param name="logger"></param>
-		/// <param name="configuration"></param>
+		/// <param name="logger">The logger.</param>
+		/// <param name="dbContextOptions">The database context options.</param>
+		/// <param name="token">The token.</param>
 		/// <returns></returns>
-		public async Task<HashesInfo> CalculateHashesInfo(ILoggerFactory loggerFactory, ILogger logger, IConfiguration configuration,
-			DbContextOptions<BloggingContext> dbContextOptions)
+		public async Task<HashesInfo> CalculateHashesInfo(ILogger logger, DbContextOptions<BloggingContext> dbContextOptions,
+			CancellationToken token = default)
 		{
 			HashesInfo hi = null;
 
-			//var bc = new DbContextOptionsBuilder<BloggingContext>();
-			//bc.UseLoggerFactory(loggerFactory);
-			//BloggingContextFactory.ConfigureDBKind(bc, configuration, null);
-
-			using (var db = new BloggingContext(/*bc.Options*/dbContextOptions))
+			using (var db = new BloggingContext(dbContextOptions))
 			{
 				db.Database.SetCommandTimeout(180);//long long running. timeouts prevention
 												   //in sqlite only serializable - https://sqlite.org/isolation.html
-				var isolation_level = db.ConnectionTypeName == "sqliteconnection" ? IsolationLevel.Serializable : IsolationLevel.ReadUncommitted;
-				using (var trans = await db.Database.BeginTransactionAsync(isolation_level))//needed, other web nodes will read saved-caculating-state and exit thread
+				IsolationLevel isolation_level = db.ConnectionTypeName == "sqliteconnection" ? IsolationLevel.Serializable : IsolationLevel.ReadUncommitted;
+				using (var trans = await db.Database.BeginTransactionAsync(isolation_level, token))//needed, other web nodes will read saved-caculating-state and exit thread
 				{
 					try
 					{
-						if (GetHashesInfoFromDB(db).Result != null)
+						if (GetHashesInfoFromDB(db, token).Result != null)
 						{
 							logger.LogInformation(0, $"###Leaving calculation of initial Hash parameters; already present");
-							return GetHashesInfoFromDB(db).Result;
+							hi = GetHashesInfoFromDB(db, token).Result;
+							return hi;
 						}
 						logger.LogInformation(0, $"###Starting calculation of initial Hash parameters");
 
 						hi = new HashesInfo { ID = 0, IsCalculating = true };
 
-						await db.HashesInfo.AddAsync(hi);
-						await db.SaveChangesAsync(true);
-						_hashesInfoStatic = hi;//temporary save to static to indicate calculation and block new calcultion threads
+						if (db.ConnectionTypeName == "mysqlconnection")
+							await db.Database.ExecuteSqlCommandAsync("SET SQL_BIG_SELECTS=1", token);
+						await db.HashesInfo.AddAsync(hi, token);
+						await db.SaveChangesAsync(true, token);
+						//temporary save to static to indicate calculation and block new calcultion threads
+						//_hashesInfoStatic = hi;
+						await _memoryCache.GetOrCreateAsync(nameof(HashesInfo), (ce) =>
+						{
+							ce.SetAbsoluteExpiration(HashesInfoExpirationInMinutes.Multiply(2));
+							return Task.FromResult(hi);
+						});
 
 						var alphabet = (from h in db.ThinHashes
 										select h.Key.First()
 										).Distinct()
 										.OrderBy(o => o);
-						var count = db.ThinHashes.CountAsync();
-						var key_length = db.ThinHashes.MaxAsync(x => x.Key.Length);
+						var count = await db.ThinHashes.CountAsync(token);
+						var key_length = 0;
+						if (count > 0)
+							key_length = await db.ThinHashes.MaxAsync(x => x.Key.Length, token);
 
-						hi.Count = await count;
-						hi.KeyLength = await key_length;
+						hi.Count = count;
+						hi.KeyLength = key_length;
 						hi.Alphabet = string.Concat(alphabet);
 						hi.IsCalculating = false;
 
 						db.Update(hi);
-						await db.SaveChangesAsync(true);
+						await db.SaveChangesAsync(true, token);
 
 						trans.Commit();
 						logger.LogInformation(0, $"###Calculation of initial Hash parameters ended");
@@ -634,15 +860,24 @@ LIMIT @limit OFFSET @offset
 					}
 					finally
 					{
-						_hashesInfoStatic = hi;
+						//_hashesInfoStatic = hi;
+						_memoryCache.Set(nameof(HashesInfo), hi, HashesInfoExpirationInMinutes);
 					}
 					return hi;
 				}
 			}
 		}
 
+		/// <summary>
+		/// Search in asynchronous way.
+		/// </summary>
+		/// <param name="hi">The hi.</param>
+		/// <returns></returns>
 		public async Task<ThinHashes> SearchAsync(HashInput hi)
 		{
+			_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("ctor",
+				Watch.ElapsedMilliseconds, "from ctor till SearchAsync"));
+
 			ThinHashes found;
 			switch (_entities.ConnectionTypeName)
 			{
@@ -692,7 +927,35 @@ LIMIT @limit OFFSET @offset
 					throw new NotSupportedException($"Bad {nameof(BloggingContext.ConnectionTypeName)} name");
 			}
 
+			_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("READY",
+						Watch.ElapsedMilliseconds, "SearchAsync ready"));
 			return found;
+		}
+	}
+
+	/// <summary>
+	/// Background hash claculation processing job
+	/// </summary>
+	/// <seealso cref="AspNetCore.ExistingDb.Services.BackgroundOperationBase" />
+	public sealed class CalculateHashesInfoBackgroundOperation : BackgroundOperationBase
+	{
+		/// <summary>
+		/// Does the work.
+		/// </summary>
+		/// <param name="services">The services.</param>
+		/// <param name="token">The token.</param>
+		/// <returns></returns>
+		public override async Task DoWorkAsync(IServiceProvider services, CancellationToken token)
+		{
+			using (var scope = services.CreateScope())
+			{
+				var repo = scope.ServiceProvider.GetRequiredService<IHashesRepositoryPure>();
+				var dbContextOptions = scope.ServiceProvider.GetRequiredService<DbContextOptions<BloggingContext>>();
+				var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
+				var logger = loggerFactory.CreateLogger<CalculateHashesInfoBackgroundOperation>();
+
+				var hi = await repo.CalculateHashesInfo(logger, dbContextOptions, token);
+			}
 		}
 	}
 }

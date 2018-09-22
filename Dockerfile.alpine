@@ -1,6 +1,5 @@
-FROM microsoft/dotnet:2.1-sdk-stretch AS build
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
-	apt-get install -y nodejs
+FROM microsoft/dotnet:2.1-sdk-alpine AS build
+RUN apk add --update nodejs nodejs-npm
 RUN npm i gulp@next -g
 WORKDIR /build
 COPY . .
@@ -12,20 +11,21 @@ RUN dotnet publish -c Release \
     AspNetCore.ExistingDb
 
 RUN find AspNetCore.ExistingDb/bin/Release/netcoreapp2.1/publish/ -type d -exec chmod ug=rwx,o=rx {} \; && \
-		find AspNetCore.ExistingDb/bin/Release/netcoreapp2.1/publish/ -type f -exec chmod ug=rw,o=r {} \; && \
-		chmod 777 shared
+    find AspNetCore.ExistingDb/bin/Release/netcoreapp2.1/publish/ -type f -exec chmod ug=rw,o=r {} \; && \
+    chmod 777 shared
 
 
 
-FROM microsoft/dotnet:2.1-aspnetcore-runtime-stretch-slim
+FROM microsoft/dotnet:2.1-aspnetcore-runtime-alpine
+RUN apk add --no-cache libuv #&& ln -s /usr/lib/libuv.so.1 /usr/lib/libuv.so
 WORKDIR /app
 COPY --from=build /build/AspNetCore.ExistingDb/bin/Release/netcoreapp2.1/publish/ /build/startApp.sh ./
 
 ENV TZ=Europe/Warsaw
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-ENV USER=www-data ASPNETCORE_URLS=http://+:5000
-RUN chown -R $USER:$USER .
+ENV USER=xfs ASPNETCORE_URLS=http://+:5000
+RUN    chown -R $USER:$USER .
 USER "$USER"
 
 VOLUME /shared

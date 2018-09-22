@@ -91,3 +91,21 @@ window.onerror = function (msg, url, line, col, error) {
 	// Internet Explorer) will be suppressed.
 	return suppressErrorAlert;
 };
+
+//
+// https://stackoverflow.com/a/2641047/4429828
+//
+$.fn.bindFirst = function (name, fn) {
+	// Bind as you normally would. Don't want to miss out on any jQuery magic
+	this.on(name, fn);
+
+	// Thanks to a comment by @@Martin, adding support for namespaced events too.
+	this.each(function () {
+		var handlers = $._data(this, 'events')[name.split('.')[0]];
+		//console.log(handlers);
+		// take out the handler we just inserted from the end
+		var handler = handlers.pop();
+		// move it at the beginning
+		handlers.splice(0, 0, handler);
+	});
+};

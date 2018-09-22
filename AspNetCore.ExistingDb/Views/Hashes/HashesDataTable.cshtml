@@ -2,15 +2,35 @@
 	ViewBag.Title = "Bootstrap Table hashes";
 }
 
-<div id="toolbar" class="btn-group">
-	<button id="btninfo" class="btn btn-default" type="button"><i class="glyphicon glyphicon-info-sign"></i>&nbsp;row info</button>
+<div id="toolbar">
+	<button id="btninfo" class="btn btn-default" type="button" data-toggle="modal" data-target="#exampleModal">&#9432;&nbsp;Row info</button>
 	&nbsp;&nbsp;<span id="spTimeToLoad"></span>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				...
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
 </div>
 
 <div class="container-fluid">
 	<table id="table"
 		   data-unique-id="Key"
-		   data-classes="table table-condensed table-hover table-striped"
+		   data-classes="table table-sm table-hover table-striped"
 		   data-toggle="table"
 		   data-side-pagination="server"
 		   data-url="Load"
@@ -19,11 +39,11 @@
 		   data-show-refresh="true"
 		   data-search="true"
 		   data-toolbar="#toolbar"
+		   data-icons-prefix="fa"
 		   data-page-size="10"
 		   data-page-list="[5,10,20,50,500,2000]">
 		<thead>
 			<tr>
-				@*<th data-field="ISO2" data-sortable="false" data-halign="center" data-align="center" data-formatter="flagFormatter">Flag</th>*@
 				<th data-field="Key" data-sortable="true" data-halign="center" data-align="center">Key</th>
 				<th data-field="HashMD5" data-sortable="true">HashMD5</th>
 				<th data-field="HashSHA256" data-sortable="true">HashSHA256</th>
@@ -33,20 +53,31 @@
 	</table>
 </div>
 
-<environment names="Development">
 @section headElements
 {
-	<link rel="stylesheet" href="~/css/bootstrap-table.css" />
+	<environment include="Development">
+		<link rel="stylesheet" href="~/css/bootstrap-table.css" />
+	</environment>
+	@*
+		<!-- production is automatically minified and merged into one file on deployment -->
+		<link rel="stylesheet" href="~/css/bootstrap-table.css" />
+	*@
+	<style type="text/css">
+		.fa-refresh:after {
+			content: '↻';
+			display: block;
+			font-style:normal;
+			font-weight:bold;
+		}
+	</style>
 }
-</environment>
-
 @section scripts
 {
-	<environment names="Development">
+	<environment include="Development">
 		<script src="~/lib/bootstrap-table/dist/bootstrap-table.js"></script>
 	</environment>
-	<environment names="Staging,Production">
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.11.1/bootstrap-table.min.js" integrity="sha256-eXHLyyVI+v6X1wbfg9NB05IWqOqY4E9185nHZgeDIhg=" crossorigin="anonymous"
+	<environment exclude="Development">
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.12.1/bootstrap-table.min.js" integrity="sha256-l+jZldmOASkIPelan4NKyAFD+oGNqPulrVQwsjxuCXc=" crossorigin="anonymous"
 				asp-fallback-src="~/lib/bootstrap-table/dist/bootstrap-table.min.js"
 				asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.bootstrapTable">
 		</script>
@@ -55,16 +86,19 @@
 	@await Html.PartialAsync("_CryptoJSScriptsPartial")
 
 	<script type="text/javascript">
+		var _startTime = null;
+		var _refreshClicked = "2";
 
 		function validateFormatter(value, row) {
 			return (row.HashMD5 == null || row.HashSHA256 == null) ? ''
-				: '<button class="btn btn-warning btn-xs" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>';
+				: '<button class="btn btn-success btn-sm" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>';
 		}
 
-		var _startTime = null;
 		function extraServerParams(params) {
 			_startTime = new Date().getTime();
-			params.ExtraParam = 2;
+			params.ExtraParam = _refreshClicked;
+			_refreshClicked = "2";
+			$('#spTimeToLoad').text('Loading...');
 			return params;
 		}
 
@@ -76,14 +110,22 @@
 		$(document).ready(function () {
 			var $table = $('#table');
 
-			$('#btninfo').click(function () {
+			$('#exampleModal').on('show.bs.modal', function (event) {
 				$tr = $table.find('tr.highlight');
 				var id = getId($tr);
-
 				var msg = (id === undefined) ? 'No row selected' : 'Country code : ' + id;
-				alert(msg);
-			});
+			  
+				var modal = $(this);
+				modal.find('.modal-body').text(msg);
+			})
 
+			$("button[name='refresh']").bindFirst('click', function (event) {
+				_refreshClicked = "1";
+			});
+			$table.on('refresh.bs.table', function (params) {
+				var opts = $table.bootstrapTable('getOptions');
+				params.ExtraParam = 1;
+			});
 			// register row-click event
 			$table.on('click-row.bs.table', function ($element, row, $tr) {
 				$tr.addClass('highlight').siblings().removeClass('highlight');

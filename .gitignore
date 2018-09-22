@@ -210,3 +210,4 @@ AspNetCore.ExistingDb/**/wwwroot/lib/
 /AspNetCore.ExistingDb/wwwroot/js/site.min.js
 docker-env.txt
 /AspNetCore.ExistingDb/package-lock.json
+/AspNetCore.ExistingDb/client_secrets.json

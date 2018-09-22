@@ -1,19 +1,15 @@
 ﻿using AspNetCore.ExistingDb.Repositories;
+using AspNetCore.ExistingDb.Services;
 using AspNetCore.ExistingDb.Tests;
-using EFGetStarted.AspNetCore.ExistingDb.Controllers;
 using EFGetStarted.AspNetCore.ExistingDb.Models;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -22,6 +18,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using WebControllers=EFGetStarted.AspNetCore.ExistingDb.Controllers;
 
 namespace Controllers
 {
@@ -74,8 +71,7 @@ namespace Controllers
 
 			mock.Setup(r => r.SetReadOnly(Moq.It.IsAny<bool>()));
 
-			mock.Setup(r => r.CalculateHashesInfo(Moq.It.IsAny<ILoggerFactory>(), Moq.It.IsAny<ILogger>(),
-				Moq.It.IsAny<IConfiguration>(), Moq.It.IsAny<DbContextOptions<BloggingContext>>()))
+			mock.Setup(r => r.CalculateHashesInfo(Moq.It.IsAny<ILogger>(), Moq.It.IsAny<DbContextOptions<BloggingContext>>(), default))
 				.Returns(() =>
 				{
 					return Task.FromResult(hi);
@@ -117,18 +113,18 @@ namespace Controllers
 				return Task.FromResult(0);
 			});
 
-			mock.Setup(r => r.SearchAsync(Moq.It.IsAny<string>(), Moq.It.IsAny<string>(), Moq.It.IsAny<string>(),
+			mock.Setup(r => r.PagedSearchAsync(Moq.It.IsAny<string>(), Moq.It.IsAny<string>(), Moq.It.IsAny<string>(),
 				Moq.It.IsAny<int>(), Moq.It.IsAny<int>(), Moq.It.IsAny<CancellationToken>()))
 				.Returns((string sort, string order, string search, int offset, int limit, CancellationToken token) =>
 				{
 					token.ThrowIfCancellationRequested();
 
-					var column_names = BaseController<ThinHashes>.AllColumnNames;
+					var column_names = WebControllers.BaseController<ThinHashes>.AllColumnNames;
 
-					IEnumerable<ThinHashes> items = BaseController<ThinHashes>.SearchItems(hashes.AsQueryable(), search, column_names);
+					IEnumerable<ThinHashes> items = WebControllers.BaseController<ThinHashes>.SearchItems(hashes.AsQueryable(), search, column_names);
 
 					(IEnumerable<ThinHashes> Itemz, int Count) tuple =
-						BaseController<ThinHashes>.ItemsToJson(items, sort, order, limit, offset);
+						WebControllers.BaseController<ThinHashes>.ItemsToJson(items, sort, order, limit, offset);
 
 					return Task.FromResult(tuple);
 				});
@@ -196,11 +192,89 @@ namespace Controllers
 			var cc = new ControllerContext(new ActionContext(httpContextMock.Object, new RouteData(), new ControllerActionDescriptor()));
 			return cc;
 		}
+
+		internal static Moq.Mock<IBackgroundTaskQueue> MockBackgroundTaskQueue(IHashesRepository repository)
+		{
+			// Arrange
+			var workItems = new System.Collections.Concurrent.ConcurrentQueue<IBaseBackgroundOperation>();
+			Moq.Mock<IBackgroundTaskQueue> back_tasks_mock = new Moq.Mock<IBackgroundTaskQueue>();
+			Moq.Mock<IBackgroundOperationService> serv_mock = new Moq.Mock<IBackgroundOperationService>();
+
+			serv_mock.Setup(r => r.StartAsync(Moq.It.IsAny<CancellationToken>()))
+				.Returns<CancellationToken>(async (token) =>
+				{
+					foreach (var wi in workItems)
+					{
+						switch (wi)
+						{
+							case CalculateHashesInfoBackgroundOperation calc_hash_op:
+								await repository.CalculateHashesInfo(null, null, default);
+								if (workItems.Contains(wi))
+								{
+									if (back_tasks_mock.Object != null && back_tasks_mock.Object is IBackgroundTaskQueue back_tasks)
+									{
+										var oper = await back_tasks.DequeueAsync(token);
+										//workItems.TryDequeue(out var dummy);
+									}
+								}
+								break;
+
+							case BeepBackgroundOperation beep:
+								await beep.DoWorkAsync(null, token);
+								break;
+
+							case DummyBackgroundOperation dummy:
+								await dummy.DoWorkAsync(null, token);
+								break;
+
+							case YouTubeUploadOperation youtube:
+								await youtube.DoWorkAsync(null, token);
+								break;
+
+							default:
+								throw new NotSupportedException();
+						}
+					}
+				});
+
+			serv_mock.Setup(r => r.StopAsync(Moq.It.IsAny<CancellationToken>()))
+				.Returns<CancellationToken>((token) => Task.CompletedTask);
+
+			// Arrange
+			var operation = new CalculateHashesInfoBackgroundOperation();
+
+			back_tasks_mock.Setup(r => r.QueueBackgroundWorkItem(Moq.It.IsAny<IBaseBackgroundOperation>()))
+				.Callback<IBaseBackgroundOperation>((oper) =>
+				{
+					workItems.Enqueue(oper);
+
+					serv_mock.Object.StartAsync(default);
+				});
+
+			back_tasks_mock.Setup(r => r.DequeueAsync(Moq.It.IsAny<CancellationToken>()))
+				.Returns<CancellationToken>((token) =>
+				{
+					if (workItems.TryDequeue(out var oper))
+						return Task.FromResult(oper);
+					else
+						return null;
+				});
+
+			return back_tasks_mock;
+		}
 	}
 
-	public class HashesControllerTests : BaseControllerTest
+	public class HashesController : BaseControllerTest
 	{
-		public HashesControllerTests() : base()
+		private ILogger<WebControllers.HashesController> Logger
+		{
+			get
+			{
+				return LoggerFactory.CreateLogger<WebControllers.HashesController>();
+			}
+		}
+
+		public HashesController() : base()
 		{
 			SetupServices();
 		}
@@ -211,16 +285,14 @@ namespace Controllers
 			// Arrange
 			Moq.Mock<IHashesRepository> mock = HashesHelpers.MockHashesRepository();
 			IHashesRepository repository = mock.Object;
-			var logger = LoggerFactory.CreateLogger<HashesController>();
+			Moq.Mock<IBackgroundTaskQueue> backgroundtaskqueue_mock = HashesHelpers.MockBackgroundTaskQueue(repository);
 
-
-			using (IHashesController controller = new HashesController(repository, LoggerFactory, Configuration))
+			using (var controller = new WebControllers.HashesController(repository, Logger, backgroundtaskqueue_mock.Object))
 			{
 				((Controller)controller).ControllerContext = HashesHelpers.MockContollerContext();
 
 				// Act
 				var result = await controller.Index();
-				//await repository.CalculateHashesInfo(LoggerFactory, logger, Configuration, new Moq.Mock<DbContextOptions<BloggingContext>>().Object);
 
 				// Assert
 				Assert.NotNull(result);
@@ -241,8 +313,10 @@ namespace Controllers
 			// Arrange
 			Moq.Mock<IHashesRepository> mock = HashesHelpers.MockHashesRepository();
 			IHashesRepository repository = mock.Object;
+			Moq.Mock<IBackgroundTaskQueue> backgroundtaskqueue_mock = HashesHelpers.MockBackgroundTaskQueue(repository);
 
-			using (IHashesController controller = new HashesController(repository, LoggerFactory, Configuration))
+
+			using (var controller = new WebControllers.HashesController(repository, Logger, backgroundtaskqueue_mock.Object))
 			{
 				// Act
 				var result = await controller.Search(new HashInput
@@ -280,8 +354,10 @@ namespace Controllers
 			// Arrange
 			Moq.Mock<IHashesRepository> mock = HashesHelpers.MockHashesRepository();
 			IHashesRepository repository = mock.Object;
+			Moq.Mock<IBackgroundTaskQueue> backgroundtaskqueue_mock = HashesHelpers.MockBackgroundTaskQueue(repository);
 
-			using (IHashesController controller = new HashesController(repository, LoggerFactory, Configuration))
+
+			using (var controller = new WebControllers.HashesController(repository, Logger, backgroundtaskqueue_mock.Object))
 			{
 				// Act
 				var result = await controller.Search(new HashInput
@@ -319,8 +395,10 @@ namespace Controllers
 			// Arrange
 			Moq.Mock<IHashesRepository> mock = HashesHelpers.MockHashesRepository();
 			IHashesRepository repository = mock.Object;
+			Moq.Mock<IBackgroundTaskQueue> backgroundtaskqueue_mock = HashesHelpers.MockBackgroundTaskQueue(repository);
 
-			using (IHashesController controller = new HashesController(repository, LoggerFactory, Configuration))
+
+			using (var controller = new WebControllers.HashesController(repository, Logger, backgroundtaskqueue_mock.Object))
 			{
 				// Act
 				((Controller)controller).ModelState.AddModelError("Hash lenght", "Hash lenght is bad");
@@ -335,7 +413,7 @@ namespace Controllers
 				Assert.IsType<string>(((JsonResult)result).Value);
 				Assert.Equal("error", ((JsonResult)result).Value);
 			}
-			using (IHashesController controller = new HashesController(repository, LoggerFactory, Configuration))
+			using (var controller = new WebControllers.HashesController(repository, Logger, backgroundtaskqueue_mock.Object))
 			{
 				// Act
 				((Controller)controller).ModelState.AddModelError("Hash lenght", "Hash lenght is bad");
@@ -350,7 +428,7 @@ namespace Controllers
 				Assert.IsType<string>(((JsonResult)result).Value);
 				Assert.Equal("error", ((JsonResult)result).Value);
 			}
-			using (IHashesController controller = new HashesController(repository, LoggerFactory, Configuration))
+			using (var controller = new WebControllers.HashesController(repository, Logger, backgroundtaskqueue_mock.Object))
 			{
 				// Act
 				((Controller)controller).ModelState.AddModelError("Hash lenght", "Hash lenght is bad");
@@ -365,7 +443,7 @@ namespace Controllers
 				Assert.IsType<string>(((JsonResult)result).Value);
 				Assert.Equal("error", ((JsonResult)result).Value);
 			}
-			using (IHashesController controller = new HashesController(repository, LoggerFactory, Configuration))
+			using (var controller = new WebControllers.HashesController(repository, Logger, backgroundtaskqueue_mock.Object))
 			{
 				// Act
 				((Controller)controller).ModelState.AddModelError("Hash lenght and type", "Hash lenght is bad and type is bad");
@@ -386,6 +464,8 @@ namespace Controllers
 			// Arrange
 			Moq.Mock<IHashesRepository> mock = HashesHelpers.MockHashesRepository();
 			IHashesRepository repository = mock.Object;
+			Moq.Mock<IBackgroundTaskQueue> backgroundtaskqueue_mock = HashesHelpers.MockBackgroundTaskQueue(repository);
+
 
 			await repository.AddRangeAsync(new[]
 			{
@@ -401,7 +481,7 @@ namespace Controllers
 				new ThinHashes { Key = "aaaaj", HashMD5 = "2f52f7168f84e23ea79b9c2ef8d67657", HashSHA256 = "c739af85522b45884bf66294b05fee2efbce602003657ecc4d3df82c9311629a" },
 			});
 
-			using (IHashesController controller = new HashesController(repository, LoggerFactory, Configuration))
+			using (var controller = new WebControllers.HashesController(repository, Logger, backgroundtaskqueue_mock.Object))
 			{
 				// Act
 				var result = await controller.Autocomplete("ilfad", true);
@@ -483,8 +563,10 @@ namespace Controllers
 			// Arrange
 			Moq.Mock<IHashesRepository> mock = HashesHelpers.MockHashesRepository();
 			IHashesRepository repository = mock.Object;
+			Moq.Mock<IBackgroundTaskQueue> backgroundtaskqueue_mock = HashesHelpers.MockBackgroundTaskQueue(repository);
 
-			using (IHashesController controller = new HashesController(repository, LoggerFactory, Configuration))
+
+			using (var controller = new WebControllers.HashesController(repository, Logger, backgroundtaskqueue_mock.Object))
 			{
 				// Act
 				((Controller)controller).ModelState.AddModelError("empty search", "you must specify search keyword");
@@ -500,6 +582,14 @@ namespace Controllers
 
 	public class HashesDataTableController : BaseControllerTest
 	{
+		private ILogger<WebControllers.HashesDataTableController> Logger
+		{
+			get
+			{
+				return LoggerFactory.CreateLogger<WebControllers.HashesDataTableController>();
+			}
+		}
+
 		public HashesDataTableController() : base()
 		{
 			SetupServices();
@@ -511,9 +601,9 @@ namespace Controllers
 			// Arrange
 			Moq.Mock<IHashesRepository> mock = HashesHelpers.MockHashesRepository();
 			IHashesRepository repository = mock.Object;
-			var logger = LoggerFactory.CreateLogger<EFGetStarted.AspNetCore.ExistingDb.Controllers.HashesDataTableController>();
 
-			using (IHashesDataTableController controller = new EFGetStarted.AspNetCore.ExistingDb.Controllers.HashesDataTableController(repository, logger))
+
+			using (var controller = new WebControllers.HashesDataTableController(repository, Logger))
 			{
 				// Act
 				var result = controller.Index();
@@ -531,7 +621,6 @@ namespace Controllers
 			// Arrange
 			Moq.Mock<IHashesRepository> mock = HashesHelpers.MockHashesRepository();
 			IHashesRepository repository = mock.Object;
-			var logger = LoggerFactory.CreateLogger<EFGetStarted.AspNetCore.ExistingDb.Controllers.HashesDataTableController>();
 
 			await repository.AddRangeAsync(new[]
 			{
@@ -550,7 +639,7 @@ namespace Controllers
 				new ThinHashes { Key = "aaaad", HashMD5 = "fba2fdaf36fdf1931d552535a57eb984", HashSHA256 = "d0977789a5e2f79fdfbb4b1dbb342d90c88eeae3d3c68297a3a3027c859af2ee" },
 			});
 
-			using (IHashesDataTableController controller = new EFGetStarted.AspNetCore.ExistingDb.Controllers.HashesDataTableController(repository, logger))
+			using (var controller = new WebControllers.HashesDataTableController(repository, Logger))
 			{
 				((Controller)controller).ControllerContext = HashesHelpers.MockContollerContext();
 
@@ -641,9 +730,8 @@ namespace Controllers
 			// Arrange
 			Moq.Mock<IHashesRepository> mock = HashesHelpers.MockHashesRepository();
 			IHashesRepository repository = mock.Object;
-			var logger = LoggerFactory.CreateLogger<EFGetStarted.AspNetCore.ExistingDb.Controllers.HashesDataTableController>();
 
-			using (IHashesDataTableController controller = new EFGetStarted.AspNetCore.ExistingDb.Controllers.HashesDataTableController(repository, logger))
+			using (var controller = new WebControllers.HashesDataTableController(repository, Logger))
 			{
 				((Controller)controller).ControllerContext = HashesHelpers.MockContollerContext();
 				((Controller)controller).HttpContext.RequestAborted = new CancellationToken(true);
@@ -662,9 +750,8 @@ namespace Controllers
 			// Arrange
 			Moq.Mock<IHashesRepository> mock = HashesHelpers.MockHashesRepository();
 			IHashesRepository repository = mock.Object;
-			var logger = LoggerFactory.CreateLogger<EFGetStarted.AspNetCore.ExistingDb.Controllers.HashesDataTableController>();
 
-			using (IHashesDataTableController controller = new EFGetStarted.AspNetCore.ExistingDb.Controllers.HashesDataTableController(repository, logger))
+			using (var controller = new WebControllers.HashesDataTableController(repository, Logger))
 			{
 				((Controller)controller).ControllerContext = HashesHelpers.MockContollerContext();
 

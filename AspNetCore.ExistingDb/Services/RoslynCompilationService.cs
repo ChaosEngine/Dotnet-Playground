@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Razor.Internal;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Mvc.Razor.Extensions;
+using Microsoft.AspNetCore.Razor.Language;
 
 namespace EFGetStarted.AspNetCore.ExistingDb
 {
@@ -124,6 +126,23 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			}
 
 			return references;
+		}
+	}
+
+	public class CustomTemplateEngine : MvcRazorTemplateEngine
+	{
+		public CustomTemplateEngine(RazorEngine engine, RazorProject project) : base(engine, project)
+		{
+		}
+
+		public override RazorCSharpDocument GenerateCode(RazorCodeDocument codeDocument)
+		{
+			var csharpDocument = base.GenerateCode(codeDocument);
+			var generatedCode = csharpDocument.GeneratedCode;
+
+			// Look at generatedCode
+
+			return csharpDocument;
 		}
 	}
 #endif

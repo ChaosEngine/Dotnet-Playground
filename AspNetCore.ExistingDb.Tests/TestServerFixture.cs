@@ -1,8 +1,12 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
+﻿using AspNetCore.ExistingDb.Repositories;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.IO;
 using System.Linq;
@@ -22,7 +26,13 @@ namespace Integration
 
 		public HttpClient Client { get; }
 
-		public string DBKind { get; }
+		internal string DBKind { get; }
+
+		internal string ImageDirectory { get; }
+
+		internal string LiveWebCamURL { get; }
+
+		internal bool DOTNET_RUNNING_IN_CONTAINER { get; }
 
 		public TestServerFixture() : this(//"AspNetCore.ExistingDb"
 			null)
@@ -38,20 +48,34 @@ namespace Integration
 
 			var builder = new WebHostBuilder()
 				.UseContentRoot(contentRoot)
-				//.ConfigureServices(InitializeServices)
+				.ConfigureServices(InitializeServices)
 				.UseEnvironment("Development")
 				.UseStartup(typeof(TStartup))
-				.UseApplicationInsights();
+				//.UseApplicationInsights()
+				;
 
 			_server = new TestServer(builder);
 
 			Client = _server.CreateClient();
 			Client.BaseAddress = new Uri("http://localhost");
 
-			DBKind = (_server.Host.Services.GetService(typeof(IConfiguration)) as IConfiguration)?["DBKind"];
+			var configuration = _server.Host.Services.GetService(typeof(IConfiguration)) as IConfiguration;
+			DBKind = configuration?["DBKind"];
+			ImageDirectory = configuration?["ImageDirectory"];
+			LiveWebCamURL = configuration?["LiveWebCamURL"];
+
+			string temp = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER");
+			DOTNET_RUNNING_IN_CONTAINER = !string.IsNullOrEmpty(temp) && temp.Equals(true.ToString(), StringComparison.InvariantCultureIgnoreCase);
+			//Console.WriteLine($"### temp = {temp}, DOTNET_RUNNING_IN_CONTAINER = {DOTNET_RUNNING_IN_CONTAINER}");
+
+			var db = _server.Host.Services.GetRequiredService<EFGetStarted.AspNetCore.ExistingDb.Models.BloggingContext>();
+			if (DBKind.Equals("sqlite",StringComparison.InvariantCultureIgnoreCase))
+				db.Database.Migrate();
+			else
+				db.Database.EnsureCreated();
 		}
 
-		/*protected virtual void InitializeServices(IServiceCollection services)
+		protected virtual void InitializeServices(IServiceCollection services)
 		{
 			var startupAssembly = typeof(TStartup).GetTypeInfo().Assembly;
 
@@ -63,7 +87,7 @@ namespace Integration
 			manager.FeatureProviders.Add(new ViewComponentFeatureProvider());
 
 			services.AddSingleton(manager);
-		}*/
+		}
 
 		/// <summary>
 		/// Gets the full path to the target project that we wish to test
