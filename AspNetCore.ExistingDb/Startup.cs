@@ -15,6 +15,8 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using InkBall.Module;
+using Microsoft.AspNetCore.Mvc;
 
 //[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
 
@@ -145,6 +147,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			services.AddTransient<MjpgStreamerHttpClientHandler>()
 				.AddHttpClient<IMjpgStreamerHttpClient, MjpgStreamerHttpClient>()
 				.ConfigurePrimaryHttpMessageHandler<MjpgStreamerHttpClientHandler>();
+			services.AddCommonUI();
 		}
 
 		// This method gets called by the runtime. Use this method to add services to the container.
@@ -167,7 +170,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			});
 
 			// Add framework services.
-			services.AddMvc();
+			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
 			var keys_directory = Configuration["SharedKeysDirectory"]?.Replace('/', Path.DirectorySeparatorChar)?.Replace('\\', Path.DirectorySeparatorChar);
 			if (!string.IsNullOrEmpty(keys_directory) && Directory.Exists(keys_directory))
