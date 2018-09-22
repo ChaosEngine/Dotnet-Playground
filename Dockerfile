@@ -31,5 +31,5 @@ USER "$USER"
 VOLUME /shared
 EXPOSE 5000
 
-ENTRYPOINT ["./startApp.sh"]
-
+#ENTRYPOINT ["./startApp.sh"]
+ENTRYPOINT ["dotnet", "AspNetCore.ExistingDb.dll"]

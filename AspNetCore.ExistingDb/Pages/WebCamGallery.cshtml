@@ -17,7 +17,7 @@
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/blueimp-gallery@2.33.0/css/blueimp-gallery.min.css" integrity="sha256-Y0i7rzAjNSxOrq/x6gK6k0OeK1V2WNWwjh0/l+KapNk=" crossorigin="anonymous"
 			  asp-fallback-href="~/lib/blueimp-gallery/css/blueimp-gallery.min.css"
 			  asp-fallback-test-class="blueimp-gallery" asp-fallback-test-property="position" asp-fallback-test-value="fixed" />
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/video.js@7.0.5/dist/video-js.min.css" integrity="sha256-V6DHTwYvoVIEckEnXnIHN9DWMJYSs8SBzO5vIJQrVXY=" crossorigin="anonymous"
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/video.js@7.2.2/dist/video-js.min.css" integrity="sha256-fRRh8wAHObBnLKwq1LdT6o4jjc68e01Sd+nZtUEWDjI=" crossorigin="anonymous"
 			  asp-fallback-href="~/lib/video.js/dist/video-js.min.css"
 			  asp-fallback-test-class="video-js" asp-fallback-test-property="position" asp-fallback-test-value="relative" />
 	</environment>
@@ -49,59 +49,91 @@
 	</style>
 }
 
+<!-- Nav tabs -->
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+	@{
+		if (!string.IsNullOrEmpty(Model.LiveWebCamURL))
+		{
+			<li class="nav-item">
+				<a class="nav-link active" data-toggle="tab" href="#live-tab" role="tab" aria-controls="live-tab" aria-selected="true">Live</a>
+			</li>
+		}
+		if (!string.IsNullOrEmpty(Model.BaseWebCamURL))
+		{
+			<li class="nav-item">
+				<a class="nav-link" data-toggle="tab" href="#video-tab" role="tab" aria-controls="video-tab" aria-selected="false">Daily video</a>
+			</li>
+		}
+		if (Model.ThumbnailJpgs != null)
+		{
+			<li class="nav-item">
+				<a class="nav-link" data-toggle="tab" href="#gallery-tab" role="tab" aria-controls="gallery-tab" aria-selected="false">Gallery</a>
+			</li>
+		}
+	}
+</ul>
+
+<div class="tab-content">
 @{
 	if (!string.IsNullOrEmpty(Model.LiveWebCamURL))
 	{
-		<a onclick="RefreshLiveImage()" title='live'>
-			<img id='live' alt='live' class="img-fluid" src="~/WebCamImages/?handler=live" data-last-modified="" />
-		</a>
+  		<div class="tab-pane active" id="live-tab" role="tabpanel" aria-labelledby="live-tab">
+			<a onclick="RefreshLiveImage()" title='live'>
+				<img id='live' alt='live' class="img-fluid" src="~/WebCamImages/?handler=live" data-last-modified="" />
+			</a>
+		</div>
 	}
 	if (!string.IsNullOrEmpty(Model.BaseWebCamURL))
 	{
-		<!-- Begin VideoJS -->
-		<div class="video-js-box">
-			<video id="example_video_1" width="1280" height="960" class="video-js vjs-default-skin vjs-4-3 vjs-fluid vjs-big-play-centered" controls preload="auto" poster="@Model.BaseWebCamURL/poster.jpeg" data-setup="{}">
-				<source src="@Model.BaseWebCamURL/video.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"' />
-				<source src="@Model.BaseWebCamURL/video.webm" type='video/webm; codecs="vp8, vorbis"' />
-			</video>
+  		<div class="tab-pane" id="video-tab" role="tabpanel" aria-labelledby="video-tab">
+			<!-- Begin VideoJS -->
+			<div class="video-js-box">
+				<video id="example_video_1" width="1280" height="960" class="video-js vjs-default-skin vjs-4-3 vjs-fluid vjs-big-play-centered" controls preload="auto" poster="@Model.BaseWebCamURL/poster.jpeg" data-setup="{}">
+					<source src="@Model.BaseWebCamURL/video.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"' />
+					<source src="@Model.BaseWebCamURL/video.webm" type='video/webm; codecs="vp8, vorbis"' />
+				</video>
+			</div>
+			<!-- End VideoJS -->
 		</div>
-		<!-- End VideoJS -->
 	}
 
 	if (Model.ThumbnailJpgs != null)
 	{
-		<button id="btnReplAllImg" type="button" class="btn btn-primary" value="strng" title="Load all images">Load all</button>
-		@:<div id="links">
-		int i = 0;
-		foreach (var jpg in Model.ThumbnailJpgs)
-		{
-			var thumbnail = jpg.Name;
-			var full = thumbnail.Replace("thumbnail", "out");
-			if (i++ < 7)
+		@:<div class="tab-pane" id="gallery-tab" role="tabpanel" aria-labelledby="gallery-tab">
+			<button id="btnReplAllImg" type="button" class="btn btn-primary" value="strng" title="Load all images">Load all</button>
+			@:<div id="links">
+			int i = 0;
+			foreach (var jpg in Model.ThumbnailJpgs)
 			{
-				<a href="~/WebCamImages/@full" title="@jpg.LastWriteTime">
-					<img src="~/WebCamImages/@thumbnail" alt="@thumbnail" class='active' onmouseover='ReplImg(this);' />
-				</a>
+				var thumbnail = jpg.Name;
+				var full = thumbnail.Replace("thumbnail", "out");
+				if (i++ < 7)
+				{
+					<a href="~/WebCamImages/@full" title="@jpg.LastWriteTime">
+						<img src="~/WebCamImages/@thumbnail" alt="@thumbnail" class='active' onmouseover='ReplImg(this);' />
+					</a>
+				}
+				else
+				{
+					<a href="~/WebCamImages/@full" title="@jpg.LastWriteTime">
+						<img alt='no img' class='inactive' onmouseover='ReplImg(this);' />
+					</a>
+				}
 			}
-			else
-			{
-				<a href="~/WebCamImages/@full" title="@jpg.LastWriteTime">
-					<img alt='no img' class='inactive' onmouseover='ReplImg(this);' />
-				</a>
-			}
-		}
+			@:</div>
+			<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">
+				<div class="slides"></div>
+				<h3 class="title"></h3>
+				<a class="prev">‹</a>
+				<a class="next">›</a>
+				<a class="close">×</a>
+				<a class="play-pause"></a>
+				<ol class="indicator"></ol>
+			</div>
 		@:</div>
-		<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">
-			<div class="slides"></div>
-			<h3 class="title"></h3>
-			<a class="prev">‹</a>
-			<a class="next">›</a>
-			<a class="close">×</a>
-			<a class="play-pause"></a>
-			<ol class="indicator"></ol>
-		</div>
 	}
 }
+</div>
 
 @section Scripts
 {
@@ -113,7 +145,7 @@
 		<script src="https://cdn.jsdelivr.net/npm/blueimp-gallery@2.33.0/js/blueimp-gallery.min.js" integrity="sha256-ZbBVsWhU9YSV3AZky7xcIVDC4to1i3hUBLmOZ5JkMbQ=" crossorigin="anonymous"
 				asp-fallback-src="~/lib/blueimp-gallery/js/blueimp-gallery.min.js"
 				asp-fallback-test="window.jQuery && window.blueimp"></script>
-		<script src="https://cdn.jsdelivr.net/npm/video.js@7.0.5/dist/video.min.js" integrity="sha256-m/9LXrATPmrFPoi/sfeUpug10+/7X6a1K/sZiclo6/w=" crossorigin="anonymous"
+		<script src="https://cdn.jsdelivr.net/npm/video.js@7.2.2/dist/video.min.js" integrity="sha256-nOalGlHM44TEt3NjBs0jMq09S4FiMZVNqy4etDo+cUE=" crossorigin="anonymous"
 				asp-fallback-src="~/lib/video.js/dist/video.min.js"
 				asp-fallback-test="window.jQuery && videojs.options"></script>
 	</environment>

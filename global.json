@@ -1,6 +1,6 @@
 {
 	"projects": [ "AspNetCore.ExistingDb", "AspNetCore.ExistingDb.Tests", "Caching-MySQL" ],
 	"sdk": {
-		"version": "2.1.300"
+		"version": "2.1.401"
 	}
 }

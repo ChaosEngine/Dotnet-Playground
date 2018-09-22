@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.FileProviders.Physical;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using System;
@@ -16,7 +17,8 @@ namespace AspNetCore.ExistingDb.Services
 	{
 		private readonly string _filterGlobb, _directoryToWatch;
 		private readonly TimeSpan? _initialDelay;
-		private readonly Func<int, string, string, bool> _onChangeFunction;
+		private readonly Func<int, string, string, int> _onChangeFunction;
+		private readonly int? _failRetryCount;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="FileWatcherBackgroundOperation" /> class.
@@ -25,13 +27,15 @@ namespace AspNetCore.ExistingDb.Services
 		/// <param name="filterGlobing">The filter globing.</param>
 		/// <param name="initialDelay">The initial delay.</param>
 		/// <param name="onChangeFunction">The on change function.</param>
+		/// <param name="failRetryCount">The fail retry count.</param>
 		public FileWatcherBackgroundOperation(string directoryToWatch, string filterGlobing, TimeSpan? initialDelay,
-			Func<int, string, string, bool> onChangeFunction)
+			Func<int, string, string, int> onChangeFunction, int? failRetryCount = null)
 		{
 			_directoryToWatch = directoryToWatch;
 			_filterGlobb = filterGlobing;
 			_initialDelay = initialDelay;
 			_onChangeFunction = onChangeFunction;
+			_failRetryCount = failRetryCount;
 		}
 
 		/// <summary>
@@ -43,7 +47,7 @@ namespace AspNetCore.ExistingDb.Services
 		public async override Task DoWorkAsync(IServiceProvider services, CancellationToken cancellation)
 		{
 			if (_initialDelay.HasValue)
-				await Task.Delay(_initialDelay.Value);
+				await Task.Delay(_initialDelay.Value, cancellation);
 
 			using (var scope = services.CreateScope())
 			{
@@ -57,8 +61,8 @@ namespace AspNetCore.ExistingDb.Services
 				PhysicalFileProvider fileProvider = null;
 				try
 				{
-					fileProvider = new PhysicalFileProvider(_directoryToWatch);
-					logger.LogInformation("Starting to watch for '{0}' inside '{1}'", _filterGlobb, _directoryToWatch);
+					fileProvider = new PhysicalFileProvider(_directoryToWatch, ExclusionFilters.Sensitive);
+					logger.LogInformation("Starting to watch for '{filterGlobb}' inside '{directoryToWatch}'", _filterGlobb, _directoryToWatch);
 
 					int counter = 0;
 					while (!cancellation.IsCancellationRequested)
@@ -67,25 +71,35 @@ namespace AspNetCore.ExistingDb.Services
 						if (change_token == null) break;
 
 						var tcs = new TaskCompletionSource<int>();
-						IDisposable callback = null;
+						(IDisposable change, IDisposable cancel) regs = (null, null);
 						try
 						{
-							cancellation.Register((token) =>
+							regs.cancel = cancellation.Register((token) =>
 							{
-								tcs?.TrySetCanceled((CancellationToken)token);
+								tcs.TrySetCanceled((CancellationToken)token);
 							}, cancellation, false);
 
-							callback = change_token.RegisterChangeCallback(state =>
+							regs.change = change_token.RegisterChangeCallback(async state =>
 							{
 								counter++;
-								logger.LogInformation("'{0}' changed {1} of times", _filterGlobb, counter);
+								int? result;
+								int fail_count = _failRetryCount.GetValueOrDefault(1);
+								do
+								{
+									result = _onChangeFunction?.Invoke(counter, _directoryToWatch, _filterGlobb);
+									logger.LogInformation("'{filterGlobb}' changed {counter} of times, scheduled action with {result}", _filterGlobb,
+										counter, result.GetValueOrDefault(-1));
 
-								_onChangeFunction?.Invoke(counter, _directoryToWatch, _filterGlobb);
+									await Task.Delay((_failRetryCount.GetValueOrDefault(1) - fail_count) << 9, cancellation);
+								}
+								while (--fail_count > 0 && result.GetValueOrDefault(-1) != 0);
 
 								((TaskCompletionSource<int>)state).TrySetResult(counter);
 							}, tcs);
 
-							await tcs.Task.ConfigureAwait(false);
+							var cntr = await tcs.Task.ConfigureAwait(false);
+
+							await Task.Delay(250, cancellation);
 						}
 						catch (TaskCanceledException ex)
 						{
@@ -93,10 +107,9 @@ namespace AspNetCore.ExistingDb.Services
 						}
 						finally
 						{
-							callback?.Dispose(); callback = null;
+							regs.change?.Dispose(); regs.change = null;
+							regs.cancel?.Dispose(); regs.cancel = null;
 						}
-
-						await Task.Delay(500);
 					}
 				}
 				catch (Exception)

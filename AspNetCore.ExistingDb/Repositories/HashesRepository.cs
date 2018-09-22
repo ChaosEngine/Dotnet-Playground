@@ -1,6 +1,7 @@
 ﻿using AspNetCore.ExistingDb.Helpers;
 using AspNetCore.ExistingDb.Services;
 using EFGetStarted.AspNetCore.ExistingDb.Models;
+using Lib.AspNetCore.ServerTiming;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
@@ -13,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -62,6 +64,8 @@ namespace AspNetCore.ExistingDb.Repositories
 		private readonly IConfiguration _configuration;
 		private readonly IMemoryCache _memoryCache;
 		private readonly ILogger<HashesRepository> _logger;
+		private readonly IServerTiming _serverTiming;
+		public Stopwatch Watch { get; private set; }
 
 		private static IEnumerable<String> PostgresAllColumnNames
 		{
@@ -113,11 +117,16 @@ namespace AspNetCore.ExistingDb.Repositories
 		/// </summary>
 		/// <param name="context">The context.</param>
 		/// <param name="configuration">The configuration.</param>
-		public HashesRepository(BloggingContext context, IConfiguration configuration, IMemoryCache memoryCache, ILogger<HashesRepository> logger) : base(context)
+		public HashesRepository(BloggingContext context, IConfiguration configuration, IMemoryCache memoryCache,
+			ILogger<HashesRepository> logger, IServerTiming serverTiming) : base(context)
 		{
 			_configuration = configuration;
 			_memoryCache = memoryCache;
 			_logger = logger;
+			_serverTiming = serverTiming;
+
+			Watch = new Stopwatch();
+			Watch.Start();
 		}
 
 		public void SetReadOnly(bool value)
@@ -132,6 +141,9 @@ namespace AspNetCore.ExistingDb.Repositories
 		/// <returns></returns>
 		public async Task<IEnumerable<ThinHashes>> AutoComplete(string text)
 		{
+			_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("ctor", Watch.ElapsedMilliseconds,
+				"from ctor till AutoComplete"));
+
 			text = $"{text.Trim().ToLower()}%";
 			Task<List<ThinHashes>> found = null;
 
@@ -176,6 +188,8 @@ namespace AspNetCore.ExistingDb.Repositories
 					throw new NotSupportedException($"Bad {nameof(BloggingContext.ConnectionTypeName)} name");
 			}
 
+			_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("READY",
+				Watch.ElapsedMilliseconds, "AutoComplete ready"));
 			return (await found).DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
 		}
 
@@ -342,7 +356,7 @@ FETCH NEXT @limit ROWS ONLY
 					int offset, int limit, CancellationToken token)
 		{
 			string col_names = string.Join("`,`", AllColumnNames);
-			string sql =// "SET SESSION SQL_BIG_SELECTS=1;" +
+			string sql = "SET SESSION SQL_BIG_SELECTS=1;" +
 (string.IsNullOrEmpty(searchText) ?
 @"
 SELECT count(*) cnt FROM Hashes"
@@ -694,6 +708,9 @@ LIMIT @limit OFFSET @offset
 		public async Task<(IEnumerable<ThinHashes> Itemz, int Count)> PagedSearchAsync(string sortColumn, string sortOrderDirection, string searchText,
 			int offset, int limit, CancellationToken token)
 		{
+			_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("ctor", Watch.ElapsedMilliseconds,
+				"from ctor till PagedSearchAsync"));
+
 			if (!string.IsNullOrEmpty(sortColumn) && !AllColumnNames.Contains(sortColumn))
 			{
 				throw new ArgumentException("bad sort column");
@@ -724,29 +741,51 @@ LIMIT @limit OFFSET @offset
 			{
 				var hashes = _entities.ThinHashes.AsNoTracking();
 				_entities.Database.SetCommandTimeout(240);
-				if (!string.IsNullOrEmpty(searchText))
-				{
-					//students = students.Where(s =>
-					//	s.Key.StartsWith(searchText) || s.HashMD5.StartsWith(searchText) || s.HashSHA256.StartsWith(searchText));
-					searchText = searchText + '%';
-					hashes = hashes.Where(s =>
-						EF.Functions.Like(s.Key, searchText) ||
-						EF.Functions.Like(s.HashMD5, searchText) ||
-						EF.Functions.Like(s.HashSHA256, searchText)
-						);
-				}
 
-				if (!string.IsNullOrEmpty(sortColumn))
+				Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction trans = null;
+				try
 				{
-					bool descending = sortOrderDirection.EndsWith("desc", StringComparison.InvariantCultureIgnoreCase);
+					if (_entities.ConnectionTypeName == "mysqlconnection")
+					{
+						trans = await _entities.Database.BeginTransactionAsync(IsolationLevel.ReadUncommitted, token);
+						await _entities.Database.ExecuteSqlCommandAsync("SET SESSION SQL_BIG_SELECTS=1;", token);
+					}
 
-					if (descending)
-						hashes = hashes.OrderByDescending(s => EF.Property<ThinHashes>(s, sortColumn));
-					else
-						hashes = hashes.OrderBy(s => EF.Property<ThinHashes>(s, sortColumn));
+					if (!string.IsNullOrEmpty(searchText))
+					{
+						//students = students.Where(s =>
+						//	s.Key.StartsWith(searchText) || s.HashMD5.StartsWith(searchText) || s.HashSHA256.StartsWith(searchText));
+						searchText = searchText + '%';
+						hashes = hashes.Where(s =>
+							EF.Functions.Like(s.Key, searchText) ||
+							EF.Functions.Like(s.HashMD5, searchText) ||
+							EF.Functions.Like(s.HashSHA256, searchText)
+							);
+					}
+
+					if (!string.IsNullOrEmpty(sortColumn))
+					{
+						bool descending = sortOrderDirection.EndsWith("desc", StringComparison.InvariantCultureIgnoreCase);
+
+						if (descending)
+							hashes = hashes.OrderByDescending(s => EF.Property<ThinHashes>(s, sortColumn));
+						else
+							hashes = hashes.OrderBy(s => EF.Property<ThinHashes>(s, sortColumn));
+					}
+					var found = await PaginatedList<ThinHashes>.CreateAsync(hashes, offset, limit, token);
+
+					_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("READY",
+						Watch.ElapsedMilliseconds, "PagedSearchAsync ready"));
+					return (found, found.FoundCount);
 				}
-				var found = await PaginatedList<ThinHashes>.CreateAsync(hashes, offset, limit, token);
-				return (found, found.FoundCount);
+				finally
+				{
+					if (_entities.ConnectionTypeName == "mysqlconnection")
+					{
+						trans.Commit();
+						trans.Dispose();
+					}
+				}
 			}
 		}
 
@@ -766,7 +805,7 @@ LIMIT @limit OFFSET @offset
 			{
 				db.Database.SetCommandTimeout(180);//long long running. timeouts prevention
 												   //in sqlite only serializable - https://sqlite.org/isolation.html
-				var isolation_level = db.ConnectionTypeName == "sqliteconnection" ? IsolationLevel.Serializable : IsolationLevel.ReadUncommitted;
+				IsolationLevel isolation_level = db.ConnectionTypeName == "sqliteconnection" ? IsolationLevel.Serializable : IsolationLevel.ReadUncommitted;
 				using (var trans = await db.Database.BeginTransactionAsync(isolation_level, token))//needed, other web nodes will read saved-caculating-state and exit thread
 				{
 					try
@@ -781,6 +820,8 @@ LIMIT @limit OFFSET @offset
 
 						hi = new HashesInfo { ID = 0, IsCalculating = true };
 
+						if (db.ConnectionTypeName == "mysqlconnection")
+							await db.Database.ExecuteSqlCommandAsync("SET SQL_BIG_SELECTS=1", token);
 						await db.HashesInfo.AddAsync(hi, token);
 						await db.SaveChangesAsync(true, token);
 						//temporary save to static to indicate calculation and block new calcultion threads
@@ -834,6 +875,9 @@ LIMIT @limit OFFSET @offset
 		/// <returns></returns>
 		public async Task<ThinHashes> SearchAsync(HashInput hi)
 		{
+			_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("ctor",
+				Watch.ElapsedMilliseconds, "from ctor till SearchAsync"));
+
 			ThinHashes found;
 			switch (_entities.ConnectionTypeName)
 			{
@@ -883,6 +927,8 @@ LIMIT @limit OFFSET @offset
 					throw new NotSupportedException($"Bad {nameof(BloggingContext.ConnectionTypeName)} name");
 			}
 
+			_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("READY",
+						Watch.ElapsedMilliseconds, "SearchAsync ready"));
 			return found;
 		}
 	}
