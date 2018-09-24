@@ -30,7 +30,7 @@
 		<PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="2.1.2" />
 		<PackageReference Include="Lib.AspNetCore.ServerTiming" Version="2.1.0" />
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.1.1" />
-		<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.0.0" />
+		<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.1.0" />
 		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.35.2.1226" />
 		<PackageReference Include="RedHat.AspNetCore.Server.Kestrel.Transport.Linux" Version="2.1.0-preview1" />
 	</ItemGroup>

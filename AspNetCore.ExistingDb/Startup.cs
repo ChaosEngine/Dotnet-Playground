@@ -193,13 +193,12 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		{
 			loggerFactory.AddConsole(Configuration.GetSection("Logging"));
 
-			// app.UsePathBase("/foo");
+			// app.UsePathBase("/dotnet");
 			app.Use((context, next) =>
 			{
-				PathString matchedPath, remainingPath;
-
 				context.Request.Scheme = "https";
-				if (context.Request.Path.StartsWithSegments("/dotnet", out matchedPath, out remainingPath))
+				if (context.Request.Path.StartsWithSegments("/dotnet",
+					out PathString matchedPath, out PathString remainingPath))
 				{
 					var originalPath = context.Request.Path;
 					var originalPathBase = context.Request.PathBase;

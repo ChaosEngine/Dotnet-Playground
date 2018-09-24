@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pomelo.Extensions.Caching.M
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.ExistingDb.Tests", "AspNetCore.ExistingDb.Tests\AspNetCore.ExistingDb.Tests.csproj", "{95B7C8A0-B6BA-415F-AC9F-B8E342FFB677}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InkBall.Module", "InkBall\src\InkBall.Module\InkBall.Module.csproj", "{506E23A6-9925-4E5F-869B-74FFA28E2F7C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{95B7C8A0-B6BA-415F-AC9F-B8E342FFB677}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{95B7C8A0-B6BA-415F-AC9F-B8E342FFB677}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{95B7C8A0-B6BA-415F-AC9F-B8E342FFB677}.Release|Any CPU.Build.0 = Release|Any CPU
+		{506E23A6-9925-4E5F-869B-74FFA28E2F7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{506E23A6-9925-4E5F-869B-74FFA28E2F7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{506E23A6-9925-4E5F-869B-74FFA28E2F7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{506E23A6-9925-4E5F-869B-74FFA28E2F7C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
