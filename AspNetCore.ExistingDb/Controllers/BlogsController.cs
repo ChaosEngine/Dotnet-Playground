@@ -99,7 +99,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 				return result;
 			else
 			{
-				var appRootPath = (base.Request?.PathBase ?? "") + '/';//_configuration.AppRootPath();
+				var appRootPath = _configuration.AppRootPath();
 				var destination_url = appRootPath + ASPX;
 				return Redirect(destination_url);
 			}
@@ -165,7 +165,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 			if (ModelState.IsValid)
 			{
-				var appRootPath = (base.Request?.PathBase ?? "") + '/';//_configuration.AppRootPath();
+				var appRootPath = _configuration.AppRootPath();
 
 				await _repo.AddAsync(blog);
 				await _repo.SaveAsync();

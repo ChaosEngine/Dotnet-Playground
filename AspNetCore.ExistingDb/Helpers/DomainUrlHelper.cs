@@ -8,7 +8,44 @@ using System.Threading.Tasks;
 
 namespace EFGetStarted.AspNetCore.ExistingDb
 {
-	/*public class DomainUrlHelperFactory : IUrlHelperFactory
+	/*[HtmlTargetElement(_tag)]
+	[HtmlTargetElement(Attributes = _attribute)]
+	public class DomainLinkTagHelper : TagHelper
+	{
+		private const string _tag = "domain-link", _attribute = "href";
+		private readonly string _domain;
+
+		public DomainLinkTagHelper(IConfiguration configuration)
+		{
+			_domain = configuration.AppRootPath();
+		}
+
+		public override Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
+		{
+			if (context.TagName == _tag)
+			{
+				output.TagName = "a";
+			}
+
+			var src = output.Attributes.FirstOrDefault(a => a.Name == _attribute);
+			if (src != null)
+			{
+				var attr_value = src.Value.ToString();
+
+				if (!attr_value.StartsWith(_domain) &&
+					!attr_value.StartsWith("mailto:") &&
+					!attr_value.StartsWith("http"))
+				{
+					output.Attributes.RemoveAll(_attribute);
+					output.Attributes.Add(_attribute, _domain + src.Value);
+				}
+			}
+
+			return base.ProcessAsync(context, output);
+		}
+	}*/
+
+	public class DomainUrlHelperFactory : IUrlHelperFactory
 	{
 		private class DomainUrlHelper : UrlHelper
 		{
@@ -68,5 +105,5 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		{
 			return new DomainUrlHelper(context, _domain);
 		}
-	}*/
+	}
 }

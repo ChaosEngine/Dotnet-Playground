@@ -17,7 +17,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using InkBall.Module;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 
 //[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
 
@@ -140,7 +139,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			HashesRepository.HashesInfoExpirationInMinutes = TimeSpan.FromMinutes(Configuration.GetValue<int>(nameof(HashesRepository.HashesInfoExpirationInMinutes)));
 
 			services.AddScoped<IThinHashesDocumentDBRepository, ThinHashesDocumentDBRepository>();
-			//services.AddSingleton<IUrlHelperFactory, DomainUrlHelperFactory>();
+			services.AddSingleton<IUrlHelperFactory, DomainUrlHelperFactory>();
 			services.AddHostedService<BackgroundOperationService>();
 			services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>(CreateBackgroundTaskQueue);
 			services.AddServerTiming();
@@ -192,32 +191,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
 		{
 			loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-
-			// app.UsePathBase("/dotnet");
-			app.Use((context, next) =>
-			{
-				context.Request.Scheme = "https";
-				if (context.Request.Path.StartsWithSegments("/dotnet",
-					out PathString matchedPath, out PathString remainingPath))
-				{
-					var originalPath = context.Request.Path;
-					var originalPathBase = context.Request.PathBase;
-					context.Request.Path = remainingPath;
-					context.Request.PathBase = originalPathBase.Add(matchedPath);
-
-					try
-					{
-						return next();
-					}
-					finally
-					{
-						context.Request.Path = originalPath;
-						context.Request.PathBase = originalPathBase;
-					}
-				}
-				else
-					return next();
-			});
 
 			if (env.IsDevelopment())
 			{

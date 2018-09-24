@@ -227,7 +227,7 @@
 			var xhr = new XMLHttpRequest();
 			// Use JSFiddle logo as a sample image to avoid complicating
 			// this example with cross-domain issues.
-			xhr.open("GET", "/WebCamImages/?handler=live", true);
+			xhr.open("GET", "@Conf.AppRootPath()WebCamImages/?handler=live", true);
 			xhr.setRequestHeader('Cache-Control', 'no-cache');
 			// Ask for the result as an ArrayBuffer.
 			xhr.responseType = "arraybuffer";

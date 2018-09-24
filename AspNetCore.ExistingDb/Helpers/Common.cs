@@ -6,13 +6,13 @@ using Newtonsoft.Json;
 
 namespace EFGetStarted.AspNetCore.ExistingDb
 {
-	/*public static class ConfigurationExtensions
+	public static class ConfigurationExtensions
 	{
 		public static string AppRootPath(this IConfiguration configuration)
 		{
 			return configuration["AppRootPath"];
 		}
-	}*/
+	}
 
 	public static class SessionExtensions
 	{
