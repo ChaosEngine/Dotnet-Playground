@@ -19,6 +19,8 @@ using InkBall.Module;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 //[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
 
@@ -145,11 +147,11 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			services.AddHostedService<BackgroundOperationService>();
 			services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>(CreateBackgroundTaskQueue);
 			services.AddServerTiming();
+			services.AddCommonUI();
 
 			services.AddTransient<MjpgStreamerHttpClientHandler>()
 				.AddHttpClient<IMjpgStreamerHttpClient, MjpgStreamerHttpClient>()
 				.ConfigurePrimaryHttpMessageHandler<MjpgStreamerHttpClientHandler>();
-			services.AddCommonUI();
 		}
 
 		// This method gets called by the runtime. Use this method to add services to the container.
@@ -160,7 +162,14 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			services.AddDbContextPool<BloggingContext>(options =>
 			{
 				BloggingContextFactory.ConfigureDBKind(options, Configuration);
+			});			
+			services.AddDbContext<ApplicationDbContext>(options =>
+			{
+				//options.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
+				ApplicationDbContextContextFactory.ConfigureDBKind(options, Configuration);
 			});
+			services.AddDefaultIdentity<IdentityUser>()
+				.AddEntityFrameworkStores<ApplicationDbContext>();
 
 			ConfigureDistributedCache(Configuration, services);
 
@@ -217,10 +226,12 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			app.UseStatusCodePagesWithReExecute("/Home/Error/{0}");
 
 			app.UseStaticFiles();
-
+			
 			app.UseServerTiming();
 
 			app.UseSession();
+
+			app.UseAuthentication();
 
 			app.UseMvc(routes =>
 			{
