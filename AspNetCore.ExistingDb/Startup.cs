@@ -17,6 +17,8 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using InkBall.Module;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
+using Microsoft.AspNetCore.HttpOverrides;
 
 //[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
 
@@ -191,6 +193,15 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
 		{
 			loggerFactory.AddConsole(Configuration.GetSection("Logging"));
+
+			//Check for reverse proxing and bump HTTP scheme to https
+			app.Use((context, next) =>
+			{
+				if (context.Request.Headers.ContainsKey(ForwardedHeadersDefaults.XForwardedHostHeaderName))
+					context.Request.Scheme = "https";
+
+				return next();
+			});
 
 			if (env.IsDevelopment())
 			{
