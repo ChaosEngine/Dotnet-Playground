@@ -24,21 +24,11 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		/// <returns></returns>
 		public ApplicationDbContext CreateDbContext(string[] args)
 		{
-			var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-
-			// Used only for EF .NET Core CLI tools (update database/migrations etc.)
-			var builder = new ConfigurationBuilder()
-				.SetBasePath(Path.Combine(Directory.GetCurrentDirectory()))
-				.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-				.AddJsonFile($"appsettings.{env}.json", optional: true)
-				.AddEnvironmentVariables();
-			if (string.IsNullOrEmpty(env) || env == "Development")
-				builder.AddUserSecrets<Startup>();
-			var config = builder.Build();
+			var configuration = GetConfiguration(args);
 
 			var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
 
-			ConfigureDBKind(optionsBuilder, config, null);
+			ConfigureDBKind(optionsBuilder, configuration, null);
 
 			return new ApplicationDbContext(optionsBuilder.Options);
 		}

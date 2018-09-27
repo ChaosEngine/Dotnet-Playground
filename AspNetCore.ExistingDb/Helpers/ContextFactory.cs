@@ -1,15 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text.RegularExpressions;
 using AspNetCore.ExistingDb;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
+using System.Data.Common;
+using System.IO;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using System.Text.RegularExpressions;
 
-namespace EFGetStarted.AspNetCore.ExistingDb.Models
+namespace EFGetStarted.AspNetCore.ExistingDb
 {
 	public class ContextFactory
 	{
@@ -90,7 +91,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 			return conn_str;
 		}
 
-		private Dictionary<string, string> GetConnStringAsDictionary(string connectionString)
+		protected Dictionary<string, string> GetConnStringAsDictionary(string connectionString)
 		{
 			Dictionary<string, string> dict =
 				Regex.Matches(connectionString, @"\s*(?<key>[^;=]+)\s*=\s*((?<value>[^'][^;]*)|'(?<value>[^']*)')")
@@ -115,6 +116,23 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 					clientCerts.Add(cert);
 				}
 			}
+		}
+
+		public IConfiguration GetConfiguration(string[] args)
+		{
+			var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
+			// Used only for EF .NET Core CLI tools (update database/migrations etc.)
+			var builder = new ConfigurationBuilder()
+				.SetBasePath(Path.Combine(Directory.GetCurrentDirectory()))
+				.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+				.AddJsonFile($"appsettings.{env}.json", optional: true)
+				.AddEnvironmentVariables();
+			if (string.IsNullOrEmpty(env) || env == "Development")
+				builder.AddUserSecrets<Startup>();
+			var config = builder.Build();
+
+			return config;
 		}
 	}
 }

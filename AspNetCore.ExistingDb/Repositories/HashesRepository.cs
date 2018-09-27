@@ -1,5 +1,5 @@
-﻿using AspNetCore.ExistingDb.Helpers;
-using AspNetCore.ExistingDb.Services;
+﻿using AspNetCore.ExistingDb.Services;
+using EFGetStarted.AspNetCore.ExistingDb;
 using EFGetStarted.AspNetCore.ExistingDb.Models;
 using Lib.AspNetCore.ServerTiming;
 using Microsoft.EntityFrameworkCore;
@@ -614,7 +614,7 @@ LIMIT @limit OFFSET @offset
 
 			using (var conn = new NpgsqlConnection(_configuration.GetConnectionString("PostgreSql")))
 			{
-				conn.ProvideClientCertificatesCallback = BloggingContextFactory.MyProvideClientCertificatesCallback;
+				conn.ProvideClientCertificatesCallback = ContextFactory.MyProvideClientCertificatesCallback;
 
 				var found = new List<ThinHashes>(limit);
 				int count = -1;
