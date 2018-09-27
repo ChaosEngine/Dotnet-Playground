@@ -5,7 +5,7 @@
 
 @if (SignInManager.IsSignedIn(User))
 {
-    <form asp-area="Identity" asp-page="/Account/Logout" method="post" id="logoutForm" class="navbar-right" asp-route-returnUrl="~/Index/Home">
+    <form asp-area="Identity" asp-page="/Account/Logout" method="post" id="logoutForm" class="navbar-right" asp-route-returnUrl="~/Home">
         <ul class="navbar-nav mr-auto navbar-right">
             <li class="nav-item">
                 <a class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>
@@ -18,10 +18,8 @@
 }
 else
 {
-    <div class="navbar-right">
-        <ul class="navbar-nav mr-auto navbar-right">
-            <li class="nav-item"><a class="nav-link" asp-area="Identity" asp-page="/Account/Register">Register</a></li>
-            <li class="nav-item"><a class="nav-link" asp-area="Identity" asp-page="/Account/Login">Login</a></li>
-        </ul>
-    </div>
+    <ul class="navbar-nav mr-auto navbar-right">
+        <li class="nav-item"><a class="nav-link" asp-area="Identity" asp-page="/Account/Register">Register</a></li>
+        <li class="nav-item"><a class="nav-link" asp-area="Identity" asp-page="/Account/Login">Login</a></li>
+    </ul>
 }
