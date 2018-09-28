@@ -1,6 +1,8 @@
 ﻿using AspNetCore.ExistingDb.Repositories;
 using AspNetCore.ExistingDb.Services;
 using EFGetStarted.AspNetCore.ExistingDb.Models;
+using IdentitySample.DefaultUI.Data;
+using IdentitySample.Services;
 using InkBall.Module;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
@@ -25,6 +27,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 	{
 		public IConfiguration Configuration { get; }
 
+		//public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+		//	WebHost.CreateDefaultBuilder(args).UseStartup<Startup>();
+
 		static async Task Main(string[] args)
 		{
 			var host = new WebHostBuilder()
@@ -46,10 +51,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			//await CreateWebHostBuilder(args).Build().RunAsync();
 		}
 
-		//public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-		//	WebHost.CreateDefaultBuilder(args)
-		//		.UseStartup<Startup>();
-
 		public Startup(IHostingEnvironment env)
 		{
 			var builder = new ConfigurationBuilder()
@@ -65,7 +66,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 		void ConfigureDistributedCache(IConfiguration configuration, IServiceCollection services)
 		{
-			BloggingContextFactory.ConfigureDBKind(null, configuration, services);
+			ContextFactory.ConfigureDBKind(null, configuration, services);
 		}
 
 		private BackgroundTaskQueue CreateBackgroundTaskQueue(IServiceProvider serv)
@@ -142,6 +143,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			services.AddHostedService<BackgroundOperationService>();
 			services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>(CreateBackgroundTaskQueue);
 			services.AddServerTiming();
+			services.AddTransient<IEmailSender, AuthMessageSender>();
+			services.AddTransient<ISmsSender, AuthMessageSender>();
 			services.AddCommonUI();
 
 			services.AddTransient<MjpgStreamerHttpClientHandler>()
@@ -152,18 +155,20 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
+#if DEBUG
+			Configuration["AppRootPath"] = "/dotnet/";
+#endif
 			ConfigureDependencyInjection(services);
 
 			services.AddDbContextPool<BloggingContext>(options =>
 			{
-				BloggingContextFactory.ConfigureDBKind(options, Configuration);
-			});			
+				ContextFactory.ConfigureDBKind(options, Configuration);
+			});
 			services.AddDbContext<ApplicationDbContext>(options =>
 			{
-				//options.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
-				ApplicationDbContextContextFactory.ConfigureDBKind(options, Configuration);
+				ContextFactory.ConfigureDBKind(options, Configuration);
 			});
-			services.AddDefaultIdentity<IdentityUser>()
+			services.AddDefaultIdentity<ApplicationUser>()
 				.AddEntityFrameworkStores<ApplicationDbContext>();
 
 			ConfigureDistributedCache(Configuration, services);
@@ -201,6 +206,10 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			//Check for reverse proxing and bump HTTP scheme to https
 			app.Use((context, next) =>
 			{
+#if DEBUG
+				if (context.Request.Path.StartsWithSegments("/dotnet", out var remainder))
+					context.Request.Path = remainder;
+#endif
 				if (context.Request.Headers.ContainsKey(ForwardedHeadersDefaults.XForwardedHostHeaderName))
 					context.Request.Scheme = "https";
 
@@ -221,7 +230,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			app.UseStatusCodePagesWithReExecute("/Home/Error/{0}");
 
 			app.UseStaticFiles();
-			
+
 			app.UseServerTiming();
 
 			app.UseSession();
@@ -233,6 +242,10 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				routes.MapRoute(
 					name: "default",
 					template: "{controller=Home}/{action=Index}/{id?}");
+
+				// routes.MapRoute(
+				// 	name: "areasRoute",
+				// 	template: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 			});
 		}
 	}

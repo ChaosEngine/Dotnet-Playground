@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using IdentitySample.DefaultUI.Data;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
@@ -9,7 +10,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Models
 {
-    public class ApplicationDbContextContextFactory : ContextFactory, IDesignTimeDbContextFactory<ApplicationDbContext>
+	public class ApplicationDbContextContextFactory : ContextFactory, IDesignTimeDbContextFactory<ApplicationDbContext>
 	{
 		/// <summary>
 		// A factory for creating derived Microsoft.EntityFrameworkCore.DbContext instances.
@@ -34,11 +35,18 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		}
 	}
 
-    public class ApplicationDbContext : IdentityDbContext
-    {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options)
-        {
-        }
-    }
+	public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+	{
+		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+		{
+		}
+
+		protected override void OnModelCreating(ModelBuilder builder)
+		{
+			base.OnModelCreating(builder);
+			// Customize the ASP.NET Identity model and override the defaults if needed.
+			// For example, you can rename the ASP.NET Identity table names and more.
+			// Add your customizations after calling base.OnModelCreating(builder);
+		}
+	}
 }
