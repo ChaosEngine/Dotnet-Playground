@@ -5,10 +5,10 @@
 }
 
 <h4>ch_@ViewData["Title"]</h4>
-@Html.PartialAsync("_StatusMessage", Model.StatusMessage)
+<partial name="_StatusMessage" for="StatusMessage" />
 <div class="row">
     <div class="col-md-6">
-        <form method="post">
+        <form method="post" action="~/Identity/Account/Manage">
             <div asp-validation-summary="All" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Username"></label>
@@ -24,8 +24,8 @@
             </div>
             <div class="form-group">
                 <label asp-for="Input.Email"></label>
-                @if (Model.IsEmailConfirmed)
-        {
+@if (Model.IsEmailConfirmed)
+{
             <div class="input-group">
                 <input asp-for="Input.Email" class="form-control" />
                 <span class="input-group-addon" aria-hidden="true"><span class="glyphicon glyphicon-ok text-success"></span></span>
@@ -34,7 +34,7 @@
 else
 {
         <input asp-for="Input.Email" class="form-control" />
-        <button asp-page-handler="SendVerificationEmail" class="btn btn-link">Send verification email</button>
+        <button formaction="~/Identity/Account/Manage?handler=SendVerificationEmail" class="btn btn-link">Send verification email</button>
 }
                 <span asp-validation-for="Input.Email" class="text-danger"></span>
             </div>
@@ -47,7 +47,7 @@ else
         </form>
     </div>
 </div>
-
-@section Scripts {
+@section Scripts
+{
     <partial name="_ValidationScriptsPartial" />
 }
