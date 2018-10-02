@@ -4,11 +4,11 @@
 	ViewData["Title"] = "Register";
 }
 
-<h2>@ViewData["Title"]</h2>
+<h1>@ViewData["Title"]</h1>
 
 <div class="row">
 	<div class="col-md-4">
-		<form method="post" action="~/Identity/Account/Register">
+		<form method="post" action="~/Identity/Account/Register?returnUrl=@Model.ReturnUrl">
 			<h4>ch_Create a new account.</h4>
 			<hr />
 			<div asp-validation-summary="All" class="text-danger"></div>

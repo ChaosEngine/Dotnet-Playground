@@ -10,9 +10,9 @@ RUN dotnet publish -c Release \
     #-p:PublishWithAspNetCoreTargetManifest=false #remove this afer prerelease patch publish \
     AspNetCore.ExistingDb
 
-RUN find AspNetCore.ExistingDb/bin/Release/netcoreapp2.1/publish/ -type d -exec chmod ug=rwx,o=rx {} \; && \
-    find AspNetCore.ExistingDb/bin/Release/netcoreapp2.1/publish/ -type f -exec chmod ug=rw,o=r {} \; && \
-    chmod 777 shared
+
+
+
 
 
 
@@ -21,11 +21,10 @@ RUN apk add --no-cache libuv #&& ln -s /usr/lib/libuv.so.1 /usr/lib/libuv.so
 WORKDIR /app
 COPY --from=build /build/AspNetCore.ExistingDb/bin/Release/netcoreapp2.1/publish/ /build/startApp.sh ./
 
-ENV TZ=Europe/Warsaw
+ENV TZ=Europe/Warsaw USER=xfs ASPNETCORE_URLS=http://+:5000
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-ENV USER=xfs ASPNETCORE_URLS=http://+:5000
-RUN    chown -R $USER:$USER .
+RUN chown -R $USER:$USER .
 USER "$USER"
 
 VOLUME /shared

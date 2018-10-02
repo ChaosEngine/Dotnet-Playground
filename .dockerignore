@@ -1,4 +1,3 @@
 # comment
-#.git
-#.github
 **/*.git*
+*.swp

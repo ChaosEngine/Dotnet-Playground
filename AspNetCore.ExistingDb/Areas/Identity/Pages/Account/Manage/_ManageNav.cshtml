@@ -1,12 +1,12 @@
 ﻿@using Microsoft.AspNetCore.Identity.UI.Pages.Account.Manage.Internal;
 
 <ul class="nav nav-pills flex-column">
-	<li class="nav-item"><a class="nav-link @ManageNavPages.IndexNavClass(ViewContext)" id="profile" href="~/Identity/Account/Manage/Index">Profile</a></li>
-	<li class="nav-item"><a class="nav-link @ManageNavPages.ChangePasswordNavClass(ViewContext)" id="change-password" href="~/Identity/Account/Manage/ChangePassword">Password</a></li>
+	<li class="nav-item"><a class="nav-link @ManageNavPages.IndexNavClass(ViewContext)" id="profile" href="Index">Profile</a></li>
+	<li class="nav-item"><a class="nav-link @ManageNavPages.ChangePasswordNavClass(ViewContext)" id="change-password" href="ChangePassword">Password</a></li>
 	@if ((bool)ViewData["ManageNav.HasExternalLogins"])
 	{
-		<li id="external-logins" class="nav-item"><a id="external-login" class="nav-link @ManageNavPages.ExternalLoginsNavClass(ViewContext)" href="~/Identity/Account/Manage/ExternalLogins">External logins</a></li>
+		<li id="external-logins" class="nav-item"><a id="external-login" class="nav-link @ManageNavPages.ExternalLoginsNavClass(ViewContext)" href="ExternalLogins">External logins</a></li>
 	}
-	<li class="nav-item"><a class="nav-link @ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext)" id="two-factor" href="~/Identity/Account/Manage/TwoFactorAuthentication">Two-factor authentication</a></li>
-	<li class="nav-item"><a class="nav-link @ManageNavPages.PersonalDataNavClass(ViewContext)" id="personal-data" href="~/Identity/Account/Manage/PersonalData">Personal data</a></li>
+	<li class="nav-item"><a class="nav-link @ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext)" id="two-factor" href="TwoFactorAuthentication">Two-factor authentication</a></li>
+	<li class="nav-item"><a class="nav-link @ManageNavPages.PersonalDataNavClass(ViewContext)" id="personal-data" href="PersonalData">Personal data</a></li>
 </ul>
