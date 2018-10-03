@@ -534,7 +534,7 @@ namespace Integration
 						// Assert
 						Assert.NotNull(redirect);
 						Assert.Equal(HttpStatusCode.Redirect, redirect.StatusCode);
-						Assert.Equal($"/{BlogsController.ASPX}", redirect.Headers.GetValues("Location").FirstOrDefault());
+						Assert.Contains($"/{BlogsController.ASPX}", redirect.Headers.GetValues("Location").FirstOrDefault());
 					}
 				}
 
@@ -641,7 +641,7 @@ namespace Integration
 						<img src='https://haos.hopto.org/webcamgallery/images/no_img.gif' alt='no img' class='inactive' onmouseover='ReplImg(this);' />
 					</a>*/
 
-					MatchCollection matches = Regex.Matches(responseString, @"\<img src=""/WebCamImages/(.*\.jpg)"" alt=""(.*\.jpg)"" class='active' onmouseover='ReplImg\(this\);' /\>");
+					MatchCollection matches = Regex.Matches(responseString, @"\<img src=""/.*WebCamImages/(.*\.jpg)"" alt=""(.*\.jpg)"" class='active' onmouseover='ReplImg\(this\);' /\>");
 					Assert.NotEmpty(matches);
 					var images = new List<string>(matches.Count);
 					foreach (Match m in matches)

@@ -1,28 +1,96 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Net;
+using System.Net.Mail;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace IdentitySample.Services
-{    
-    public interface IEmailSender
-    {
-        Task SendEmailAsync(string email, string subject, string message);
-    }
-    
-    public interface ISmsSender
-    {
-        Task SendSmsAsync(string number, string message);
-    }
+{
+	public interface ISmsSender
+	{
+		Task SendSmsAsync(string number, string message);
+	}
+
+	public class EmailSettings
+	{
+		public string DomainOrHost { get; set; }
+
+		public int Port { get; set; }
+
+		public string FromUsernameEmail { get; set; }
+
+		public string FromUsernameDisplayName { get; set; }
+
+		public string AuthUsername { get; set; }
+
+		public string UsernamePassword { get; set; }
+
+		public string ToEmail { get; set; }
+
+		public string CcEmail { get; set; }
+
+		public string BccEmail { get; set; }
+	}
 
 	// This class is used by the application to send Email and SMS
 	// when you turn on two-factor authentication in ASP.NET Identity.
 	// For more details see this link http://go.microsoft.com/fwlink/?LinkID=532713
 	public class AuthMessageSender : IEmailSender, ISmsSender
 	{
+		private readonly EmailSettings _emailSettings;
+
+		private readonly ILogger<AuthMessageSender> _logger;
+
+		public AuthMessageSender(IOptions<EmailSettings> emailSettings, ILogger<AuthMessageSender> logger)
+		{
+			_emailSettings = emailSettings.Value;
+			_logger = logger;
+		}
+
+		public async Task Execute(string email, string subject, string message)
+		{
+			try
+			{
+				string toEmail = string.IsNullOrEmpty(email)
+								? _emailSettings.ToEmail
+								: email;
+				MailMessage mail = new MailMessage()
+				{
+					From = new MailAddress(_emailSettings.FromUsernameEmail, _emailSettings.FromUsernameDisplayName)
+				};
+				mail.To.Add(new MailAddress(toEmail));
+				if (!string.IsNullOrEmpty(_emailSettings.CcEmail))
+					mail.CC.Add(new MailAddress(_emailSettings.CcEmail));
+				if (!string.IsNullOrEmpty(_emailSettings.BccEmail))
+					mail.Bcc.Add(new MailAddress(_emailSettings.BccEmail));
+
+				mail.Subject = $"Personal Management System - {subject}";
+				mail.Body = message;
+				mail.IsBodyHtml = true;
+				mail.Priority = MailPriority.High;
+
+				using (SmtpClient smtp = new SmtpClient(_emailSettings.DomainOrHost, _emailSettings.Port))
+				{
+					smtp.Credentials = new NetworkCredential(_emailSettings.AuthUsername, _emailSettings.UsernamePassword);
+					smtp.EnableSsl = true;
+
+					await smtp.SendMailAsync(mail);
+				}
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "email error");
+			}
+		}
+
 		public Task SendEmailAsync(string email, string subject, string message)
 		{
 			// Plug in your email service here to send an email.
+			if (_emailSettings != null && !string.IsNullOrEmpty(_emailSettings.DomainOrHost))
+				Execute(email, subject, message).Wait();
+
 			return Task.FromResult(0);
 		}
 
@@ -33,7 +101,7 @@ namespace IdentitySample.Services
 		}
 	}
 
-	public static class MessageServices
+	/*public static class MessageServices
 	{
 		public static Task SendEmailAsync(string email, string subject, string message)
 		{
@@ -47,5 +115,5 @@ namespace IdentitySample.Services
 			return Task.FromResult(0);
 		}
 
-	}
+	}*/
 }
