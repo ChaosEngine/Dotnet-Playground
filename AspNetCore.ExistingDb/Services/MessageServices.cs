@@ -76,7 +76,7 @@ namespace IdentitySample.Services
 					smtp.Credentials = new NetworkCredential(_emailSettings.AuthUsername, _emailSettings.UsernamePassword);
 					smtp.EnableSsl = true;
 
-					await smtp.SendMailAsync(mail);
+					await smtp.SendMailAsync(mail).ConfigureAwait(false);
 				}
 			}
 			catch (Exception ex)
@@ -85,13 +85,11 @@ namespace IdentitySample.Services
 			}
 		}
 
-		public Task SendEmailAsync(string email, string subject, string message)
+		public async Task SendEmailAsync(string email, string subject, string message)
 		{
 			// Plug in your email service here to send an email.
 			if (_emailSettings != null && !string.IsNullOrEmpty(_emailSettings.DomainOrHost))
-				Execute(email, subject, message).Wait();
-
-			return Task.FromResult(0);
+				await Execute(email, subject, message);
 		}
 
 		public Task SendSmsAsync(string number, string message)

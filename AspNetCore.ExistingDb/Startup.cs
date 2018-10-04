@@ -206,18 +206,23 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		{
 			loggerFactory.AddConsole(Configuration.GetSection("Logging"));
 
+#if DEBUG
 			//Check for reverse proxing and bump HTTP scheme to https
 			app.Use((context, next) =>
 			{
-#if DEBUG
 				if (context.Request.Path.StartsWithSegments("/dotnet", out var remainder))
 					context.Request.Path = remainder;
-#endif
 				if (context.Request.Headers.ContainsKey(ForwardedHeadersDefaults.XForwardedHostHeaderName))
 					context.Request.Scheme = "https";
 
 				return next();
 			});
+#else
+			app.UseForwardedHeaders(new ForwardedHeadersOptions
+			{
+				ForwardedHeaders = ForwardedHeaders.XForwardedHost | ForwardedHeaders.XForwardedProto
+			});
+#endif
 
 			if (env.IsDevelopment())
 			{
