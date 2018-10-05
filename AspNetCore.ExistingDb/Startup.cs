@@ -146,13 +146,47 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			services.AddHostedService<BackgroundOperationService>();
 			services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>(CreateBackgroundTaskQueue);
 			services.AddServerTiming();
-			services.AddTransient<IEmailSender, AuthMessageSender>();
-			services.AddTransient<ISmsSender, AuthMessageSender>();
 			services.AddCommonUI();
 
 			services.AddTransient<MjpgStreamerHttpClientHandler>()
 				.AddHttpClient<IMjpgStreamerHttpClient, MjpgStreamerHttpClient>()
 				.ConfigurePrimaryHttpMessageHandler<MjpgStreamerHttpClientHandler>();
+		}
+
+		private void ConfigureAuthenticationAuthorizationHelper(IServiceCollection services)
+		{
+			services.AddTransient<IEmailSender, AuthMessageSender>();
+			services.AddTransient<ISmsSender, AuthMessageSender>();
+
+
+			services.AddIdentity<ApplicationUser, IdentityRole>()
+				.AddEntityFrameworkStores<ApplicationDbContext>();
+			services.ConfigureApplicationCookie(options =>
+			{
+				options.LoginPath = Configuration["AppRootPath"] + "Identity/Account/Login";
+			});
+		}
+
+		private void UseProxyForwardingAndDomainPathHelper(IApplicationBuilder app)
+		{
+#if DEBUG
+			//Check for reverse proxing and bump HTTP scheme to https
+			app.Use((context, next) =>
+			{
+				if (context.Request.Path.StartsWithSegments("/dotnet", out var remainder))
+					context.Request.Path = remainder;
+				if (context.Request.Headers.ContainsKey(ForwardedHeadersDefaults.XForwardedHostHeaderName))
+					context.Request.Scheme = "https";
+
+				return next();
+			});
+#else
+			//Apache/nginx proxy schould pass "X-Forwarded-Proto"
+			app.UseForwardedHeaders(new ForwardedHeadersOptions
+			{
+				ForwardedHeaders = ForwardedHeaders.XForwardedHost | ForwardedHeaders.XForwardedProto
+			});
+#endif
 		}
 
 		// This method gets called by the runtime. Use this method to add services to the container.
@@ -171,8 +205,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			{
 				ContextFactory.ConfigureDBKind(options, Configuration);
 			});
-			services.AddDefaultIdentity<ApplicationUser>()
-				.AddEntityFrameworkStores<ApplicationDbContext>();
+
+			ConfigureAuthenticationAuthorizationHelper(services);
 
 			ConfigureDistributedCache(Configuration, services);
 
@@ -206,23 +240,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		{
 			loggerFactory.AddConsole(Configuration.GetSection("Logging"));
 
-#if DEBUG
-			//Check for reverse proxing and bump HTTP scheme to https
-			app.Use((context, next) =>
-			{
-				if (context.Request.Path.StartsWithSegments("/dotnet", out var remainder))
-					context.Request.Path = remainder;
-				if (context.Request.Headers.ContainsKey(ForwardedHeadersDefaults.XForwardedHostHeaderName))
-					context.Request.Scheme = "https";
-
-				return next();
-			});
-#else
-			app.UseForwardedHeaders(new ForwardedHeadersOptions
-			{
-				ForwardedHeaders = ForwardedHeaders.XForwardedHost | ForwardedHeaders.XForwardedProto
-			});
-#endif
+			UseProxyForwardingAndDomainPathHelper(app);
 
 			if (env.IsDevelopment())
 			{
