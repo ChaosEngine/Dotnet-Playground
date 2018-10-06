@@ -160,7 +160,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 
 			services.AddIdentity<ApplicationUser, IdentityRole>()
-				.AddEntityFrameworkStores<ApplicationDbContext>();
+				.AddEntityFrameworkStores<ApplicationDbContext>()
+				.AddDefaultTokenProviders();
 			services.ConfigureApplicationCookie(options =>
 			{
 				options.LoginPath = Configuration["AppRootPath"] + "Identity/Account/Login";

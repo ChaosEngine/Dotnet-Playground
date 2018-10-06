@@ -11,7 +11,7 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<link rel="icon" type="image/x-icon" href="~/favicon.ico" />
-	<title>@ViewData["Title"] - Dotnet Core Playground</title>
+	<title>@ViewData["Title"] - @Conf["AppTitleName"]</title>
 	<environment include="Development">
 		<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
 		<link rel="stylesheet" href="~/css/site.css" />
@@ -99,7 +99,7 @@
 		<hr />
 	</main>
 	<footer class="container">
-		<p>&copy; 2018 - Dotnet Core Playground</p>
+		<p>&copy; 2018 - @Conf["AppTitleName"]</p>
 	</footer>
 	<environment include="Development">
 		<script src="~/lib/jquery/dist/jquery.js"></script>

@@ -11,6 +11,7 @@ using IdentitySample.DefaultUI.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace IdentitySample.DefaultUI
@@ -49,17 +50,19 @@ namespace IdentitySample.DefaultUI
 		private readonly UserManager<TUser> _userManager;
 		private readonly ILogger<EnableAuthenticatorModel<TUser>> _logger;
 		private readonly UrlEncoder _urlEncoder;
-
+		private readonly IConfiguration _configuration;
 		private const string AuthenticatorUriFormat = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
 
 		public EnableAuthenticatorModel(
 			UserManager<TUser> userManager,
 			ILogger<EnableAuthenticatorModel<TUser>> logger,
-			UrlEncoder urlEncoder)
+			UrlEncoder urlEncoder,
+			IConfiguration configuration)
 		{
 			_userManager = userManager;
 			_logger = logger;
 			_urlEncoder = urlEncoder;
+			_configuration = configuration;
 		}
 
 		public override async Task<IActionResult> OnGetAsync()
@@ -157,7 +160,7 @@ namespace IdentitySample.DefaultUI
 		{
 			return string.Format(
 				AuthenticatorUriFormat,
-				_urlEncoder.Encode("Microsoft.AspNetCore.Identity.UI"),
+				_urlEncoder.Encode(_configuration["AppTitleName"]),
 				_urlEncoder.Encode(email),
 				unformattedKey);
 		}
@@ -166,8 +169,11 @@ namespace IdentitySample.DefaultUI
 	public class EnableAuthenticatorModel : EnableAuthenticatorModel<ApplicationUser>
 	{
 		public EnableAuthenticatorModel(
-			UserManager<ApplicationUser> userManager, ILogger<EnableAuthenticatorModel<ApplicationUser>> logger, UrlEncoder urlEncoder)
-            : base(userManager, logger, urlEncoder)
+			UserManager<ApplicationUser> userManager,
+			ILogger<EnableAuthenticatorModel<ApplicationUser>> logger,
+			UrlEncoder urlEncoder,
+			IConfiguration configuration)
+			: base(userManager, logger, urlEncoder, configuration)
 		{
 		}
 	}
