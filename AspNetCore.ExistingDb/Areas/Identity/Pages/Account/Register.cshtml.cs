@@ -68,45 +68,6 @@ namespace IdentitySample.DefaultUI
 			ReturnUrl = returnUrl;
 		}
 
-		public override async Task<IActionResult> OnPostAsync(string returnUrl = null)
-		{
-			returnUrl = returnUrl ?? Url.Content("~/");
-			if (ModelState.IsValid)
-			{
-				var user = CreateUser();
-
-				await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
-				await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
-				var result = await _userManager.CreateAsync(user, Input.Password);
-
-				if (result.Succeeded)
-				{
-					_logger.LogInformation("User created a new account with password.");
-
-					var userId = await _userManager.GetUserIdAsync(user);
-					var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-					var callbackUrl = Url.Page(
-						"/Account/ConfirmEmail",
-						pageHandler: null,
-						values: new { userId = userId, code = code },
-						protocol: Request.Scheme);
-
-					await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-						$"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-
-					await _signInManager.SignInAsync(user, isPersistent: false);
-					return LocalRedirect(returnUrl);
-				}
-				foreach (var error in result.Errors)
-				{
-					ModelState.AddModelError(string.Empty, error.Description);
-				}
-			}
-
-			// If we got this far, something failed, redisplay form
-			return Page();
-		}
-
 		private TUser CreateUser()
 		{
 			try
@@ -176,6 +137,7 @@ namespace IdentitySample.DefaultUI
 		public override async Task<IActionResult> OnPostAsync(string returnUrl = null)
 		{
 			returnUrl = returnUrl ?? Url.Content("~/");
+			returnUrl = returnUrl.StartsWith(Url.Content("~/")) ? returnUrl : Url.Content("~/" + returnUrl.Substring(1));
 			if (ModelState.IsValid)
 			{
 				var user = new ApplicationUser

@@ -156,7 +156,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		private void ConfigureAuthenticationAuthorizationHelper(IServiceCollection services)
 		{
 			services.AddTransient<IEmailSender, AuthMessageSender>();
-			services.AddTransient<ISmsSender, AuthMessageSender>();
+			//services.AddTransient<ISmsSender, AuthMessageSender>();
 
 
 			services.AddIdentity<ApplicationUser, IdentityRole>()

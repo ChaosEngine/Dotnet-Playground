@@ -87,7 +87,8 @@ namespace IdentitySample.DefaultUI
 			if (result.Succeeded)
 			{
 				_logger.LogInformation("User with ID '{UserId}' logged in with a recovery code.", userId);
-				return LocalRedirect(returnUrl ?? Url.Content("~/"));
+				returnUrl = returnUrl ?? Url.Content("~/");
+				return LocalRedirect(returnUrl);
 			}
 			if (result.IsLockedOut)
 			{

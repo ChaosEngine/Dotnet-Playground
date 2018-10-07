@@ -160,7 +160,11 @@ namespace IdentitySample.DefaultUI
 		{
 			return string.Format(
 				AuthenticatorUriFormat,
-				_urlEncoder.Encode(_configuration["AppTitleName"]),
+				_urlEncoder.Encode(
+#if DEBUG
+					"DBG_" +
+#endif
+					_configuration["AppTitleName"]),
 				_urlEncoder.Encode(email),
 				unformattedKey);
 		}
