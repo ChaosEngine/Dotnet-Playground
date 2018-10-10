@@ -15,8 +15,8 @@
     "bootstrap-table": "1.12.1",
     "node-forge": "0.7.6",
     "jquery": "3.3.1",
-    "jquery-validation": "1.17.0",
-    "jquery-validation-unobtrusive": "3.2.10",
+    "jquery-validation": "1.18.0",
+    "jquery-validation-unobtrusive": "3.2.11",
     "blueimp-gallery": "2.33.0",
     "video.js": "7.2.3",
     "qrcodejs": "1.0.0"

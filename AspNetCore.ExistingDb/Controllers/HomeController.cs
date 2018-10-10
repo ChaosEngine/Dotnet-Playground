@@ -43,8 +43,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 		public async Task<IActionResult> About()
 		{
-			ViewData["Message"] = "Your application description page.";
-			ViewData["LoremIpsum"] = new Bogus.DataSets.Lorem().Sentence(100);
+			ViewData["Message"] = "Application description page.";
+
+			ViewData["FullAddress"] = $"{Request.Scheme}://{Request.Host}{_configuration.AppRootPath()}";
 
 			return await Task.FromResult(View());
 		}

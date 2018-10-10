@@ -162,6 +162,17 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			services.AddIdentity<ApplicationUser, IdentityRole>()
 				.AddEntityFrameworkStores<ApplicationDbContext>()
 				.AddDefaultTokenProviders();
+
+			if (!string.IsNullOrEmpty(Configuration["Authentication:Google:ClientId"]))
+			{
+				services.AddAuthentication().AddGoogle(googleOptions =>
+				{
+					googleOptions.ClientId = Configuration["Authentication:Google:ClientId"];
+					googleOptions.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
+					//googleOptions.CallbackPath = "/dotnet/signin-google";
+				});
+			}
+
 			services.ConfigureApplicationCookie(options =>
 			{
 				options.LoginPath = Configuration["AppRootPath"] + "Identity/Account/Login";

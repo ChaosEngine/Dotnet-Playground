@@ -73,7 +73,8 @@ namespace IdentitySample.DefaultUI
 		public override IActionResult OnPost(string provider, string returnUrl = null)
 		{
 			// Request a redirect to the external login provider.
-			var redirectUrl = Url.Page("./ExternalLogin", pageHandler: "Callback", values: new { returnUrl });
+			//var redirectUrl = Url.Page("./ExternalLogin", pageHandler: "Callback", values: new { returnUrl });
+			var redirectUrl = Url.Content($"~/Identity/Account/ExternalLogin?returnUrl={returnUrl}&handler=Callback");
 			var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
 			return new ChallengeResult(provider, properties);
 		}
@@ -84,13 +85,13 @@ namespace IdentitySample.DefaultUI
 			if (remoteError != null)
 			{
 				ErrorMessage = $"Error from external provider: {remoteError}";
-				return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+				return Redirect($"~/Identity/Account/Login?returnUrl={returnUrl}");
 			}
 			var info = await _signInManager.GetExternalLoginInfoAsync();
 			if (info == null)
 			{
 				ErrorMessage = "Error loading external login information.";
-				return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+				return Redirect($"~/Identity/Account/Login?returnUrl={returnUrl}");
 			}
 
 			// Sign in the user with this external login provider if the user already has a login.
@@ -102,7 +103,7 @@ namespace IdentitySample.DefaultUI
 			}
 			if (result.IsLockedOut)
 			{
-				return RedirectToPage("./Lockout");
+				return Redirect($"~/Identity/Account/Lockout");
 			}
 			else
 			{
@@ -128,7 +129,7 @@ namespace IdentitySample.DefaultUI
 			if (info == null)
 			{
 				ErrorMessage = "Error loading external login information during confirmation.";
-				return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
+				return Redirect($"~/Identity/Account/Login?returnUrl={returnUrl}");
 			}
 
 			if (ModelState.IsValid)
@@ -191,7 +192,7 @@ namespace IdentitySample.DefaultUI
 			UserManager<ApplicationUser> userManager,
 			IUserStore<ApplicationUser> userStore,
 			ILogger<ExternalLoginModel<ApplicationUser>> logger)
-            : base(signInManager, userManager, userStore, logger)
+			: base(signInManager, userManager, userStore, logger)
 		{
 		}
 	}
