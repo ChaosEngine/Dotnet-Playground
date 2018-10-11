@@ -16,7 +16,7 @@
 
 <div class="row">
     <div class="col-md-4">
-        <form asp-page-handler="Confirmation" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+		<form method="post" action="~/Identity/Account/ExternalLogin?returnUrl=@(Model.ReturnUrl)&amp;handler=Confirmation" novalidate="novalidate">
             <div asp-validation-summary="All" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Input.Email"></label>

@@ -1,9 +1,11 @@
-﻿using AspNetCore.ExistingDb.Repositories;
+﻿using AspNetCore.ExistingDb.Helpers;
+using AspNetCore.ExistingDb.Repositories;
 using AspNetCore.ExistingDb.Services;
 using EFGetStarted.AspNetCore.ExistingDb.Models;
 using IdentitySample.DefaultUI.Data;
 using IdentitySample.Services;
 using InkBall.Module;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
@@ -165,12 +167,14 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 			if (!string.IsNullOrEmpty(Configuration["Authentication:Google:ClientId"]))
 			{
-				services.AddAuthentication().AddGoogle(googleOptions =>
-				{
-					googleOptions.ClientId = Configuration["Authentication:Google:ClientId"];
-					googleOptions.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
-					//googleOptions.CallbackPath = "/dotnet/signin-google";
-				});
+				services.AddAuthentication().AddOAuth<GoogleOptions, MyGoogleHandler>(
+					GoogleDefaults.AuthenticationScheme, GoogleDefaults.DisplayName,
+					options =>
+					{
+						options.ClientId = Configuration["Authentication:Google:ClientId"];
+						options.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
+						options.CallbackPath = Configuration["Authentication:Google:CallbackPath"];
+					});
 			}
 
 			services.ConfigureApplicationCookie(options =>

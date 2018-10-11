@@ -62,12 +62,24 @@
                 {
                     <form id="external-account" action="~/Identity/Account/ExternalLogin?returnUrl=@Model.ReturnUrl" method="post" class="form-horizontal">
                         <div>
-                            <p>
-                                @foreach (var provider in Model.ExternalLogins)
-                                {
-                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                                }
-                            </p>
+							<p>
+								@foreach (var provider in Model.ExternalLogins)
+								{
+									if (provider.DisplayName == "Google")
+									{
+										<button type="submit" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account"
+												class="btn btn-outline-primary" style="border:none">
+											<img src="https://developers.google.com/identity/images/btn_google_signin_light_normal_web.png"
+												 alt="@provider.DisplayName sign-in" class="attempt-right"
+												 />
+										</button>
+									}
+									else
+									{
+										<button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+									}
+								}
+							</p>
                         </div>
                     </form>
                 }

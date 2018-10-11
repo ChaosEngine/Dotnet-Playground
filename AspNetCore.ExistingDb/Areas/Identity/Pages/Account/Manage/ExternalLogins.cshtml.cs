@@ -90,7 +90,7 @@ namespace IdentitySample.DefaultUI
 
 			await _signInManager.RefreshSignInAsync(user);
 			StatusMessage = "The external login was removed.";
-			return RedirectToPage();
+			return Redirect("~/Identity/Account/Manage/ExternalLogins");
 		}
 
 		public override async Task<IActionResult> OnPostLinkLoginAsync(string provider)
@@ -129,7 +129,7 @@ namespace IdentitySample.DefaultUI
 			await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
 			StatusMessage = "The external login was added.";
-			return RedirectToPage();
+			return Redirect("~/Identity/Account/Manage/ExternalLogins");
 		}
 	}
 
