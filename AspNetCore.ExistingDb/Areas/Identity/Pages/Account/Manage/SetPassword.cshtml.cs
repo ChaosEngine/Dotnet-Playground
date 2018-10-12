@@ -95,7 +95,7 @@ namespace IdentitySample.DefaultUI
 			await _signInManager.RefreshSignInAsync(user);
 			StatusMessage = "Your password has been set.";
 
-			return RedirectToPage();
+			return Redirect("~/Identity/Account/Manage/ChangePassword");
 		}
 	}
 

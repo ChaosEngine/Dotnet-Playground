@@ -99,7 +99,8 @@ namespace IdentitySample.DefaultUI
 			await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
 			// Request a redirect to the external login provider to link a login for the current user
-			var redirectUrl = Url.Page("./ExternalLogins", pageHandler: "LinkLoginCallback");
+			//var redirectUrl = Url.Page("./ExternalLogins", pageHandler: "LinkLoginCallback");
+			var redirectUrl = Url.Content("~/Identity/Account/Manage/ExternalLogins?handler=LinkLoginCallback");
 			var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl, _userManager.GetUserId(User));
 			return new ChallengeResult(provider, properties);
 		}

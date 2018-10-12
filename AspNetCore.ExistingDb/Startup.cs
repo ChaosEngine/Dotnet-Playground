@@ -6,6 +6,7 @@ using IdentitySample.DefaultUI.Data;
 using IdentitySample.Services;
 using InkBall.Module;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.Twitter;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
@@ -16,7 +17,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.IO;
 using System.Linq;
@@ -165,15 +168,36 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				.AddEntityFrameworkStores<ApplicationDbContext>()
 				.AddDefaultTokenProviders();
 
+			var builder = services.AddAuthentication();
 			if (!string.IsNullOrEmpty(Configuration["Authentication:Google:ClientId"]))
 			{
-				services.AddAuthentication().AddOAuth<GoogleOptions, MyGoogleHandler>(
+				builder.AddOAuth<GoogleOptions, MyGoogleHandler>(
 					GoogleDefaults.AuthenticationScheme, GoogleDefaults.DisplayName,
-					options =>
+					googleOptions =>
 					{
-						options.ClientId = Configuration["Authentication:Google:ClientId"];
-						options.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
-						options.CallbackPath = Configuration["Authentication:Google:CallbackPath"];
+						googleOptions.ClientId = Configuration["Authentication:Google:ClientId"];
+						googleOptions.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
+						googleOptions.CallbackPath = Configuration["Authentication:Google:CallbackPath"];
+					});
+			}
+			if (!string.IsNullOrEmpty(Configuration["Authentication:Facebook:AppId"]))
+			{
+				builder.AddFacebook(facebookOptions =>
+				{
+					facebookOptions.AppId = Configuration["Authentication:Facebook:AppId"];
+					facebookOptions.AppSecret = Configuration["Authentication:Facebook:AppSecret"];
+				});
+			}
+			if (!string.IsNullOrEmpty(Configuration["Authentication:Twitter:ConsumerKey"]))
+			{
+				builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<TwitterOptions>, TwitterPostConfigureOptions>());
+				builder.AddRemoteScheme<TwitterOptions, MyTwitterHandler>(
+					TwitterDefaults.AuthenticationScheme, TwitterDefaults.DisplayName,
+					twitterOptions =>
+					{
+						twitterOptions.ConsumerKey = Configuration["Authentication:Twitter:ConsumerKey"];
+						twitterOptions.ConsumerSecret = Configuration["Authentication:Twitter:ConsumerSecret"];
+						twitterOptions.CallbackPath = Configuration["Authentication:Twitter:CallbackPath"];
 					});
 			}
 
@@ -270,7 +294,10 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				app.UseExceptionHandler("/Home/Error");
 			}
 			app.UseStatusCodePagesWithReExecute("/Home/Error/{0}");
-
+#if DEBUG
+			if (env.IsDevelopment())			
+				app.UseHttpsRedirection();			
+#endif
 			app.UseStaticFiles();
 
 			app.UseServerTiming();
@@ -284,10 +311,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				routes.MapRoute(
 					name: "default",
 					template: "{controller=Home}/{action=Index}/{id?}");
-
-				// routes.MapRoute(
-				// 	name: "areasRoute",
-				// 	template: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 			});
 		}
 	}
