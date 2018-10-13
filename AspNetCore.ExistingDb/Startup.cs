@@ -5,7 +5,9 @@ using EFGetStarted.AspNetCore.ExistingDb.Models;
 using IdentitySample.DefaultUI.Data;
 using IdentitySample.Services;
 using InkBall.Module;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.Twitter;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
@@ -20,9 +22,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 //[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
@@ -200,6 +206,48 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 						twitterOptions.CallbackPath = Configuration["Authentication:Twitter:CallbackPath"];
 					});
 			}
+			if (!string.IsNullOrEmpty(Configuration["Authentication:GitHub:ClientID"]))
+			{
+				builder.AddOAuth<OAuthOptions, MyGithubHandler>("GitHub", "GitHub", gitHubOptions =>
+				{
+					gitHubOptions.ClientId = Configuration["Authentication:GitHub:ClientID"];
+					gitHubOptions.ClientSecret = Configuration["Authentication:GitHub:ClientSecret"];
+					gitHubOptions.CallbackPath = Configuration["Authentication:GitHub:CallbackPath"];
+
+					gitHubOptions.AuthorizationEndpoint = "https://github.com/login/oauth/authorize";
+					gitHubOptions.TokenEndpoint = "https://github.com/login/oauth/access_token";
+					gitHubOptions.UserInformationEndpoint = "https://api.github.com/user";
+					gitHubOptions.ClaimsIssuer = "OAuth2-Github";
+					gitHubOptions.SaveTokens = true;
+					// Retrieving user information is unique to each provider.
+					gitHubOptions.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
+					gitHubOptions.ClaimActions.MapJsonKey(ClaimTypes.Name, "login");
+					gitHubOptions.ClaimActions.MapJsonKey("urn:github:name", "name");
+					gitHubOptions.ClaimActions.MapJsonKey(ClaimTypes.Email, "email", ClaimValueTypes.Email);
+					gitHubOptions.ClaimActions.MapJsonKey("urn:github:url", "url");
+					gitHubOptions.Events = new OAuthEvents
+					{
+						OnCreatingTicket = async context =>
+						{
+							// Get the GitHub user
+							using (var request = new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint))
+							{
+								request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", context.AccessToken);
+								request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+								using (var response = await context.Backchannel.SendAsync(request, context.HttpContext.RequestAborted))
+								{
+									response.EnsureSuccessStatusCode();
+
+									var user = JObject.Parse(await response.Content.ReadAsStringAsync());
+
+									context.RunClaimActions(user);
+								}
+							}
+						}
+					};
+				});
+			}
 
 			services.ConfigureApplicationCookie(options =>
 			{
@@ -295,8 +343,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			}
 			app.UseStatusCodePagesWithReExecute("/Home/Error/{0}");
 #if DEBUG
-			if (env.IsDevelopment())			
-				app.UseHttpsRedirection();			
+			if (env.IsDevelopment())
+				app.UseHttpsRedirection();
 #endif
 			app.UseStaticFiles();
 
