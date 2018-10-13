@@ -164,7 +164,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				.ConfigurePrimaryHttpMessageHandler<MjpgStreamerHttpClientHandler>();
 		}
 
-		private void ConfigureAuthenticationAuthorizationHelper(IServiceCollection services)
+		private void ConfigureAuthenticationAuthorizationHelper(IServiceCollection services, IHostingEnvironment env)
 		{
 			services.AddTransient<IEmailSender, AuthMessageSender>();
 			//services.AddTransient<ISmsSender, AuthMessageSender>();
@@ -206,46 +206,13 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 						twitterOptions.CallbackPath = Configuration["Authentication:Twitter:CallbackPath"];
 					});
 			}
-			if (!string.IsNullOrEmpty(Configuration["Authentication:GitHub:ClientID"]))
+			if (!string.IsNullOrEmpty(Configuration[$"Authentication:GitHub:{env.EnvironmentName}-ClientID"]))
 			{
-				builder.AddOAuth<OAuthOptions, MyGithubHandler>("GitHub", "GitHub", gitHubOptions =>
+				builder.AddOAuth<MyGithubHandler.GitHubOptions, MyGithubHandler>("GitHub", "GitHub", gitHubOptions =>
 				{
-					gitHubOptions.ClientId = Configuration["Authentication:GitHub:ClientID"];
-					gitHubOptions.ClientSecret = Configuration["Authentication:GitHub:ClientSecret"];
-					gitHubOptions.CallbackPath = Configuration["Authentication:GitHub:CallbackPath"];
-
-					gitHubOptions.AuthorizationEndpoint = "https://github.com/login/oauth/authorize";
-					gitHubOptions.TokenEndpoint = "https://github.com/login/oauth/access_token";
-					gitHubOptions.UserInformationEndpoint = "https://api.github.com/user";
-					gitHubOptions.ClaimsIssuer = "OAuth2-Github";
-					gitHubOptions.SaveTokens = true;
-					// Retrieving user information is unique to each provider.
-					gitHubOptions.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
-					gitHubOptions.ClaimActions.MapJsonKey(ClaimTypes.Name, "login");
-					gitHubOptions.ClaimActions.MapJsonKey("urn:github:name", "name");
-					gitHubOptions.ClaimActions.MapJsonKey(ClaimTypes.Email, "email", ClaimValueTypes.Email);
-					gitHubOptions.ClaimActions.MapJsonKey("urn:github:url", "url");
-					gitHubOptions.Events = new OAuthEvents
-					{
-						OnCreatingTicket = async context =>
-						{
-							// Get the GitHub user
-							using (var request = new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint))
-							{
-								request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", context.AccessToken);
-								request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-								using (var response = await context.Backchannel.SendAsync(request, context.HttpContext.RequestAborted))
-								{
-									response.EnsureSuccessStatusCode();
-
-									var user = JObject.Parse(await response.Content.ReadAsStringAsync());
-
-									context.RunClaimActions(user);
-								}
-							}
-						}
-					};
+					gitHubOptions.ClientId = Configuration[$"Authentication:GitHub:{env.EnvironmentName}-ClientID"];
+					gitHubOptions.ClientSecret = Configuration[$"Authentication:GitHub:{env.EnvironmentName}-ClientSecret"];
+					gitHubOptions.CallbackPath = Configuration["Authentication:GitHub:CallbackPath"];				
 				});
 			}
 
@@ -294,7 +261,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				ContextFactory.ConfigureDBKind(options, Configuration);
 			});
 
-			ConfigureAuthenticationAuthorizationHelper(services);
+			var env = services.FirstOrDefault(x => x.ServiceType == typeof(IHostingEnvironment)).ImplementationInstance as IHostingEnvironment;
+			ConfigureAuthenticationAuthorizationHelper(services, env);
 
 			ConfigureDistributedCache(Configuration, services);
 
@@ -342,10 +310,12 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				app.UseExceptionHandler("/Home/Error");
 			}
 			app.UseStatusCodePagesWithReExecute("/Home/Error/{0}");
+
 #if DEBUG
 			if (env.IsDevelopment())
 				app.UseHttpsRedirection();
 #endif
+
 			app.UseStaticFiles();
 
 			app.UseServerTiming();
