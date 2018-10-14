@@ -212,14 +212,26 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				{
 					gitHubOptions.ClientId = Configuration[$"Authentication:GitHub:{env.EnvironmentName}-ClientID"];
 					gitHubOptions.ClientSecret = Configuration[$"Authentication:GitHub:{env.EnvironmentName}-ClientSecret"];
-					gitHubOptions.CallbackPath = Configuration["Authentication:GitHub:CallbackPath"];				
+					gitHubOptions.CallbackPath = Configuration["Authentication:GitHub:CallbackPath"];
 				});
 			}
 
 			services.ConfigureApplicationCookie(options =>
 			{
 				options.LoginPath = Configuration["AppRootPath"] + "Identity/Account/Login";
+				options.AccessDeniedPath = Configuration["AppRootPath"] + "Identity/Account/AccessDenied";
 			});
+
+			services.AddAuthorization(options =>
+			{
+				options.AddPolicy("InkBallPlayer", policy => policy.RequireClaim("Email"));
+			});
+
+
+			InkBall.Module.GamesContext ink_db_ctx =
+				services.FirstOrDefault(x => x.ServiceType == typeof(InkBall.Module.GamesContext)).ImplementationInstance as InkBall.Module.GamesContext;
+
+			services.SetupInkBall("InkBallPlayer", ink_db_ctx);
 		}
 
 		private void UseProxyForwardingAndDomainPathHelper(IApplicationBuilder app)
@@ -247,6 +259,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
+			var env = services.FirstOrDefault(x => x.ServiceType == typeof(IHostingEnvironment)).ImplementationInstance as IHostingEnvironment;
 #if DEBUG
 			Configuration["AppRootPath"] = "/dotnet/";
 #endif
@@ -256,12 +269,15 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			{
 				ContextFactory.ConfigureDBKind(options, Configuration);
 			});
-			services.AddDbContext<ApplicationDbContext>(options =>
+			services.AddDbContextPool<ApplicationDbContext>(options =>
+			{
+				ContextFactory.ConfigureDBKind(options, Configuration);
+			});
+			services.AddDbContextPool<InkBall.Module.GamesContext>(options =>
 			{
 				ContextFactory.ConfigureDBKind(options, Configuration);
 			});
 
-			var env = services.FirstOrDefault(x => x.ServiceType == typeof(IHostingEnvironment)).ImplementationInstance as IHostingEnvironment;
 			ConfigureAuthenticationAuthorizationHelper(services, env);
 
 			ConfigureDistributedCache(Configuration, services);
