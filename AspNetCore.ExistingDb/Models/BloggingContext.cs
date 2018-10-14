@@ -1,4 +1,6 @@
 ﻿using AspNetCore.ExistingDb;
+using IdentitySample.DefaultUI.Data;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -41,14 +43,13 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		}
 	}
 
-	public partial class BloggingContext : DbContext
+	public partial class BloggingContext : IdentityDbContext<ApplicationUser>
 	{
 		public virtual DbSet<Blog> Blogs { get; set; }
 		public virtual DbSet<Post> Posts { get; set; }
 		public virtual DbSet<ThinHashes> ThinHashes { get; set; }
 		public virtual DbSet<HashesInfo> HashesInfo { get; set; }
 
-		//public static bool IsMySql { get; private set; }
 		public string ConnectionTypeName
 		{
 			get
@@ -66,7 +67,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 					default:
 						throw new NotSupportedException($"Bad DBKind name");
 				}
-				//IsMySql = ConnectionTypeName == typeof(MySqlConnection).Name.ToLower();
 			}
 		}
 
@@ -77,6 +77,11 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
+			base.OnModelCreating(modelBuilder);
+			// Customize the ASP.NET Identity model and override the defaults if needed.
+			// For example, you can rename the ASP.NET Identity table names and more.
+			// Add your customizations after calling base.OnModelCreating(builder);
+
 			modelBuilder.Entity<Blog>(entity =>
 			{
 				entity.Property(e => e.BlogId).ValueGeneratedOnAdd();

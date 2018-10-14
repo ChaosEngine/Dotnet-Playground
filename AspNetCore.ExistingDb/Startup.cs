@@ -171,7 +171,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 
 			services.AddIdentity<ApplicationUser, IdentityRole>()
-				.AddEntityFrameworkStores<ApplicationDbContext>()
+				.AddEntityFrameworkStores<BloggingContext>()
 				.AddDefaultTokenProviders();
 
 			var builder = services.AddAuthentication();
@@ -266,10 +266,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			ConfigureDependencyInjection(services);
 
 			services.AddDbContextPool<BloggingContext>(options =>
-			{
-				ContextFactory.ConfigureDBKind(options, Configuration);
-			});
-			services.AddDbContextPool<ApplicationDbContext>(options =>
 			{
 				ContextFactory.ConfigureDBKind(options, Configuration);
 			});
