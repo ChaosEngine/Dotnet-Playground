@@ -157,7 +157,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			services.AddHostedService<BackgroundOperationService>();
 			services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>(CreateBackgroundTaskQueue);
 			services.AddServerTiming();
-			services.AddCommonUI();
 
 			services.AddTransient<MjpgStreamerHttpClientHandler>()
 				.AddHttpClient<IMjpgStreamerHttpClient, MjpgStreamerHttpClient>()
@@ -224,14 +223,29 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 			services.AddAuthorization(options =>
 			{
-				options.AddPolicy("InkBallPlayer", policy => policy.RequireClaim("Email"));
+				options.AddPolicy("InkBallPlayerPolicy", policy =>
+					policy.RequireAuthenticatedUser()/*.RequireRole("InkBallPlayer")*/);
 			});
 
 
-			InkBall.Module.GamesContext ink_db_ctx =
-				services.FirstOrDefault(x => x.ServiceType == typeof(InkBall.Module.GamesContext)).ImplementationInstance as InkBall.Module.GamesContext;
 
-			services.SetupInkBall("InkBallPlayer", ink_db_ctx);
+
+
+
+			#region WIP
+
+			services.AddInkBallCommonUI<GamesContext>(env, options =>
+			{
+				// options.WwwRoot = "wrongwrongwrong";
+				// options.HeadElementsSectionName = "head-head-head-Elements";
+				// options.ScriptsSectionName = "Script_Injection";
+				options.AuthorizationPolicyName = "InkBallPlayerPolicy";
+			});
+
+			#endregion WIP
+
+
+
 		}
 
 		private void UseProxyForwardingAndDomainPathHelper(IApplicationBuilder app)
@@ -260,6 +274,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		public void ConfigureServices(IServiceCollection services)
 		{
 			var env = services.FirstOrDefault(x => x.ServiceType == typeof(IHostingEnvironment)).ImplementationInstance as IHostingEnvironment;
+
 #if DEBUG
 			Configuration["AppRootPath"] = "/dotnet/";
 #endif
