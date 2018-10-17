@@ -3,6 +3,7 @@
 
 using System;
 using System.Threading.Tasks;
+using AspNetCore.ExistingDb.Helpers;
 using IdentitySample.DefaultUI.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -72,7 +73,7 @@ namespace IdentitySample.DefaultUI
 	{
 		public ResetAuthenticatorModel(
             UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager,
+            MySignInManager signInManager,
             ILogger<ResetAuthenticatorModel> logger) : base(userManager, signInManager, logger)
 		{
 		}

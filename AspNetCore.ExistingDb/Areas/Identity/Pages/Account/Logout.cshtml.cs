@@ -3,6 +3,7 @@
 
 using System;
 using System.Threading.Tasks;
+using AspNetCore.ExistingDb.Helpers;
 using IdentitySample.DefaultUI.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -57,7 +58,7 @@ namespace IdentitySample.DefaultUI
 
 	public class LogoutModel : LogoutModel<ApplicationUser>
 	{
-		public LogoutModel(SignInManager<ApplicationUser> signInManager, ILogger<LogoutModel<ApplicationUser>> logger)
+		public LogoutModel(MySignInManager signInManager, ILogger<LogoutModel<ApplicationUser>> logger)
 			: base(signInManager, logger)
 		{
 		}

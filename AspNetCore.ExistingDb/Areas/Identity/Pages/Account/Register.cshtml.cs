@@ -7,6 +7,7 @@ using System.Net;
 using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
+using AspNetCore.ExistingDb.Helpers;
 using IdentitySample.DefaultUI.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -98,7 +99,7 @@ namespace IdentitySample.DefaultUI
 		public RegisterModel(
 			UserManager<ApplicationUser> userManager,
 			IUserStore<ApplicationUser> userStore,
-			SignInManager<ApplicationUser> signInManager,
+			MySignInManager signInManager,
 			ILogger<LoginModel<ApplicationUser>> logger,
 			IEmailSender emailSender)
 			: base(userManager, userStore, signInManager, logger, emailSender)

@@ -1,7 +1,8 @@
 @using IdentitySample.DefaultUI.Data
+@using AspNetCore.ExistingDb.Helpers
 @using Microsoft.AspNetCore.Identity
 
-@inject SignInManager<ApplicationUser> SignInManager
+@inject MySignInManager SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
 @if (SignInManager.IsSignedIn(User))

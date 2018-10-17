@@ -171,7 +171,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 			services.AddIdentity<ApplicationUser, IdentityRole>()
 				.AddEntityFrameworkStores<BloggingContext>()
-				.AddDefaultTokenProviders();
+				.AddDefaultTokenProviders().AddSignInManager<MySignInManager>();
 
 			var builder = services.AddAuthentication();
 			if (!string.IsNullOrEmpty(Configuration["Authentication:Google:ClientId"]))
@@ -224,7 +224,11 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			services.AddAuthorization(options =>
 			{
 				options.AddPolicy("InkBallPlayerPolicy", policy =>
-					policy.RequireAuthenticatedUser()/*.RequireRole("InkBallPlayer")*/);
+				{
+					policy.RequireAuthenticatedUser()
+						//.RequireRole("InkBallPlayer")
+						.AddRequirements(new MinimumAgeRequirement(18));
+				});
 			});
 
 

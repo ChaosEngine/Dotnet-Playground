@@ -4,6 +4,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using AspNetCore.ExistingDb.Helpers;
 using IdentitySample.DefaultUI.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -115,7 +116,7 @@ namespace IdentitySample.DefaultUI
 	public class LoginWith2faModel : LoginWith2faModel<ApplicationUser>
 	{
 		public LoginWith2faModel(
-			SignInManager<ApplicationUser> signInManager,
+			MySignInManager signInManager,
 			UserManager<ApplicationUser> userManager,
 			ILogger<LoginWith2faModel<ApplicationUser>> logger)
 			: base(signInManager, userManager, logger)

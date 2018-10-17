@@ -3,6 +3,7 @@
 
 using System;
 using System.Threading.Tasks;
+using AspNetCore.ExistingDb.Helpers;
 using IdentitySample.DefaultUI.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -78,7 +79,7 @@ namespace IdentitySample.DefaultUI
 	public class TwoFactorAuthenticationModel : TwoFactorAuthenticationModel<ApplicationUser>
 	{
 		public TwoFactorAuthenticationModel(
-			UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ILogger<TwoFactorAuthenticationModel> logger)
+			UserManager<ApplicationUser> userManager, MySignInManager signInManager, ILogger<TwoFactorAuthenticationModel> logger)
 			: base(userManager, signInManager, logger)
 		{
 		}

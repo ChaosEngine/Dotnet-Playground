@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AspNetCore.ExistingDb.Helpers;
 using IdentitySample.DefaultUI.Data;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -138,7 +139,7 @@ namespace IdentitySample.DefaultUI
 	{
 		public ExternalLoginsModel(
 			UserManager<ApplicationUser> userManager,
-			SignInManager<ApplicationUser> signInManager,
+			MySignInManager signInManager,
 			IUserStore<ApplicationUser> userStore) : base(userManager, signInManager, userStore)
 		{
 		}

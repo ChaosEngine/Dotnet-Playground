@@ -4,6 +4,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using AspNetCore.ExistingDb.Helpers;
 using IdentitySample.DefaultUI.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -96,7 +97,7 @@ namespace IdentitySample.DefaultUI
 	{
 		public DeletePersonalDataModel(
 			UserManager<ApplicationUser> userManager,
-			SignInManager<ApplicationUser> signInManager,
+			MySignInManager signInManager,
 			ILogger<DeletePersonalDataModel<ApplicationUser>> logger) : base(userManager, signInManager, logger)
 		{
 		}

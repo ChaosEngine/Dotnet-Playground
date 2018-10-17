@@ -1,10 +1,15 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using IdentitySample.DefaultUI.Data;
+using InkBall.Module;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.Twitter;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
@@ -89,6 +94,35 @@ namespace AspNetCore.ExistingDb.Helpers
 					return new AuthenticationTicket(context.Principal, context.Properties, Scheme.Name);
 				}
 			}
+		}
+	}
+
+	public class MySignInManager : SignInManager<ApplicationUser>
+	{
+		private readonly GamesContext _inkBallContext;
+
+		public MySignInManager(
+			UserManager<ApplicationUser> userManager,
+			IHttpContextAccessor contextAccessor,
+			IUserClaimsPrincipalFactory<ApplicationUser> claimsFactory,
+			IOptions<IdentityOptions> optionsAccessor,
+			ILogger<SignInManager<ApplicationUser>> logger,
+			IAuthenticationSchemeProvider schemes,
+			GamesContext inkBallContext
+			) : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes)
+		{
+			_inkBallContext = inkBallContext;
+		}
+
+		public override async Task<ClaimsPrincipal> CreateUserPrincipalAsync(ApplicationUser user)
+		{
+			var principal = await base.CreateUserPrincipalAsync(user);
+
+			// use this.UserManager if needed
+			var identity = (ClaimsIdentity)principal.Identity;
+			identity.AddClaim(new Claim("InkBallClaimType", "InkBallClaimValue"));
+
+			return principal;
 		}
 	}
 }

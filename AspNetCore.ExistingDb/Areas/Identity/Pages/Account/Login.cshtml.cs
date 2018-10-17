@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using AspNetCore.ExistingDb.Helpers;
 using IdentitySample.DefaultUI.Data;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -113,7 +114,7 @@ namespace IdentitySample.DefaultUI
 
 	public class LoginModel : LoginModel<ApplicationUser>
 	{
-		public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel<ApplicationUser>> logger) : base(signInManager, logger)
+		public LoginModel(MySignInManager signInManager, ILogger<LoginModel<ApplicationUser>> logger) : base(signInManager, logger)
 		{
 		}
 	}

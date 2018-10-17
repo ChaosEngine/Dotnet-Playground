@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using AspNetCore.ExistingDb.Helpers;
 using IdentitySample.DefaultUI.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -19,12 +20,12 @@ namespace IdentitySample.DefaultUI
 		public static readonly string ASPX = "~/Identity/Account/Manage/Index";
 
 		private readonly UserManager<ApplicationUser> _userManager;
-		private readonly SignInManager<ApplicationUser> _signInManager;
+		private readonly MySignInManager _signInManager;
 		private readonly IEmailSender _emailSender;
 
 		public IndexModel(
 			UserManager<ApplicationUser> userManager,
-			SignInManager<ApplicationUser> signInManager,
+			MySignInManager signInManager,
 			IEmailSender emailSender)
 		{
 			_userManager = userManager;

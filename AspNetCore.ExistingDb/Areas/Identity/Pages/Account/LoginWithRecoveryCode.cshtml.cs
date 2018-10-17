@@ -4,6 +4,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using AspNetCore.ExistingDb.Helpers;
 using IdentitySample.DefaultUI.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -107,7 +108,7 @@ namespace IdentitySample.DefaultUI
 	public class LoginWithRecoveryCodeModel : LoginWithRecoveryCodeModel<ApplicationUser>
 	{
 		public LoginWithRecoveryCodeModel(
-			SignInManager<ApplicationUser> signInManager,
+			MySignInManager signInManager,
 			UserManager<ApplicationUser> userManager,
 			ILogger<LoginWithRecoveryCodeModel<ApplicationUser>> logger)
 			: base(signInManager, userManager, logger)

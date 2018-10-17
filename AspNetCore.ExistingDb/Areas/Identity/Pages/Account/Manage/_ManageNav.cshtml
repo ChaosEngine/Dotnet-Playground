@@ -1,6 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Identity.UI.Pages.Account.Manage.Internal;
 @using Microsoft.AspNetCore.Identity;
-@inject SignInManager<ApplicationUser> signInManager
+@using AspNetCore.ExistingDb.Helpers;
+@inject MySignInManager signInManager
 @{ 
 	var schemes = await signInManager.GetExternalAuthenticationSchemesAsync();
 	bool? hasExternalLogins = schemes?.Any();

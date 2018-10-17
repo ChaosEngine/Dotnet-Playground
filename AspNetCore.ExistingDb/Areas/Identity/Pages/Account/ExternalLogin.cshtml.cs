@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using AspNetCore.ExistingDb.Helpers;
 using IdentitySample.DefaultUI.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -188,7 +189,7 @@ namespace IdentitySample.DefaultUI
 	public class ExternalLoginModel : ExternalLoginModel<ApplicationUser>
 	{
 		public ExternalLoginModel(
-			SignInManager<ApplicationUser> signInManager,
+			MySignInManager signInManager,
 			UserManager<ApplicationUser> userManager,
 			IUserStore<ApplicationUser> userStore,
 			ILogger<ExternalLoginModel<ApplicationUser>> logger)
