@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
@@ -120,8 +121,18 @@ namespace AspNetCore.ExistingDb.Helpers
 
 			// use this.UserManager if needed
 			var identity = (ClaimsIdentity)principal.Identity;
-			identity.AddClaim(new Claim("InkBallClaimType", "InkBallClaimValue"));
 
+			InkBallUser found_user = null;
+			var name_identifer = identity.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+			if (name_identifer != null)
+			{
+				var external_id = name_identifer.Value;
+				found_user = _inkBallContext.InkBallUsers.FirstOrDefault(i => i.sExternalId == external_id);
+				if (found_user != null)
+				{
+					identity.AddClaim(new Claim("InkBallClaimType", found_user.iId.ToString(), "InkBallUser"));
+				}
+			}
 			return principal;
 		}
 	}
