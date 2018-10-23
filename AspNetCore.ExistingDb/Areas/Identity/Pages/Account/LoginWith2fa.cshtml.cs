@@ -97,6 +97,7 @@ namespace IdentitySample.DefaultUI
 			if (result.Succeeded)
 			{
 				_logger.LogInformation("User with ID '{UserId}' logged in with 2fa.", userId);
+				returnUrl = returnUrl.StartsWith(Url.Content("~/")) ? returnUrl : Url.Content("~/" + returnUrl.Substring(1));
 				return LocalRedirect(returnUrl);
 			}
 			else if (result.IsLockedOut)

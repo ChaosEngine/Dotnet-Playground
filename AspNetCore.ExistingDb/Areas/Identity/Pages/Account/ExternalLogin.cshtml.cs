@@ -100,6 +100,7 @@ namespace IdentitySample.DefaultUI
 			if (result.Succeeded)
 			{
 				_logger.LogInformation("{Name} logged in with {LoginProvider} provider.", info.Principal.Identity.Name, info.LoginProvider);
+				returnUrl = returnUrl.StartsWith(Url.Content("~/")) ? returnUrl : Url.Content("~/" + returnUrl.Substring(1));
 				return LocalRedirect(returnUrl);
 			}
 			if (result.IsLockedOut)
@@ -148,6 +149,7 @@ namespace IdentitySample.DefaultUI
 					{
 						await _signInManager.SignInAsync(user, isPersistent: false);
 						_logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
+						returnUrl = returnUrl.StartsWith(Url.Content("~/")) ? returnUrl : Url.Content("~/" + returnUrl.Substring(1));
 						return LocalRedirect(returnUrl);
 					}
 				}

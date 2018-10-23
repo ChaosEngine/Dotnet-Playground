@@ -89,6 +89,7 @@ namespace IdentitySample.DefaultUI
 				if (result.Succeeded)
 				{
 					_logger.LogInformation("User logged in.");
+					returnUrl = returnUrl.StartsWith(Url.Content("~/")) ? returnUrl : Url.Content("~/" + returnUrl.Substring(1));
 					return LocalRedirect(returnUrl);
 				}
 				if (result.RequiresTwoFactor)
