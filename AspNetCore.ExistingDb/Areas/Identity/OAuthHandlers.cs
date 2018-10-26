@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -118,21 +119,42 @@ namespace AspNetCore.ExistingDb.Helpers
 		public override async Task<ClaimsPrincipal> CreateUserPrincipalAsync(ApplicationUser user)
 		{
 			var principal = await base.CreateUserPrincipalAsync(user);
-
+			
 			// use this.UserManager if needed
 			var identity = (ClaimsIdentity)principal.Identity;
 
-			InkBallUser found_user = null;
-			var name_identifer = identity.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
-			if (name_identifer != null)
+			var name_identifer = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+			if (!string.IsNullOrEmpty(name_identifer))
 			{
-				var external_id = name_identifer.Value;
-				found_user = _inkBallContext.InkBallUsers.FirstOrDefault(i => i.sExternalId == external_id);
+				var external_id = name_identifer;
+				InkBallUser found_user = _inkBallContext.InkBallUsers.FirstOrDefault(i => i.sExternalId == external_id);
 				if (found_user != null)
 				{
-					identity.AddClaim(new Claim("InkBallClaimType", found_user.iId.ToString(), "InkBallUser"));
+				}
+				else
+				{
+					found_user = new InkBallUser
+					{
+						sExternalId = external_id,
+						iPrivileges = 0,
+					};
+					await _inkBallContext.InkBallUsers.AddAsync(found_user, Context.RequestAborted);
+					await _inkBallContext.SaveChangesAsync(true, Context.RequestAborted);
+				}
+
+				identity.AddClaim(new Claim("InkBallClaimType", found_user.iId.ToString(), "InkBallUser"));
+			}
+
+			if (!identity.HasClaim(x => x.Type == ClaimTypes.DateOfBirth))
+			{
+				if (user.Age > 0)
+				{
+					var date_of_birth = new Claim(ClaimTypes.DateOfBirth,
+						DateTime.UtcNow.AddYears(-user.Age).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+					identity.AddClaim(date_of_birth);
 				}
 			}
+
 			return principal;
 		}
 	}
