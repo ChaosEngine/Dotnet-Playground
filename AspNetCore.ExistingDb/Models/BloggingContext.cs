@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MySql.Data.MySqlClient;
@@ -43,12 +44,13 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		}
 	}
 
-	public partial class BloggingContext : IdentityDbContext<ApplicationUser>
+	public partial class BloggingContext : IdentityDbContext<ApplicationUser>, IDataProtectionKeyContext
 	{
 		public virtual DbSet<Blog> Blogs { get; set; }
 		public virtual DbSet<Post> Posts { get; set; }
 		public virtual DbSet<ThinHashes> ThinHashes { get; set; }
 		public virtual DbSet<HashesInfo> HashesInfo { get; set; }
+		public virtual DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
 
 		public string ConnectionTypeName
 		{
@@ -139,6 +141,16 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 
 				entity.Property(e => e.Id).HasMaxLength(449);
 				entity.Property(e => e.Value).IsRequired();
+			});
+
+			modelBuilder.Entity<DataProtectionKey>(entity =>
+			{
+				entity.HasKey(e => new { e.Id, e.Environment });
+
+				entity.Property(e => e.Environment)
+					.HasConversion(new EnumToNumberConverter<DataProtectionKey.EnvEnum, int>());
+
+				entity.ToTable("DataProtectionKeys");
 			});
 		}
 	}

@@ -307,19 +307,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			// Add framework services.
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-			var keys_directory = Configuration["SharedKeysDirectory"]?.Replace('/', Path.DirectorySeparatorChar)?.Replace('\\', Path.DirectorySeparatorChar);
-			if (!string.IsNullOrEmpty(keys_directory) && Directory.Exists(keys_directory))
-			{
-				services.AddDataProtection()
-					.SetDefaultKeyLifetime(TimeSpan.FromDays(14))
-					.PersistKeysToFileSystem(new DirectoryInfo(keys_directory));
-			}
-			else
-			{
-				services.AddDataProtection()
-					.SetDefaultKeyLifetime(TimeSpan.FromDays(14));
-			}
-
+			services.AddDataProtection()
+				.SetDefaultKeyLifetime(TimeSpan.FromDays(14))
+				.PersistKeysToDbContext<BloggingContext>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
