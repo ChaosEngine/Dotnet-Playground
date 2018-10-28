@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using EFGetStarted.AspNetCore.ExistingDb.Models;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.DataProtection.Repositories;
@@ -14,38 +15,6 @@ using Microsoft.Extensions.Options;
 
 namespace EFGetStarted.AspNetCore.ExistingDb
 {
-	/// <summary>
-	/// Code first model used by <see cref="EntityFrameworkCoreXmlRepository{TContext}"/>.
-	/// </summary>
-	public class DataProtectionKey
-	{
-		public enum EnvEnum
-		{
-			DEVELOPMENT = 0,
-			PRODUCTION
-		}
-
-		/// <summary>
-		/// The entity identifier of the <see cref="DataProtectionKey"/>.
-		/// </summary>
-		public int Id { get; set; }
-
-		/// <summary>
-		/// The friendly name of the <see cref="DataProtectionKey"/>.
-		/// </summary>
-		public string FriendlyName { get; set; }
-
-		/// <summary>
-		/// The XML representation of the <see cref="DataProtectionKey"/>.
-		/// </summary>
-		public string Xml { get; set; }
-
-		/// <summary>
-		/// The environment
-		/// </summary>
-		public EnvEnum Environment { get; set; }
-	}
-
 	/// <summary>
 	/// Interface used to store instances of <see cref="DataProtectionKey"/> in a <see cref="DbContext"/>
 	/// </summary>
@@ -105,7 +74,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				var context = scope.ServiceProvider.GetRequiredService<TContext>();
 				IHostingEnvironment env = scope.ServiceProvider.GetRequiredService<IHostingEnvironment>();
 
-				if (!Enum.TryParse<DataProtectionKey.EnvEnum>(env.EnvironmentName, true, out var env_enum))
+				if (!Enum.TryParse<EnvEnum>(env.EnvironmentName, true, out var env_enum))
 					throw new NotSupportedException("bad env parsing");
 
 				var newKey = new DataProtectionKey()
@@ -134,6 +103,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			}
 		}
 	}
+
+	#region Extensions
 
 	public static class EntityFrameworkCoreDataProtectionExtensions
 	{
@@ -181,4 +152,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		public static void LogSavingKeyToDbContext(this ILogger logger, string friendlyName, string contextName)
 			=> _savingKeyToDbContext(logger, friendlyName, contextName, null);
 	}
+
+	#endregion Extensions
 }

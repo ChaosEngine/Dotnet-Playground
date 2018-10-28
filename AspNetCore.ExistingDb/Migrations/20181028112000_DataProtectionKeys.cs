@@ -19,12 +19,28 @@ namespace AspNetCore.ExistingDb.Migrations
                 {
                     table.PrimaryKey("PK_DataProtectionKeys", x => new { x.Id, x.Environment });
                 });
+
+            migrationBuilder.CreateTable(
+                name: "GoogleProtectionKeys",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    Xml = table.Column<string>(nullable: true),
+                    Environment = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GoogleProtectionKeys", x => new { x.Id, x.Environment });
+                });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
                 name: "DataProtectionKeys");
+
+            migrationBuilder.DropTable(
+                name: "GoogleProtectionKeys");
         }
     }
 }

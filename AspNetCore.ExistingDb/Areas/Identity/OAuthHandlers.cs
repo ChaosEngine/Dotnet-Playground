@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.Twitter;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
@@ -119,35 +120,35 @@ namespace AspNetCore.ExistingDb.Helpers
 		public override async Task<ClaimsPrincipal> CreateUserPrincipalAsync(ApplicationUser user)
 		{
 			var principal = await base.CreateUserPrincipalAsync(user);
-			
+
 			// use this.UserManager if needed
 			var identity = (ClaimsIdentity)principal.Identity;
 
 			var name_identifer = principal.FindFirstValue(ClaimTypes.NameIdentifier);
-			if (!string.IsNullOrEmpty(name_identifer))
+			if (!string.IsNullOrEmpty(name_identifer) && user.Age >= 18)//conditions for InkBallUser to create
 			{
-				var external_id = name_identifer;
-				InkBallUser found_user = _inkBallContext.InkBallUsers.FirstOrDefault(i => i.sExternalId == external_id);
+				InkBallUser found_user = _inkBallContext.InkBallUsers.FirstOrDefault(i => i.sExternalId == name_identifer);
 				if (found_user != null)
 				{
+					//user already created and existing in InkBallUsers, awesome.
 				}
 				else
 				{
 					found_user = new InkBallUser
 					{
-						sExternalId = external_id,
+						sExternalId = name_identifer,
 						iPrivileges = 0,
 					};
 					await _inkBallContext.InkBallUsers.AddAsync(found_user, Context.RequestAborted);
 					await _inkBallContext.SaveChangesAsync(true, Context.RequestAborted);
 				}
 
-				identity.AddClaim(new Claim("InkBallClaimType", found_user.iId.ToString(), "InkBallUser"));
-			}
+				if (!identity.HasClaim(x => x.Type == "InkBallUserId"))
+				{
+					identity.AddClaim(new Claim("InkBallUserId", found_user.iId.ToString(), "InkBallUser"));
+				}
 
-			if (!identity.HasClaim(x => x.Type == ClaimTypes.DateOfBirth))
-			{
-				if (user.Age > 0)
+				if (!identity.HasClaim(x => x.Type == ClaimTypes.DateOfBirth))
 				{
 					var date_of_birth = new Claim(ClaimTypes.DateOfBirth,
 						DateTime.UtcNow.AddYears(-user.Age).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
@@ -156,6 +157,21 @@ namespace AspNetCore.ExistingDb.Helpers
 			}
 
 			return principal;
+		}
+
+		public override async Task SignOutAsync()
+		{
+			var name_identifer = base.Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+			var games_to_surrender = _inkBallContext.InkBallGame
+				.Include(gp1 => gp1.Player1)
+					.ThenInclude(p1 => p1.User)
+				.Include(gp2 => gp2.Player2)
+					.ThenInclude(p2 => p2.User)
+				.Where(w => w.Player1.User.sExternalId == name_identifer || w.Player2.User.sExternalId == name_identifer)
+				.ToList();
+
+			await base.SignOutAsync();
 		}
 	}
 }

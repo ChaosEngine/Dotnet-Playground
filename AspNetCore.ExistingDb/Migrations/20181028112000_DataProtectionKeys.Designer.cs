@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AspNetCore.ExistingDb.Migrations
 {
     [DbContext(typeof(BloggingContext))]
-    [Migration("20181027203901_DataProtectionKeys")]
+    [Migration("20181028112000_DataProtectionKeys")]
     partial class DataProtectionKeys
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -41,7 +41,20 @@ namespace AspNetCore.ExistingDb.Migrations
                     b.ToTable("SessionCache");
                 });
 
-            modelBuilder.Entity("EFGetStarted.AspNetCore.ExistingDb.DataProtectionKey", b =>
+            modelBuilder.Entity("EFGetStarted.AspNetCore.ExistingDb.Models.Blog", b =>
+                {
+                    b.Property<int>("BlogId")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Url")
+                        .IsRequired();
+
+                    b.HasKey("BlogId");
+
+                    b.ToTable("Blog");
+                });
+
+            modelBuilder.Entity("EFGetStarted.AspNetCore.ExistingDb.Models.DataProtectionKey", b =>
                 {
                     b.Property<int>("Id");
 
@@ -56,17 +69,17 @@ namespace AspNetCore.ExistingDb.Migrations
                     b.ToTable("DataProtectionKeys");
                 });
 
-            modelBuilder.Entity("EFGetStarted.AspNetCore.ExistingDb.Models.Blog", b =>
+            modelBuilder.Entity("EFGetStarted.AspNetCore.ExistingDb.Models.GoogleProtectionKey", b =>
                 {
-                    b.Property<int>("BlogId")
-                        .ValueGeneratedOnAdd();
+                    b.Property<string>("Id");
 
-                    b.Property<string>("Url")
-                        .IsRequired();
+                    b.Property<int>("Environment");
 
-                    b.HasKey("BlogId");
+                    b.Property<string>("Xml");
 
-                    b.ToTable("Blog");
+                    b.HasKey("Id", "Environment");
+
+                    b.ToTable("GoogleProtectionKeys");
                 });
 
             modelBuilder.Entity("EFGetStarted.AspNetCore.ExistingDb.Models.HashesInfo", b =>

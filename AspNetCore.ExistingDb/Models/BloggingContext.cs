@@ -3,19 +3,8 @@ using IdentitySample.DefaultUI.Data;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using MySql.Data.MySqlClient;
 using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.IO;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text.RegularExpressions;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Models
 {
@@ -44,13 +33,14 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		}
 	}
 
-	public partial class BloggingContext : IdentityDbContext<ApplicationUser>, IDataProtectionKeyContext
+	public partial class BloggingContext : IdentityDbContext<ApplicationUser>, IDataProtectionKeyContext, IGoogleKeyContext
 	{
 		public virtual DbSet<Blog> Blogs { get; set; }
 		public virtual DbSet<Post> Posts { get; set; }
 		public virtual DbSet<ThinHashes> ThinHashes { get; set; }
 		public virtual DbSet<HashesInfo> HashesInfo { get; set; }
 		public virtual DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
+		public virtual DbSet<GoogleProtectionKey> GoogleProtectionKeys { get; set; }
 
 		public string ConnectionTypeName
 		{
@@ -148,9 +138,19 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 				entity.HasKey(e => new { e.Id, e.Environment });
 
 				entity.Property(e => e.Environment)
-					.HasConversion(new EnumToNumberConverter<DataProtectionKey.EnvEnum, int>());
+					.HasConversion(new EnumToNumberConverter<EnvEnum, int>());
 
 				entity.ToTable("DataProtectionKeys");
+			});
+
+			modelBuilder.Entity<GoogleProtectionKey>(entity =>
+			{
+				entity.HasKey(e => new { e.Id, e.Environment });
+
+				entity.Property(e => e.Environment)
+					.HasConversion(new EnumToNumberConverter<EnvEnum, int>());
+
+				entity.ToTable("GoogleProtectionKeys");
 			});
 		}
 	}

@@ -47,6 +47,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 			ViewData["FullAddress"] = $"{Request.Scheme}://{Request.Host}{_configuration.AppRootPath()}";
 
+			ViewData["AppTitleName"] = _configuration["AppTitleName"];
+
 			return await Task.FromResult(View());
 		}
 

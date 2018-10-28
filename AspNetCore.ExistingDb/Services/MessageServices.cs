@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -43,10 +44,13 @@ namespace IdentitySample.Services
 
 		private readonly ILogger<AuthMessageSender> _logger;
 
-		public AuthMessageSender(IOptions<EmailSettings> emailSettings, ILogger<AuthMessageSender> logger)
+		private readonly IConfiguration _configuration;
+
+		public AuthMessageSender(IOptions<EmailSettings> emailSettings, ILogger<AuthMessageSender> logger, IConfiguration configuration)
 		{
 			_emailSettings = emailSettings.Value;
 			_logger = logger;
+			_configuration = configuration;
 		}
 
 		public async Task Execute(string email, string subject, string message)
@@ -66,7 +70,7 @@ namespace IdentitySample.Services
 				if (!string.IsNullOrEmpty(_emailSettings.BccEmail))
 					mail.Bcc.Add(new MailAddress(_emailSettings.BccEmail));
 
-				mail.Subject = $"Personal Management System - {subject}";
+				mail.Subject = $"{_configuration["AppTitleName"]} personal management system - {subject}";
 				mail.Body = message;
 				mail.IsBodyHtml = true;
 				mail.Priority = MailPriority.High;
