@@ -4,6 +4,7 @@ using Microsoft.Extensions.FileProviders.Physical;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -53,7 +54,7 @@ namespace AspNetCore.ExistingDb.Services
 			{
 				var logger = scope.ServiceProvider.GetRequiredService<ILogger<FileWatcherBackgroundOperation>>();
 
-				if (string.IsNullOrEmpty(_directoryToWatch))
+				if (string.IsNullOrEmpty(_directoryToWatch) || !Directory.Exists(_directoryToWatch))
 				{
 					logger.LogWarning("'ImageDirectory' directory not found from configuration");
 					return;

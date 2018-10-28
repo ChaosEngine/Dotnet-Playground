@@ -50,6 +50,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\Caching-MySQL\src\Pomelo.Extensions.Caching.MySql\Pomelo.Extensions.Caching.MySql.csproj" />
 		<ProjectReference Include="..\InkBall\src\InkBall.Module\InkBall.Module.csproj" />
+		<Watch Include="..\InkBall\src\InkBall.Module\**\*.cshtml" />
 	</ItemGroup>
 
 	<ItemGroup>
