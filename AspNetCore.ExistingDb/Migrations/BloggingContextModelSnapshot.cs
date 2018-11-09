@@ -3,7 +3,9 @@ using System;
 using EFGetStarted.AspNetCore.ExistingDb.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace AspNetCore.ExistingDb.Migrations
 {
@@ -54,15 +56,18 @@ namespace AspNetCore.ExistingDb.Migrations
 
             modelBuilder.Entity("EFGetStarted.AspNetCore.ExistingDb.Models.DataProtectionKey", b =>
                 {
-                    b.Property<int>("Id");
-
-                    b.Property<int>("Environment");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("Sqlite:Autoincrement", true)
+						.HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
+						.HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
+						.HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
 
                     b.Property<string>("FriendlyName");
 
                     b.Property<string>("Xml");
 
-                    b.HasKey("Id", "Environment");
+                    b.HasKey("Id");
 
                     b.ToTable("DataProtectionKeys");
                 });

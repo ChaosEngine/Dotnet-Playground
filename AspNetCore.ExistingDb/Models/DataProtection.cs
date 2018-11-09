@@ -32,6 +32,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		/// <summary>
 		/// The environment
 		/// </summary>
-		public EnvEnum Environment { get; set; }
+		// public EnvEnum Environment { get; set; }
 	}
 }

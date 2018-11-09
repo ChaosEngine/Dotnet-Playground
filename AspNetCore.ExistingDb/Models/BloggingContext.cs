@@ -135,10 +135,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 
 			modelBuilder.Entity<DataProtectionKey>(entity =>
 			{
-				entity.HasKey(e => new { e.Id, e.Environment });
+				entity.HasKey(e => e.Id);
 
-				entity.Property(e => e.Environment)
-					.HasConversion(new EnumToNumberConverter<EnvEnum, int>());
+				entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
 				entity.ToTable("DataProtectionKeys");
 			});

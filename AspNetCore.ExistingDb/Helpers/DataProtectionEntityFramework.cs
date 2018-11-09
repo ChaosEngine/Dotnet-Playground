@@ -59,8 +59,10 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				var context = scope.ServiceProvider.GetRequiredService<TContext>();
 				IHostingEnvironment env = scope.ServiceProvider.GetRequiredService<IHostingEnvironment>();
 
+				string environment_like = $"{env.EnvironmentName}_%";
+
 				var found_keys = context.DataProtectionKeys.AsNoTracking()
-					.Where(w => w.Environment.ToString().ToLowerInvariant() == env.EnvironmentName.ToLowerInvariant())
+					.Where(w => EF.Functions.Like(w.FriendlyName, environment_like))
 					.Select(key => TryParseKeyXml(key.Xml)).ToList().AsReadOnly();
 				return found_keys;
 			}
@@ -79,9 +81,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 				var newKey = new DataProtectionKey()
 				{
-					FriendlyName = friendlyName,
+					FriendlyName = $"{env.EnvironmentName}_{friendlyName}",
 					Xml = element.ToString(SaveOptions.DisableFormatting),
-					Environment = env_enum,
+					// Environment = env_enum,
 				};
 
 				context.DataProtectionKeys.Add(newKey);

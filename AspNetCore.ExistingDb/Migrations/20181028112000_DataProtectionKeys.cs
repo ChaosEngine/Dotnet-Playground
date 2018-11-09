@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace AspNetCore.ExistingDb.Migrations
 {
@@ -10,14 +12,17 @@ namespace AspNetCore.ExistingDb.Migrations
                 name: "DataProtectionKeys",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false),
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true)
+						.Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
+						.Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
+						.Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     FriendlyName = table.Column<string>(nullable: true),
-                    Xml = table.Column<string>(nullable: true),
-                    Environment = table.Column<int>(nullable: false)
+                    Xml = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DataProtectionKeys", x => new { x.Id, x.Environment });
+                    table.PrimaryKey("PK_DataProtectionKeys", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -25,12 +30,11 @@ namespace AspNetCore.ExistingDb.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
-                    Xml = table.Column<string>(nullable: true),
-                    Environment = table.Column<int>(nullable: false)
+                    Xml = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_GoogleProtectionKeys", x => new { x.Id, x.Environment });
+                    table.PrimaryKey("PK_GoogleProtectionKeys", x => x.Id);
                 });
         }
 
