@@ -2,10 +2,22 @@ FROM microsoft/dotnet:2.1-sdk-alpine AS build
 RUN apk add --update nodejs nodejs-npm
 RUN npm i gulp@next -g
 WORKDIR /build
-COPY . .
 
 ENV DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/netcoreapp2.1/Blogging.db"
-RUN dotnet test -v n AspNetCore.ExistingDb.Tests
+
+COPY ./InkBall/src/InkBall.Module/InkBall.Module.csproj ./InkBall/src/InkBall.Module/InkBall.Module.csproj
+COPY ./InkBall/test/InkBall.Tests/InkBall.Tests.csproj ./InkBall/test/InkBall.Tests/InkBall.Tests.csproj
+COPY ./AspNetCore.ExistingDb.Tests/AspNetCore.ExistingDb.Tests.csproj ./AspNetCore.ExistingDb.Tests/AspNetCore.ExistingDb.Tests.csproj
+COPY ./Caching-MySQL/src/Pomelo.Extensions.Caching.MySqlConfig.Tools/Pomelo.Extensions.Caching.MySqlConfig.Tools.csproj ./Caching-MySQL/src/Pomelo.Extensions.Caching.MySqlConfig.Tools/Pomelo.Extensions.Caching.MySqlConfig.Tools.csproj
+COPY ./Caching-MySQL/src/Pomelo.Extensions.Caching.MySql/Pomelo.Extensions.Caching.MySql.csproj ./Caching-MySQL/src/Pomelo.Extensions.Caching.MySql/Pomelo.Extensions.Caching.MySql.csproj
+COPY ./Caching-MySQL/test/Pomelo.Extensions.Caching.MySql.Tests/Pomelo.Extensions.Caching.MySql.Tests.csproj ./Caching-MySQL/test/Pomelo.Extensions.Caching.MySql.Tests/Pomelo.Extensions.Caching.MySql.Tests.csproj
+COPY ./AspNetCore.ExistingDb/AspNetCore.ExistingDb.csproj ./AspNetCore.ExistingDb/AspNetCore.ExistingDb.csproj
+COPY ./NuGet.config ./NuGet.config
+COPY ./Samples.vs2015.sln ./Samples.vs2015.sln
+RUN dotnet restore
+
+COPY . .
+RUN dotnet test -v m --no-restore AspNetCore.ExistingDb.Tests
 RUN dotnet publish -c Release -r alpine.3.7-x64 \
     #-p:PublishWithAspNetCoreTargetManifest=false #remove this afer prerelease patch publish \
 	/p:ShowLinkerSizeComparison=true /p:CrossGenDuringPublish=false \
@@ -16,20 +28,16 @@ RUN dotnet publish -c Release -r alpine.3.7-x64 \
 
 
 
-
 FROM microsoft/dotnet:2.1-runtime-deps-alpine
-#RUN apk add --no-cache libuv libunwind8 icu-devtools libssl1.0-dev #&& ln -s /usr/lib/libuv.so.1 /usr/lib/libuv.so
 WORKDIR /app
 COPY --from=build --chown=xfs:xfs /build/AspNetCore.ExistingDb/bin/Release/netcoreapp2.1/alpine.3.7-x64/publish/ /build/startApp.sh ./
 
 ENV TZ=Europe/Warsaw USER=xfs ASPNETCORE_URLS=http://+:5000
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-#RUN chown -R $USER:$USER .
 USER "$USER"
 
 VOLUME /shared
 EXPOSE 5000
 
-#ENTRYPOINT ["./startApp.sh"]
 ENTRYPOINT ["./AspNetCore.ExistingDb"]
