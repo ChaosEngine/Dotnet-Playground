@@ -125,7 +125,7 @@ namespace AspNetCore.ExistingDb.Helpers
 			var identity = (ClaimsIdentity)principal.Identity;
 
 			var name_identifer = principal.FindFirstValue(ClaimTypes.NameIdentifier);
-			if (!string.IsNullOrEmpty(name_identifer) && user.Age >= 18)//conditions for InkBallUser to create
+			if (!string.IsNullOrEmpty(name_identifer) && user.Age >= MinimumAgeRequirement.MinimumAge)//conditions for InkBallUser to create
 			{
 				InkBallUser found_user = _inkBallContext.InkBallUsers.FirstOrDefault(i => i.sExternalId == name_identifer);
 				if (found_user != null)
@@ -143,9 +143,10 @@ namespace AspNetCore.ExistingDb.Helpers
 					await _inkBallContext.SaveChangesAsync(true, Context.RequestAborted);
 				}
 
-				if (!identity.HasClaim(x => x.Type == "InkBallUserId"))
+				if (!identity.HasClaim(x => x.Type == nameof(InkBall.Module.Pages.HomeModel.InkBallUserId)))
 				{
-					identity.AddClaim(new Claim("InkBallUserId", found_user.iId.ToString(), "InkBallUser"));
+					identity.AddClaim(new Claim(nameof(InkBall.Module.Pages.HomeModel.InkBallUserId), found_user.iId.ToString(),
+						nameof(InkBall.Module.InkBallUser)));
 				}
 
 				if (!identity.HasClaim(x => x.Type == ClaimTypes.DateOfBirth))
@@ -170,6 +171,11 @@ namespace AspNetCore.ExistingDb.Helpers
 					.ThenInclude(p2 => p2.User)
 				.Where(w => w.Player1.User.sExternalId == name_identifer || w.Player2.User.sExternalId == name_identifer)
 				.ToList();
+
+			foreach (InkBallGame gm in games_to_surrender)
+			{
+				_inkBallContext.SurrenderGameFromPlayer(gm);
+			}
 
 			await base.SignOutAsync();
 		}

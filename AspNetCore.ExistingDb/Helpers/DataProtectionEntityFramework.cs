@@ -58,6 +58,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			{
 				var context = scope.ServiceProvider.GetRequiredService<TContext>();
 				IHostingEnvironment env = scope.ServiceProvider.GetRequiredService<IHostingEnvironment>();
+				if (env == null)
+					throw new ArgumentNullException(nameof(IHostingEnvironment));
 
 				string environment_like = $"{env.EnvironmentName}_%";
 
@@ -75,6 +77,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			{
 				var context = scope.ServiceProvider.GetRequiredService<TContext>();
 				IHostingEnvironment env = scope.ServiceProvider.GetRequiredService<IHostingEnvironment>();
+				if (env == null)
+					throw new ArgumentNullException(nameof(IHostingEnvironment));
 
 				if (!Enum.TryParse<EnvEnum>(env.EnvironmentName, true, out var env_enum))
 					throw new NotSupportedException("bad env parsing");

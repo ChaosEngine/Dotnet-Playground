@@ -30,7 +30,8 @@ namespace AspNetCore.ExistingDb.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(nullable: false),
-                    Xml = table.Column<string>(nullable: true)
+                    Xml = table.Column<string>(nullable: true),
+                    Environment = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
