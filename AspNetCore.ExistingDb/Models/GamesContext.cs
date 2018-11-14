@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Models
 {
-	public class GamesContextFactory : ContextFactory, IDesignTimeDbContextFactory<InkBall.Module.GamesContext>
+	public class GamesContextFactory : ContextFactory, IDesignTimeDbContextFactory<InkBall.Module.Model.GamesContext>
 	{
 		/// <summary>
 		// A factory for creating derived Microsoft.EntityFrameworkCore.DbContext instances.
@@ -17,15 +17,15 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		/// </summary>
 		/// <param name="args"></param>
 		/// <returns></returns>
-		public InkBall.Module.GamesContext CreateDbContext(string[] args)
+		public InkBall.Module.Model.GamesContext CreateDbContext(string[] args)
 		{
 			var configuration = GetConfiguration(args);
 
-			var optionsBuilder = new DbContextOptionsBuilder<InkBall.Module.GamesContext>();
+			var optionsBuilder = new DbContextOptionsBuilder<InkBall.Module.Model.GamesContext>();
 
 			ConfigureDBKind(optionsBuilder, configuration, null);
 
-			return new InkBall.Module.GamesContext(optionsBuilder.Options);
+			return new InkBall.Module.Model.GamesContext(optionsBuilder.Options);
 		}
 	}
 }

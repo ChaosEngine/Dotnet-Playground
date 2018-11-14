@@ -2,9 +2,10 @@
 using AspNetCore.ExistingDb.Repositories;
 using AspNetCore.ExistingDb.Services;
 using EFGetStarted.AspNetCore.ExistingDb.Models;
+using InkBall.Module;
+using InkBall.Module.Model;
 using IdentitySample.DefaultUI.Data;
 using IdentitySample.Services;
-using InkBall.Module;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.OAuth;
@@ -227,7 +228,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				{
 					policy.RequireAuthenticatedUser()
 						//.RequireRole("InkBallPlayer")
-						.AddRequirements(new MinimumAgeRequirement(18));
+						.AddRequirements(new InkBall.Module.MinimumAgeRequirement(18));
 				});
 			});
 
@@ -238,7 +239,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 			#region WIP
 
-			services.AddInkBallCommonUI<GamesContext>(env, options =>
+			services.AddInkBallCommonUI<InkBall.Module.Model.GamesContext>(env, options =>
 			{
 				// options.WwwRoot = "wrongwrongwrong";
 				// options.HeadElementsSectionName = "head-head-head-Elements";
@@ -288,7 +289,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			{
 				ContextFactory.ConfigureDBKind(options, Configuration);
 			});
-			services.AddDbContextPool<InkBall.Module.GamesContext>(options =>
+			services.AddDbContextPool<InkBall.Module.Model.GamesContext>(options =>
 			{
 				ContextFactory.ConfigureDBKind(options, Configuration);
 			});
@@ -306,6 +307,13 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 			// Add framework services.
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+			services.AddSignalR(options =>
+			{
+#if DEBUG
+				options.EnableDetailedErrors = true;
+#endif
+			});
 
 			services.AddDataProtection()
 				.SetDefaultKeyLifetime(TimeSpan.FromDays(14))
@@ -344,6 +352,11 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			app.UseSession();
 
 			app.UseAuthentication();
+
+			app.UseSignalR(routes =>
+			{
+				routes.MapHub<InkBall.Module.Hubs.ChatHub>("/chatHub");
+			});
 
 			app.UseMvc(routes =>
 			{

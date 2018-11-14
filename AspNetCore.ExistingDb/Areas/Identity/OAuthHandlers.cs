@@ -1,5 +1,6 @@
 ﻿using IdentitySample.DefaultUI.Data;
 using InkBall.Module;
+using InkBall.Module.Model;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.OAuth;
@@ -146,7 +147,7 @@ namespace AspNetCore.ExistingDb.Helpers
 				if (!identity.HasClaim(x => x.Type == nameof(InkBall.Module.Pages.HomeModel.InkBallUserId)))
 				{
 					identity.AddClaim(new Claim(nameof(InkBall.Module.Pages.HomeModel.InkBallUserId), found_user.iId.ToString(),
-						nameof(InkBall.Module.InkBallUser)));
+						nameof(InkBall.Module.Model.InkBallUser)));
 				}
 
 				if (!identity.HasClaim(x => x.Type == ClaimTypes.DateOfBirth))

@@ -33,6 +33,7 @@
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.1.1" />
 		<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.1.3" />
 		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.36.1.1226" />
+    	<PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.0.4" />
 		<PackageReference Include="RedHat.AspNetCore.Server.Kestrel.Transport.Linux" Version="2.1.0-preview1" />
 		<PackageReference Include="ILLink.Tasks" Version="0.1.5-preview-1841731" />
 	</ItemGroup>
