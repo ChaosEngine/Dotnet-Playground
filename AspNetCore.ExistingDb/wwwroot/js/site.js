@@ -8,10 +8,10 @@ var logLevel = {
 	Error: 4
 };
 
-var g_AppRootPath = "/Home/ClientsideLog";
+var g_LogPath = g_AppRootPath + "Home/ClientsideLog";
 
 function ajaxLog(level, message, url, line, col, error) {
-	$.post(g_AppRootPath, {
+	$.post(g_LogPath, {
 		"level": level, "message": message, "url": url, "line": line, "col": col, "error": error
 	});
 };
@@ -38,9 +38,6 @@ function clientValidate(button) {
 };
 
 (function () {
-	if (window.location.pathname.indexOf("/dotnet") == 0)
-		g_AppRootPath = "/dotnet/Home/ClientsideLog";
-
 	var org_trace = console.trace;
 	var org_debug = console.debug;
 	var org_info = console.info;

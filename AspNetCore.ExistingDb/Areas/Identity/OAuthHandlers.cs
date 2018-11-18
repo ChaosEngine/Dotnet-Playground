@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.Twitter;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
@@ -24,30 +25,40 @@ namespace AspNetCore.ExistingDb.Helpers
 {
 	public class MyGoogleHandler : GoogleHandler
 	{
-		public MyGoogleHandler(IOptionsMonitor<GoogleOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
+		private readonly IConfiguration _configuration;
+
+		public MyGoogleHandler(IOptionsMonitor<GoogleOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, IConfiguration configuration)
 			: base(options, logger, encoder, clock)
-		{ }
+		{
+			_configuration = configuration;
+		}
 
 		public override Task<bool> ShouldHandleRequestAsync()
 		{
-			return Task.FromResult(Options.CallbackPath.Value.Replace("/dotnet", "") == Request.Path.Value);
+			return Task.FromResult(Options.CallbackPath.Value.Replace(_configuration["AppRootPath"], "/") == Request.Path.Value);
 		}
 	}
 
 	public class MyTwitterHandler : TwitterHandler
 	{
-		public MyTwitterHandler(IOptionsMonitor<TwitterOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
+		private readonly IConfiguration _configuration;
+
+		public MyTwitterHandler(IOptionsMonitor<TwitterOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, IConfiguration configuration)
 		   : base(options, logger, encoder, clock)
-		{ }
+		{
+			_configuration = configuration;
+		}
 
 		public override Task<bool> ShouldHandleRequestAsync()
 		{
-			return Task.FromResult(Options.CallbackPath.Value.Replace("/dotnet", "") == Request.Path.Value);
+			return Task.FromResult(Options.CallbackPath.Value.Replace(_configuration["AppRootPath"], "/") == Request.Path.Value);
 		}
 	}
 
 	public class MyGithubHandler : OAuthHandler<MyGithubHandler.GitHubOptions>
 	{
+		private readonly IConfiguration _configuration;
+
 		public class GitHubOptions : OAuthOptions
 		{
 			public GitHubOptions()
@@ -66,13 +77,15 @@ namespace AspNetCore.ExistingDb.Helpers
 			}
 		}
 
-		public MyGithubHandler(IOptionsMonitor<GitHubOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
+		public MyGithubHandler(IOptionsMonitor<GitHubOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, IConfiguration configuration)
 		   : base(options, logger, encoder, clock)
-		{ }
+		{
+			_configuration = configuration;
+		}
 
 		public override Task<bool> ShouldHandleRequestAsync()
 		{
-			return Task.FromResult(Options.CallbackPath.Value.Replace("/dotnet", "") == Request.Path.Value);
+			return Task.FromResult(Options.CallbackPath.Value.Replace(_configuration["AppRootPath"], "/") == Request.Path.Value);
 		}
 
 		protected async override Task<AuthenticationTicket> CreateTicketAsync(ClaimsIdentity identity, AuthenticationProperties properties, OAuthTokenResponse tokens)

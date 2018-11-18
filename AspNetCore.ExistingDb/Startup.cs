@@ -245,6 +245,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				// options.HeadElementsSectionName = "head-head-head-Elements";
 				// options.ScriptsSectionName = "Script_Injection";
 				options.AuthorizationPolicyName = "InkBallPlayerPolicy";
+				options.AppRootPath = Configuration["AppRootPath"];
 			});
 
 			#endregion WIP
@@ -256,10 +257,12 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		private void UseProxyForwardingAndDomainPathHelper(IApplicationBuilder app)
 		{
 #if DEBUG
+			string path_to_replace = Configuration["AppRootPath"].TrimEnd('/');
+
 			//Check for reverse proxing and bump HTTP scheme to https
 			app.Use((context, next) =>
 			{
-				if (context.Request.Path.StartsWithSegments("/dotnet", out var remainder))
+				if (context.Request.Path.StartsWithSegments(path_to_replace, out var remainder))
 					context.Request.Path = remainder;
 				if (context.Request.Headers.ContainsKey(ForwardedHeadersDefaults.XForwardedHostHeaderName))
 					context.Request.Scheme = "https";
@@ -280,9 +283,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		{
 			var env = services.FirstOrDefault(x => x.ServiceType == typeof(IHostingEnvironment)).ImplementationInstance as IHostingEnvironment;
 
-#if DEBUG
-			Configuration["AppRootPath"] = "/dotnet/";
-#endif
 			ConfigureDependencyInjection(services);
 
 			services.AddDbContextPool<BloggingContext>(options =>
@@ -310,9 +310,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 			services.AddSignalR(options =>
 			{
-#if DEBUG
 				options.EnableDetailedErrors = true;
-#endif
+				//options.SupportedProtocols = new System.Collections.Generic.List<string>(new[] { "websocket" });
 			});
 
 			services.AddDataProtection()
@@ -353,9 +352,10 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 			app.UseAuthentication();
 
+			app.LogRequestHeaders(loggerFactory, "Upgrade");//display all 'Upgrade:Connection' headers occurence
 			app.UseSignalR(routes =>
 			{
-				routes.MapHub<InkBall.Module.Hubs.ChatHub>("/chatHub");
+				routes.MapHub<InkBall.Module.Hubs.ChatHub>('/' + InkBall.Module.Hubs.ChatHub.HubName);
 			});
 
 			app.UseMvc(routes =>
@@ -363,6 +363,35 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				routes.MapRoute(
 					name: "default",
 					template: "{controller=Home}/{action=Index}/{id?}");
+			});
+		}
+	}
+
+	public static class IApplicationBuilderExtensions
+	{
+		/// <summary>
+		/// Logs all request headers
+		/// </summary>
+		/// <param name="app">builder<see cref="IApplicationBuilder"/></param>
+		/// <param name="loggerFactory"<see cref="ILoggerFactory"/></param>
+		public static void LogRequestHeaders(this IApplicationBuilder app, ILoggerFactory loggerFactory, string searchedHeader)
+		{
+			var logger = loggerFactory.CreateLogger("Request Headers");
+
+			app.Use(async (context, next) =>
+			{
+				if (context.Request.Headers.ContainsKey(searchedHeader))
+				{
+					var builder = new System.Text.StringBuilder(Environment.NewLine);
+					foreach (var header in context.Request.Headers)
+					{
+						builder.AppendLine($"{header.Key}:{header.Value}");
+					}
+					if (builder.Length > 0)
+						logger.LogWarning(builder.ToString());
+				}
+
+				await next.Invoke();
 			});
 		}
 	}
