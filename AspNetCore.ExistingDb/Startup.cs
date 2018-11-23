@@ -366,33 +366,4 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			});
 		}
 	}
-
-	public static class IApplicationBuilderExtensions
-	{
-		/// <summary>
-		/// Logs all request headers
-		/// </summary>
-		/// <param name="app">builder<see cref="IApplicationBuilder"/></param>
-		/// <param name="loggerFactory"<see cref="ILoggerFactory"/></param>
-		public static void LogRequestHeaders(this IApplicationBuilder app, ILoggerFactory loggerFactory, string searchedHeader)
-		{
-			var logger = loggerFactory.CreateLogger("Request Headers");
-
-			app.Use(async (context, next) =>
-			{
-				if (context.Request.Headers.ContainsKey(searchedHeader))
-				{
-					var builder = new System.Text.StringBuilder(Environment.NewLine);
-					foreach (var header in context.Request.Headers)
-					{
-						builder.AppendLine($"{header.Key}:{header.Value}");
-					}
-					if (builder.Length > 0)
-						logger.LogWarning(builder.ToString());
-				}
-
-				await next.Invoke();
-			});
-		}
-	}
 }
