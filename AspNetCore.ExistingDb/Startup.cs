@@ -3,12 +3,9 @@ using AspNetCore.ExistingDb.Repositories;
 using AspNetCore.ExistingDb.Services;
 using EFGetStarted.AspNetCore.ExistingDb.Models;
 using InkBall.Module;
-using InkBall.Module.Model;
 using IdentitySample.DefaultUI.Data;
 using IdentitySample.Services;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.Twitter;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
@@ -23,14 +20,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Security.Cryptography.X509Certificates;
+using System.Collections.Generic;
+using Newtonsoft.Json.Serialization;
 
 //[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
 
@@ -308,15 +304,29 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			// Add framework services.
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
+			var protection_builder = services.AddDataProtection()
+				.SetDefaultKeyLifetime(TimeSpan.FromDays(14))
+				.PersistKeysToDbContext<BloggingContext>();
+			if (!string.IsNullOrEmpty(Configuration["DataProtection:CertFile"]))
+				protection_builder.ProtectKeysWithCertificate(new X509Certificate2(Configuration["DataProtection:CertFile"], Configuration["DataProtection:CertPassword"]));
+
+
 			services.AddSignalR(options =>
 			{
 				options.EnableDetailedErrors = true;
 				//options.SupportedProtocols = new System.Collections.Generic.List<string>(new[] { "websocket" });
+			})
+			.AddJsonProtocol(options =>
+			{
+				options.PayloadSerializerSettings.ContractResolver = new DefaultContractResolver();
+			})
+			.AddMessagePackProtocol(options =>
+			{
+				options.FormatterResolvers = new List<MessagePack.IFormatterResolver>()
+				{
+					MessagePack.Resolvers.StandardResolver.Instance
+				};
 			});
-
-			services.AddDataProtection()
-				.SetDefaultKeyLifetime(TimeSpan.FromDays(14))
-				.PersistKeysToDbContext<BloggingContext>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -352,7 +362,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 			app.UseAuthentication();
 
-			app.LogRequestHeaders(loggerFactory, "Upgrade");//display all 'Upgrade:Connection' headers occurence
+			//app.LogRequestHeaders(loggerFactory, "Upgrade");//display all 'Upgrade:Connection' headers occurence
 			app.UseSignalR(routes =>
 			{
 				routes.MapHub<InkBall.Module.Hubs.ChatHub>('/' + InkBall.Module.Hubs.ChatHub.HubName);
