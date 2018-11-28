@@ -235,7 +235,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 			#region WIP
 
-			services.AddInkBallCommonUI<InkBall.Module.Model.GamesContext>(env, options =>
+			services.AddInkBallCommonUI<InkBall.Module.Model.GamesContext, ApplicationUser>(env, options =>
 			{
 				// options.WwwRoot = "wrongwrongwrong";
 				// options.HeadElementsSectionName = "head-head-head-Elements";

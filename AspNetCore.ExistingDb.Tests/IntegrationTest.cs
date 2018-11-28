@@ -24,11 +24,11 @@ namespace Integration
 		{
 			return myObj.GetType()
 				.GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public)
-				.Select(pi => new { Name = pi.Name, Value = pi.GetValue(myObj, null)?.ToString() })
+				.Select(pi => new { pi.Name, Value = pi.GetValue(myObj, null)?.ToString() })
 				.Union(
 					myObj.GetType()
 						.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public)
-						.Select(fi => new { Name = fi.Name, Value = fi.GetValue(myObj)?.ToString() })
+						.Select(fi => new { fi.Name, Value = fi.GetValue(myObj)?.ToString() })
 				)
 				.ToDictionary(ks => ks.Name, vs => vs.Value);
 		}
