@@ -110,9 +110,18 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			return btq;
 		}
 
-		void ConfigureDependencyInjection(IServiceCollection services)
+		void ConfigureDependencyInjection(IServiceCollection services, IHostingEnvironment env)
 		{
 			services.AddSingleton(Configuration);
+
+			services.AddLogging(loggingBuilder =>
+			{
+				loggingBuilder.AddConfiguration(Configuration.GetSection("Logging"));
+				loggingBuilder.AddConsole();
+
+				if (env.IsDevelopment())
+					loggingBuilder.AddDebug();
+			});
 #if DEBUG
 			//services.AddSingleton<ICompilationService, RoslynCompilationService>();
 			services.AddSingleton<Microsoft.AspNetCore.Razor.Language.RazorTemplateEngine, CustomTemplateEngine>();
@@ -279,7 +288,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		{
 			var env = services.FirstOrDefault(x => x.ServiceType == typeof(IHostingEnvironment)).ImplementationInstance as IHostingEnvironment;
 
-			ConfigureDependencyInjection(services);
+			ConfigureDependencyInjection(services, env);
 
 			services.AddDbContextPool<BloggingContext>(options =>
 			{
@@ -302,7 +311,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			});
 
 			// Add framework services.
-			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
 			var protection_builder = services.AddDataProtection()
 				.SetDefaultKeyLifetime(TimeSpan.FromDays(14))
@@ -330,15 +339,12 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 		{
-			loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-
 			UseProxyForwardingAndDomainPathHelper(app);
 
 			if (env.IsDevelopment())
 			{
-				loggerFactory.AddDebug();
 				app.UseDeveloperExceptionPage();
 				//app.UseExceptionHandler("/Home/Error");
 				app.UseBrowserLink();

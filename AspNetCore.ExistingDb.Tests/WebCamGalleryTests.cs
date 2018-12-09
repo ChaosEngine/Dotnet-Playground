@@ -256,7 +256,7 @@ namespace RazorPages
 			using (var cache = new MemoryCache(new MemoryCacheOptions()))
 			using (var http_client_mock = new ImageMockHttpClient().GetMockClient(Configuration))
 			{
-				var client = new MjpgStreamerHttpClient(http_client_mock, environment_mock.Object, cache);
+				var client = new MjpgStreamerHttpClient(http_client_mock, environment_mock.Object, cache, dummy_just_for_costructor);
 				WebCamImagesModel wcim = new WebCamImagesModel()
 				{
 					PageContext = this.LocalPageContext
