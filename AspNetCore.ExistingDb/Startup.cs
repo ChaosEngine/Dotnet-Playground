@@ -45,10 +45,10 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				.UseKestrel()
 				//.UseLibuv()
 				.UseSockets()
-				.UseLinuxTransport(async opts =>
+				/*.UseLinuxTransport(async opts =>
 				{
 					await Console.Out.WriteLineAsync("Using Linux Transport");
-				})
+				})*/
 				.UseContentRoot(Directory.GetCurrentDirectory())
 				//.UseIISIntegration()
 				.UseStartup<Startup>()

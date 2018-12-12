@@ -1,9 +1,10 @@
-FROM microsoft/dotnet:2.1-sdk-alpine AS build
-RUN apk add --update nodejs nodejs-npm
-RUN npm i gulp@next -g
+FROM microsoft/dotnet:2.2-sdk-stretch AS build
+RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
+	apt-get install -y nodejs
+RUN npm i gulp@latest -g
 WORKDIR /build
 
-ENV DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/netcoreapp2.1/Blogging.db"
+ENV DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/netcoreapp2.2/Blogging.db"
 
 COPY ./InkBall/src/InkBall.Module/InkBall.Module.csproj ./InkBall/src/InkBall.Module/InkBall.Module.csproj
 COPY ./InkBall/test/InkBall.Tests/InkBall.Tests.csproj ./InkBall/test/InkBall.Tests/InkBall.Tests.csproj
@@ -16,8 +17,8 @@ COPY ./*.sln ./NuGet.config ./
 RUN dotnet restore
 
 COPY . .
-RUN dotnet test -v m --no-restore AspNetCore.ExistingDb.Tests
-RUN dotnet publish -c Release -r alpine.3.7-x64 \
+RUN dotnet test -v m AspNetCore.ExistingDb.Tests
+RUN dotnet publish -c Release -r alpine-x64 \
     #-p:PublishWithAspNetCoreTargetManifest=false #remove this afer prerelease patch publish \
 	/p:ShowLinkerSizeComparison=true /p:CrossGenDuringPublish=false \
     AspNetCore.ExistingDb
@@ -26,10 +27,9 @@ RUN dotnet publish -c Release -r alpine.3.7-x64 \
 
 
 
-
-FROM microsoft/dotnet:2.1-runtime-deps-alpine
+FROM microsoft/dotnet:2.2-runtime-deps-alpine
 WORKDIR /app
-COPY --from=build --chown=xfs:xfs /build/AspNetCore.ExistingDb/bin/Release/netcoreapp2.1/alpine.3.7-x64/publish/ /build/startApp.sh ./
+COPY --from=build --chown=xfs:xfs /build/AspNetCore.ExistingDb/bin/Release/netcoreapp2.2/alpine-x64/publish/ /build/startApp.sh ./
 
 ENV TZ=Europe/Warsaw USER=xfs ASPNETCORE_URLS=http://+:5000
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone

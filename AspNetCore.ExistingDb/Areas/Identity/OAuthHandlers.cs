@@ -137,8 +137,13 @@ namespace AspNetCore.ExistingDb.Helpers
 
 			// use this.UserManager if needed
 			var identity = (ClaimsIdentity)principal.Identity;
-
 			var name_identifer = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+
+			//TODO: abstract this in a way (?)
+			Context.Session.Remove(nameof(InkBallUserViewModel));
+			Context.Session.Remove(nameof(InkBallGameViewModel));
+			Context.Session.Remove(nameof(InkBallUserViewModel));
+
 			if (!string.IsNullOrEmpty(name_identifer) && user.Age >= MinimumAgeRequirement.MinimumAge)//conditions for InkBallUser to create
 			{
 				InkBallUser found_user = _inkBallContext.InkBallUsers.FirstOrDefault(i => i.sExternalId == name_identifer);
