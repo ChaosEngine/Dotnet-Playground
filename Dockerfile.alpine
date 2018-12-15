@@ -1,5 +1,5 @@
 FROM microsoft/dotnet:2.2-sdk-stretch AS build
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
+RUN curl -sL https://deb.nodesource.com/setup_11.x | bash - && \
 	apt-get install -y nodejs
 RUN npm i gulp@latest -g
 WORKDIR /build
