@@ -1,12 +1,13 @@
 ﻿/// <binding Clean='clean' />
 "use strict";
 
-var gulp = require("gulp"),
+const gulp = require("gulp"),
 	//sass = require("gulp-sass"),
 	rimraf = require("rimraf"),
 	concat = require("gulp-concat"),
 	cssmin = require("gulp-cssmin"),
 	uglify = require("gulp-uglify"),
+	gulpBabelMinify = require("gulp-babel-minify"),
 	babel = require("gulp-babel"),
 	rename = require("gulp-rename");
 
@@ -34,7 +35,8 @@ gulp.task("babel", function () {
 					{
 						"useBuiltIns": "entry"
 					}
-				]
+				],
+				["minify"]
 			]
 		}))
 		.pipe(rename({ suffix: '.babelify' }))
@@ -49,7 +51,14 @@ gulp.task("clean:css", function (cb) {
 	rimraf(paths.concatCssDest, cb);
 });
 
-gulp.task("clean", gulp.series("clean:js", "clean:css"));
+gulp.task("clean", gulp.parallel("clean:js", "clean:css"));
+
+gulp.task("MyBootstrapColors:scss", function () {
+	return gulp.src([paths.boostrapSass])
+		.pipe(sass().on('error', sass.logError))
+		//.pipe(cssmin())
+		.pipe(gulp.dest(webroot + "lib/bootstrap/dist/css"));
+});
 
 gulp.task("min:js", function () {
 	return gulp.src([paths.js, "!" + paths.minJs], { base: "." })
@@ -58,11 +67,13 @@ gulp.task("min:js", function () {
 		.pipe(gulp.dest("."));
 });
 
-gulp.task("MyBootstrapColors:scss", function () {
-	return gulp.src([paths.boostrapSass])
-		.pipe(sass().on('error', sass.logError))
-		//.pipe(cssmin())
-		.pipe(gulp.dest(webroot + "lib/bootstrap/dist/css"));
+gulp.task("min:inkball", function () {
+	return gulp.src(['../InkBall/src/InkBall.Module/wwwroot/js/inkball.js', "!" + '../InkBall/src/InkBall.Module/wwwroot/js/inkball.min.js'], { base: "." })
+		.pipe(concat('../InkBall/src/InkBall.Module/wwwroot/js/inkball.min.js'))
+		.pipe(babel({
+			"presets": ["minify"]
+		}))
+		.pipe(gulp.dest("."));
 });
 
 gulp.task("min:css", function () {
@@ -72,7 +83,8 @@ gulp.task("min:css", function () {
 		.pipe(gulp.dest("."));
 });
 
-gulp.task("min", gulp.series("min:js",
+gulp.task("min", gulp.parallel("min:js", "min:inkball", "min:css"));
+
+gulp.task("default", gulp.series("clean",
 	//"MyBootstrapColors:scss",
-	"babel",
-	"min:css"));
+	"babel", "min"));

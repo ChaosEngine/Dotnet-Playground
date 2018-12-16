@@ -38,8 +38,7 @@
 
 	<Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
 		<Exec Command="npm install --unsafe-perm" />
-		<Exec Command="gulp clean" />
-		<Exec Command="gulp min" />
+		<Exec Command="gulp" />
 	</Target>
 
 	<ItemGroup>

@@ -10,7 +10,8 @@
     "gulp-cssmin": "0.2.0",
     "gulp-uglify": "3.0.1",
     "gulp-babel": "8.0.0",
-    "@babel/core": "7.2.0",
+    "gulp-babel-minify": "0.5.0",
+    "@babel/core": "7.2.2",
     "@babel/preset-env": "7.2.0",
     "@babel/plugin-transform-runtime": "7.2.0",
     "babel-polyfill": "7.0.0-beta.3"
