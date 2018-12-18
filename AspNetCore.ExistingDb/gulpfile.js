@@ -37,7 +37,8 @@ gulp.task("babel", function () {
 					}
 				],
 				["minify"]
-			]
+			],
+			"comments": false
 		}))
 		.pipe(rename({ suffix: '.babelify' }))
 		.pipe(gulp.dest('../InkBall/src/InkBall.Module/wwwroot/js/'));
@@ -71,7 +72,7 @@ gulp.task("min:inkball", function () {
 	return gulp.src(['../InkBall/src/InkBall.Module/wwwroot/js/inkball.js', "!" + '../InkBall/src/InkBall.Module/wwwroot/js/inkball.min.js'], { base: "." })
 		.pipe(concat('../InkBall/src/InkBall.Module/wwwroot/js/inkball.min.js'))
 		.pipe(babel({
-			"presets": ["minify"]
+			"presets": ["minify"], "comments": false
 		}))
 		.pipe(gulp.dest("."));
 });

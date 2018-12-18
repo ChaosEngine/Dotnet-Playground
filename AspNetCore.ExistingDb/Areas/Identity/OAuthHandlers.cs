@@ -193,7 +193,7 @@ namespace AspNetCore.ExistingDb.Helpers
 
 			foreach (InkBallGame gm in games_to_surrender)
 			{
-				_inkBallContext.SurrenderGameFromPlayer(gm);
+				_inkBallContext.SurrenderGameFromPlayerAsync(gm, base.Context.Session, false, base.Context.RequestAborted);
 			}
 
 			await base.SignOutAsync();
