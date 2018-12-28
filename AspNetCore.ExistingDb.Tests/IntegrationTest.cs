@@ -341,7 +341,7 @@ namespace Integration
 				response.EnsureSuccessStatusCode();
 
 				var responseString = await response.Content.ReadAsStringAsync();
-				Assert.Contains("<button id=\"btninfo\" class=\"btn btn-default\" type=\"button\" data-toggle=\"modal\" data-target=\"#exampleModal\">&#9432;&nbsp;Row info</button>",
+				Assert.Contains("<button id=\"btninfo\" class=\"btn btn-secondary\" type=\"button\" data-toggle=\"modal\" data-target=\"#exampleModal\">&#9432;&nbsp;Row info</button>",
 					responseString);
 				Assert.Contains("data-page-list=\"[5,10,20,50,500,2000]\"", responseString);
 			}
