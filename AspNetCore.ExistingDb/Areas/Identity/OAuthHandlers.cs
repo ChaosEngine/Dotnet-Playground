@@ -150,6 +150,12 @@ namespace AspNetCore.ExistingDb.Helpers
 				if (found_user != null)
 				{
 					//user already created and existing in InkBallUsers, awesome.
+					//just update user name if differs
+					if (found_user.UserName != user.Name)
+					{
+						found_user.UserName = user.Name;
+						await _inkBallContext.SaveChangesAsync(Context.RequestAborted);
+					}
 				}
 				else
 				{
@@ -157,9 +163,10 @@ namespace AspNetCore.ExistingDb.Helpers
 					{
 						sExternalId = name_identifer,
 						iPrivileges = 0,
+						UserName = user.Name
 					};
 					await _inkBallContext.InkBallUsers.AddAsync(found_user, Context.RequestAborted);
-					await _inkBallContext.SaveChangesAsync(true, Context.RequestAborted);
+					await _inkBallContext.SaveChangesAsync(Context.RequestAborted);
 				}
 
 				if (!identity.HasClaim(x => x.Type == nameof(InkBall.Module.Pages.HomeModel.InkBallUserId)))
