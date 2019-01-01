@@ -1,5 +1,6 @@
 ﻿using IdentitySample.DefaultUI.Data;
 using InkBall.Module;
+using InkBall.Module.Hubs;
 using InkBall.Module.Model;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.Twitter;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -117,6 +119,7 @@ namespace AspNetCore.ExistingDb.Helpers
 	public class MySignInManager : SignInManager<ApplicationUser>
 	{
 		private readonly GamesContext _inkBallContext;
+		private readonly IHubContext<ChatHub, IChatClient> _inkballHubContext;
 
 		public MySignInManager(
 			UserManager<ApplicationUser> userManager,
@@ -125,10 +128,12 @@ namespace AspNetCore.ExistingDb.Helpers
 			IOptions<IdentityOptions> optionsAccessor,
 			ILogger<SignInManager<ApplicationUser>> logger,
 			IAuthenticationSchemeProvider schemes,
-			GamesContext inkBallContext
+			GamesContext inkBallContext,
+			IHubContext<InkBall.Module.Hubs.ChatHub, InkBall.Module.Hubs.IChatClient> inkballHubContext
 			) : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes)
 		{
 			_inkBallContext = inkBallContext;
+			_inkballHubContext = inkballHubContext;
 		}
 
 		public override async Task<ClaimsPrincipal> CreateUserPrincipalAsync(ApplicationUser user)
@@ -138,11 +143,6 @@ namespace AspNetCore.ExistingDb.Helpers
 			// use this.UserManager if needed
 			var identity = (ClaimsIdentity)principal.Identity;
 			var name_identifer = principal.FindFirstValue(ClaimTypes.NameIdentifier);
-
-			//TODO: abstract this in a way (?)
-			Context.Session.Remove(nameof(InkBallUserViewModel));
-			Context.Session.Remove(nameof(InkBallGameViewModel));
-			Context.Session.Remove(nameof(InkBallUserViewModel));
 
 			if (!string.IsNullOrEmpty(name_identifer) && user.Age >= MinimumAgeRequirement.MinimumAge)//conditions for InkBallUser to create
 			{
@@ -188,19 +188,40 @@ namespace AspNetCore.ExistingDb.Helpers
 
 		public override async Task SignOutAsync()
 		{
+			var token = base.Context.RequestAborted;
 			var name_identifer = base.Context.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-			var games_to_surrender = _inkBallContext.InkBallGame
-				.Include(gp1 => gp1.Player1)
-					.ThenInclude(p1 => p1.User)
-				.Include(gp2 => gp2.Player2)
-					.ThenInclude(p2 => p2.User)
-				.Where(w => w.Player1.User.sExternalId == name_identifer || w.Player2.User.sExternalId == name_identifer)
-				.ToList();
+			var games_to_surrender = await _inkBallContext.InkBallGame
+				.Include(gp1 => gp1.Player1).ThenInclude(p1 => p1.User)
+				.Include(gp2 => gp2.Player2).ThenInclude(p2 => p2.User)
+				.Where(w =>
+				   (w.Player1.User.sExternalId == name_identifer || w.Player2.User.sExternalId == name_identifer)
+				   && (w.GameState == InkBallGame.GameStateEnum.ACTIVE || w.GameState == InkBallGame.GameStateEnum.AWAITING)
+				).ToListAsync(token);
 
 			foreach (InkBallGame gm in games_to_surrender)
 			{
-				_inkBallContext.SurrenderGameFromPlayerAsync(gm, base.Context.Session, false, base.Context.RequestAborted);
+				await _inkBallContext.SurrenderGameFromPlayerAsync(gm, base.Context.Session, false, token);
+
+				if (_inkballHubContext != null)
+				{
+					var tsk = Task.Factory.StartNew(async (payload) =>
+					{
+						try
+						{
+							var recipient_id_looser = payload as Tuple<string, int, string>;
+
+							await _inkballHubContext.Clients.User(recipient_id_looser.Item1).ServerToClientPlayerSurrender(
+									new PlayerSurrenderingCommand(recipient_id_looser.Item2, true, $"Player {recipient_id_looser.Item3} logged out"));
+						}
+						catch (Exception ex)
+						{
+							Logger.LogError(ex.Message);
+						}
+					},
+					Tuple.Create(gm.GetOtherPlayer().User.sExternalId, gm.GetOtherPlayer().iId, gm.GetPlayer().User.UserName),
+					token);
+				}
 			}
 
 			await base.SignOutAsync();
