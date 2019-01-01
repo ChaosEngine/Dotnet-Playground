@@ -197,30 +197,62 @@ namespace AspNetCore.ExistingDb.Helpers
 				.Where(w =>
 				   (w.Player1.User.sExternalId == name_identifer || w.Player2.User.sExternalId == name_identifer)
 				   && (w.GameState == InkBallGame.GameStateEnum.ACTIVE || w.GameState == InkBallGame.GameStateEnum.AWAITING)
-				).ToListAsync(token);
+				).ToArrayAsync(token);
 
-			foreach (InkBallGame gm in games_to_surrender)
+			if (games_to_surrender.Any())
 			{
-				await _inkBallContext.SurrenderGameFromPlayerAsync(gm, base.Context.Session, false, token);
-
-				if (_inkballHubContext != null)
+				using (var trans = await _inkBallContext.Database.BeginTransactionAsync(token))
 				{
-					var tsk = Task.Factory.StartNew(async (payload) =>
+					try
 					{
-						try
+						foreach (InkBallGame game in games_to_surrender)
 						{
-							var recipient_id_looser = payload as Tuple<string, int, string>;
+							await _inkBallContext.SurrenderGameFromPlayerAsync(game, base.Context.Session, false, token);
 
-							await _inkballHubContext.Clients.User(recipient_id_looser.Item1).ServerToClientPlayerSurrender(
-									new PlayerSurrenderingCommand(recipient_id_looser.Item2, true, $"Player {recipient_id_looser.Item3} logged out"));
+							if (_inkballHubContext != null)
+							{
+								InkBallPlayer player_not_signed_off, player_signed_off;
+								if (game.GetPlayer()?.User?.sExternalId == name_identifer)
+								{
+									player_signed_off = game.GetPlayer();
+									player_not_signed_off = game.GetOtherPlayer();
+								}
+								else
+								{
+									player_signed_off = game.GetOtherPlayer();
+									player_not_signed_off = game.GetPlayer();
+								}
+
+								var tsk = Task.Factory.StartNew(async (payload) =>
+								{
+									try
+									{
+										var signedOff_id_online = payload as Tuple<string, int?, string>;
+
+										if (!string.IsNullOrEmpty(signedOff_id_online.Item1))
+										{
+											await _inkballHubContext.Clients.User(signedOff_id_online.Item1).ServerToClientPlayerSurrender(
+												new PlayerSurrenderingCommand(signedOff_id_online.Item2.GetValueOrDefault(0), true,
+												$"Player {signedOff_id_online.Item3 ?? ""} logged out"));
+										}
+									}
+									catch (Exception ex)
+									{
+										Logger.LogError(ex.Message);
+									}
+								},
+								Tuple.Create(player_not_signed_off?.User?.sExternalId, player_signed_off?.iId, player_signed_off?.User?.UserName),
+								token);
+							}
 						}
-						catch (Exception ex)
-						{
-							Logger.LogError(ex.Message);
-						}
-					},
-					Tuple.Create(gm.GetOtherPlayer().User.sExternalId, gm.GetOtherPlayer().iId, gm.GetPlayer().User.UserName),
-					token);
+
+						trans.Commit();
+					}
+					catch (Exception ex)
+					{
+						trans.Rollback();
+						Logger.LogError(ex, ex.Message);
+					}
 				}
 			}
 
