@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "bootstrap": "4.2.1",
-    "bootstrap-table": "1.12.2",
+    "bootstrap-table": "1.13.1",
     "node-forge": "0.7.6",
     "jquery": "3.3.1",
     "jquery-validation": "1.19.0",
