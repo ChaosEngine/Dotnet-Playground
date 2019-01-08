@@ -251,6 +251,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				// options.ScriptsSectionName = "Script_Injection";
 				options.AuthorizationPolicyName = "InkBallPlayerPolicy";
 				options.AppRootPath = Configuration["AppRootPath"];
+				options.UseMessagePackBinaryTransport = true;
 			});
 
 			#endregion WIP
