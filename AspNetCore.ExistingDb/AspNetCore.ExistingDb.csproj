@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
-		<VersionPrefix>1.0.2-custom</VersionPrefix>
+		<VersionPrefix>1.0.3-custom</VersionPrefix>
 		<TargetFramework>netcoreapp2.2</TargetFramework>
 		<LangVersion>7.3</LangVersion>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
@@ -21,11 +21,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.App" />
 		<PackageReference Include="Bogus" Version="25.0.3" />
-		<PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.1" />
 		<PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.2.0" />
-		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration" Version="2.2.0" />
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration" Version="2.2.1" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.2.0" />
 		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.1.4" />
 		<PackageReference Include="Lib.AspNetCore.ServerTiming" Version="2.1.0" />
