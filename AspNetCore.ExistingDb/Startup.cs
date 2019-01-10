@@ -27,6 +27,8 @@ using System.Threading.Tasks;
 using System.Security.Cryptography.X509Certificates;
 using System.Collections.Generic;
 using Newtonsoft.Json.Serialization;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 
 //[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
 
@@ -189,6 +191,15 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 						googleOptions.ClientId = Configuration["Authentication:Google:ClientId"];
 						googleOptions.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
 						googleOptions.CallbackPath = Configuration["Authentication:Google:CallbackPath"];
+
+						googleOptions.UserInformationEndpoint = "https://www.googleapis.com/oauth2/v2/userinfo";
+						googleOptions.ClaimActions.Clear();
+						googleOptions.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
+						googleOptions.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
+						googleOptions.ClaimActions.MapJsonKey(ClaimTypes.GivenName, "given_name");
+						googleOptions.ClaimActions.MapJsonKey(ClaimTypes.Surname, "family_name");
+						googleOptions.ClaimActions.MapJsonKey("urn:google:profile", "link");
+						googleOptions.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
 					});
 			}
 			if (!string.IsNullOrEmpty(Configuration["Authentication:Facebook:AppId"]))
