@@ -1,13 +1,11 @@
 ﻿using IdentitySample.DefaultUI.Data;
-using InkBall.Module.Hubs;
-using InkBall.Module.Model;
+using InkBall.Module;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.Twitter;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -113,41 +111,29 @@ namespace AspNetCore.ExistingDb.Helpers
 
 	public class MySignInManager : SignInManager<ApplicationUser>
 	{
-		private readonly GamesContext _inkBallContext;
-		private readonly IHubContext<ChatHub, IChatClient> _inkballHubContext;
-
 		public MySignInManager(
 			UserManager<ApplicationUser> userManager,
 			IHttpContextAccessor contextAccessor,
 			IUserClaimsPrincipalFactory<ApplicationUser> claimsFactory,
 			IOptions<IdentityOptions> optionsAccessor,
 			ILogger<SignInManager<ApplicationUser>> logger,
-			IAuthenticationSchemeProvider schemes,
-			GamesContext inkBallContext,
-			IHubContext<InkBall.Module.Hubs.ChatHub, InkBall.Module.Hubs.IChatClient> inkballHubContext
+			IAuthenticationSchemeProvider schemes
 			) : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes)
 		{
-			_inkBallContext = inkBallContext;
-			_inkballHubContext = inkballHubContext;
 		}
 
 		public override async Task<ClaimsPrincipal> CreateUserPrincipalAsync(ApplicationUser user)
 		{
 			var principal = await base.CreateUserPrincipalAsync(user);
 
-			await InkBall.Module.Authentication.InkBallCreateUserPrincipalAsync(user, 
-				principal, _inkBallContext, Context.RequestAborted);
+			await Authentication.InkBallCreateUserPrincipalAsync(Context, user, principal);
 
 			return principal;
 		}
 
 		public override async Task SignOutAsync()
 		{
-			var token = Context.RequestAborted;
-
-			await InkBall.Module.Authentication.InkBallSignOutActionAsync(
-				Context.User.FindFirstValue(ClaimTypes.NameIdentifier),
-				_inkBallContext, _inkballHubContext, Logger, Context.Session, token);
+			await Authentication.InkBallSignOutActionAsync(Context, Logger, Context.User.FindFirstValue(ClaimTypes.NameIdentifier));
 
 			await base.SignOutAsync();
 		}
