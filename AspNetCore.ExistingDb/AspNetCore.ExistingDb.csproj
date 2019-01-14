@@ -30,7 +30,7 @@
 		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.1.4" />
 		<PackageReference Include="Lib.AspNetCore.ServerTiming" Version="2.1.0" />
 		<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.2.1" />
-		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.37.0.1226" />
+		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.37.0.1469" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="1.1.0" />
 		<!--<PackageReference Include="RedHat.AspNetCore.Server.Kestrel.Transport.Linux" Version="2.1.0-preview1" />-->
 		<PackageReference Include="ILLink.Tasks" Version="0.1.5-preview-1841731" />
