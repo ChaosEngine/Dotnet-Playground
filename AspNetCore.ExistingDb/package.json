@@ -1,6 +1,6 @@
 {
-  "name": "asp.net",
-  "version": "0.0.0",
+  "name": "aspnetcore.existingdb",
+  "version": "1.0.3-custom",
   "private": true,
   "devDependencies": {
     "fs-extra": "7.0.1",
