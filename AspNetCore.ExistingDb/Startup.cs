@@ -383,7 +383,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			//app.LogRequestHeaders(loggerFactory, "Upgrade");//display all 'Upgrade:Connection' headers occurence
 			app.UseSignalR(routes =>
 			{
-				routes.MapHub<InkBall.Module.Hubs.ChatHub>('/' + InkBall.Module.Hubs.ChatHub.HubName);
+				routes.MapHub<InkBall.Module.Hubs.GameHub>('/' + InkBall.Module.Hubs.GameHub.HubName);
 			});
 
 			app.UseMvc(routes =>
