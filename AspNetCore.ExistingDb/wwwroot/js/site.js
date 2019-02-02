@@ -1,5 +1,5 @@
-﻿// Write your Javascript code.
-
+﻿/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate" }]*/
+/*global g_AppRootPath forge*/
 var logLevel = {
 	Trace: 0,
 	Debug: 1,
@@ -14,7 +14,7 @@ function ajaxLog(level, message, url, line, col, error) {
 	$.post(g_LogPath, {
 		"level": level, "message": message, "url": url, "line": line, "col": col, "error": error
 	});
-};
+}
 
 function clientValidate(button) {
 	var tr = $(button).parent().parent();
@@ -23,19 +23,19 @@ function clientValidate(button) {
 	var orig_md5 = tr.find("td").eq(1).text();
 	var orig_sha = tr.find("td").eq(2).text();
 
-	if (orig_md5 == '' || orig_sha == '')
+	if (orig_md5 === '' || orig_sha === '')
 		return;
 
 	var md = forge.md.md5.create();
 	md.update(key);
-	md5 = md.digest().toHex();
+	let md5 = md.digest().toHex();
 	md = forge.md.sha256.create();
 	md.update(key);
-	sha = md.digest().toHex();
+	let sha = md.digest().toHex();
 
-	tr.find("td").eq(1).html("<strong style='color:" + (md5 == orig_md5 ? "green" : "red") + "'>" + orig_md5 + "</strong>");
-	tr.find("td").eq(2).html("<strong style='color:" + (sha == orig_sha ? "green" : "red") + "'>" + orig_sha + "</strong>");
-};
+	tr.find("td").eq(1).html("<strong style='color:" + (md5 === orig_md5 ? "green" : "red") + "'>" + orig_md5 + "</strong>");
+	tr.find("td").eq(2).html("<strong style='color:" + (sha === orig_sha ? "green" : "red") + "'>" + orig_sha + "</strong>");
+}
 
 (function () {
 	var org_trace = console.trace;
@@ -70,14 +70,11 @@ function clientValidate(button) {
 	};
 })();
 
-/*window.onerror = function (message, location, lineNumber) {
-	console.error(message + ' Location: ' + location + ' Line Number ' + lineNumber);
-};*/
 window.onerror = function (msg, url, line, col, error) {
 	// Note that col & error are new to the HTML 5 spec and may not be 
 	// supported in every browser.  It worked for me in Chrome.
-	var extra = !col ? '' : ('\ncolumn: ' + col);
-	extra += !error ? '' : ('\nerror: ' + error);
+	//var extra = !col ? '' : ('\ncolumn: ' + col);
+	//extra += !error ? '' : ('\nerror: ' + error);
 
 	// You can view the information in an alert to see things working like this:
 	//alert("Error: " + msg + "\nurl: " + url + "\nline: " + line + extra);

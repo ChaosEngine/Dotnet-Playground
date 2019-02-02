@@ -1,35 +1,82 @@
 {
-  "name": "aspnetcore.existingdb",
-  "version": "1.0.3-custom",
-  "private": true,
-  "devDependencies": {
-    "fs-extra": "7.0.1",
-    "rimraf": "2.6.3",
-    "gulp": "4.0.0",
-    "gulp-concat": "2.6.1",
-    "gulp-cssmin": "0.2.0",
-    "gulp-babel": "8.0.0",
-    "gulp-babel-minify": "^0.4.3",
-    "@babel/core": "7.2.2",
-    "@babel/preset-env": "7.3.1",
-    "@babel/plugin-transform-runtime": "7.2.0",
-    "babel-polyfill": "7.0.0-beta.3"
-  },
-  "dependencies": {
-    "bootstrap": "4.2.1",
-    "bootstrap-table": "1.13.1",
-    "node-forge": "0.7.6",
-    "jquery": "3.3.1",
-    "jquery-validation": "1.19.0",
-    "jquery-validation-unobtrusive": "3.2.11",
-    "blueimp-gallery": "2.33.0",
-    "video.js": "7.4.1",
-    "qrcodejs": "1.0.0",
-    "@aspnet/signalr": "1.1.0",
-    "@aspnet/signalr-protocol-msgpack": "1.1.0",
-    "msgpack5": "4.2.1"
-  },
-  "scripts": {
-    "postinstall": "node -e \"require('fs-extra').copySync('node_modules/bootstrap', 'wwwroot/lib/bootstrap'); require('fs-extra').copySync('node_modules/bootstrap-table', 'wwwroot/lib/bootstrap-table'); require('fs-extra').copySync('node_modules/node-forge', 'wwwroot/lib/forge'); require('fs-extra').copySync('node_modules/jquery', 'wwwroot/lib/jquery'); require('fs-extra').copySync('node_modules/jquery-validation', 'wwwroot/lib/jquery-validation'); require('fs-extra').copySync('node_modules/jquery-validation-unobtrusive', 'wwwroot/lib/jquery-validation-unobtrusive'); require('fs-extra').copySync('node_modules/blueimp-gallery', 'wwwroot/lib/blueimp-gallery'); require('fs-extra').copySync('node_modules/video.js', 'wwwroot/lib/video.js'); require('fs-extra').copySync('node_modules/qrcodejs', 'wwwroot/lib/qrcodejs'); require('fs-extra').copySync('node_modules/@aspnet/signalr', 'wwwroot/lib/signalr'); require('fs-extra').copySync('node_modules/@aspnet/signalr-protocol-msgpack', 'wwwroot/lib/signalr-protocol-msgpack'); require('fs-extra').copySync('node_modules/msgpack5', 'wwwroot/lib/msgpack5');\""
-  }
+	"name": "aspnetcore.existingdb",
+	"version": "1.0.3-custom",
+	"private": true,
+	"eslintConfig": {
+		"env": {
+			"es6": true,
+			"browser": true,
+			"jquery": true,
+			"worker": true
+		},
+		"extends": "eslint:recommended",
+		"parserOptions": {
+			"ecmaVersion": 2017
+		},
+		"rules": {
+			"indent": [
+				"off",
+				"tab"
+			],
+			"linebreak-style": [
+				"off",
+				"unix"
+			],
+			"quotes": [
+				"off",
+				"double"
+			],
+			"semi": [
+				"error",
+				"always"
+			],
+			"eqeqeq": 2,
+			"comma-dangle": 1,
+			"no-console": 1,
+			"no-debugger": 1,
+			"no-extra-semi": 1,
+			"no-extra-parens": 0,
+			"no-irregular-whitespace": 1,
+			"no-undef": 2,
+			"no-unused-vars": 1,
+			"semi-spacing": 1,
+			"valid-jsdoc": [
+				2,
+				{
+					"requireReturn": false
+				}
+			]
+		}
+	},
+	"devDependencies": {
+		"fs-extra": "7.0.1",
+		"rimraf": "2.6.3",
+		"gulp": "4.0.0",
+		"gulp-concat": "2.6.1",
+		"gulp-cssmin": "0.2.0",
+		"gulp-babel": "8.0.0",
+		"gulp-babel-minify": "^0.4.3",
+		"@babel/core": "7.2.2",
+		"@babel/preset-env": "7.3.1",
+		"@babel/plugin-transform-runtime": "7.2.0",
+		"babel-polyfill": "7.0.0-beta.3",
+		"eslint": "5.13.0"
+	},
+	"dependencies": {
+		"bootstrap": "4.2.1",
+		"bootstrap-table": "1.13.3",
+		"node-forge": "0.8.0",
+		"jquery": "3.3.1",
+		"jquery-validation": "1.19.0",
+		"jquery-validation-unobtrusive": "3.2.11",
+		"blueimp-gallery": "2.33.0",
+		"video.js": "7.4.1",
+		"qrcodejs": "1.0.0",
+		"@aspnet/signalr": "1.1.0",
+		"@aspnet/signalr-protocol-msgpack": "1.1.0",
+		"msgpack5": "4.2.1"
+	},
+	"scripts": {
+		"postinstall": "node -e \"require('fs-extra').copySync('node_modules/bootstrap', 'wwwroot/lib/bootstrap'); require('fs-extra').copySync('node_modules/bootstrap-table', 'wwwroot/lib/bootstrap-table'); require('fs-extra').copySync('node_modules/node-forge', 'wwwroot/lib/forge'); require('fs-extra').copySync('node_modules/jquery', 'wwwroot/lib/jquery'); require('fs-extra').copySync('node_modules/jquery-validation', 'wwwroot/lib/jquery-validation'); require('fs-extra').copySync('node_modules/jquery-validation-unobtrusive', 'wwwroot/lib/jquery-validation-unobtrusive'); require('fs-extra').copySync('node_modules/blueimp-gallery', 'wwwroot/lib/blueimp-gallery'); require('fs-extra').copySync('node_modules/video.js', 'wwwroot/lib/video.js'); require('fs-extra').copySync('node_modules/qrcodejs', 'wwwroot/lib/qrcodejs'); require('fs-extra').copySync('node_modules/@aspnet/signalr', 'wwwroot/lib/signalr'); require('fs-extra').copySync('node_modules/@aspnet/signalr-protocol-msgpack', 'wwwroot/lib/signalr-protocol-msgpack'); require('fs-extra').copySync('node_modules/msgpack5', 'wwwroot/lib/msgpack5');\""
+	}
 }
