@@ -13,7 +13,7 @@
             },
             "args": [
                 "build",
-                "${workspaceFolder}/AspNetCore.ExistingDb/AspNetCore.ExistingDb.csproj"
+                "${workspaceFolder}"
             ],
             "problemMatcher": "$msCompile"
         },

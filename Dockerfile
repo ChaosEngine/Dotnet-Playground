@@ -17,7 +17,7 @@ COPY ./*.sln ./NuGet.config ./
 RUN dotnet restore -r linux-x64
 
 COPY . .
-RUN dotnet test -v m AspNetCore.ExistingDb.Tests
+RUN dotnet test -v m
 RUN dotnet publish -c Release -r linux-x64 \
     #-p:PublishWithAspNetCoreTargetManifest=false #remove this afer prerelease patch publish \
 	/p:ShowLinkerSizeComparison=true /p:CrossGenDuringPublish=false \
