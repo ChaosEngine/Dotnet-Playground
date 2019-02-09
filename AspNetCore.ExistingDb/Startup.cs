@@ -336,6 +336,10 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			{
 				options.EnableDetailedErrors = true;
 				//options.SupportedProtocols = new System.Collections.Generic.List<string>(new[] { "websocket" });
+#if DEBUG
+				options.KeepAliveInterval = TimeSpan.FromSeconds(30);
+				options.ClientTimeoutInterval = options.KeepAliveInterval * 2;
+#endif
 			})
 			.AddJsonProtocol(options =>
 			{

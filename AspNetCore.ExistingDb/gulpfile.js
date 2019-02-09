@@ -1,4 +1,5 @@
 ﻿/// <binding Clean='clean' />
+/*global require*/
 "use strict";
 
 const gulp = require("gulp"),
@@ -7,7 +8,7 @@ const gulp = require("gulp"),
 	concat = require("gulp-concat"),
 	cssmin = require("gulp-cssmin"),
 	//uglify = require("gulp-uglify"),
-	gulpBabelMinify = require("gulp-babel-minify"),
+	//gulpBabelMinify = require("gulp-babel-minify"),
 	babel = require("gulp-babel"),
 	rename = require("gulp-rename");
 
@@ -19,8 +20,8 @@ var paths = {
 	css: webroot + "css/**/*.css",
 	minCss: webroot + "css/**/*.min.css",
 	concatJsDest: webroot + "js/site.min.js",
-	concatCssDest: webroot + "css/site.min.css",
-	boostrapSass: webroot + "css/bootstrap.scss"
+	concatCssDest: webroot + "css/site.min.css"
+	//boostrapSass: webroot + "css/bootstrap.scss"
 };
 
 ////////////// [Inkball Section] //////////////////
@@ -82,12 +83,12 @@ gulp.task("clean:css", function (cb) {
 
 gulp.task("clean", gulp.series("clean:js", "clean:css"));
 
-gulp.task("scss", function () {
+/*gulp.task("scss", function () {
 	return gulp.src([paths.boostrapSass])
 		.pipe(sass().on('error', sass.logError))
 		//.pipe(cssmin())
 		.pipe(gulp.dest(webroot + "lib/bootstrap/dist/css"));
-});
+});*/
 
 gulp.task("min:js", function () {
 	return gulp.src([paths.js, "!" + paths.minJs], { base: "." })
