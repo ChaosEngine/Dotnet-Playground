@@ -7,7 +7,7 @@ const gulp = require("gulp"),
 	rimraf = require("rimraf"),
 	concat = require("gulp-concat"),
 	cssmin = require("gulp-cssmin"),
-	//uglify = require("gulp-uglify"),
+	terser = require("gulp-terser"),
 	//gulpBabelMinify = require("gulp-babel-minify"),
 	babel = require("gulp-babel"),
 	rename = require("gulp-rename");
@@ -26,33 +26,38 @@ var paths = {
 
 ////////////// [Inkball Section] //////////////////
 const babelTranspilerFunction = function (min) {
-	return gulp.src('../InkBall/src/InkBall.Module/wwwroot/js/inkball.js')
+	let tunnel = gulp.src('../InkBall/src/InkBall.Module/wwwroot/js/inkball.js')
 		.pipe(babel({
-			"presets": min ?
+			"presets": /*min ?
 				[
 					["@babel/preset-env", { "useBuiltIns": "entry" }],
 					["minify"]
 				]
-				:
+				:*/
 				[
 					["@babel/preset-env", { "useBuiltIns": "entry" }]
 				],
 			"comments": false
-		}))
-		.pipe(rename({ suffix: min ? '.babelify.min' : '.babelify' }))
+		}));
+
+	if (min)
+		tunnel = tunnel.pipe(terser());
+
+	return tunnel.pipe(rename({ suffix: min ? '.babelify.min' : '.babelify' }))
 		.pipe(gulp.dest('../InkBall/src/InkBall.Module/wwwroot/js/'));
 };
 
 const fileMinifyFunction = function (src, result) {
 	return gulp.src([src, "!" + result], { base: "." })
 		.pipe(concat(result))
-		.pipe(babel({
-			"presets": ["minify"], "comments": false
-		}))
+		// .pipe(babel({
+		// 	"presets": ["minify"], "comments": false
+		// }))
+		.pipe(terser())
 		.pipe(gulp.dest("."));
 };
 
-gulp.task("babel", function(cb) {
+gulp.task("babel", function (cb) {
 	babelTranspilerFunction(false);
 	babelTranspilerFunction(true);
 	return cb();
@@ -93,9 +98,10 @@ gulp.task("clean", gulp.series("clean:js", "clean:css"));
 gulp.task("min:js", function () {
 	return gulp.src([paths.js, "!" + paths.minJs], { base: "." })
 		.pipe(concat(paths.concatJsDest))
-		.pipe(babel({
-			"presets": ["minify"], "comments": false
-		}))
+		// .pipe(babel({
+		// 	"presets": ["minify"], "comments": false
+		// }))
+		.pipe(terser())
 		.pipe(gulp.dest("."));
 });
 
