@@ -238,16 +238,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				options.AccessDeniedPath = Configuration["AppRootPath"] + "Identity/Account/AccessDenied";
 			});
 
-			services.AddAuthorization(options =>
-			{
-				options.AddPolicy("InkBallPlayerPolicy", policy =>
-				{
-					policy.RequireAuthenticatedUser()
-						//.RequireRole("InkBallPlayer")
-						.AddRequirements(new InkBall.Module.MinimumAgeRequirement(18));
-				});
-			});
-
 
 
 
@@ -260,7 +250,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				// options.WwwRoot = "wrongwrongwrong";
 				// options.HeadElementsSectionName = "head-head-head-Elements";
 				// options.ScriptsSectionName = "Script_Injection";
-				options.AuthorizationPolicyName = "InkBallPlayerPolicy";
+				//options.AuthorizationPolicyName = "InkBallPlayerPolicy_BADBAD";
 				options.AppRootPath = Configuration["AppRootPath"];
 				options.UseMessagePackBinaryTransport = true;
 			});
@@ -387,7 +377,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			//app.LogRequestHeaders(loggerFactory, "Upgrade");//display all 'Upgrade:Connection' headers occurence
 			app.UseSignalR(routes =>
 			{
-				routes.MapHub<InkBall.Module.Hubs.GameHub>('/' + InkBall.Module.Hubs.GameHub.HubName);
+				routes.PrepareSignalRForInkBall();
 			});
 
 			app.UseMvc(routes =>
