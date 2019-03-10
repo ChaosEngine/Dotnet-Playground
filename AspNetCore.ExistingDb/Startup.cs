@@ -250,9 +250,12 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				// options.WwwRoot = "wrongwrongwrong";
 				// options.HeadElementsSectionName = "head-head-head-Elements";
 				// options.ScriptsSectionName = "Script_Injection";
-				//options.AuthorizationPolicyName = "InkBallPlayerPolicy_BADBAD";
 				options.AppRootPath = Configuration["AppRootPath"];
 				options.UseMessagePackBinaryTransport = true;
+				// options.CustomAuthorizationPolicyBuilder = (policy) =>
+				// {
+				// 	policy.RequireAuthenticatedUser();
+				// };
 			});
 
 			#endregion WIP
