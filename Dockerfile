@@ -1,4 +1,4 @@
-FROM microsoft/dotnet:2.2-sdk-stretch AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:2.2-stretch AS build
 RUN curl -sL https://deb.nodesource.com/setup_11.x | bash - && \
 	apt-get install -y nodejs
 RUN npm i gulp@latest -g
@@ -27,7 +27,7 @@ RUN dotnet publish -c Release -r linux-x64 \
 
 
 
-FROM microsoft/dotnet:2.2-runtime-deps-stretch-slim
+FROM mcr.microsoft.com/dotnet/core/runtime-deps:2.2-stretch-slim
 WORKDIR /app
 COPY --from=build --chown=www-data:www-data /build/AspNetCore.ExistingDb/bin/Release/netcoreapp2.2/linux-x64/publish/ /build/startApp.sh ./
 
