@@ -55,19 +55,21 @@
 		if (!string.IsNullOrEmpty(Model.LiveWebCamURL))
 		{
 			<li class="nav-item">
-				<a class="nav-link active" data-toggle="tab" href="#live-tab" role="tab" aria-controls="live-tab" aria-selected="true">Live</a>
+				<a class="nav-link active pb-3" data-toggle="tab" href="#live-tab" role="tab" aria-controls="live-tab" aria-selected="true">Live</a>
 			</li>
 		}
 		if (!string.IsNullOrEmpty(Model.BaseWebCamURL))
 		{
 			<li class="nav-item">
-				<a class="nav-link" data-toggle="tab" href="#video-tab" role="tab" aria-controls="video-tab" aria-selected="false">Daily video</a>
+				<a class="nav-link pb-3" data-toggle="tab" href="#video-tab" role="tab" aria-controls="video-tab" aria-selected="false">Daily video</a>
 			</li>
 		}
 		if (Model.ThumbnailJpgs != null)
 		{
 			<li class="nav-item">
-				<a class="nav-link" data-toggle="tab" href="#gallery-tab" role="tab" aria-controls="gallery-tab" aria-selected="false">Gallery</a>
+				<a class="nav-link" data-toggle="tab" href="#gallery-tab" role="tab" aria-controls="gallery-tab" aria-selected="false">
+					Gallery <button id="btnReplAllImg" type="button" class="btn btn-primary btn-sm" value="strng" title="Load all images">Load all</button>
+				</a>
 			</li>
 		}
 	}
@@ -96,11 +98,9 @@
 			<!-- End VideoJS -->
 		</div>
 	}
-
 	if (Model.ThumbnailJpgs != null)
 	{
 		@:<div class="tab-pane" id="gallery-tab" role="tabpanel" aria-labelledby="gallery-tab">
-			<button id="btnReplAllImg" type="button" class="btn btn-primary" value="strng" title="Load all images">Load all</button>
 			@:<div id="links">
 			int i = 0;
 			foreach (var jpg in Model.ThumbnailJpgs)
@@ -109,13 +109,13 @@
 				var full = thumbnail.Replace("thumbnail", "out");
 				if (i++ < 7)
 				{
-					<a href="~/WebCamImages/@full" title="@jpg.LastWriteTime">
+					<a href="~/WebCamImages/@full" title="@jpg.LastWriteTime.ToString("u")">
 						<img src="~/WebCamImages/@thumbnail" alt="@thumbnail" class='active' onmouseover='ReplImg(this);' />
 					</a>
 				}
 				else
 				{
-					<a href="~/WebCamImages/@full" title="@jpg.LastWriteTime">
+					<a href="~/WebCamImages/@full" title="@jpg.LastWriteTime.ToString("u")">
 						<img alt='no img' class='inactive' onmouseover='ReplImg(this);' />
 					</a>
 				}
@@ -170,7 +170,7 @@
 
 			$('#links').click(function (event) {
 				event = event || window.event;
-				var target = event.target || event.srcElement,
+				let target = event.target || event.srcElement,
 					link = target.src ? target.parentNode : target,
 					options = {
 						index: link,
@@ -194,6 +194,29 @@
 
 			//RefreshLiveImage();
 
+			if(location.search !== undefined && location.search.length > 0)
+			{
+				const name = location.search.replace('?', '#');
+				const tab = $(`#myTab a[href='${name}']`);
+				if(tab !== undefined)
+					tab.tab('show');
+			}
+			if($("#myTab a[href='#gallery-tab']").hasClass('active'))
+			{
+				$('#btnReplAllImg').prop('disabled', false);
+			}
+			$("#myTab a").on('click', function (e) {
+				if(e.target.hash.indexOf('gallery-tab') !== -1)
+					$('#btnReplAllImg').prop('disabled', false);
+				else
+					$('#btnReplAllImg').prop('disabled', true);
+
+				const addr = e.target.hash.replace('#', '?');
+				let stateObj = {
+					foo: addr
+				};
+				window.history.pushState(stateObj, addr, addr);
+			});
 		});
 
 		function ReplImg(This)

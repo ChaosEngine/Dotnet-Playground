@@ -49,10 +49,10 @@
 		}
 	},
 	"devDependencies": {
-		"@babel/core": "7.3.4",
-		"@babel/plugin-transform-runtime": "7.3.4",
-		"@babel/preset-env": "7.3.4",
-		"eslint": "5.15.2",
+		"@babel/core": "7.4.0",
+		"@babel/plugin-transform-runtime": "7.4.0",
+		"@babel/preset-env": "7.4.1",
+		"eslint": "5.15.3",
 		"fs-extra": "7.0.1",
 		"gulp": "4.0.0",
 		"gulp-babel": "8.0.0",
@@ -64,7 +64,7 @@
 	"dependencies": {
 		"bootstrap": "4.3.1",
 		"bootstrap-table": "1.14.1",
-		"node-forge": "0.8.1",
+		"node-forge": "0.8.2",
 		"jquery": "3.3.1",
 		"jquery-validation": "1.19.0",
 		"jquery-validation-unobtrusive": "3.2.11",
