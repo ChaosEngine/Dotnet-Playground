@@ -63,7 +63,8 @@ namespace AspNetCore.ExistingDb.Migrations
                         .HasAnnotation("Sqlite:Autoincrement", true)
                         .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
+                        .UseOracleIdentityColumn();
 
                     b.Property<string>("FriendlyName");
 
