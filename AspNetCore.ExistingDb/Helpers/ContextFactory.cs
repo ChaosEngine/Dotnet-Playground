@@ -85,8 +85,15 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 					}
 					break;
 
+				case "oracle":
+					conn_str = configuration.GetConnectionString("Oracle");
+					if (dbContextOpts != null)
+						dbContextOpts.UseOracle(conn_str);
+					break;
+
+
 				default:
-					throw new NotSupportedException($"Bad DBKind name");
+					throw new NotSupportedException($"Bad DBKind name {configuration["DBKind"]?.ToLower()}");
 			}
 			return conn_str;
 		}

@@ -1,0 +1,1 @@
+There are no Oracle Data Provider for .NET Entity Framework Core README items. For documentation, see the ODP.NET Core documentation file included with this package located in C:\Users\<username>\.nuget\packages\Oracle.EntityFrameworkCore\2.18.0-beta2\

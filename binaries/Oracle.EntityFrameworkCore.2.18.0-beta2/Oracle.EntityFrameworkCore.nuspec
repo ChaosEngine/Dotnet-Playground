@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Oracle.EntityFrameworkCore</id>
+    <version>2.18.0-beta2</version>
+    <title>Oracle Data Provider for .NET Entity Framework Core</title>
+    <authors>Oracle</authors>
+    <owners>Oracle</owners>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <licenseUrl>http://www.oracle.com/technetwork/licenses/ea-license-noexhibits-1938914.html</licenseUrl>
+    <iconUrl>http://www.oracle.com/technetwork/topics/dotnet/products/oracle-4747171.png</iconUrl>
+    <description>Oracle Data Provider for .NET (ODP.NET) Entity Framework Core for Oracle Database</description>
+    <summary>Oracle Data Provider for .NET Entity Framework Core for Oracle Database</summary>
+    <copyright>2019</copyright>
+    <tags>Oracle, ODP.NET, ODP, Entity Framework, Core, EFCore, EF database, DB</tags>
+    <dependencies>
+      <dependency id="Microsoft.EntityFrameworkCore.Relational" version="2.1.1" />
+      <dependency id="Oracle.ManagedDataAccess.Core" version="[2.18.3, 2.19.0)" />
+    </dependencies>
+  </metadata>
+</package>

@@ -37,6 +37,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pomelo.Extensions.Caching.M
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Src", "Src", "{A3DCBA8E-DDDD-4C03-8FC7-028D2B488C4B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "binaries", "binaries", "{07F86C6A-B19C-4A40-A920-5C70B03A5A1A}"
+	ProjectSection(SolutionItems) = preProject
+		binaries\Oracle.EntityFrameworkCore.2.18.0-beta2\lib\netstandard2.0\Oracle.EntityFrameworkCore.dll = binaries\Oracle.EntityFrameworkCore.2.18.0-beta2\lib\netstandard2.0\Oracle.EntityFrameworkCore.dll
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -84,6 +89,7 @@ Global
 		{352D5AC0-37CE-4DF8-8C9C-24960ABC59BA} = {F38FDA4F-FDEA-474B-B91D-E51E081CDF50}
 		{F2EB994D-552D-4560-863A-2FCE95E3A321} = {A3DCBA8E-DDDD-4C03-8FC7-028D2B488C4B}
 		{00734D1C-BF2B-4F28-A51C-A8960E1580ED} = {F2EB994D-552D-4560-863A-2FCE95E3A321}
+		{07F86C6A-B19C-4A40-A920-5C70B03A5A1A} = {70096DE4-F6A8-4444-95A0-0DC01AC27A19}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7B569FEB-FD77-47F1-B8A7-555517BCCDAE}

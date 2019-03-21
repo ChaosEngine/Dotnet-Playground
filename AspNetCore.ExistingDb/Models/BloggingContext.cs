@@ -46,6 +46,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		{
 			get
 			{
+				//Console.Out.WriteLineAsync($"Database.ProviderName => {Database.ProviderName}, conn name = {new Oracle.ManagedDataAccess.Client.OracleConnection().GetType()}");
 				switch (Database.ProviderName)
 				{
 					case "Microsoft.EntityFrameworkCore.Sqlite":
@@ -56,8 +57,10 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 						return "mysqlconnection";
 					case "Npgsql.EntityFrameworkCore.PostgreSQL":
 						return "npsqlconnection";
+					case "Oracle.EntityFrameworkCore":
+						return "OracleConnection";
 					default:
-						throw new NotSupportedException($"Bad DBKind name");
+						throw new NotSupportedException($"Bad DBKind name {Database.ProviderName}");
 				}
 			}
 		}

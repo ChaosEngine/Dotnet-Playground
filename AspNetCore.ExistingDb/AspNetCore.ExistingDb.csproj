@@ -28,6 +28,7 @@
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration" Version="2.2.3" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.2.0" />
 		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.2.0" />
+		<PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.18.6" />
 		<PackageReference Include="Lib.AspNetCore.ServerTiming" Version="2.1.0" />
 		<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.2.3" />
 		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.38.0.1488" />
@@ -52,6 +53,12 @@
 		<ProjectReference Include="..\Caching-MySQL\src\Pomelo.Extensions.Caching.MySql\Pomelo.Extensions.Caching.MySql.csproj" />
 		<ProjectReference Include="..\InkBall\src\InkBall.Module\InkBall.Module.csproj" />
 		<Watch Include="..\InkBall\src\InkBall.Module\**\*.cshtml" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Reference Include="Oracle.EntityFrameworkCore">
+	    <HintPath>..\binaries\Oracle.EntityFrameworkCore.2.18.0-beta2\lib\netstandard2.0\Oracle.EntityFrameworkCore.dll</HintPath>
+	  </Reference>
 	</ItemGroup>
 
 	<ItemGroup>
