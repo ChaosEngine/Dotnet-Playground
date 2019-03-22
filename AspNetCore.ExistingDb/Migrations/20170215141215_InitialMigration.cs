@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using Oracle.EntityFrameworkCore.Metadata;
 
 namespace AspNetCore.ExistingDb.Migrations
 {
@@ -17,7 +18,8 @@ namespace AspNetCore.ExistingDb.Migrations
                     BlogId = table.Column<int>(nullable: false)
 						.Annotation("Sqlite:Autoincrement", true)
 						.Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
-						.Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+						.Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
+						.Annotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn),
 					Url = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
@@ -44,7 +46,8 @@ namespace AspNetCore.ExistingDb.Migrations
                 {
                     PostId = table.Column<int>(nullable: false)
 						.Annotation("Sqlite:Autoincrement", true)
-						.Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+						.Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
+						.Annotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn),
                     BlogId = table.Column<int>(nullable: false),
                     Content = table.Column<string>(nullable: true),
                     Title = table.Column<string>(nullable: true)

@@ -35,7 +35,7 @@ const babelTranspilerFunction = function (min) {
 				]
 				:*/
 				[
-					["@babel/preset-env", { "useBuiltIns": "entry" }]
+					["@babel/preset-env", { "useBuiltIns": "entry", "corejs": 3 }]
 				],
 			"comments": false
 		}));

@@ -88,10 +88,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				case "oracle":
 					conn_str = configuration.GetConnectionString("Oracle");
 					if (dbContextOpts != null)
-						dbContextOpts.UseOracle(conn_str, b =>
-						{
-							b.UseOracleSQLCompatibility("12");
-						});
+						dbContextOpts.UseOracle(conn_str);
 					break;
 
 				default:

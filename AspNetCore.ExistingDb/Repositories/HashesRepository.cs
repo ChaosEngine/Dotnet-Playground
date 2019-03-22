@@ -167,7 +167,7 @@ namespace AspNetCore.ExistingDb.Repositories
 						.Take(20)
 						//.DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT })
 						.ToListAsync();
-					break;
+						break;
 
 				/*case "sqlconnection":
 					found = _entities.ThinHashes.FromSql(

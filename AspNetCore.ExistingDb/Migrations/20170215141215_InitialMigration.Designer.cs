@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using EFGetStarted.AspNetCore.ExistingDb.Models;
+using Oracle.EntityFrameworkCore.Metadata;
 
 namespace AspNetCore.ExistingDb.Migrations
 {
@@ -15,15 +16,17 @@ namespace AspNetCore.ExistingDb.Migrations
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.1.0-rtm-22752")
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
+                .HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("EFGetStarted.AspNetCore.ExistingDb.Models.Blog", b =>
+			modelBuilder.Entity("EFGetStarted.AspNetCore.ExistingDb.Models.Blog", b =>
                 {
-                    b.Property<int>("BlogId")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+					b.Property<int>("BlogId")
+						.ValueGeneratedOnAdd()
+						.HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
+						.HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Url")
+					b.Property<string>("Url")
                         .IsRequired();
 
                     b.HasKey("BlogId");
@@ -33,11 +36,12 @@ namespace AspNetCore.ExistingDb.Migrations
 
             modelBuilder.Entity("EFGetStarted.AspNetCore.ExistingDb.Models.Post", b =>
                 {
-                    b.Property<int>("PostId")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+					b.Property<int>("PostId")
+						.ValueGeneratedOnAdd()
+						.HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
+						.HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("BlogId");
+					b.Property<int>("BlogId");
 
                     b.Property<string>("Content");
 

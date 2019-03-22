@@ -46,7 +46,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		{
 			get
 			{
-				//Console.Out.WriteLineAsync($"Database.ProviderName => {Database.ProviderName}, conn name = {new Oracle.ManagedDataAccess.Client.OracleConnection().GetType()}");
 				switch (Database.ProviderName)
 				{
 					case "Microsoft.EntityFrameworkCore.Sqlite":
@@ -58,7 +57,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 					case "Npgsql.EntityFrameworkCore.PostgreSQL":
 						return "npsqlconnection";
 					case "Oracle.EntityFrameworkCore":
-						return "OracleConnection";
+						return "oracleconnection";
 					default:
 						throw new NotSupportedException($"Bad DBKind name {Database.ProviderName}");
 				}
@@ -140,7 +139,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 			{
 				entity.HasKey(e => e.Id);
 
-				entity.Property(e => e.Id).ValueGeneratedOnAdd().UseOracleIdentityColumn();
+				entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
 				entity.ToTable("DataProtectionKeys");
 			});

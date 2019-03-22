@@ -231,8 +231,8 @@ namespace AspNetCore.ExistingDb.Migrations
                     b.Property<string>("LoginProvider")
 			       .HasMaxLength(128);
 
-		    b.Property<string>("ProviderKey")
-				.HasMaxLength(128);
+					b.Property<string>("ProviderKey")
+						.HasMaxLength(128);
 
                     b.Property<string>("ProviderDisplayName");
 
@@ -263,11 +263,11 @@ namespace AspNetCore.ExistingDb.Migrations
                 {
                     b.Property<string>("UserId");
 
-		    b.Property<string>("LoginProvider")
-				.HasMaxLength(128);
+					b.Property<string>("LoginProvider")
+						.HasMaxLength(128);
 
-		    b.Property<string>("Name")
-				.HasMaxLength(128);
+					b.Property<string>("Name")
+						.HasMaxLength(128);
 
                     b.Property<string>("Value");
 
