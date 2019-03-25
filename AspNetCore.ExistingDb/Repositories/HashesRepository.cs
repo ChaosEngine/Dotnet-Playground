@@ -710,9 +710,9 @@ LIMIT @limit OFFSET @offset
 $@"
 SELECT A.*, (SELECT count(*) FROM ""Hashes"") cnt
 FROM 
-(SELECT *
+(SELECT /*+ FIRST_ROWS({limit}) */ *
 FROM ""Hashes""
-{(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY \"{PostgresAllColumnNames.FirstOrDefault(x => string.Compare(x, sortColumn, StringComparison.CurrentCultureIgnoreCase) == 0)}\" {sortOrderDirection}")}
+{(string.IsNullOrEmpty(sortColumn) ? "ORDER BY 1" : $"ORDER BY \"{PostgresAllColumnNames.FirstOrDefault(x => string.Compare(x, sortColumn, StringComparison.CurrentCultureIgnoreCase) == 0)}\" {sortOrderDirection}")}
 OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY) A
 "
 :
@@ -720,21 +720,22 @@ $@"
 WITH RowAndWhere AS
 (
     SELECT A.*
-    FROM (SELECT * FROM ""Hashes""
+    FROM (SELECT /*+ FIRST_ROWS({limit}) */ *
+		  FROM ""Hashes""
           WHERE {WhereColumnCondition(colNamePrefix: '"', colNameSuffix: '"', columnNames: PostgresAllColumnNames, paramPrefix: ':')}
          ) A
 )
 SELECT WhereAndOrder.* FROM (
   SELECT B.*, (SELECT COUNT(*) FROM RowAndWhere) cnt
   FROM RowAndWhere B
-  {(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY B.\"{PostgresAllColumnNames.FirstOrDefault(x => string.Compare(x, sortColumn, StringComparison.CurrentCultureIgnoreCase) == 0)}\" {sortOrderDirection}")}
+  {(string.IsNullOrEmpty(sortColumn) ? "ORDER BY 1" : $"ORDER BY B.\"{PostgresAllColumnNames.FirstOrDefault(x => string.Compare(x, sortColumn, StringComparison.CurrentCultureIgnoreCase) == 0)}\" {sortOrderDirection}")}
 ) WhereAndOrder
 OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 ");
 			using (var conn = new OracleConnection(_configuration.GetConnectionString("Oracle")))
 			{
 				var found = new List<ThinHashes>(limit);
-				int count = -1;
+				int count = 0;
 
 				await conn.OpenAsync(token);
 				using (var cmd = new OracleCommand(sql, conn))
