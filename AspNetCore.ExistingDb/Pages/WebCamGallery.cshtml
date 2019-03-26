@@ -68,7 +68,7 @@
 		{
 			<li class="nav-item">
 				<a class="nav-link" data-toggle="tab" href="#gallery-tab" role="tab" aria-controls="gallery-tab" aria-selected="false">
-					Gallery <button id="btnReplAllImg" type="button" class="btn btn-primary btn-sm" value="strng" title="Load all images">Load all</button>
+					Gallery <button id="btnReplAllImg" type="button" class="btn btn-primary btn-sm" value="strng" title="Load all images" disabled>Load all</button>
 				</a>
 			</li>
 		}
@@ -197,39 +197,49 @@
 			if(location.search !== undefined && location.search.length > 0)
 			{
 				const name = location.search.replace('?', '#');
-				const tab = $(`#myTab a[href='${name}']`);
-				if(tab !== undefined)
+				const tab = $("#myTab a[href='" + name + "']");
+				if (tab !== undefined)
 					tab.tab('show');
+
+				if (name === '#gallery-tab')
+					$('#btnReplAllImg').prop('disabled', false);
+				else
+					$('#btnReplAllImg').prop('disabled', true);
 			}
+			else
+				$('#btnReplAllImg').prop('disabled', true);
 			if($("#myTab a[href='#gallery-tab']").hasClass('active'))
 			{
 				$('#btnReplAllImg').prop('disabled', false);
 			}
 			$("#myTab a").on('click', function (e) {
-				if(e.target.hash.indexOf('gallery-tab') !== -1)
-					$('#btnReplAllImg').prop('disabled', false);
-				else
-					$('#btnReplAllImg').prop('disabled', true);
+				if (e.target.hash !== undefined)
+				{
+					if(e.target.hash.indexOf('gallery-tab') !== -1)
+						$('#btnReplAllImg').prop('disabled', false);
+					else
+						$('#btnReplAllImg').prop('disabled', true);
 
-				const addr = e.target.hash.replace('#', '?');
-				let stateObj = {
-					foo: addr
-				};
-				window.history.pushState(stateObj, addr, addr);
+					const addr = e.target.hash.replace('#', '?');
+					let stateObj = {
+						foo: addr
+					};
+					window.history.pushState(stateObj, addr, addr);
+				}
 			});
 		});
 
-		function ReplImg(This)
+		function ReplImg(el)
 		{
-			if (This.tagName != 'IMG')
+			if (el.tagName != 'IMG')
 			{
-				This.firstChild.src = This.href.replace("out", "thumbnail");
-				This.firstChild.class = 'active';
+				el.firstChild.src = el.href.replace("out", "thumbnail");
+				el.firstChild.class = 'active';
 			}
 			else
 			{
-				This.src = This.parentNode.href.replace("out", "thumbnail");
-				This.class = 'active';
+				el.src = el.parentNode.href.replace("out", "thumbnail");
+				el.class = 'active';
 			}
 		}
 
