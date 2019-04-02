@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -84,7 +85,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			switch (action?.Trim()?.ToLowerInvariant())
 			{
 				case "repost":
-					TempData.Add("itwas", $"Clicked something {action}");
+					TempData.TryAdd("itwas", $"Clicked something {action}");
 
 					var destination_url = $"{nameof(UnintentionalErr)}";
 

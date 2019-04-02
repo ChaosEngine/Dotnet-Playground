@@ -52,7 +52,7 @@
 		"@babel/core": "7.4.0",
 		"@babel/plugin-transform-runtime": "7.4.0",
 		"@babel/preset-env": "7.4.2",
-		"eslint": "5.15.3",
+		"eslint": "5.16.0",
 		"fs-extra": "7.0.1",
 		"gulp": "4.0.0",
 		"gulp-babel": "8.0.0",

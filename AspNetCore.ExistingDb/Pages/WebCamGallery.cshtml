@@ -150,7 +150,7 @@
 				asp-fallback-test="window.jQuery && videojs.options"></script>
 	</environment>
 	<script type="text/javascript">
-		@*if ('serviceWorker' in navigator) {
+		if ('serviceWorker' in navigator) {
 			const swUrl = '@Conf.AppRootPath()sw.min.js?domain=' + encodeURIComponent('@Conf.AppRootPath()');
 
 			navigator.serviceWorker
@@ -164,7 +164,7 @@
 				.then(function (registration) {
 					console.log('Service Worker Ready');
 				});
-		}*@
+		}
 
 		$(document).ready(function () {
 
