@@ -1,4 +1,5 @@
-﻿/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate" }]*/
+﻿/* eslint-disable no-console */
+/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate|registerServiceWorker" }]*/
 /*global g_AppRootPath forge*/
 var logLevel = {
 	Trace: 0,
@@ -17,16 +18,16 @@ function ajaxLog(level, message, url, line, col, error) {
 }
 
 function clientValidate(button) {
-	var tr = $(button).parent().parent();
+	let tr = $(button).parent().parent();
 
-	var key = tr.find("td").eq(0).text();
-	var orig_md5 = tr.find("td").eq(1).text();
-	var orig_sha = tr.find("td").eq(2).text();
+	let key = tr.find("td").eq(0).text();
+	let orig_md5 = tr.find("td").eq(1).text();
+	let orig_sha = tr.find("td").eq(2).text();
 
 	if (orig_md5 === '' || orig_sha === '')
 		return;
 
-	var md = forge.md.md5.create();
+	let md = forge.md.md5.create();
 	md.update(key);
 	let md5 = md.digest().toHex();
 	md = forge.md.sha256.create();
@@ -37,7 +38,51 @@ function clientValidate(button) {
 	tr.find("td").eq(2).html("<strong style='color:" + (sha === orig_sha ? "green" : "red") + "'>" + orig_sha + "</strong>");
 }
 
-(function () {
+/**
+ * https://stackoverflow.com/a/2641047/4429828
+ * @param {string} name of event
+ * @param {function} fn is a handler function
+ */
+$.fn.bindFirst = function (name, fn) {
+	// Bind as you normally would. Don't want to miss out on any jQuery magic
+	this.on(name, fn);
+
+	// Thanks to a comment by @@Martin, adding support for namespaced events too.
+	this.each(function () {
+		let handlers = $._data(this, 'events')[name.split('.')[0]];
+		//console.log(handlers);
+		// take out the handler we just inserted from the end
+		let handler = handlers.pop();
+		// move it at the beginning
+		handlers.splice(0, 0, handler);
+	});
+};
+
+/**
+ * Registers service worker globally
+ * @param {string} rootPath is a path of all pages after FQDN name (ex. https://foo-bar.com/rootPath) or '/' if no root path
+ */
+function registerServiceWorker(rootPath) {
+	if ('serviceWorker' in navigator) {
+		const swUrl = rootPath + 'sw.min.js?domain=' + encodeURIComponent(rootPath);
+
+		navigator.serviceWorker
+			.register(swUrl, { scope: rootPath })
+			.then(function () {
+				console.log("Service Worker Registered");
+			});
+
+		navigator.serviceWorker
+			.ready.then(function () {
+				console.log('Service Worker Ready');
+			});
+	}
+}
+
+/**
+ * Global document ready function
+ */
+$(function () {
 	var org_trace = console.trace;
 	var org_debug = console.debug;
 	var org_info = console.info;
@@ -68,38 +113,40 @@ function clientValidate(button) {
 		ajaxLog(logLevel.Error, msg, url, line, col, error);
 		org_error.call(this, arguments);
 	};
-})();
+
+	registerServiceWorker(g_AppRootPath);
+
+
+
+	function updateOnlineStatus() {
+		let offlineIndicator = $("#offlineIndicator");
+
+		if (offlineIndicator !== undefined) {
+			let condition = navigator.onLine ? "Online" : "Offline";
+			offlineIndicator.html(condition);
+			offlineIndicator.show();
+		}
+	}
+
+	window.addEventListener('online', updateOnlineStatus);
+	window.addEventListener('offline', updateOnlineStatus);
+	if (navigator.onLine === false)
+		updateOnlineStatus();
+
+});
 
 window.onerror = function (msg, url, line, col, error) {
 	// Note that col & error are new to the HTML 5 spec and may not be 
 	// supported in every browser.  It worked for me in Chrome.
-	//var extra = !col ? '' : ('\ncolumn: ' + col);
+	//let extra = !col ? '' : ('\ncolumn: ' + col);
 	//extra += !error ? '' : ('\nerror: ' + error);
 
 	// You can view the information in an alert to see things working like this:
 	//alert("Error: " + msg + "\nurl: " + url + "\nline: " + line + extra);
 	console.error(msg, url, line, col, error);
 
-	var suppressErrorAlert = true;
+	let suppressErrorAlert = true;
 	// If you return true, then error alerts (like in older versions of 
 	// Internet Explorer) will be suppressed.
 	return suppressErrorAlert;
-};
-
-//
-// https://stackoverflow.com/a/2641047/4429828
-//
-$.fn.bindFirst = function (name, fn) {
-	// Bind as you normally would. Don't want to miss out on any jQuery magic
-	this.on(name, fn);
-
-	// Thanks to a comment by @@Martin, adding support for namespaced events too.
-	this.each(function () {
-		var handlers = $._data(this, 'events')[name.split('.')[0]];
-		//console.log(handlers);
-		// take out the handler we just inserted from the end
-		var handler = handlers.pop();
-		// move it at the beginning
-		handlers.splice(0, 0, handler);
-	});
 };

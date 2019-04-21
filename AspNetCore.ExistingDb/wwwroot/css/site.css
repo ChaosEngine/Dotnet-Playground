@@ -50,3 +50,12 @@ body {
 .navbar-dark .navbar-nav .nav-link {
 	color: #fff;
 }
+
+#offlineIndicator {
+	position: absolute;
+	top: 0; left: 0; bottom: 0; right: 0;
+	z-index: -1;
+	overflow: hidden;
+	color: white;
+	display: none;
+}

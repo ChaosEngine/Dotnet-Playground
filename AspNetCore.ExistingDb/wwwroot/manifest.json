@@ -1,0 +1,17 @@
+{
+  "name": "Dotnet Core Playground",
+  "short_name": "DotnetPlayground",
+  "theme_color": "#8b0000",
+  "background_color": "white",
+  "display": "minimal-ui",
+  "Scope": "/dotnet/",
+  "start_url": "/dotnet/",
+  "icons": [
+    {
+      "src": "/dotnet/favicon.png",
+      "sizes": "64x64",
+      "type": "image/png"
+    }
+  ],
+  "splash_pages": null
+}

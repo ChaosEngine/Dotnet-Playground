@@ -10,6 +10,7 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="manifest" href="~/manifest.json">
 	<link rel="icon" type="image/x-icon" href="~/favicon.png" />
 	<title>@ViewData["Title"] - @Conf["AppTitleName"]</title>
 	<environment include="Development">
@@ -34,6 +35,7 @@
 		<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark-production">
 		</environment>
 			<div class="container">
+				<div id="offlineIndicator"></div>
 				<a href="~/" class="navbar-brand" title="@dbs_config">@Environment.MachineName</a>
 				<button class="navbar-toggler" type="button"
 						data-toggle="collapse"
