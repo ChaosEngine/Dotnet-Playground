@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json.Serialization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 
 //[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
 
@@ -236,6 +237,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			{
 				options.LoginPath = Configuration["AppRootPath"] + "Identity/Account/Login";
 				options.AccessDeniedPath = Configuration["AppRootPath"] + "Identity/Account/AccessDenied";
+				options.Cookie.HttpOnly = true;
+				options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+				options.Cookie.SameSite = SameSiteMode.Strict;
 			});
 
 
@@ -313,6 +317,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				// Set a short timeout for easy testing.
 				options.IdleTimeout = TimeSpan.FromMinutes(60);
 				options.Cookie.HttpOnly = true;
+				options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+				options.Cookie.SameSite = SameSiteMode.Strict;
 			});
 
 			// Add framework services.
