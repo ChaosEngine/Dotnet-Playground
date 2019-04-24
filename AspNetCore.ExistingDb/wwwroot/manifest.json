@@ -1,7 +1,7 @@
 {
   "name": "Dotnet Core Playground",
   "short_name": "DotnetPlayground",
-  "theme_color": "#8b0000",
+  "theme_color": "darkred",
   "background_color": "white",
   "display": "minimal-ui",
   "Scope": "/dotnet/",
