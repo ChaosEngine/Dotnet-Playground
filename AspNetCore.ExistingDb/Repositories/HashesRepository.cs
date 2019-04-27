@@ -712,7 +712,7 @@ SELECT A.*, (SELECT count(*) FROM ""Hashes"") cnt
 FROM 
 (SELECT /*+ FIRST_ROWS({limit}) */ *
 FROM ""Hashes""
-{(string.IsNullOrEmpty(sortColumn) ? "ORDER BY 1" : $"ORDER BY \"{PostgresAllColumnNames.FirstOrDefault(x => string.Compare(x, sortColumn, StringComparison.CurrentCultureIgnoreCase) == 0)}\" {sortOrderDirection}")}
+{(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY \"{PostgresAllColumnNames.FirstOrDefault(x => string.Compare(x, sortColumn, StringComparison.CurrentCultureIgnoreCase) == 0)}\" {sortOrderDirection}")}
 OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY) A
 "
 :
@@ -728,7 +728,7 @@ WITH RowAndWhere AS
 SELECT WhereAndOrder.* FROM (
   SELECT B.*, (SELECT COUNT(*) FROM RowAndWhere) cnt
   FROM RowAndWhere B
-  {(string.IsNullOrEmpty(sortColumn) ? "ORDER BY 1" : $"ORDER BY B.\"{PostgresAllColumnNames.FirstOrDefault(x => string.Compare(x, sortColumn, StringComparison.CurrentCultureIgnoreCase) == 0)}\" {sortOrderDirection}")}
+  {(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY B.\"{PostgresAllColumnNames.FirstOrDefault(x => string.Compare(x, sortColumn, StringComparison.CurrentCultureIgnoreCase) == 0)}\" {sortOrderDirection}")}
 ) WhereAndOrder
 OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 ");
