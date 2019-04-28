@@ -495,7 +495,7 @@ namespace Integration
 
 				var responseString = await response.Content.ReadAsStringAsync();
 				Assert.Contains("<title>New Blog - Dotnet Core Playground</title>", responseString);
-				Assert.Contains("<label class=\"col-md-2 control-label\" for=\"Url\">Url</label>", responseString);
+				Assert.Contains("<label for=\"Url\">Url</label>", responseString);
 			}
 		}
 

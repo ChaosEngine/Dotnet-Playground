@@ -30,28 +30,28 @@
 {
 	<script type="text/javascript">
 		$(function () {
-			//$('form').validate({
+			//$('.table form').validate({
 			$.validator.setDefaults({
 				debug: false,
-				submitHandler: function (form) {
+				submitHandler: function (form, event) {
 					FormSubmit(form); return false;
-					//alert('submitted'); return false;
 				}
 			});
 		});
 
 		function FormSubmit(form) {
-			var tr = $(form).parents('tr:first');
-			var id = $(form).data('id');
-			var url = $(form).find('#inp_' + id).val();
-			var operation = $(form).find("input[type=submit]:focus").val();
-			var delete_operation = '@(BlogActionEnum.Delete)';
+			let tr = $(form).parents('tr:first');
+			const id = $(form).data('id');
+			const url = $(form).find('#inp_' + id).val();
+			const serialized_form = $(form).serialize();
+			//const operation = $(form).find("input[type=submit]:focus").val();
+			const operation = serialized_form.split('operation')[1].substr(1).trim();
+			const delete_operation = '@(BlogActionEnum.Delete)';
 
-			if (operation != delete_operation && (url == '' || url == tr.find('span.displaying').text()))
+			if (operation != delete_operation && (url == '' || url == tr.find('label.displaying').text()))
 				return;
 
-			var hedrs = { 'RequestVerificationToken': $(form).find('input[name="__RequestVerificationToken"]').val() }
-			var serialized_form = $(form).serialize();
+			const hedrs = { 'RequestVerificationToken': $(form).find('input[name="__RequestVerificationToken"]').val() }
 
 			$.ajax({
 				method: operation == delete_operation ? 'DELETE' : 'POST',
@@ -69,10 +69,10 @@
 					return;
 				}
 
-				var edit = $(form).find('.edit');
+				let edit = $(form).find('.edit');
 				edit.val(blog.url);
-				var span = tr.find('span.displaying');
-				span.text(blog.url);
+				let display = tr.find('label.displaying');
+				display.text(blog.url);
 			}).fail(function (jqXHR, textStatus, errorThrown) {
 				alert("error: " + textStatus + " " + errorThrown);
 			});
