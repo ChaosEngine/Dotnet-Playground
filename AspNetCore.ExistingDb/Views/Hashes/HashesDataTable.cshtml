@@ -1,4 +1,4 @@
-﻿@{
+@{
 	ViewBag.Title = "Bootstrap Table hashes";
 }
 
@@ -66,11 +66,6 @@
 }
 @section scripts
 {
-	<script type='text/javascript'>
-		if(navigator.userAgent.indexOf('Trident') >= 0) {
-			document.write("<script src='https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/7.2.5/polyfill.min.js' integrity='sha256-5MaPCzSnmBMXH0Z0wdF0ETeJh9zN+psdZ641gqe4AQo=' crossorigin='anonymous'><\/script>");
-		}
-	</script>
 	<environment include="Development">
 		<script src="~/lib/bootstrap-table/dist/bootstrap-table.js"></script>
 	</environment>
@@ -100,40 +95,40 @@
 			return params;
 		}
 
-		function getId($element) {
-			var result = $($element).closest('tr').data('uniqueid');
+		function getId(element) {
+			let result = $(element).closest('tr').data('uniqueid');
 			return result;
 		}
 		
 		$(document).ready(function () {
-			var $table = $('#table');
+			let table = $('#table');
 
 			$('#exampleModal').on('show.bs.modal', function (event) {
-				$tr = $table.find('tr.highlight');
-				var id = getId($tr);
-				var msg = (id === undefined) ? 'No row selected' : 'Country code : ' + id;
+				let tr = table.find('tr.highlight');
+				let id = getId(tr);
+				let msg = (id === undefined) ? 'No row selected' : 'Country code : ' + id;
 			  
-				var modal = $(this);
+				let modal = $(this);
 				modal.find('.modal-body').text(msg);
 			})
 
 			$("button[name='refresh']").bindFirst('click', function (event) {
 				_refreshClicked = "1";
 			});
-			$table.on('refresh.bs.table', function (params) {
-				var opts = $table.bootstrapTable('getOptions');
+			table.on('refresh.bs.table', function (params) {
+				//let opts = table.bootstrapTable('getOptions');
 				params.ExtraParam = 1;
 			});
 			// register row-click event
-			$table.on('click-row.bs.table', function ($element, row, $tr) {
-				$tr.addClass('highlight').siblings().removeClass('highlight');
+			table.on('click-row.bs.table', function (element, row, tr) {
+				tr.addClass('highlight').siblings().removeClass('highlight');
 			});
 			// load success
-			$table.on('load-success.bs.table', function (data) {
+			table.on('load-success.bs.table', function (data) {
 				$('#spTimeToLoad').text('Took ' + ((new Date().getTime() - _startTime) + 'ms!'));
 			});
 			// load error
-			$table.on('load-error.bs.table', function (status, res) {
+			table.on('load-error.bs.table', function (status, res) {
 				$('#spTimeToLoad').text('error!');
 			});
 		});
