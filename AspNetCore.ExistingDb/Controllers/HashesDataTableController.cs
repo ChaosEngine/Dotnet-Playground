@@ -15,7 +15,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 	public interface IHashesDataTableController : IDisposable
 	{
 		IActionResult Index();
-		Task<IActionResult> LoadOld(string sort, string order, string search, int limit, int offset, string extraParam);
+		//Task<IActionResult> LoadOld(string sort, string order, string search, int limit, int offset, string extraParam);
 		Task<IActionResult> Load(HashesDataTableLoadInput input);
 	}
 
@@ -49,7 +49,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 		}
 
 		[HttpGet(ASPX)]
-		public IActionResult Index()
+		public virtual IActionResult Index()
 		{
 			#region Old code
 			//String path = Request.Path;
