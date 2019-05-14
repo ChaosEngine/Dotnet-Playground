@@ -141,6 +141,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 
 				entity.Property(e => e.Id).ValueGeneratedOnAdd();
 
+				entity.Property(e => e.Xml).HasMaxLength(4000);
+
 				entity.ToTable("DataProtectionKeys");
 			});
 

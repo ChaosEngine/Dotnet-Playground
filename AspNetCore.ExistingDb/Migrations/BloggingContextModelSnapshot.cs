@@ -67,7 +67,7 @@ namespace AspNetCore.ExistingDb.Migrations
 
                     b.Property<string>("FriendlyName");
 
-                    b.Property<string>("Xml");
+                    b.Property<string>("Xml").HasMaxLength(4000);
 
                     b.HasKey("Id");
 

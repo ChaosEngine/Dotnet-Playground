@@ -20,7 +20,7 @@ namespace AspNetCore.ExistingDb.Migrations
 						.Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
 						.Annotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn),
                     FriendlyName = table.Column<string>(nullable: true),
-                    Xml = table.Column<string>(nullable: true)
+                    Xml = table.Column<string>(nullable: true, maxLength: 4000)
                 },
                 constraints: table =>
                 {
