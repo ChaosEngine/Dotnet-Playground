@@ -41,9 +41,9 @@
 		   data-search="true"
 		   data-toolbar="#toolbar"
 		   data-icons-prefix="fa"
-		   data-page-size="10"
-		   data-page-list="[5,10,20,50,500,2000,10000]"
-		   data-height="800"
+		   data-page-size="50"
+		   data-page-list="[50,500,2000,10000]"
+		   data-height="600"
 		   >
 		<thead>
 			<tr>
@@ -96,8 +96,9 @@
 		}
 		
 		$(document).ready(function () {
-			let table = $('#table');
-
+			const table = $('#table');
+			let lastScroll = false;
+			
 			$('#exampleModal').on('show.bs.modal', function (event) {
 				let tr = table.find('tr.highlight');
 				let id = getId(tr);
@@ -121,6 +122,46 @@
 			// load success
 			table.on('load-success.bs.table', function (data) {
 				$('#spTimeToLoad').text('Took ' + ((new Date().getTime() - _startTime) + 'ms!'));
+
+				lastScroll = false;
+				setTimeout(function() {
+					//console.log('event bind');
+					$('.fixed-table-body').scrollTop(2);
+
+					$('.fixed-table-body').bind('scroll', function(event) {
+						//console.log('scroll = ' + $('.fixed-table-body').scrollTop());
+
+						if (lastScroll &&
+							($(this).scrollTop() + $(this).innerHeight()) >= $(this)[0].scrollHeight)
+						{
+							console.log('end reached -> nextPage');
+							lastScroll = true;
+
+							const options = table.bootstrapTable('getOptions');
+							if(options.pageNumber >= options.totalPages)
+								table.bootstrapTable('selectPage', 1);
+							else
+								table.bootstrapTable('nextPage');
+							$(this).unbind('scroll');
+						}
+						else if (lastScroll && $(this).scrollTop() <= 0)
+						{
+							console.log('top reached <- prevPage');
+							lastScroll = true;
+
+							const options = table.bootstrapTable('getOptions');
+							if(options.pageNumber <= 1)
+								table.bootstrapTable('selectPage', options.totalPages);
+							else
+								table.bootstrapTable('prevPage');
+							$(this).unbind('scroll');
+						}
+						else
+						{
+							lastScroll = true;
+						}
+					});
+				}, 0);
 			});
 			// load error
 			table.on('load-error.bs.table', function (status, res) {
