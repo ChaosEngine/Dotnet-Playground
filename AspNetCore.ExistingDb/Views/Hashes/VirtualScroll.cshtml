@@ -126,9 +126,7 @@
 				lastScroll = false;
 				setTimeout(function() {
 					//console.log('event bind');
-					$('.fixed-table-body').scrollTop(2);
-
-					$('.fixed-table-body').bind('scroll', function(event) {
+					$('.fixed-table-body').scrollTop(2).bind('scroll', function(event) {
 						//console.log('scroll = ' + $('.fixed-table-body').scrollTop());
 
 						if (lastScroll &&
