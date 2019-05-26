@@ -156,7 +156,7 @@ namespace AspNetCore.ExistingDb.Services
 					},
 					Status = new VideoStatus
 					{
-						PrivacyStatus = "private" // or "private" or "public"
+						PrivacyStatus = "unlisted" // or "private" or "public"
 					}
 				};
 
