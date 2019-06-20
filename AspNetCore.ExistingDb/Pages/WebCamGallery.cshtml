@@ -1,4 +1,4 @@
-@page
+﻿@page
 @inject Lib.AspNetCore.ServerTiming.IServerTiming serverTiming
 @inject Microsoft.Extensions.Configuration.IConfiguration Conf
 @model WebCamGallery
@@ -135,6 +135,11 @@
 }
 </div>
 
+<div id="secretAction" style="display: block">
+	<button id="btnAnnualMovieGenerator" type="button" class="btn btn-primary" value="Generate" title="Annual Movie Generator" disabled>Annual Movie Generator</button>
+	<span id="spAnnualMovieGeneratorList"></span>
+</div>
+
 @section Scripts
 {
 	<environment include="Development">
@@ -211,6 +216,19 @@
 					window.history.pushState(stateObj, addr, addr);
 				}
 			});
+
+			const enableAnnualMovieGenerator = JSON.parse('@Model.EnableAnnualMovieGenerator'.toLowerCase());
+			if (enableAnnualMovieGenerator === true)
+			{
+				$('#btnAnnualMovieGenerator').prop('disabled', false).on('click', function (event) {
+					GenerateAnnualMovie(event);
+				});
+				$('#secretAction').show();
+			}
+			else
+			{
+				$('#secretAction').hide();
+			}
 		});
 
 		function ReplImg(el)
@@ -287,6 +305,35 @@
 				else
 					console.log('still reloading!');
 			}
+		}
+
+		function GenerateAnnualMovie(event)
+		{
+			const hedrs = { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() }
+			const serialized_bag = JSON.stringify({ 'key': 'value' });
+
+			$.ajax({
+				method: 'POST',
+				url: 'AnnualTimelapse/?handler=SecretAction',
+				contentType: "application/json",
+				dataType: 'json',
+				data: serialized_bag,
+				headers: hedrs
+			}).done(function (bag, textStatus, jqXHR) {
+				debugger;
+				console.log(bag);
+				if (bag.Result == "error") {
+					alert("error");
+					return;
+				}
+
+				const display = $('#spAnnualMovieGeneratorList');
+				const stringified = JSON.stringify(bag.product, null, 2);
+				display.text(stringified);
+			}).fail(function (jqXHR, textStatus, errorThrown) {
+				debugger;
+				alert("error: " + textStatus + " " + errorThrown);
+			});
 		}
 
 	</script>

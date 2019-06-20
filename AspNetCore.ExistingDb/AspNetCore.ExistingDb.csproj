@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
 		<VersionPrefix>1.0.3-custom</VersionPrefix>
@@ -28,7 +28,7 @@
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration" Version="2.2.3" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.2.4" />
 		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.2.0" />
-		<PackageReference Include="Oracle.EntityFrameworkCore" Version="2.18.0-beta3" />
+		<PackageReference Include="Oracle.EntityFrameworkCore" Version="2.19.0-beta4" />
 		<PackageReference Include="Lib.AspNetCore.ServerTiming" Version="2.1.0" />
 		<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.4.0" />
 		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.40.2.1593" />

@@ -1,4 +1,4 @@
-﻿using AspNetCore.ExistingDb.Helpers;
+using AspNetCore.ExistingDb.Helpers;
 using AspNetCore.ExistingDb.Repositories;
 using AspNetCore.ExistingDb.Services;
 using EFGetStarted.AspNetCore.ExistingDb.Models;
@@ -260,7 +260,13 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				// {
 				// 	policy.RequireAuthenticatedUser();
 				// };
+			})
+			.AddAuthorization(options =>
+			{
+				options.AddPolicy("RequireAdministratorRole",
+					policy => policy.RequireRole("Administrator"));
 			});
+
 
 			#endregion WIP
 
