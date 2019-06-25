@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
 		<VersionPrefix>1.0.3-custom</VersionPrefix>
@@ -29,8 +29,10 @@
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.2.4" />
 		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.2.0" />
 		<PackageReference Include="Oracle.EntityFrameworkCore" Version="2.19.0-beta4" />
+		<!-- <PackageReference Include="IdentityManager2" Version="1.0.0-beta5" />-->
+		<PackageReference Include="IdentityManager2.AspNetIdentity" Version="1.0.0-beta3" />
 		<PackageReference Include="Lib.AspNetCore.ServerTiming" Version="2.1.0" />
-		<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.4.0" />
+		<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.4.1" />
 		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.40.2.1593" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="1.1.5" />
 		<!--<PackageReference Include="RedHat.AspNetCore.Server.Kestrel.Transport.Linux" Version="2.1.0-preview1" />-->
@@ -52,6 +54,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\Caching-MySQL\src\Pomelo.Extensions.Caching.MySql\Pomelo.Extensions.Caching.MySql.csproj" />
 		<ProjectReference Include="..\InkBall\src\InkBall.Module\InkBall.Module.csproj" />
+		<ProjectReference Include="..\IdentityManager2\IdentityManager2.csproj" />
 		<Watch Include="..\InkBall\src\InkBall.Module\**\*.cshtml" />
 	</ItemGroup>
 

@@ -1,4 +1,4 @@
-using AspNetCore.ExistingDb.Helpers;
+﻿using AspNetCore.ExistingDb.Helpers;
 using AspNetCore.ExistingDb.Repositories;
 using AspNetCore.ExistingDb.Services;
 using EFGetStarted.AspNetCore.ExistingDb.Models;
@@ -30,6 +30,9 @@ using Newtonsoft.Json.Serialization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using WebApiContrib.Core;
+using IdentityManager2.AspNetIdentity;
+using IdentityManager2.Configuration;
 
 //[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
 
@@ -162,7 +165,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			HashesRepository.HashesInfoExpirationInMinutes = TimeSpan.FromMinutes(Configuration.GetValue<int>(nameof(HashesRepository.HashesInfoExpirationInMinutes)));
 
 			services.AddScoped<IThinHashesDocumentDBRepository, ThinHashesDocumentDBRepository>();
-			services.AddSingleton<IUrlHelperFactory, DomainUrlHelperFactory>();
+			//services.AddSingleton<IUrlHelperFactory, DomainUrlHelperFactory>();
 			services.AddHostedService<BackgroundOperationService>();
 			services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>(CreateBackgroundTaskQueue);
 			services.AddServerTiming();
@@ -268,6 +271,14 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			});
 
 
+
+			services.AddIdentityManager(options =>
+			{
+				options.SecurityConfiguration.RoleClaimType = "role";
+				options.SecurityConfiguration.AdminRoleName = "IdentityManagerAdministrator";
+			})
+			.AddIdentityMangerService<AspNetCoreIdentityManagerService<ApplicationUser, string, IdentityRole, string>>();
+
 			#endregion WIP
 
 
@@ -277,7 +288,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		private void UseProxyForwardingAndDomainPathHelper(IApplicationBuilder app)
 		{
 #if DEBUG
-			string path_to_replace = Configuration["AppRootPath"].TrimEnd('/');
+			/*string path_to_replace = Configuration["AppRootPath"].TrimEnd('/');
 
 			//Check for reverse proxing and bump HTTP scheme to https
 			app.Use((context, next) =>
@@ -288,12 +299,12 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 					context.Request.Scheme = "https";
 
 				return next();
-			});
+			});*/
 #else
 			//Apache/nginx proxy schould pass "X-Forwarded-Proto"
 			app.UseForwardedHeaders(new ForwardedHeadersOptions
 			{
-				ForwardedHeaders = ForwardedHeaders.XForwardedHost | ForwardedHeaders.XForwardedProto
+				ForwardedHeaders = /*ForwardedHeaders.XForwardedHost | */ForwardedHeaders.XForwardedProto
 			});
 #endif
 		}
@@ -367,21 +378,21 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
-				//app.UseExceptionHandler("/Home/Error");
+				//app.UseExceptionHandler("/dotnet/Home/Error");
 				app.UseBrowserLink();
 			}
 			else
 			{
-				app.UseExceptionHandler("/Home/Error");
+				app.UseExceptionHandler("/dotnet/Home/Error");
 			}
-			app.UseStatusCodePagesWithReExecute("/Home/Error/{0}");
+			app.UseStatusCodePagesWithReExecute("/dotnet/Home/Error/{0}");
 
 #if DEBUG
 			if (env.IsDevelopment())
 				app.UseHttpsRedirection();
 #endif
 
-			app.UseStaticFiles();
+			//app.UseStaticFiles();
 
 			app.UseServerTiming();
 
@@ -389,17 +400,17 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 			app.UseAuthentication();
 
-			//app.LogRequestHeaders(loggerFactory, "Upgrade");//display all 'Upgrade:Connection' headers occurence
 			app.UseSignalR(routes =>
 			{
 				routes.PrepareSignalRForInkBall();
 			});
 
-			app.UseMvc(routes =>
+			app.Map("/dotnet", main =>
 			{
-				routes.MapRoute(
-					name: "default",
-					template: "{controller=Home}/{action=Index}/{id?}");
+				main.UseIdentityManager();
+
+				main.UseStaticFiles();
+				main.UseMvcWithDefaultRoute();
 			});
 		}
 	}

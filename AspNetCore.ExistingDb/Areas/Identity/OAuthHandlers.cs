@@ -28,10 +28,10 @@ namespace AspNetCore.ExistingDb.Helpers
 			_configuration = configuration;
 		}
 
-		public override Task<bool> ShouldHandleRequestAsync()
-		{
-			return Task.FromResult(Options.CallbackPath.Value.Replace(_configuration["AppRootPath"], "/") == Request.Path.Value);
-		}
+		// public override Task<bool> ShouldHandleRequestAsync()
+		// {
+		// 	return Task.FromResult(Options.CallbackPath.Value.Replace(_configuration["AppRootPath"], "/") == Request.Path.Value);
+		// }
 	}
 
 	public class MyTwitterHandler : TwitterHandler
@@ -44,10 +44,10 @@ namespace AspNetCore.ExistingDb.Helpers
 			_configuration = configuration;
 		}
 
-		public override Task<bool> ShouldHandleRequestAsync()
-		{
-			return Task.FromResult(Options.CallbackPath.Value.Replace(_configuration["AppRootPath"], "/") == Request.Path.Value);
-		}
+		// public override Task<bool> ShouldHandleRequestAsync()
+		// {
+		// 	return Task.FromResult(Options.CallbackPath.Value.Replace(_configuration["AppRootPath"], "/") == Request.Path.Value);
+		// }
 	}
 
 	public class MyGithubHandler : OAuthHandler<MyGithubHandler.GitHubOptions>
@@ -78,10 +78,10 @@ namespace AspNetCore.ExistingDb.Helpers
 			_configuration = configuration;
 		}
 
-		public override Task<bool> ShouldHandleRequestAsync()
-		{
-			return Task.FromResult(Options.CallbackPath.Value.Replace(_configuration["AppRootPath"], "/") == Request.Path.Value);
-		}
+		// public override Task<bool> ShouldHandleRequestAsync()
+		// {
+		// 	return Task.FromResult(Options.CallbackPath.Value.Replace(_configuration["AppRootPath"], "/") == Request.Path.Value);
+		// }
 
 		protected async override Task<AuthenticationTicket> CreateTicketAsync(ClaimsIdentity identity, AuthenticationProperties properties, OAuthTokenResponse tokens)
 		{
