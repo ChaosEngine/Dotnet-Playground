@@ -42,6 +42,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "binaries", "binaries", "{07
 		binaries\Oracle.EntityFrameworkCore.2.18.0-beta2\lib\netstandard2.0\Oracle.EntityFrameworkCore.dll = binaries\Oracle.EntityFrameworkCore.2.18.0-beta2\lib\netstandard2.0\Oracle.EntityFrameworkCore.dll
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityManager2", "IdentityManager2\IdentityManager2.csproj", "{9D1C35F7-3699-4DB7-9BDF-6C94925735E8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -76,6 +78,10 @@ Global
 		{00734D1C-BF2B-4F28-A51C-A8960E1580ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00734D1C-BF2B-4F28-A51C-A8960E1580ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00734D1C-BF2B-4F28-A51C-A8960E1580ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D1C35F7-3699-4DB7-9BDF-6C94925735E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D1C35F7-3699-4DB7-9BDF-6C94925735E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D1C35F7-3699-4DB7-9BDF-6C94925735E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D1C35F7-3699-4DB7-9BDF-6C94925735E8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -90,6 +96,7 @@ Global
 		{F2EB994D-552D-4560-863A-2FCE95E3A321} = {A3DCBA8E-DDDD-4C03-8FC7-028D2B488C4B}
 		{00734D1C-BF2B-4F28-A51C-A8960E1580ED} = {F2EB994D-552D-4560-863A-2FCE95E3A321}
 		{07F86C6A-B19C-4A40-A920-5C70B03A5A1A} = {70096DE4-F6A8-4444-95A0-0DC01AC27A19}
+		{9D1C35F7-3699-4DB7-9BDF-6C94925735E8} = {A3DCBA8E-DDDD-4C03-8FC7-028D2B488C4B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7B569FEB-FD77-47F1-B8A7-555517BCCDAE}

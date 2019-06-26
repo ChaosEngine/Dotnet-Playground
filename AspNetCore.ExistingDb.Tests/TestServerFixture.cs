@@ -26,6 +26,8 @@ namespace Integration
 
 		public HttpClient Client { get; }
 
+		internal string AppRootPath { get; }
+
 		internal string DBKind { get; }
 
 		internal string ImageDirectory { get; }
@@ -60,6 +62,7 @@ namespace Integration
 			Client.BaseAddress = new Uri("http://localhost");
 
 			var configuration = _server.Host.Services.GetService(typeof(IConfiguration)) as IConfiguration;
+			AppRootPath = configuration?["AppRootPath"];
 			DBKind = configuration?["DBKind"];
 			ImageDirectory = configuration?["ImageDirectory"];
 			LiveWebCamURL = configuration?["LiveWebCamURL"];

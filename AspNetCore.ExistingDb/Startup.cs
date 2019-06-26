@@ -402,7 +402,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 			app.UseSignalR(routes =>
 			{
-				routes.PrepareSignalRForInkBall();
+				routes.PrepareSignalRForInkBall("/dotnet/");
 			});
 
 			app.Map("/dotnet", main =>
