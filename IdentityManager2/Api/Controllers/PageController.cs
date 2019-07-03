@@ -10,7 +10,7 @@ namespace IdentityManager2.Api.Controllers
 {
     [SecurityHeaders]
     [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-    [Route("/idm")]
+    [Route(Constants.BasePathName)]
     public class PageController : Controller
     {
         private readonly IdentityManagerOptions config;

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IdentityManager2.Api.Controllers
 {
-    [Route("/idm")]
+    [Route(Constants.BasePathName)]
     public class AuthController : Controller
     {
         private readonly ITokenProvider<AuthenticationTicket> tokenProvider;

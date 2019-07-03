@@ -6,9 +6,9 @@ namespace IdentityManager2.Core
     {
         public const string LocalAuthenticationType = "idmgr.Local";
         public const string BearerAuthenticationType = "idmgr.Bearer";
-
-        public const string AuthorizePath = "/idm/authorize";
-        public const string CallbackFragment = "/idm/#/callback/";
+        public const string BasePathName = "idm";
+        public const string AuthorizePath = "/" + BasePathName + "/authorize";
+        public const string CallbackFragment = "/" + BasePathName + "/#/callback/";
         public const string IdMgrClientId = "idmgr";
         public const string IdMgrScope = "idmgr";
         public const string AdminRoleName = "IdentityManagerAdministrator";
@@ -17,7 +17,7 @@ namespace IdentityManager2.Core
 
         public static readonly TimeSpan DefaultTokenExpiration = TimeSpan.FromHours(10);
 
-        public const string RoutePrefix = "/api";
+        public const string RoutePrefix = "api";
         public const string MetadataRoutePrefix = RoutePrefix + "";
         public const string UserRoutePrefix = RoutePrefix + "/users";
         public const string RoleRoutePrefix = RoutePrefix + "/roles";
