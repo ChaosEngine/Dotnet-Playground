@@ -238,8 +238,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 			services.ConfigureApplicationCookie(options =>
 			{
-				options.LoginPath = Configuration["AppRootPath"] + "Identity/Account/Login";
-				options.AccessDeniedPath = Configuration["AppRootPath"] + "Identity/Account/AccessDenied";
+				options.LoginPath = "/Identity/Account/Login";
+				options.AccessDeniedPath = "/Identity/Account/AccessDenied";
 				options.Cookie.HttpOnly = true;
 				options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 				options.Cookie.SameSite = SameSiteMode.Strict;
@@ -276,6 +276,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			{
 				options.SecurityConfiguration.RoleClaimType = "role";
 				options.SecurityConfiguration.AdminRoleName = "IdentityManagerAdministrator";
+				// options.SecurityConfiguration.ShowLoginButton = true;
 			})
 			.AddIdentityMangerService<AspNetCoreIdentityManagerService<ApplicationUser, string, IdentityRole, string>>();
 

@@ -4,3 +4,6 @@
 [submodule "InkBall"]
 	path = InkBall
 	url = git@github.com:ChaosEngine/InkBall.git
+[submodule "IdentityManager2"]
+	path = IdentityManager2
+	url = git@github.com:ChaosEngine/IdentityManager2.git

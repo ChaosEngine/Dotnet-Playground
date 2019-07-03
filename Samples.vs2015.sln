@@ -42,7 +42,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "binaries", "binaries", "{07
 		binaries\Oracle.EntityFrameworkCore.2.18.0-beta2\lib\netstandard2.0\Oracle.EntityFrameworkCore.dll = binaries\Oracle.EntityFrameworkCore.2.18.0-beta2\lib\netstandard2.0\Oracle.EntityFrameworkCore.dll
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityManager2", "IdentityManager2\IdentityManager2.csproj", "{9D1C35F7-3699-4DB7-9BDF-6C94925735E8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityManager2", "IdentityManager2\src\IdentityManager2\IdentityManager2.csproj", "{9D1C35F7-3699-4DB7-9BDF-6C94925735E8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
