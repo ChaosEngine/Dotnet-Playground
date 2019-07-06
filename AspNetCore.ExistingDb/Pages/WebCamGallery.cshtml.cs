@@ -19,8 +19,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		{
 			get
 			{
-				return (base.User != null && base.User.IsInRole("Administrator"));
-			}
+				return (base.User != null && base.User.IsInRole("Administrator"))
+					&& System.IO.File.Exists("client_secrets.json");
+			}	
 		}
 	}
 

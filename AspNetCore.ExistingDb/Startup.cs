@@ -276,7 +276,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			{
 				options.SecurityConfiguration.RoleClaimType = "role";
 				options.SecurityConfiguration.AdminRoleName = "IdentityManagerAdministrator";
-				// options.SecurityConfiguration.ShowLoginButton = true;
+				options.SecurityConfiguration.AuthenticationScheme = null;
+				options.SecurityConfiguration.PageRouteAttribute = "idm";
 			})
 			.AddIdentityMangerService<AspNetCoreIdentityManagerService<ApplicationUser, string, IdentityRole, string>>();
 

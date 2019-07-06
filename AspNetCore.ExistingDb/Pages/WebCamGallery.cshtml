@@ -221,6 +221,7 @@
 			if (enableAnnualMovieGenerator === true)
 			{
 				$('#btnAnnualMovieGenerator').prop('disabled', false).on('click', function (event) {
+					event.target.disabled = 'disabled';
 					GenerateAnnualMovie(event);
 				});
 				$('#secretAction').show();
@@ -311,7 +312,9 @@
 		{
 			const hedrs = { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() }
 			const serialized_bag = JSON.stringify({ 'key': 'value' });
-
+			const display = $('#spAnnualMovieGeneratorList');
+			display.text('');
+				
 			$.ajax({
 				method: 'POST',
 				url: 'AnnualTimelapse/?handler=SecretAction',
@@ -327,12 +330,13 @@
 					return;
 				}
 
-				const display = $('#spAnnualMovieGeneratorList');
 				const stringified = JSON.stringify(bag.product, null, 2);
 				display.text(stringified);
+				event.target.disabled = '';
 			}).fail(function (jqXHR, textStatus, errorThrown) {
 				debugger;
 				alert("error: " + textStatus + " " + errorThrown);
+				event.target.disabled = '';
 			});
 		}
 
