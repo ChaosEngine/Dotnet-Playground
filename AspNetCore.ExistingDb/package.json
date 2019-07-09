@@ -49,9 +49,9 @@
 		}
 	},
 	"devDependencies": {
-		"@babel/core": "7.5.0",
+		"@babel/core": "7.5.4",
 		"@babel/plugin-transform-runtime": "7.5.0",
-		"@babel/preset-env": "7.5.0",
+		"@babel/preset-env": "7.5.4",
 		"eslint": "6.0.1",
 		"fs-extra": "8.1.0",
 		"gulp": "4.0.2",
@@ -69,7 +69,7 @@
 		"jquery-validation": "1.19.1",
 		"jquery-validation-unobtrusive": "3.2.11",
 		"blueimp-gallery": "2.33.0",
-		"video.js": "7.5.5",
+		"video.js": "7.6.0",
 		"qrcodejs": "1.0.0",
 		"@aspnet/signalr": "1.1.4",
 		"@aspnet/signalr-protocol-msgpack": "1.1.0",

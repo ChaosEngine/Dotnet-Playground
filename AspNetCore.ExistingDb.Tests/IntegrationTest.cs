@@ -732,4 +732,33 @@ namespace Integration
 			}//end using
 		}
 	}
+
+	[Collection(nameof(TestServerCollection))]
+	public class IdentityManager2
+	{
+		private readonly TestServerFixture<Startup> _fixture;
+		private readonly HttpClient _client;
+
+		public IdentityManager2(TestServerFixture<Startup> fixture)
+		{
+			_fixture = fixture;
+			_client = fixture.Client;
+		}
+
+		[Fact]
+		public async Task Show_Index()
+		{
+			// Arrange
+			// Act
+			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}assets/Templates.index.html"))
+			{
+				// Assert
+				response.EnsureSuccessStatusCode();
+
+				var responseString = await response.Content.ReadAsStringAsync();
+				Assert.Contains("<title>IdentityManager 2</title>", responseString);
+				Assert.Contains("<script src=\"{pathBase}/assets/Scripts.Bundle.js\"></script>", responseString);
+			}
+		}
+	}
 }

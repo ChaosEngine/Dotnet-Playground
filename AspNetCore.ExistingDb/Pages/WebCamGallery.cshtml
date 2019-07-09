@@ -17,7 +17,7 @@
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/blueimp-gallery@2.33.0/css/blueimp-gallery.min.css" integrity="sha256-Y0i7rzAjNSxOrq/x6gK6k0OeK1V2WNWwjh0/l+KapNk=" crossorigin="anonymous"
 			  asp-fallback-href="~/lib/blueimp-gallery/css/blueimp-gallery.min.css"
 			  asp-fallback-test-class="blueimp-gallery" asp-fallback-test-property="position" asp-fallback-test-value="fixed" />
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/video.js@7.5.5/dist/video-js.min.css" integrity="sha256-TJKQPVYC8cFBnpxkfw2wItQl76qlgNmEnpthMssQIPY=" crossorigin="anonymous"
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/video.js@7.6.0/dist/video-js.min.css" integrity="sha256-dd54K9sYXxJudjJrRPfUya44cGVrUYF5o7cTyVvGd+I=" crossorigin="anonymous"
 			  asp-fallback-href="~/lib/video.js/dist/video-js.min.css"
 			  asp-fallback-test-class="video-js" asp-fallback-test-property="position" asp-fallback-test-value="relative" />
 	</environment>
@@ -150,7 +150,7 @@
 		<script src="https://cdn.jsdelivr.net/npm/blueimp-gallery@2.33.0/js/blueimp-gallery.min.js" integrity="sha256-ZbBVsWhU9YSV3AZky7xcIVDC4to1i3hUBLmOZ5JkMbQ=" crossorigin="anonymous"
 				asp-fallback-src="~/lib/blueimp-gallery/js/blueimp-gallery.min.js"
 				asp-fallback-test="window.jQuery && window.blueimp"></script>
-		<script src="https://cdn.jsdelivr.net/npm/video.js@7.5.5/dist/video.min.js" integrity="sha256-n8V7Sc3PpHg5axhr3QP9qhCLiXXljRVvQbwBEFY4hyg=" crossorigin="anonymous"
+		<script src="https://cdn.jsdelivr.net/npm/video.js@7.6.0/dist/video.min.js" integrity="sha256-ZZTDww5ZvoraW2rki76nJIF4aA+avTp6voSDrvEQ+84=" crossorigin="anonymous"
 				asp-fallback-src="~/lib/video.js/dist/video.min.js"
 				asp-fallback-test="window.jQuery && videojs.options"></script>
 	</environment>
@@ -323,7 +323,6 @@
 				data: serialized_bag,
 				headers: hedrs
 			}).done(function (bag, textStatus, jqXHR) {
-				debugger;
 				console.log(bag);
 				if (bag.Result == "error") {
 					alert("error");
@@ -334,7 +333,6 @@
 				display.text(stringified);
 				event.target.disabled = '';
 			}).fail(function (jqXHR, textStatus, errorThrown) {
-				debugger;
 				alert("error: " + textStatus + " " + errorThrown);
 				event.target.disabled = '';
 			});
