@@ -1,6 +1,5 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:2.2-stretch AS build
-RUN curl -sL https://deb.nodesource.com/setup_11.x | bash - && \
-	apt-get install -y nodejs
+FROM mcr.microsoft.com/dotnet/core/sdk:2.2-alpine3.9 AS build
+RUN apk add --update nodejs nodejs-npm
 RUN npm i gulp@latest -g
 WORKDIR /build
 
