@@ -137,7 +137,7 @@
 
 <div id="secretAction" style="display: block">
 	<button id="btnAnnualMovieGenerator" type="button" class="btn btn-primary" value="Generate" title="Annual Movie Generator" disabled>Annual Movie Generator</button>
-	<span id="spAnnualMovieGeneratorList"></span>
+	<table id="tbAnnualMovieGenerator" class="table table-sm table-striped table-hover"></table>
 </div>
 
 @section Scripts
@@ -312,8 +312,14 @@
 		{
 			const hedrs = { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() }
 			const serialized_bag = JSON.stringify({ 'key': 'value' });
-			const display = $('#spAnnualMovieGeneratorList');
-			display.text('');
+			$('#tbAnnualMovieGenerator').html(
+				`<thead><tr>
+					<th scope="col">#</th>
+					<th scope="col">Name</th>
+					<th scope="col">Hash</th>
+					<th scope="col">Date</th>
+				</tr></thead><tbody></tbody>`
+			);
 				
 			$.ajax({
 				method: 'POST',
@@ -322,18 +328,29 @@
 				dataType: 'json',
 				data: serialized_bag,
 				headers: hedrs
-			}).done(function (bag, textStatus, jqXHR) {
-				console.log(bag);
-				if (bag.Result == "error") {
+			}).done(function (response, textStatus, jqXHR) {
+				console.log(response);
+				if (response.Result == "error") {
 					alert("error");
 					return;
 				}
+				//const stringified = JSON.stringify(response.product, null, 2);
+				//display.text(stringified);
 
-				const stringified = JSON.stringify(bag.product, null, 2);
-				display.text(stringified);
-				event.target.disabled = '';
+				$(response.product).each(function (index, item) {
+                    $('#tbAnnualMovieGenerator tbody').append(
+						`<tr>
+							<td>${item[0]}</td>
+							<td>${item[1]}</td>
+							<td>${item[2]}</td>
+							<td>${item[3]}</td>
+						</tr>`
+                    );
+                });
 			}).fail(function (jqXHR, textStatus, errorThrown) {
 				alert("error: " + textStatus + " " + errorThrown);
+				$('#tbAnnualMovieGenerator').html('');
+			}).always(function() {
 				event.target.disabled = '';
 			});
 		}
