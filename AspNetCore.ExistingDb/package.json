@@ -68,7 +68,7 @@
 		"jquery": "3.4.1",
 		"jquery-validation": "1.19.1",
 		"jquery-validation-unobtrusive": "3.2.11",
-		"blueimp-gallery": "2.33.0",
+		"blueimp-gallery": "2.34.1",
 		"video.js": "7.6.0",
 		"qrcodejs": "1.0.0",
 		"@aspnet/signalr": "1.1.4",
