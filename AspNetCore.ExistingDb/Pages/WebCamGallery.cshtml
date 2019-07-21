@@ -49,27 +49,34 @@
 	</style>
 }
 
+<p id="secretAction" style="display: none">
+	<button id="btnAnnualMovieGenerator" type="button" class="btn btn-primary" value="Generate"
+		data-toggle="collapse" data-target="#divAnnualMovieGenerator" aria-expanded="false" aria-controls="divAnnualMovieGenerator"
+  		title="Show all annual movie clips" disabled>Annual movie clips</button>
+</p>
+<div class="collapse card card-body" id="divAnnualMovieGenerator">
+    <table id="tbAnnualMovieGenerator" class="table table-sm table-striped table-borderless table-hover"></table>
+</div>
+
 <!-- Nav tabs -->
 <ul class="nav nav-tabs" id="myTab" role="tablist">
 	@{
 		if (!string.IsNullOrEmpty(Model.LiveWebCamURL))
 		{
 			<li class="nav-item">
-				<a class="nav-link active pb-3" data-toggle="tab" href="#live-tab" role="tab" aria-controls="live-tab" aria-selected="true">Live</a>
+				<a class="nav-link active" data-toggle="tab" href="#live-tab" role="tab" aria-controls="live-tab" aria-selected="true">Live</a>
 			</li>
 		}
 		if (!string.IsNullOrEmpty(Model.BaseWebCamURL))
 		{
 			<li class="nav-item">
-				<a class="nav-link pb-3" data-toggle="tab" href="#video-tab" role="tab" aria-controls="video-tab" aria-selected="false">Daily video</a>
+				<a class="nav-link" data-toggle="tab" href="#video-tab" role="tab" aria-controls="video-tab" aria-selected="false">Daily video</a>
 			</li>
 		}
 		if (Model.ThumbnailJpgs != null)
 		{
 			<li class="nav-item">
-				<a class="nav-link" data-toggle="tab" href="#gallery-tab" role="tab" aria-controls="gallery-tab" aria-selected="false">
-					Gallery <button id="btnReplAllImg" type="button" class="btn btn-primary btn-sm" value="strng" title="Load all images" disabled>Load all</button>
-				</a>
+				<a class="nav-link" data-toggle="tab" href="#gallery-tab" role="tab" aria-controls="gallery-tab" aria-selected="false">Gallery</a>
 			</li>
 		}
 	}
@@ -101,6 +108,7 @@
 	if (Model.ThumbnailJpgs != null)
 	{
 		@:<div class="tab-pane" id="gallery-tab" role="tabpanel" aria-labelledby="gallery-tab">
+			<button id="btnReplAllImg" type="button" class="btn btn-primary btn-sm" value="strng" title="Load all images" disabled>Load all</button>
 			@:<div id="links">
 			int i = 0;
 			foreach (var jpg in Model.ThumbnailJpgs)
@@ -133,11 +141,6 @@
 		@:</div>
 	}
 }
-</div>
-
-<div id="secretAction" style="display: block">
-	<button id="btnAnnualMovieGenerator" type="button" class="btn btn-primary" value="Generate" title="Annual Movie Generator" disabled>Annual Movie Generator</button>
-	<table id="tbAnnualMovieGenerator" class="table table-sm table-striped table-hover"></table>
 </div>
 
 @section Scripts
@@ -181,7 +184,6 @@
 				ReplAllImg();
 			});
 
-			//RefreshLiveImage();
 
 			if(location.search !== undefined && location.search.length > 0)
 			{
@@ -221,8 +223,11 @@
 			if (enableAnnualMovieGenerator === true)
 			{
 				$('#btnAnnualMovieGenerator').prop('disabled', false).on('click', function (event) {
-					event.target.disabled = 'disabled';
-					GenerateAnnualMovie(event);
+					if(event.target.attributes['aria-expanded'].value !== 'true') {
+						event.target.disabled = 'disabled';
+						GenerateAnnualMovie(event);
+					}
+					$('#divAnnualMovieGenerator').collapse('toggle');
 				});
 				$('#secretAction').show();
 			}
@@ -318,7 +323,7 @@
 					'<th scope="col">Name</th>' +
 					'<th scope="col">Hash</th>' +
 					'<th scope="col">Date</th>' +
-				'</tr></thead><tbody></tbody>'
+				'</tr></thead><caption>Loading...</caption><tbody></tbody>'
 			);
 				
 			$.ajax({
@@ -337,6 +342,7 @@
 				//const stringified = JSON.stringify(response.product, null, 2);
 				//display.text(stringified);
 
+                $('#tbAnnualMovieGenerator caption').remove();
 				$(response.product).each(function (index, item) {
                     $('#tbAnnualMovieGenerator tbody').append(
 						'<tr>' +
