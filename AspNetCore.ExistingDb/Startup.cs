@@ -33,6 +33,7 @@ using Microsoft.AspNetCore.Http;
 using WebApiContrib.Core;
 using IdentityManager2.AspNetIdentity;
 using IdentityManager2.Configuration;
+using Abiosoft.DotNet.DevReload;
 
 //[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
 
@@ -58,7 +59,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				.UseContentRoot(Directory.GetCurrentDirectory())
 				//.UseIISIntegration()
 				.UseStartup<Startup>()
-				//.UseApplicationInsights()
 				.Build();
 
 			await host.RunAsync();
@@ -131,6 +131,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 #if DEBUG
 			//services.AddSingleton<ICompilationService, RoslynCompilationService>();
 			services.AddSingleton<Microsoft.AspNetCore.Razor.Language.RazorTemplateEngine, CustomTemplateEngine>();
+			//services.AddApplicationInsightsTelemetry();
 #endif
 			services.AddScoped<IBloggingRepository, BloggingRepository>();
 
@@ -380,8 +381,33 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
+				app.UseDevReload(new DevReloadOptions
+				{
+					Directory = "./",
+					IgnoredSubDirectories = new string[] { ".git", ".node_modules" },
+					StaticFileExtensions = new string[] { "css", "js", "html", "cshtml" },
+					MaxConnectionFailedCount = 40,
+					PopoutHtmlTemplate = @"<div id='reload' class='toast' role='alert' aria-live='assertive' aria-atomic='true'
+	data-autohide='false' data-animation='true' style='position: absolute; top: 0; right: 0; z-index: 9999'>
+  <div class='toast-header'>
+    <svg class='bd-placeholder-img rounded mr-2' width='20' height='20' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMidYMid slice' focusable='false' role='img'><rect width = '100%' height='100%' fill='red'></rect></svg>
+    <strong class='mr-auto'>DevReload</strong>
+    <small>just now</small>
+    <button type='button' class='ml-2 mb-1 close' data-dismiss='toast' aria-label='Close'>
+      <span aria-hidden='true'>×</span>
+    </button>
+  </div>
+  <div class='toast-body'>
+    DevReload - Reloading page...
+  </div>
+</div>
+<script>
+	$('#reload').toast('hide');
+</script>",
+                    TemplateActivationJSFragment = @"$('#reload').toast('show');"
+                });
 				//app.UseExceptionHandler("/dotnet/Home/Error");
-				app.UseBrowserLink();
+				//app.UseBrowserLink();
 			}
 			else
 			{
