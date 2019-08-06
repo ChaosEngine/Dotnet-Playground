@@ -1,39 +1,37 @@
-﻿using AspNetCore.ExistingDb.Helpers;
+﻿using Abiosoft.DotNet.DevReload;
+using AspNetCore.ExistingDb.Helpers;
 using AspNetCore.ExistingDb.Repositories;
 using AspNetCore.ExistingDb.Services;
 using EFGetStarted.AspNetCore.ExistingDb.Models;
-using InkBall.Module;
+using IdentityManager2.AspNetIdentity;
+using IdentityManager2.Configuration;
 using IdentitySample.DefaultUI.Data;
 using IdentitySample.Services;
+using InkBall.Module;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.Twitter;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json.Serialization;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Security.Cryptography.X509Certificates;
-using System.Collections.Generic;
-using Newtonsoft.Json.Serialization;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
-using WebApiContrib.Core;
-using IdentityManager2.AspNetIdentity;
-using IdentityManager2.Configuration;
-using Abiosoft.DotNet.DevReload;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 
 //[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
 
@@ -386,7 +384,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 					Directory = "./",
 					IgnoredSubDirectories = new string[] { ".git", ".node_modules" },
 					StaticFileExtensions = new string[] { "css", "js", "html", "cshtml" },
-					MaxConnectionFailedCount = 40,
+					MaxConnectionFailedCount = 20,
 					PopoutHtmlTemplate = @"<div id='reload' class='toast' role='alert' aria-live='assertive' aria-atomic='true'
 	data-autohide='false' data-animation='true' style='position: absolute; top: 0; right: 0; z-index: 9999'>
   <div class='toast-header'>
@@ -405,7 +403,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 	$('#reload').toast('hide');
 </script>",
                     TemplateActivationJSFragment = @"$('#reload').toast('show');"
-                });
+				});
 				//app.UseExceptionHandler("/dotnet/Home/Error");
 				//app.UseBrowserLink();
 			}
