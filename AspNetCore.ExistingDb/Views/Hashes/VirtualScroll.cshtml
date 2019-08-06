@@ -104,8 +104,7 @@
 		}
 		
 		$(document).ready(function () {
-			const table = $('#table');
-			let lastScroll = false;
+			const table = $('#table'), epsilon = 2;
 			
 			$('#exampleModal').on('show.bs.modal', function (event) {
 				let tr = table.find('tr.highlight');
@@ -131,36 +130,40 @@
 			table.on('load-success.bs.table', function (data) {
 				$('#spTimeToLoad').text('Took ' + ((new Date().getTime() - _startTime) + 'ms!'));
 
-				lastScroll = false;
+				let lastScroll = false;
 				setTimeout(function() {
 					//console.log('event bind');
-					$('.fixed-table-body').scrollTop(2).bind('scroll', function(event) {
-						//console.log('scroll = ' + $('.fixed-table-body').scrollTop());
+					$('.fixed-table-body').scrollTop(epsilon).bind('scroll', function(event) {
+						/*console.log(`lastScroll = ${lastScroll}, ` + 
+							`((this).scrollTop() + (this).innerHeight()) = ${($(this).scrollTop() + $(this).innerHeight())}, ` +
+							`(this)[0].scrollHeight = ${$(this)[0].scrollHeight}, condition = ${($(this).scrollTop() + $(this).innerHeight() + epsilon) >= $(this)[0].scrollHeight}`);*/
 
-						if (lastScroll &&
-							($(this).scrollTop() + $(this).innerHeight()) >= $(this)[0].scrollHeight)
+						if (lastScroll)
 						{
-							console.log('end reached -> nextPage');
-							lastScroll = true;
+							if(($(this).scrollTop() + $(this).innerHeight() + epsilon) >= $(this)[0].scrollHeight)
+							{
+								console.log('end reached -> nextPage');
+								lastScroll = true;
 
-							const options = table.bootstrapTable('getOptions');
-							if(options.pageNumber >= options.totalPages)
-								table.bootstrapTable('selectPage', 1);
-							else
-								table.bootstrapTable('nextPage');
-							$(this).unbind('scroll');
-						}
-						else if (lastScroll && $(this).scrollTop() <= 0)
-						{
-							console.log('top reached <- prevPage');
-							lastScroll = true;
+								const options = table.bootstrapTable('getOptions');
+								if(options.pageNumber >= options.totalPages)
+									table.bootstrapTable('selectPage', 1);
+								else
+									table.bootstrapTable('nextPage');
+								$(this).unbind('scroll');
+							}
+							else if ($(this).scrollTop() <= 0)
+							{
+								console.log('top reached <- prevPage');
+								lastScroll = true;
 
-							const options = table.bootstrapTable('getOptions');
-							if(options.pageNumber <= 1)
-								table.bootstrapTable('selectPage', options.totalPages);
-							else
-								table.bootstrapTable('prevPage');
-							$(this).unbind('scroll');
+								const options = table.bootstrapTable('getOptions');
+								if(options.pageNumber <= 1)
+									table.bootstrapTable('selectPage', options.totalPages);
+								else
+									table.bootstrapTable('prevPage');
+								$(this).unbind('scroll');
+							}
 						}
 						else
 						{
