@@ -104,7 +104,7 @@
 		}
 		
 		$(document).ready(function () {
-			const table = $('#table');
+			const table = $('#table'), epsilon = 2;
 			let lastScroll = false;
 			
 			$('#exampleModal').on('show.bs.modal', function (event) {
@@ -134,11 +134,11 @@
 				lastScroll = false;
 				setTimeout(function() {
 					//console.log('event bind');
-					$('.fixed-table-body').scrollTop(2).bind('scroll', function(event) {
+					$('.fixed-table-body').scrollTop(epsilon).bind('scroll', function(event) {
 						//console.log('scroll = ' + $('.fixed-table-body').scrollTop());
 
 						if (lastScroll &&
-							($(this).scrollTop() + $(this).innerHeight()) >= $(this)[0].scrollHeight)
+							($(this).scrollTop() + $(this).innerHeight() + epsilon) >= $(this)[0].scrollHeight)
 						{
 							console.log('end reached -> nextPage');
 							lastScroll = true;
