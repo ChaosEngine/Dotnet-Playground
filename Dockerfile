@@ -14,6 +14,7 @@ COPY ./Caching-MySQL/src/Pomelo.Extensions.Caching.MySql/Pomelo.Extensions.Cachi
 COPY ./Caching-MySQL/test/Pomelo.Extensions.Caching.MySql.Tests/Pomelo.Extensions.Caching.MySql.Tests.csproj ./Caching-MySQL/test/Pomelo.Extensions.Caching.MySql.Tests/Pomelo.Extensions.Caching.MySql.Tests.csproj
 COPY ./IdentityManager2/src/IdentityManager2/IdentityManager2.csproj ./IdentityManager2/src/IdentityManager2/IdentityManager2.csproj
 COPY ./IdentityManager2/src/IdentityManager2/Assets/ ./IdentityManager2/src/IdentityManager2/Assets/
+COPY ./DevReload/DevReload.csproj ./DevReload/DevReload.csproj
 COPY ./AspNetCore.ExistingDb/AspNetCore.ExistingDb.csproj ./AspNetCore.ExistingDb/AspNetCore.ExistingDb.csproj
 COPY ./*.sln ./NuGet.config ./
 RUN dotnet restore -r linux-x64
