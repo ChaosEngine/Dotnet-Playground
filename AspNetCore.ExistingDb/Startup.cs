@@ -1,4 +1,6 @@
-﻿using Abiosoft.DotNet.DevReload;
+﻿#if DEBUG
+using Abiosoft.DotNet.DevReload;
+#endif
 using AspNetCore.ExistingDb.Helpers;
 using AspNetCore.ExistingDb.Repositories;
 using AspNetCore.ExistingDb.Services;
@@ -379,6 +381,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
+#if DEBUG
 				app.UseDevReload(new DevReloadOptions
 				{
 					Directory = "./",
@@ -404,6 +407,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 </script>",
                     TemplateActivationJSFragment = @"$('#reload').toast('show');"
 				});
+#endif
 				//app.UseExceptionHandler("/dotnet/Home/Error");
 				//app.UseBrowserLink();
 			}

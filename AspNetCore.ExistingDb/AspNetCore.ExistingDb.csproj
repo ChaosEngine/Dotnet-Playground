@@ -52,10 +52,13 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Caching-MySQL\src\Pomelo.Extensions.Caching.MySql\Pomelo.Extensions.Caching.MySql.csproj" />
-		<ProjectReference Include="..\DevReload\DevReload.csproj" />
 		<ProjectReference Include="..\InkBall\src\InkBall.Module\InkBall.Module.csproj" />
 		<ProjectReference Include="..\IdentityManager2\src\IdentityManager2\IdentityManager2.csproj" />
 		<Watch Include="..\InkBall\src\InkBall.Module\**\*.cshtml" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(Configuration)'=='Debug'">
+		<ProjectReference Include="..\DevReload\DevReload.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
