@@ -31,7 +31,7 @@ namespace AspNetCore.ExistingDb.Repositories
 
 		Task<IEnumerable<ThinHashes>> AutoComplete(string text);
 
-		Task<(IEnumerable<ThinHashes> Itemz, int Count)> PagedSearchAsync(string sortColumn, string sortOrderDirection, string searchText,
+		Task<(IEnumerable<string[]> Itemz, int Count)> PagedSearchAsync(string sortColumn, string sortOrderDirection, string searchText,
 			int offset, int limit, CancellationToken token);
 
 		Task<HashesInfo> CalculateHashesInfo(ILogger logger, DbContextOptions<BloggingContext> dbContextOptions,
@@ -227,7 +227,7 @@ namespace AspNetCore.ExistingDb.Repositories
 		/// <param name="limit">The limit.</param>
 		/// <param name="token">The token.</param>
 		/// <returns></returns>
-		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> PagedSearchSqlServerAsync(string sortColumn, string sortOrderDirection,
+		private async Task<(IEnumerable<string[]> Itemz, int Count)> PagedSearchSqlServerAsync(string sortColumn, string sortOrderDirection,
 					string searchText, int offset, int limit, CancellationToken token)
 		{
 			string col_names = string.Join("],[", AllColumnNames);
@@ -255,7 +255,7 @@ FETCH NEXT @limit ROWS ONLY
 			var conn = _entities.Database.GetDbConnection();
 			try
 			{
-				var found = new List<ThinHashes>(limit);
+				var found = new List<string[]>(limit);
 				int count = -1;
 
 				await conn.OpenAsync(token);
@@ -311,16 +311,16 @@ FETCH NEXT @limit ROWS ONLY
 
 						if (count > 0 && await rdr.NextResultAsync(token) && rdr.HasRows)
 						{
-							string[] strings = new string[3];
 							while (await rdr.ReadAsync(token))
 							{
+								string[] strings = new string[3];
 								rdr.GetValues(strings);
-								found.Add(new ThinHashes
+								found.Add(/*new ThinHashes
 								{
 									Key = strings[0],
 									HashMD5 = strings[1],
 									HashSHA256 = strings[2]
-								});
+								}*/strings);
 							}
 						}
 						else
@@ -348,7 +348,7 @@ FETCH NEXT @limit ROWS ONLY
 		/// <param name="limit">The limit.</param>
 		/// <param name="token">The token.</param>
 		/// <returns></returns>
-		private async Task<(List<ThinHashes> Itemz, int Count)> PagedSearchMySqlAsync(string sortColumn, string sortOrderDirection, string searchText,
+		private async Task<(List<string[]> Itemz, int Count)> PagedSearchMySqlAsync(string sortColumn, string sortOrderDirection, string searchText,
 					int offset, int limit, CancellationToken token)
 		{
 			string col_names = string.Join("`,`", AllColumnNames);
@@ -375,7 +375,7 @@ LIMIT @limit OFFSET @offset
 
 			using (var conn = new MySqlConnection(_configuration.GetConnectionString("MySQL")))
 			{
-				var found = new List<ThinHashes>(limit);
+				var found = new List<string[]>(limit);
 				int count = -1;
 
 				await conn.OpenAsync(token);
@@ -431,16 +431,16 @@ LIMIT @limit OFFSET @offset
 
 						if (count > 0 && await rdr.NextResultAsync(token) && rdr.HasRows)
 						{
-							string[] strings = new string[3];
 							while (await rdr.ReadAsync(token))
 							{
+								string[] strings = new string[3];
 								rdr.GetValues(strings);
-								found.Add(new ThinHashes
+								found.Add(/*new ThinHashes
 								{
 									Key = strings[0],
 									HashMD5 = strings[1],
 									HashSHA256 = strings[2]
-								});
+								}*/strings);
 							}
 						}
 						else
@@ -464,7 +464,7 @@ LIMIT @limit OFFSET @offset
 		/// <param name="limit">The limit.</param>
 		/// <param name="token">The token.</param>
 		/// <returns></returns>
-		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> PagedSearchSqliteAsync(string sortColumn, string sortOrderDirection,
+		private async Task<(IEnumerable<string[]> Itemz, int Count)> PagedSearchSqliteAsync(string sortColumn, string sortOrderDirection,
 					string searchText, int offset, int limit, CancellationToken token)
 		{
 			string col_names = string.Join("],[", AllColumnNames);
@@ -491,7 +491,7 @@ LIMIT @limit OFFSET @offset
 			var conn = _entities.Database.GetDbConnection();
 			try
 			{
-				var found = new List<ThinHashes>(limit);
+				var found = new List<string[]>(limit);
 				int count = -1;
 
 				await conn.OpenAsync(token);
@@ -547,16 +547,16 @@ LIMIT @limit OFFSET @offset
 
 						if (count > 0 && await rdr.NextResultAsync(token) && rdr.HasRows)
 						{
-							string[] strings = new string[3];
 							while (await rdr.ReadAsync(token))
 							{
+								string[] strings = new string[3];
 								rdr.GetValues(strings);
-								found.Add(new ThinHashes
+								found.Add(/*new ThinHashes
 								{
 									Key = strings[0],
 									HashMD5 = strings[1],
 									HashSHA256 = strings[2]
-								});
+								}*/strings);
 							}
 						}
 						else
@@ -584,7 +584,7 @@ LIMIT @limit OFFSET @offset
 		/// <param name="limit">The limit.</param>
 		/// <param name="token">The token.</param>
 		/// <returns></returns>
-		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> PagedSearchPostgresAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit, CancellationToken token)
+		private async Task<(IEnumerable<string[]> Itemz, int Count)> PagedSearchPostgresAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit, CancellationToken token)
 		{
 			string col_names = string.Join("\",\"", PostgresAllColumnNames);
 			string sql =// "SET SESSION SQL_BIG_SELECTS=1;" +
@@ -612,7 +612,7 @@ LIMIT @limit OFFSET @offset
 			{
 				conn.ProvideClientCertificatesCallback = ContextFactory.MyProvideClientCertificatesCallback;
 
-				var found = new List<ThinHashes>(limit);
+				var found = new List<string[]>(limit);
 				int count = -1;
 
 				await conn.OpenAsync(token);
@@ -668,16 +668,16 @@ LIMIT @limit OFFSET @offset
 
 						if (count > 0 && await rdr.NextResultAsync(token) && rdr.HasRows)
 						{
-							string[] strings = new string[3];
 							while (await rdr.ReadAsync(token))
 							{
+								string[] strings = new string[3];
 								rdr.GetValues(strings);
-								found.Add(new ThinHashes
+								found.Add(/*new ThinHashes
 								{
 									Key = strings[0],
 									HashMD5 = strings[1],
 									HashSHA256 = strings[2]
-								});
+								}*/strings);
 							}
 						}
 						else
@@ -701,7 +701,7 @@ LIMIT @limit OFFSET @offset
 		/// <param name="limit">The limit.</param>
 		/// <param name="token">The token.</param>
 		/// <returns></returns>
-		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> PagedSearchOracleAsync(
+		private async Task<(IEnumerable<string[]> Itemz, int Count)> PagedSearchOracleAsync(
 			string sortColumn, string sortOrderDirection, string searchText, int offset, int limit, CancellationToken token)
 		{
 			string col_names = string.Join("\",\"", PostgresAllColumnNames);
@@ -734,7 +734,7 @@ OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 ");
 			using (var conn = new OracleConnection(_configuration.GetConnectionString("Oracle")))
 			{
-				var found = new List<ThinHashes>(limit);
+				var found = new List<string[]>(limit);
 				int count = 0;
 
 				await conn.OpenAsync(token);
@@ -788,14 +788,19 @@ OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 						while (await rdr.ReadAsync(token))
 						{
 							rdr.GetValues(strings);
-							found.Add(new ThinHashes
+							found.Add(
+							/*new ThinHashes
 							{
 								Key = strings[0].ToString(),
 								HashMD5 = strings[1].ToString(),
 								HashSHA256 = strings[2].ToString()
-							});
-							count = int.Parse(strings[3].ToString());
+							}*/
+							/*strings.Take(3).Cast<string>().ToArray()*/
+							new string[] { (string)strings[0], (string)strings[1], (string)strings[2] }
+							);
 						}
+						if (strings[3] != null)
+							count = int.Parse(strings[3].ToString());
 					}
 				}
 
@@ -813,7 +818,7 @@ OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 		/// <param name="limit">The limit.</param>
 		/// <param name="token">The token.</param>
 		/// <returns></returns>
-		public async Task<(IEnumerable<ThinHashes> Itemz, int Count)> PagedSearchAsync(string sortColumn, string sortOrderDirection, string searchText,
+		public async Task<(IEnumerable<string[]> Itemz, int Count)> PagedSearchAsync(string sortColumn, string sortOrderDirection, string searchText,
 			int offset, int limit, CancellationToken token)
 		{
 			_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("ctor", Watch.ElapsedMilliseconds,
@@ -894,7 +899,7 @@ OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 
 					_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("READY",
 						Watch.ElapsedMilliseconds, "PagedSearchAsync ready"));
-					return (found, found.FoundCount);
+					return (found.Select(tab => new string[] { tab.Key, tab.HashMD5, tab.HashSHA256 }), found.FoundCount);
 				}
 				finally
 				{

@@ -123,8 +123,10 @@ namespace Controllers
 
 					IEnumerable<ThinHashes> items = WebControllers.BaseController<ThinHashes>.SearchItems(hashes.AsQueryable(), search, column_names);
 
-					(IEnumerable<ThinHashes> Itemz, int Count) tuple =
+					(IEnumerable<ThinHashes> Itemz, int Count) orgtuple =
 						WebControllers.BaseController<ThinHashes>.ItemsToJson(items, sort, order, limit, offset);
+					(IEnumerable<string[]> Itemz, int Count) tuple =
+						(orgtuple.Itemz.Select(tab => new string[] { tab.Key, tab.HashMD5, tab.HashSHA256 }), orgtuple.Count);
 
 					return Task.FromResult(tuple);
 				});

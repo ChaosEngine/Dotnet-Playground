@@ -90,7 +90,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 				var result = new
 				{
 					total = found.Count,
-					rows = found.Itemz.Select(x => new string[] { x.Key, x.HashMD5, x.HashSHA256 })
+					rows = found.Itemz//.Select(x => new string[] { x.Key, x.HashMD5, x.HashSHA256 })
 				};
 
 				if (input.ExtraParam == "cached" && found.Itemz.Count() > 0)

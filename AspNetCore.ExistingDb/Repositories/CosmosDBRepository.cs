@@ -231,7 +231,7 @@ namespace AspNetCore.ExistingDb.Repositories
 		/// <param name="limit"></param>
 		/// <param name="token"></param>
 		/// <returns></returns>
-		public async Task<(IEnumerable<ThinHashes> Itemz, int Count)> PagedSearchAsync(string sortColumn, string sortOrderDirection, string searchText,
+		public async Task<(IEnumerable<string[]> Itemz, int Count)> PagedSearchAsync(string sortColumn, string sortOrderDirection, string searchText,
 			int offset, int limit, CancellationToken token)
 		{
 			limit = limit > 0 ? limit : -1;
@@ -283,7 +283,7 @@ namespace AspNetCore.ExistingDb.Repositories
 				results.AddRange(await asDocument.ExecuteNextAsync<ThinHashes>());
 			}
 
-			return (results, count);
+			return (results.Select(x => new string[] { x.Key, x.HashMD5, x.HashSHA256 }), count);
 
 			#region Old code
 			/*//inner method
