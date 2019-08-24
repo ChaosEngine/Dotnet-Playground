@@ -35,6 +35,7 @@
 		   data-side-pagination="server"
 		   data-url="Load"
 		   data-query-params="extraServerParams"
+		   data-response-handler="responseHandler"
 		   data-pagination="true"
 		   data-pagination-use-intermediate="true"
 		   data-show-refresh="true"
@@ -83,7 +84,7 @@
 
 	<script type="text/javascript">
 		var _startTime = null;
-		var _refreshClicked = "2";
+		var _refreshClicked = "cached";
 
 		function validateFormatter(value, row) {
 			return (row.HashMD5 == null || row.HashSHA256 == null) ? ''
@@ -93,11 +94,20 @@
 		function extraServerParams(params) {
 			_startTime = new Date().getTime();
 			params.ExtraParam = _refreshClicked;
-			_refreshClicked = "2";
+			_refreshClicked = "cached";
 			$('#spTimeToLoad').text('Loading...');
 			return params;
 		}
 
+		function responseHandler(response) {
+			//debugger;
+			const mapped = response.rows.map(function(tab) {
+				return { Key: tab[0], HashMD5: tab[1], HashSHA256: tab[2] };
+			});
+			response.rows = mapped;
+			return response;
+		}
+  
 		function getId(element) {
 			let result = $(element).closest('tr').data('uniqueid');
 			return result;
@@ -117,11 +127,11 @@
 			})
 
 			$("button[name='refresh']").bindFirst('click', function (event) {
-				_refreshClicked = "1";
+				_refreshClicked = "refresh";
 			});
 			table.on('refresh.bs.table', function (params) {
 				//let opts = table.bootstrapTable('getOptions');
-				params.ExtraParam = 1;
+				params.ExtraParam = "refresh";
 			});
 			// register row-click event
 			table.on('click-row.bs.table', function (element, row, tr) {

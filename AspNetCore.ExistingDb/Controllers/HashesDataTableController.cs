@@ -15,7 +15,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 	public interface IHashesDataTableController : IDisposable
 	{
 		IActionResult Index();
-		//Task<IActionResult> LoadOld(string sort, string order, string search, int limit, int offset, string extraParam);
 		Task<IActionResult> Load(HashesDataTableLoadInput input);
 	}
 
@@ -66,32 +65,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			return View(view_name);
 		}
 
-		/// <summary>
-		/// Validtion is not working here
-		/// </summary>
-		/// <param name="sort"></param>
-		/// <param name="order"></param>
-		/// <param name="search"></param>
-		/// <param name="limit"></param>
-		/// <param name="offset"></param>
-		/// <param name="extraParam"></param>
-		/// <returns></returns>
-		[HttpGet]
-		[Obsolete("use Load")]
-		public async Task<IActionResult> LoadOld(
-			[Bind("sort"), Required, RegularExpression("this", ErrorMessage = "Characters are not allowed: only Key|HashMD5|HashSHA256")]
-			string sort,
-			[Bind("order"), Required, RegularExpression("is", ErrorMessage = "Order not allowed: only asc|desc")]
-			string order,
-			[Bind("search"), Required, RegularExpression("not_working", ErrorMessage = "Characters are not allowed.")]
-			string search,
-			int limit,
-			int offset,
-			string extraParam)
-		{
-			return await Load(new HashesDataTableLoadInput(sort, order, search, limit, offset, extraParam));
-		}
-
 		[HttpGet]
 		public async Task<IActionResult> Load(HashesDataTableLoadInput input)
 		{
@@ -117,10 +90,10 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 				var result = new
 				{
 					total = found.Count,
-					rows = found.Itemz
+					rows = found.Itemz.Select(x => new string[] { x.Key, x.HashMD5, x.HashSHA256 })
 				};
 
-				if (input.ExtraParam == "2" && found.Itemz.Count() > 0)
+				if (input.ExtraParam == "cached" && found.Itemz.Count() > 0)
 				{
 					HttpContext.Response.GetTypedHeaders().CacheControl =
 						new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
@@ -129,9 +102,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 							MaxAge = HashesRepository.HashesInfoExpirationInMinutes
 						};
 				}
-				//else
-				//{
-				//}
 
 				return Json(result, _serializationSettings);
 			}

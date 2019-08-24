@@ -243,7 +243,7 @@ namespace Integration
 
 			//Arrange
 			//get number of all total rows from previous tests :-)
-			int total_hashes_count = await new HashesDataTablePage(_fixture).Load_Valid("Key", "asc", "aaa", 5, 0, "2");
+			int total_hashes_count = await new HashesDataTablePage(_fixture).Load_Valid("Key", "asc", "aaa", 5, 0, "cached");
 
 
 			// Arrange
@@ -348,12 +348,12 @@ namespace Integration
 		}
 
 		[Theory]
-		[InlineData("Key", "desc", "kawa", 5, 1, "2")]
-		[InlineData("Key", "asc", "awak", 5, 1, "2")]
-		[InlineData("Key", "desc", "kawa", 5, 1, "1")]
-		[InlineData("Key", "asc", "awak", 5, 1, "1")]
-		[InlineData("Key", "asc", "none_existing", 5, 1, "2")]
-		[InlineData("Key", "asc", "none_existing", 5, 1, "1")]
+		[InlineData("Key", "desc", "kawa", 5, 1, "cached")]
+		[InlineData("Key", "asc", "awak", 5, 1, "cached")]
+		[InlineData("Key", "desc", "kawa", 5, 1, "refresh")]
+		[InlineData("Key", "asc", "awak", 5, 1, "refresh")]
+		[InlineData("Key", "asc", "none_existing", 5, 1, "cached")]
+		[InlineData("Key", "asc", "none_existing", 5, 1, "refresh")]
 		public async Task<int> Load_Valid(string sort, string order, string search, int limit, int offset, string extraParam)
 		{
 			if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return 0;//pass on fake DB with no data
@@ -384,22 +384,22 @@ namespace Integration
 					var typed_result = new
 					{
 						total = 1,
-						rows = new ThinHashes[] { }
+						rows = new string[][] { }
 					};
 
 					// Deserialize JSON String into concrete class
 					var data = JsonConvert.DeserializeObject(jsonString, typed_result.GetType()) as dynamic;
 					Assert.IsType(typed_result.GetType(), data);
-					Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(data.rows);
+					Assert.IsAssignableFrom<IEnumerable<string[]>>(data.rows);
 
 					Assert.True(data.rows.Length == 5 || data.rows.Length == 0);
 					Assert.True(data.total >= 0);
 
 					if (data.rows.Length > 0)
 					{
-						Assert.NotNull(data.rows[0].Key.StartsWith(search));
+						Assert.NotNull(data.rows[0][0].StartsWith(search));
 
-						if (query_input.TryGetValue("ExtraParam", out string value) && value == "2")
+						if (query_input.TryGetValue("ExtraParam", out string value) && value == "cached")
 						{
 							Assert.True(response.Headers.CacheControl.Public &&
 								response.Headers.CacheControl.MaxAge == AspNetCore.ExistingDb.Repositories.HashesRepository.HashesInfoExpirationInMinutes);
@@ -420,7 +420,7 @@ namespace Integration
 		}
 
 		[Theory]
-		[InlineData("dead", "string", "is", 0xDEAD, 0xBEEF, "1")]
+		[InlineData("dead", "string", "is", 0xDEAD, 0xBEEF, "refresh")]
 		[InlineData("Key", "asc", "awak", 5, 1, "bad")]
 		public async Task Load_Invalid(string sort, string order, string search, int limit, int offset, string extraParam)
 		{
