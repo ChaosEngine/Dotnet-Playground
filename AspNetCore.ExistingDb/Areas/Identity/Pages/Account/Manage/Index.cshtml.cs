@@ -8,6 +8,7 @@ using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using AspNetCore.ExistingDb.Helpers;
 using IdentitySample.DefaultUI.Data;
+using InkBall.Module.Model;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -62,6 +63,9 @@ namespace IdentitySample.DefaultUI
 			[Range(0, 199, ErrorMessage = "Age must be between 0 and 199")]
 			[Display(Name = "Age")]
 			public int Age { get; set; }
+
+			[Display(Name = "Allow desktop notifications")]
+			public bool DesktopNotifications { get; set; }
 		}
 
 		public async Task<IActionResult> OnGetAsync()
@@ -78,7 +82,8 @@ namespace IdentitySample.DefaultUI
 				Name = user.Name,
 				Age = user.Age,
 				Email = user.Email,
-				PhoneNumber = user.PhoneNumber
+				PhoneNumber = user.PhoneNumber,
+				DesktopNotifications = (user.UserSettings?.DesktopNotifications).GetValueOrDefault(false)
 			};
 
 			IsEmailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
@@ -89,48 +94,40 @@ namespace IdentitySample.DefaultUI
 		public async Task<IActionResult> OnPostAsync()
 		{
 			if (!ModelState.IsValid)
-			{
 				return Redirect(ASPX);
-			}
 
 			var user = await _userManager.GetUserAsync(User);
 			if (user == null)
-			{
 				return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
-			}
 
 			if (Input.Name != user.Name)
-			{
 				user.Name = Input.Name;
-			}
 
 			if (Input.Age != user.Age)
-			{
 				user.Age = Input.Age;
-			}
+
+			if (user.UserSettings == null)
+				user.UserSettings = new ApplicationUserSettings();
+				
+			if (Input.DesktopNotifications != user.UserSettings.DesktopNotifications)
+				user.UserSettings.DesktopNotifications = Input.DesktopNotifications;
 
 			var updateProfileResult = await _userManager.UpdateAsync(user);
 			if (!updateProfileResult.Succeeded)
-			{
 				throw new InvalidOperationException($"Unexpected error ocurred updating the profile for user with ID '{user.Id}'");
-			}
 
 			if (Input.Email != user.Email)
 			{
 				var setEmailResult = await _userManager.SetEmailAsync(user, Input.Email);
 				if (!setEmailResult.Succeeded)
-				{
 					throw new InvalidOperationException($"Unexpected error occurred setting email for user with ID '{user.Id}'.");
-				}
 			}
 
 			if (Input.PhoneNumber != user.PhoneNumber)
 			{
 				var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
 				if (!setPhoneResult.Succeeded)
-				{
 					throw new InvalidOperationException($"Unexpected error occurred setting phone number for user with ID '{user.Id}'.");
-				}
 			}
 
 			await _signInManager.RefreshSignInAsync(user);
@@ -141,15 +138,11 @@ namespace IdentitySample.DefaultUI
 		public async Task<IActionResult> OnPostSendVerificationEmailAsync()
 		{
 			if (!ModelState.IsValid)
-			{
 				return Redirect(ASPX);
-			}
 
 			var user = await _userManager.GetUserAsync(User);
 			if (user == null)
-			{
 				return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
-			}
 
 			var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 			//var callbackUrl = Url.Page(

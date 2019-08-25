@@ -1,9 +1,11 @@
 ﻿using AspNetCore.ExistingDb;
 using IdentitySample.DefaultUI.Data;
+using InkBall.Module.Model;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Newtonsoft.Json;
 using System;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Models
@@ -154,6 +156,16 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 					.HasConversion(new EnumToNumberConverter<EnvEnum, int>());
 
 				entity.ToTable("GoogleProtectionKeys");
+			});
+
+			modelBuilder.Entity<ApplicationUser>(entity =>
+			{
+				// This Converter will perform the conversion to and from Json to the desired type
+				entity.Property(e => e.UserSettings)
+					.HasConversion(
+					v => JsonConvert.SerializeObject(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
+					v => JsonConvert.DeserializeObject<ApplicationUserSettings>(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore })
+				);
 			});
 		}
 	}

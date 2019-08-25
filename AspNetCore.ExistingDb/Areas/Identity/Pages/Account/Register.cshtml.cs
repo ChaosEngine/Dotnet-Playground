@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AspNetCore.ExistingDb.Helpers;
 using IdentitySample.DefaultUI.Data;
+using InkBall.Module.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -133,6 +134,9 @@ namespace IdentitySample.DefaultUI
 			[Range(0, 199, ErrorMessage = "Age must be between 0 and 199 years")]
 			[Display(Name = "Age")]
 			public int Age { get; set; }
+
+			[Display(Name = "Allow desktop notifications")]
+			public bool DesktopNotifications { get; set; }
 		}
 
 		public override async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -146,7 +150,11 @@ namespace IdentitySample.DefaultUI
 					UserName = Input.Email,
 					Email = Input.Email,
 					Name = Input.Name,
-					Age = Input.Age
+					Age = Input.Age,
+					UserSettings = new ApplicationUserSettings
+					{
+						DesktopNotifications = Input.DesktopNotifications
+					}
 				};
 
 				await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
