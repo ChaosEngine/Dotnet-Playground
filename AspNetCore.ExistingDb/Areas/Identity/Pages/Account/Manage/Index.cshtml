@@ -54,5 +54,19 @@
 </div>
 @section Scripts
 {
-	<partial name="_ValidationScriptsPartial" />
+<partial name="_ValidationScriptsPartial" />
+
+<script type='text/javascript'>
+"use strict";
+	$(document).ready(function () {
+		$("#profile-form").submit(function(event) {
+			//event.preventDefault();
+			const settings = { DesktopNotifications: $("#Input_DesktopNotifications:checked").length >= 1 };
+			const to_store = JSON.stringify(settings);
+			//alert("Handler for .submit() called. settings => " + to_store);
+			sessionStorage.setItem("ApplicationUserSettings", to_store);
+		});
+	});
+</script>
+
 }
