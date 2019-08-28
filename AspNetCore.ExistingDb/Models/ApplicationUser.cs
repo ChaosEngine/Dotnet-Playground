@@ -3,12 +3,6 @@ using Microsoft.AspNetCore.Identity;
 
 namespace IdentitySample.DefaultUI.Data
 {
-	/* public sealed class ApplicationUserSettings : IApplicationUserSettings
-	{
-		//public int ID { get; set; }
-		public bool DesktopNotifications { get; set; }
-	}*/
-
 	// Add profile data for application users by adding properties to the ApplicationUser class
 	public class ApplicationUser : IdentityUser, INamedAgedUser
 	{

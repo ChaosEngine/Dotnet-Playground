@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using EFGetStarted.AspNetCore.ExistingDb.Models;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace AspNetCore.ExistingDb.Migrations
 {
@@ -9,6 +10,7 @@ namespace AspNetCore.ExistingDb.Migrations
             migrationBuilder.AddColumn<string>(
                 name: "UserSettings",
                 table: "AspNetUsers",
+                type: BloggingContext.JsonColumnTypeFromProvider(this.ActiveProvider),                
                 nullable: true);
         }
 

@@ -44,9 +44,9 @@
 				<input asp-for="Input.PhoneNumber" class="form-control" />
 				<span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
 			</div>
-			<div class="form-check form-group">
-				<input class="form-check-input" asp-for="Input.DesktopNotifications" />
-				<label class="form-check-label" asp-for="Input.DesktopNotifications"></label>
+			<div class="form-group custom-control custom-switch">
+				<input type="checkbox" class="custom-control-input" asp-for="Input.DesktopNotifications" />
+				<label class="custom-control-label" asp-for="Input.DesktopNotifications"></label>
 			</div>
 			<button id="update-profile-button" type="submit" class="btn btn-primary">Save</button>
 		</form>
@@ -58,15 +58,23 @@
 
 <script type='text/javascript'>
 "use strict";
+
+	function StoreApplicationUserSettings() {
+		const settings = { DesktopNotifications: $("#Input_DesktopNotifications:checked").length >= 1 };
+		const to_store = JSON.stringify(settings);
+		sessionStorage.setItem("ApplicationUserSettings", to_store);
+	}
+
 	$(document).ready(function () {
+
+		if (sessionStorage.getItem("ApplicationUserSettings") === null) {
+			StoreApplicationUserSettings();
+		}
+
 		$("#profile-form").submit(function(event) {
 			//event.preventDefault();
-			const settings = { DesktopNotifications: $("#Input_DesktopNotifications:checked").length >= 1 };
-			const to_store = JSON.stringify(settings);
-			//alert("Handler for .submit() called. settings => " + to_store);
-			sessionStorage.setItem("ApplicationUserSettings", to_store);
+			StoreApplicationUserSettings();
 		});
 	});
 </script>
-
 }

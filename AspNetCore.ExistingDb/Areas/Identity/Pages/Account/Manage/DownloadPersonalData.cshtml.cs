@@ -56,6 +56,20 @@ namespace IdentitySample.DefaultUI
 				prop => Attribute.IsDefined(prop, typeof(PersonalDataAttribute)));
 			foreach (var p in personalDataProps)
 			{
+				var obj = p.GetValue(user);
+				if (obj != null && p.GetType().IsClass)
+				{
+					var inner_attrs = obj.GetType().GetProperties()
+						.Where(prop => Attribute.IsDefined(prop, typeof(PersonalDataAttribute)));
+					if (inner_attrs.Any())
+					{
+						foreach (var inn_attr in inner_attrs)
+						{
+							personalData.Add($"{p.Name}::{inn_attr.Name}", inn_attr.GetValue(obj)?.ToString() ?? "null");
+						}
+						continue;
+					}
+				}
 				personalData.Add(p.Name, p.GetValue(user)?.ToString() ?? "null");
 			}
 

@@ -388,6 +388,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 					IgnoredSubDirectories = new string[] { ".git", ".node_modules" },
 					StaticFileExtensions = new string[] { "css", "js", "html", "cshtml" },
 					MaxConnectionFailedCount = 20,
+					CheckIntervalDelay = 2000,
 					PopoutHtmlTemplate = @"<div id='reload' class='toast' role='alert' aria-live='assertive' aria-atomic='true'
 	data-autohide='false' data-animation='true' style='position: absolute; top: 0; right: 0; z-index: 9999'>
   <div class='toast-header'>
