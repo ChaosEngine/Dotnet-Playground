@@ -185,11 +185,13 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 			modelBuilder.Entity<ApplicationUser>(entity =>
 			{
 				// This Converter will perform the conversion to and from Json to the desired type
-				entity.Property(e => e.UserSettings)
-					.HasConversion(
-					v => JsonConvert.SerializeObject(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
-					v => JsonConvert.DeserializeObject<ApplicationUserSettings>(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore })
-				);
+				entity.Property(e => e.UserSettingsJSON)
+				// 	.HasConversion(
+				// 	v => JsonConvert.SerializeObject(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
+				// 	v => JsonConvert.DeserializeObject<ApplicationUserSettings>(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore })
+				// )
+					.HasColumnName("UserSettings")
+					;
 			});
 		}
 	}

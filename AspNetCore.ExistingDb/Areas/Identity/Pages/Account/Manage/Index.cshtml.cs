@@ -108,9 +108,9 @@ namespace IdentitySample.DefaultUI
 
 			if (user.UserSettings == null)
 				user.UserSettings = new ApplicationUserSettings();
-				
-			if (Input.DesktopNotifications != user.UserSettings.DesktopNotifications)
-				user.UserSettings.DesktopNotifications = Input.DesktopNotifications;
+
+			if (Input.DesktopNotifications != (user.UserSettings?.DesktopNotifications).GetValueOrDefault(false))
+				user.UserSettings = new ApplicationUserSettings { DesktopNotifications = Input.DesktopNotifications };
 
 			var updateProfileResult = await _userManager.UpdateAsync(user);
 			if (!updateProfileResult.Succeeded)

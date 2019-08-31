@@ -1,5 +1,7 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using InkBall.Module.Model;
 using Microsoft.AspNetCore.Identity;
+using Newtonsoft.Json;
 
 namespace IdentitySample.DefaultUI.Data
 {
@@ -13,6 +15,21 @@ namespace IdentitySample.DefaultUI.Data
 		public int Age { get; set; }
 
 		[PersonalData]
-		public IApplicationUserSettings UserSettings { get; set; }
+		[NotMapped]
+		public IApplicationUserSettings UserSettings
+		{
+			get
+			{
+				return JsonConvert.DeserializeObject<ApplicationUserSettings>(UserSettingsJSON ?? "",
+					new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+			}
+			set
+			{
+				UserSettingsJSON = JsonConvert.SerializeObject(value,
+					new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+			}
+		}
+
+		public string UserSettingsJSON { get; set; }
 	}
 }

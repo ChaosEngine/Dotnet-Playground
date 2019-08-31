@@ -188,7 +188,8 @@ namespace AspNetCore.ExistingDb.Migrations
                     b.Property<string>("UserName")
                         .HasMaxLength(256);
 
-                    b.Property<string>("UserSettings")
+                    b.Property<string>("UserSettingsJSON")
+                        .HasColumnName("UserSettings")
                         .HasColumnType(BloggingContext.JsonColumnTypeFromProvider(this.ActiveProvider));
 
                     b.HasKey("Id");
