@@ -22,7 +22,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.App" />
-		<PackageReference Include="Bogus" Version="28.0.2" />
+		<PackageReference Include="Bogus" Version="28.0.3" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.6" />
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration" Version="2.2.3" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.2.4" />
@@ -31,8 +31,8 @@
 		<!-- <PackageReference Include="IdentityManager2" Version="1.0.0-beta5" />-->
 		<PackageReference Include="IdentityManager2.AspNetIdentity" Version="1.0.0-beta3" />
 		<PackageReference Include="Lib.AspNetCore.ServerTiming" Version="2.1.0" />
-		<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.5.1" />
-		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.40.3.1663" />
+		<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.6.0" />
+		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.40.3.1699" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="1.1.5" />
 		<!--<PackageReference Include="RedHat.AspNetCore.Server.Kestrel.Transport.Linux" Version="2.1.0-preview1" />-->
 		<PackageReference Include="ILLink.Tasks" Version="0.1.5-preview-1841731">
