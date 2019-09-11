@@ -385,7 +385,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				app.UseDevReload(new DevReloadOptions
 				{
 					Directory = "./",
-					IgnoredSubDirectories = new string[] { ".git", ".node_modules" },
+					IgnoredSubDirectories = new string[] { ".git", ".node_modules", "bin", "obj" },
 					StaticFileExtensions = new string[] { "css", "js", "html", "cshtml" },
 					MaxConnectionFailedCount = 20,
 					CheckIntervalDelay = 2000,
