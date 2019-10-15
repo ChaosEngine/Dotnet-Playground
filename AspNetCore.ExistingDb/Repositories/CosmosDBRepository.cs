@@ -2,6 +2,7 @@
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents.Linq;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -344,7 +345,7 @@ namespace AspNetCore.ExistingDb.Repositories
 					int.TryParse(client.CreateDocumentQuery<DocumentDBHash>(collection_link)
 						.OrderByDescending(x => x.Key).Take(1).ToArray().FirstOrDefault().Id, out int count);
 					var key_length = client.CreateDocumentQuery<int>(collection_link,
-						"SELECT TOP 1 VALUE LENGTH(c.Key) FROM c").ToAsyncEnumerable().First();
+						"SELECT TOP 1 VALUE LENGTH(c.Key) FROM c").FirstOrDefaultAsync();
 
 					hi.Count = count;
 					hi.KeyLength = await key_length;

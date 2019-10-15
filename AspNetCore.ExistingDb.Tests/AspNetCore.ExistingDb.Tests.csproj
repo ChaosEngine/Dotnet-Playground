@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
-	<LangVersion>7.3</LangVersion>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+
     <IsPackable>false</IsPackable>
     <AssemblyName>AspNetCore.ExistingDb.Tests</AssemblyName>
     <RootNamespace>AspNetCore.ExistingDb.Tests</RootNamespace>
@@ -19,16 +20,18 @@
   </ItemGroup>
 
   <ItemGroup>
-	  <PackageReference Include="Microsoft.AspNetCore.App" />
-	  <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.0.0" />
+
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.3.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
 	  <PackageReference Include="Moq" Version="4.13.0" />
-	  <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="2.2.0" />
-	  <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.6" />
+	  <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="3.0.0" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.0.0" />
   </ItemGroup>
 
   <ItemGroup>

@@ -56,7 +56,7 @@ namespace AspNetCore.ExistingDb.Services
 				var logger = scope.ServiceProvider.GetRequiredService<ILogger<YouTubePlaylistDumpOperation>>();
 				conf = scope.ServiceProvider.GetRequiredService<IConfiguration>();
 				var context = scope.ServiceProvider.GetRequiredService<BloggingContext>();
-				var env = scope.ServiceProvider.GetRequiredService<IHostingEnvironment>();
+				var env = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
 
 
 				var year_ago = DateTime.Now.AddYears(-1);
@@ -94,7 +94,7 @@ namespace AspNetCore.ExistingDb.Services
 
 		private async Task<IEnumerable<object[]>> ExecuteYouTubeDataApiV3(IConfiguration youTubeConf, string clientSecretsJson,
 			string sharedSecretFolder, ILogger<YouTubePlaylistDumpOperation> logger, BloggingContext context,
-			IHostingEnvironment environment, CancellationToken token)
+			IWebHostEnvironment environment, CancellationToken token)
 		{
 			UserCredential credential;
 

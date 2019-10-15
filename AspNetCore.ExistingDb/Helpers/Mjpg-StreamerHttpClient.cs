@@ -62,19 +62,19 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		private const string ErrorImageFileLocalPath = "lib/blueimp-gallery/img/error.png";
 		private readonly HttpClient _client;
 		private readonly IMemoryCache _cache;
-		private readonly IHostingEnvironment _env;
+		private readonly IWebHostEnvironment _env;
 
-		internal static Func<HttpClient, IHostingEnvironment, CancellationToken,
+		internal static Func<HttpClient, IWebHostEnvironment, CancellationToken,
 			Task<(DateTime lastModified, byte[] bytes, string contentType, TimeSpan cacheExpiration)>> GetContent;
 
-		public MjpgStreamerHttpClient(HttpClient client, IHostingEnvironment env, IMemoryCache cache, MjpgStreamerHttpClientHandler handler)
+		public MjpgStreamerHttpClient(HttpClient client, IWebHostEnvironment env, IMemoryCache cache, MjpgStreamerHttpClientHandler handler)
 		{
 			_client = client;
 			_cache = cache;
 			_env = env;
 		}
 
-		internal static async Task<(DateTime, byte[], string, TimeSpan)> GetFileContent(HttpClient client, IHostingEnvironment env, CancellationToken token)
+		internal static async Task<(DateTime, byte[], string, TimeSpan)> GetFileContent(HttpClient client, IWebHostEnvironment env, CancellationToken token)
 		{
 			byte[] fetched = await File.ReadAllBytesAsync(Path.Combine(env.WebRootPath, ErrorImageFileLocalPath), token);
 
@@ -82,7 +82,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			return just_created;
 		}
 
-		internal static async Task<(DateTime, byte[], string, TimeSpan)> GetHttpContent(HttpClient client, IHostingEnvironment env, CancellationToken token)
+		internal static async Task<(DateTime, byte[], string, TimeSpan)> GetHttpContent(HttpClient client, IWebHostEnvironment env, CancellationToken token)
 		{
 			client.BaseAddress = new Uri(MjpgStreamerHttpClientHandler.Address);
 

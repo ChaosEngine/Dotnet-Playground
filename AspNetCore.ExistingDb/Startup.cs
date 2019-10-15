@@ -11,19 +11,16 @@ using IdentitySample.DefaultUI.Data;
 using IdentitySample.Services;
 using InkBall.Module;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Authentication.Twitter;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Serialization;
@@ -34,6 +31,14 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.Twitter;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Authorization;
+using System.Net;
 
 //[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
 
@@ -43,12 +48,11 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 	{
 		public IConfiguration Configuration { get; }
 
-		//public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-		//	WebHost.CreateDefaultBuilder(args).UseStartup<Startup>();
-
-		static async Task Main(string[] args)
-		{
-			var host = new WebHostBuilder()
+		public static IHostBuilder CreateHostBuilder(string[] args) =>
+			Host.CreateDefaultBuilder(args)
+			.ConfigureWebHostDefaults(webBuilder =>
+			{
+				webBuilder
 				.UseKestrel()
 				//.UseLibuv()
 				.UseSockets()
@@ -58,15 +62,51 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				})*/
 				.UseContentRoot(Directory.GetCurrentDirectory())
 				//.UseIISIntegration()
-				.UseStartup<Startup>()
+				.UseStartup<Startup>();
+			});
+
+		static async Task Main(string[] args)
+		{
+			//var host = new WebHostBuilder()
+			//	.UseKestrel()
+			//	//.UseLibuv()
+			//	.UseSockets()
+			//	/*.UseLinuxTransport(async opts =>
+			//	{
+			//		await Console.Out.WriteLineAsync("Using Linux Transport");
+			//	})*/
+			//	.UseContentRoot(Directory.GetCurrentDirectory())
+			//	//.UseIISIntegration()
+			//	.UseStartup<Startup>()
+			//	.Build();
+			//
+			//await host.RunAsync();
+
+
+			//await CreateHostBuilder(args).Build().RunAsync();
+
+
+			var host = new HostBuilder()
+				.UseContentRoot(Directory.GetCurrentDirectory())
+				.ConfigureWebHostDefaults(webBuilder =>
+				{
+					webBuilder
+					.UseKestrel()
+					//.UseLibuv()
+					.UseSockets()
+					/*.UseLinuxTransport(async opts =>
+					{
+						await Console.Out.WriteLineAsync("Using Linux Transport");
+					})*/
+					//.UseIISIntegration()
+					.UseStartup<Startup>();
+				})
 				.Build();
 
 			await host.RunAsync();
-
-			//await CreateWebHostBuilder(args).Build().RunAsync();
 		}
 
-		public Startup(IHostingEnvironment env)
+		public Startup(IWebHostEnvironment env)
 		{
 			var builder = new ConfigurationBuilder()
 				.SetBasePath(env.ContentRootPath)
@@ -75,8 +115,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				.AddEnvironmentVariables();
 			if (env.IsDevelopment())
 				builder.AddUserSecrets<Startup>();
-
 			Configuration = builder.Build();
+
+			//Configuration = configuration;
 		}
 
 		void ConfigureDistributedCache(IConfiguration configuration, IServiceCollection services)
@@ -116,7 +157,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			return btq;
 		}
 
-		void ConfigureDependencyInjection(IServiceCollection services, IHostingEnvironment env)
+		void ConfigureDependencyInjection(IServiceCollection services, IWebHostEnvironment env)
 		{
 			services.AddSingleton(Configuration);
 
@@ -129,8 +170,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 					loggingBuilder.AddDebug();
 			});
 #if DEBUG
-			//services.AddSingleton<ICompilationService, RoslynCompilationService>();
-			services.AddSingleton<Microsoft.AspNetCore.Razor.Language.RazorTemplateEngine, CustomTemplateEngine>();
+			////services.AddSingleton<ICompilationService, RoslynCompilationService>();
+			//services.AddSingleton<Microsoft.AspNetCore.Razor.Language.RazorTemplateEngine, CustomTemplateEngine>();
+
 			//services.AddApplicationInsightsTelemetry();
 #endif
 			services.AddScoped<IBloggingRepository, BloggingRepository>();
@@ -176,7 +218,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				.ConfigurePrimaryHttpMessageHandler<MjpgStreamerHttpClientHandler>();
 		}
 
-		private void ConfigureAuthenticationAuthorizationHelper(IServiceCollection services, IHostingEnvironment env)
+		private void ConfigureAuthenticationAuthorizationHelper(IServiceCollection services, IWebHostEnvironment env)
 		{
 			services.AddTransient<IEmailSender, AuthMessageSender>();
 			//services.AddTransient<ISmsSender, AuthMessageSender>();
@@ -253,7 +295,16 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 			#region WIP
 
-			services.AddInkBallCommonUI<InkBall.Module.Model.GamesContext, ApplicationUser>(env, options =>
+			services.AddAuthorization(options =>
+			{
+				//options.FallbackPolicy = new AuthorizationPolicyBuilder()
+				//  //.RequireAuthenticatedUser()
+				//  .Build();
+
+				options.AddPolicy("RequireAdministratorRole",
+					policy => policy.RequireRole("Administrator"));
+			})
+			.AddInkBallCommonUI<InkBall.Module.Model.GamesContext, ApplicationUser>(env.WebRootFileProvider, options =>
 			{
 				// options.WwwRoot = "wrongwrongwrong";
 				// options.HeadElementsSectionName = "head-head-head-Elements";
@@ -264,11 +315,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				// {
 				// 	policy.RequireAuthenticatedUser();
 				// };
-			})
-			.AddAuthorization(options =>
-			{
-				options.AddPolicy("RequireAdministratorRole",
-					policy => policy.RequireRole("Administrator"));
 			});
 
 
@@ -315,7 +361,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
-			var env = services.FirstOrDefault(x => x.ServiceType == typeof(IHostingEnvironment)).ImplementationInstance as IHostingEnvironment;
+			var env = services.FirstOrDefault(x => x.ServiceType == typeof(IWebHostEnvironment)).ImplementationInstance as IWebHostEnvironment;
 
 			ConfigureDependencyInjection(services, env);
 
@@ -342,7 +388,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			});
 
 			// Add framework services.
-			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+			//services.AddMvc()/*.SetCompatibilityVersion(CompatibilityVersion.Version_2_2)*/;
+			services.AddRazorPages();
 
 			var protection_builder = services.AddDataProtection()
 				.SetDefaultKeyLifetime(TimeSpan.FromDays(14))
@@ -362,7 +409,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			})
 			.AddJsonProtocol(options =>
 			{
-				options.PayloadSerializerSettings.ContractResolver = new DefaultContractResolver();
+				//options.PayloadSerializerSettings.ContractResolver = new DefaultContractResolver();
 			})
 			.AddMessagePackProtocol(options =>
 			{
@@ -374,7 +421,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
 			UseProxyForwardingAndDomainPathHelper(app);
 
@@ -406,7 +453,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 <script>
 	$('#reload').toast('hide');
 </script>",
-                    TemplateActivationJSFragment = @"$('#reload').toast('show');"
+					TemplateActivationJSFragment = @"$('#reload').toast('show');"
 				});
 #endif
 				//app.UseExceptionHandler("/dotnet/Home/Error");
@@ -423,15 +470,18 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				app.UseHttpsRedirection();
 #endif
 
-			//app.UseStaticFiles();
+			app.UseStaticFiles();
+
+			app.UseRouting();
 
 			app.UseServerTiming();
 
 			app.UseSession();
 
 			app.UseAuthentication();
+			app.UseAuthorization();
 
-			app.UseSignalR(routes =>
+			/*app.UseSignalR(routes =>
 			{
 				routes.PrepareSignalRForInkBall("/dotnet/");
 			});
@@ -442,6 +492,12 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 				main.UseStaticFiles();
 				main.UseMvcWithDefaultRoute();
+			});*/
+			app.UseEndpoints(endpoints =>
+			{
+				//routes.MapHub<InkBall.Module.Hubs.GameHub>(path + InkBall.Module.Hubs.GameHub.HubName);
+				endpoints.MapHub<InkBall.Module.Hubs.GameHub>("/dotnet/" + InkBall.Module.Hubs.GameHub.HubName);
+				endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 			});
 		}
 	}

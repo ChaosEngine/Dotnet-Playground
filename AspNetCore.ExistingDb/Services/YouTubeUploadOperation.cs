@@ -62,7 +62,7 @@ namespace AspNetCore.ExistingDb.Services
 				var logger = scope.ServiceProvider.GetRequiredService<ILogger<YouTubeUploadOperation>>();
 				conf = scope.ServiceProvider.GetRequiredService<IConfiguration>();
 				var context = scope.ServiceProvider.GetRequiredService<BloggingContext>();
-				var env = scope.ServiceProvider.GetRequiredService<IHostingEnvironment>();
+				var env = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
 
 
 				await ExecuteYouTubeDataApiV3(conf.GetSection("YouTubeAPI"), _clientSecretsJsonFileName,
@@ -84,7 +84,7 @@ namespace AspNetCore.ExistingDb.Services
 
 		private async Task<bool> ExecuteYouTubeDataApiV3(IConfiguration youTubeConf, string clientSecretsJson,
 			string sharedSecretFolder, ILogger<YouTubeUploadOperation> logger, BloggingContext context,
-			IHostingEnvironment environment, CancellationToken token)
+			IWebHostEnvironment environment, CancellationToken token)
 		{
 			UserCredential credential;
 
@@ -215,10 +215,10 @@ namespace AspNetCore.ExistingDb.Services
 		where TContext : DbContext, IGoogleKeyContext
 	{
 		private readonly TContext _context;
-		private readonly IHostingEnvironment _environment;
+		private readonly IWebHostEnvironment _environment;
 		private readonly CancellationToken _cancellationToken;
 
-		public EFContextDataStore(TContext context, IHostingEnvironment environment, CancellationToken cancellationToken)
+		public EFContextDataStore(TContext context, IWebHostEnvironment environment, CancellationToken cancellationToken)
 		{
 			_context = context;
 			_environment = environment;

@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<VersionPrefix>1.0.4-custom</VersionPrefix>
-		<TargetFramework>netcoreapp2.2</TargetFramework>
+		<TargetFramework>netcoreapp3.0</TargetFramework>
 		<LangVersion>7.3</LangVersion>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 		<AssemblyName>AspNetCore.ExistingDb</AssemblyName>
@@ -21,24 +21,34 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.App" />
-		<PackageReference Include="Bogus" Version="28.2.1" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.2.6" />
-		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration" Version="2.2.3" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.2.4" />
-		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="3.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="3.0.0" />
+
+    <PackageReference Include="Bogus" Version="28.4.1" />
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration" Version="3.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.0.0" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.0.1" />
+		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="3.0.0-rc1.final" />
 		<PackageReference Include="Oracle.EntityFrameworkCore" Version="2.19.30" />
-		<!-- <PackageReference Include="IdentityManager2" Version="1.0.0-beta5" />-->
 		<PackageReference Include="IdentityManager2.AspNetIdentity" Version="1.0.0-beta3" />
 		<PackageReference Include="Lib.AspNetCore.ServerTiming" Version="2.1.0" />
-		<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.6.0" />
+		<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.8.1" />
 		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.41.1.1699" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="1.1.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="3.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="3.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="3.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="3.0.0" />
 		<!--<PackageReference Include="RedHat.AspNetCore.Server.Kestrel.Transport.Linux" Version="2.1.0-preview1" />-->
-		<PackageReference Include="ILLink.Tasks" Version="0.1.5-preview-1841731">
+		<!--<PackageReference Include="ILLink.Tasks" Version="0.1.5-preview-1841731">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-		</PackageReference>
+		</PackageReference>-->
 	</ItemGroup>
 
 	<Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
