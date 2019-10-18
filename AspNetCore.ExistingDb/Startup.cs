@@ -23,7 +23,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -39,6 +38,8 @@ using Microsoft.AspNetCore.Authentication.Twitter;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Authorization;
 using System.Net;
+using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Routing;
 
 //[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
 
@@ -115,6 +116,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				.AddEnvironmentVariables();
 			if (env.IsDevelopment())
 				builder.AddUserSecrets<Startup>();
+
 			Configuration = builder.Build();
 
 			//Configuration = configuration;
@@ -208,7 +210,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			HashesRepository.HashesInfoExpirationInMinutes = TimeSpan.FromMinutes(Configuration.GetValue<int>(nameof(HashesRepository.HashesInfoExpirationInMinutes)));
 
 			services.AddScoped<IThinHashesDocumentDBRepository, ThinHashesDocumentDBRepository>();
-			//services.AddSingleton<IUrlHelperFactory, DomainUrlHelperFactory>();
+			services.AddSingleton<IUrlHelperFactory, DomainUrlHelperFactory>();
 			services.AddHostedService<BackgroundOperationService>();
 			services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>(CreateBackgroundTaskQueue);
 			services.AddServerTiming();
@@ -337,7 +339,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		private void UseProxyForwardingAndDomainPathHelper(IApplicationBuilder app)
 		{
 #if DEBUG
-			/*string path_to_replace = Configuration["AppRootPath"].TrimEnd('/');
+			string path_to_replace = Configuration["AppRootPath"].TrimEnd('/');
 
 			//Check for reverse proxing and bump HTTP scheme to https
 			app.Use((context, next) =>
@@ -348,7 +350,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 					context.Request.Scheme = "https";
 
 				return next();
-			});*/
+			});
 #else
 			//Apache/nginx proxy schould pass "X-Forwarded-Proto"
 			app.UseForwardedHeaders(new ForwardedHeadersOptions
@@ -389,7 +391,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 			// Add framework services.
 			//services.AddMvc()/*.SetCompatibilityVersion(CompatibilityVersion.Version_2_2)*/;
-			services.AddRazorPages();
+			services.AddRazorPages()/*.AddMvcOptions(options => options.EnableEndpointRouting = false)*/;
 
 			var protection_builder = services.AddDataProtection()
 				.SetDefaultKeyLifetime(TimeSpan.FromDays(14))
@@ -495,9 +497,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			});*/
 			app.UseEndpoints(endpoints =>
 			{
-				//routes.MapHub<InkBall.Module.Hubs.GameHub>(path + InkBall.Module.Hubs.GameHub.HubName);
 				endpoints.MapHub<InkBall.Module.Hubs.GameHub>("/dotnet/" + InkBall.Module.Hubs.GameHub.HubName);
 				endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+				endpoints.MapRazorPages();
 			});
 		}
 	}
