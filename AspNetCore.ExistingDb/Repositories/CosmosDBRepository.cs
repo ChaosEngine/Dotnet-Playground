@@ -4,13 +4,14 @@ using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,7 +22,7 @@ namespace AspNetCore.ExistingDb.Repositories
 		/// <summary>
 		/// Document DB enforces Id node to be (auto)generated
 		/// </summary>
-		[JsonProperty(PropertyName = "id")]
+		[JsonPropertyName("id")]
 		public string Id { get; set; }
 	}
 
@@ -177,7 +178,7 @@ namespace AspNetCore.ExistingDb.Repositories
 				//    as we can and do the parsing by client and framework. The script will get JavaScript objects.
 				string argsJson = CreateBulkInsertScriptArguments(documents, currentCount, fileCount, maxScriptSize);
 
-				var args = new dynamic[] { JsonConvert.DeserializeObject<dynamic>(argsJson) };
+				var args = new dynamic[] { JsonSerializer.Deserialize<dynamic>(argsJson) };
 
 				// 6. execute the batch.
 				StoredProcedureResponse<int> scriptResult = await _client.ExecuteStoredProcedureAsync<int>(
@@ -199,7 +200,7 @@ namespace AspNetCore.ExistingDb.Repositories
 
 			if (currentIndex >= maxCount) return string.Empty;
 
-			string serialized = JsonConvert.SerializeObject(docs[currentIndex]);
+			string serialized = JsonSerializer.Serialize(docs[currentIndex]);
 			jsonDocumentArray.Append("[").Append(serialized);
 
 			int scriptCapacityRemaining = maxScriptSize;
@@ -207,7 +208,7 @@ namespace AspNetCore.ExistingDb.Repositories
 			int i = 1;
 			while (jsonDocumentArray.Length < scriptCapacityRemaining && (currentIndex + i) < maxCount)
 			{
-				jsonDocumentArray.Append(", ").Append(JsonConvert.SerializeObject(docs[currentIndex + i]));
+				jsonDocumentArray.Append(", ").Append(JsonSerializer.Serialize(docs[currentIndex + i]));
 				i++;
 			}
 

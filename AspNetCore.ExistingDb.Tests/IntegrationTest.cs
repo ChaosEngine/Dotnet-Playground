@@ -4,7 +4,6 @@ using EFGetStarted.AspNetCore.ExistingDb.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +11,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Mime;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Xunit;
@@ -388,7 +388,7 @@ namespace Integration
 					};
 
 					// Deserialize JSON String into concrete class
-					var data = JsonConvert.DeserializeObject(jsonString, typed_result.GetType()) as dynamic;
+					var data = JsonSerializer.Deserialize(jsonString, typed_result.GetType()) as dynamic;
 					Assert.IsType(typed_result.GetType(), data);
 					Assert.IsAssignableFrom<IEnumerable<string[]>>(data.rows);
 

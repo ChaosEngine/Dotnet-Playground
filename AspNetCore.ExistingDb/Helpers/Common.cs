@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace EFGetStarted.AspNetCore.ExistingDb
 {
@@ -18,7 +18,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 	{
 		public static void Set<T>(this ISession session, string key, T value)
 		{
-			session.SetString(key, JsonConvert.SerializeObject(value));
+			session.SetString(key, JsonSerializer.Serialize(value));
 		}
 
 		public static T Get<T>(this ISession session, string key)
@@ -27,7 +27,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 			return value == null ?
 				default(T) :
-				JsonConvert.DeserializeObject<T>(value);
+				JsonSerializer.Deserialize<T>(value);
 		}
 	}
 
@@ -35,7 +35,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 	{
 		public static void Put<T>(this ITempDataDictionary tempData, string key, T value) where T : class
 		{
-			tempData[key] = JsonConvert.SerializeObject(value);
+			tempData[key] = JsonSerializer.Serialize(value);
 		}
 
 		public static T Get<T>(this ITempDataDictionary tempData, string key) where T : class
@@ -44,7 +44,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			tempData.TryGetValue(key, out value);
 			return value == null ?
 				default(T) :
-				JsonConvert.DeserializeObject<T>((string)value);
+				JsonSerializer.Deserialize<T>((string)value);
 		}
 	}
 
