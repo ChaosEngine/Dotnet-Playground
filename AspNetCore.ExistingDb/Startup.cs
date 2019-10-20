@@ -68,46 +68,30 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 		static async Task Main(string[] args)
 		{
-			//var host = new WebHostBuilder()
-			//	.UseKestrel()
-			//	//.UseLibuv()
-			//	.UseSockets()
-			//	/*.UseLinuxTransport(async opts =>
-			//	{
-			//		await Console.Out.WriteLineAsync("Using Linux Transport");
-			//	})*/
-			//	.UseContentRoot(Directory.GetCurrentDirectory())
-			//	//.UseIISIntegration()
-			//	.UseStartup<Startup>()
-			//	.Build();
-			//
-			//await host.RunAsync();
+			await CreateHostBuilder(args).Build().RunAsync();
 
 
-			//await CreateHostBuilder(args).Build().RunAsync();
+			// var host = new HostBuilder()
+			// 	.UseContentRoot(Directory.GetCurrentDirectory())
+			// 	.ConfigureWebHostDefaults(webBuilder =>
+			// 	{
+			// 		webBuilder
+			// 		.UseKestrel()
+			// 		//.UseLibuv()
+			// 		.UseSockets()
+			// 		/*.UseLinuxTransport(async opts =>
+			// 		{
+			// 			await Console.Out.WriteLineAsync("Using Linux Transport");
+			// 		})*/
+			// 		//.UseIISIntegration()
+			// 		.UseStartup<Startup>();
+			// 	})
+			// 	.Build();
 
-
-			var host = new HostBuilder()
-				.UseContentRoot(Directory.GetCurrentDirectory())
-				.ConfigureWebHostDefaults(webBuilder =>
-				{
-					webBuilder
-					.UseKestrel()
-					//.UseLibuv()
-					.UseSockets()
-					/*.UseLinuxTransport(async opts =>
-					{
-						await Console.Out.WriteLineAsync("Using Linux Transport");
-					})*/
-					//.UseIISIntegration()
-					.UseStartup<Startup>();
-				})
-				.Build();
-
-			await host.RunAsync();
+			// await host.RunAsync();
 		}
 
-		public Startup(IWebHostEnvironment env)
+		/*public Startup(IWebHostEnvironment env)
 		{
 			var builder = new ConfigurationBuilder()
 				.SetBasePath(env.ContentRootPath)
@@ -118,8 +102,10 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				builder.AddUserSecrets<Startup>();
 
 			Configuration = builder.Build();
-
-			//Configuration = configuration;
+		}*/
+		public Startup(IConfiguration configuration)
+		{
+			Configuration = configuration;
 		}
 
 		void ConfigureDistributedCache(IConfiguration configuration, IServiceCollection services)
@@ -161,7 +147,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 		void ConfigureDependencyInjection(IServiceCollection services, IWebHostEnvironment env)
 		{
-			services.AddSingleton(Configuration);
+			//services.AddSingleton(Configuration);
 
 			services.AddLogging(loggingBuilder =>
 			{
@@ -194,6 +180,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 					return db;
 				});
 				dbs_config = Configuration["DBKind"]?.ToLower() + "+CosmosDB";
+				
+				services.AddScoped<IThinHashesDocumentDBRepository, ThinHashesDocumentDBRepository>();
 			}
 			else
 			{
@@ -209,7 +197,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			//1st time init of static vars
 			HashesRepository.HashesInfoExpirationInMinutes = TimeSpan.FromMinutes(Configuration.GetValue<int>(nameof(HashesRepository.HashesInfoExpirationInMinutes)));
 
-			services.AddScoped<IThinHashesDocumentDBRepository, ThinHashesDocumentDBRepository>();
 			services.AddSingleton<IUrlHelperFactory, DomainUrlHelperFactory>();
 			services.AddHostedService<BackgroundOperationService>();
 			services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>(CreateBackgroundTaskQueue);

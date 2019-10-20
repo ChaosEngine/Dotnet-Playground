@@ -22,7 +22,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 
 		public const string ASPX = "AnnualTimelapse";
 
-		public async Task<IActionResult> OnPostSecretActionAsync([FromServices]IServiceProvider services, [FromBody] SomeBag action)
+		public async Task<IActionResult> OnPostSecretAction([FromServices]IServiceProvider services, SomeBag bag)
 		{
 			if (!base.EnableAnnualMovieGenerator)
 				return await Task.FromResult<IActionResult>(base.Forbid());
@@ -34,6 +34,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 			var operation = new YouTubePlaylistDumpOperation(DateTime.Now, "client_secrets.json");
 			await operation.DoWorkAsync(services, Request.HttpContext.RequestAborted);
 			var product = operation.Product;
+			// var product = new List<object[]>();
+			// product.Add(new object[]{"aaa","bbbb","ccccc","dddd"});
 
 			var result = new SomeBag { Result = "Ok", Product = product };
 
