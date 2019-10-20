@@ -20,7 +20,7 @@ namespace IdentitySample.DefaultUI.Data
 		{
 			get
 			{
-				return JsonSerializer.Deserialize<ApplicationUserSettings>(UserSettingsJSON ?? "",
+				return JsonSerializer.Deserialize<ApplicationUserSettings>(UserSettingsJSON ?? "{}",
 					new JsonSerializerOptions { IgnoreNullValues = true });
 			}
 			set
