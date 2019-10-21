@@ -68,27 +68,36 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 		static async Task Main(string[] args)
 		{
-			await CreateHostBuilder(args).Build().RunAsync();
+			//await CreateHostBuilder(args).Build().RunAsync();
 
 
-			// var host = new HostBuilder()
-			// 	.UseContentRoot(Directory.GetCurrentDirectory())
-			// 	.ConfigureWebHostDefaults(webBuilder =>
-			// 	{
-			// 		webBuilder
-			// 		.UseKestrel()
-			// 		//.UseLibuv()
-			// 		.UseSockets()
-			// 		/*.UseLinuxTransport(async opts =>
-			// 		{
-			// 			await Console.Out.WriteLineAsync("Using Linux Transport");
-			// 		})*/
-			// 		//.UseIISIntegration()
-			// 		.UseStartup<Startup>();
-			// 	})
-			// 	.Build();
+			var host = new HostBuilder()
+				.UseContentRoot(Directory.GetCurrentDirectory())
+				.ConfigureAppConfiguration((hostingContext, config) =>
+				{
+					config.SetBasePath(hostingContext.HostingEnvironment.ContentRootPath)
+						.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+						.AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true)
+						.AddEnvironmentVariables();
+					if (hostingContext.HostingEnvironment.IsDevelopment())
+						config.AddUserSecrets<Startup>();
+				})
+				.ConfigureWebHost(webBuilder =>
+				{
+					webBuilder
+					.UseKestrel()
+					//.UseLibuv()
+					.UseSockets()
+					/*.UseLinuxTransport(async opts =>
+					{
+						await Console.Out.WriteLineAsync("Using Linux Transport");
+					})*/
+					//.UseIISIntegration()
+					.UseStartup<Startup>();
+				})
+				.Build();
 
-			// await host.RunAsync();
+			await host.RunAsync();
 		}
 
 		/*public Startup(IWebHostEnvironment env)
@@ -180,7 +189,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 					return db;
 				});
 				dbs_config = Configuration["DBKind"]?.ToLower() + "+CosmosDB";
-				
+
 				services.AddScoped<IThinHashesDocumentDBRepository, ThinHashesDocumentDBRepository>();
 			}
 			else
