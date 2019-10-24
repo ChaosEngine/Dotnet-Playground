@@ -497,6 +497,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 				endpoints.MapRazorPages();
 			});
+			app.UseIdentityManager();
 		}
 	}
 }

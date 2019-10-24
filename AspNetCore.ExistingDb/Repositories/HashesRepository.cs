@@ -957,7 +957,7 @@ OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 						});
 
 						var alphabet = (from h in db.ThinHashes
-										select h.Key.First()
+										select h.Key.Substring(0, 1)
 										).Distinct()
 										.OrderBy(o => o);
 						var count = await db.ThinHashes.CountAsync(token);

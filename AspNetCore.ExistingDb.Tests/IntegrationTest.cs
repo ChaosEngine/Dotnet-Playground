@@ -321,6 +321,12 @@ namespace Integration
 	[Collection(nameof(TestServerCollection))]
 	public class HashesDataTablePage
 	{
+		class TypedResult
+		{
+			public int total { get; set; }
+			public string[][] rows { get; set; }
+		};
+
 		private readonly TestServerFixture<Startup> _fixture;
 		private readonly HttpClient _client;
 
@@ -381,14 +387,15 @@ namespace Integration
 					Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
 					var jsonString = await response.Content.ReadAsStringAsync();
-					var typed_result = new
+
+					var typed_result = new TypedResult
 					{
 						total = 1,
 						rows = new string[][] { }
 					};
 
 					// Deserialize JSON String into concrete class
-					var data = JsonSerializer.Deserialize(jsonString, typed_result.GetType()) as dynamic;
+					var data = JsonSerializer.Deserialize<TypedResult>(jsonString);
 					Assert.IsType(typed_result.GetType(), data);
 					Assert.IsAssignableFrom<IEnumerable<string[]>>(data.rows);
 
@@ -397,7 +404,7 @@ namespace Integration
 
 					if (data.rows.Length > 0)
 					{
-						Assert.NotNull(data.rows[0][0].StartsWith(search));
+						Assert.StartsWith(search, data.rows[0][0]);
 
 						if (query_input.TryGetValue("ExtraParam", out string value) && value == "cached")
 						{
