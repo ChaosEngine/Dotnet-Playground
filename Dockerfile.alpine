@@ -1,9 +1,9 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:2.2-alpine3.9 AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:3.0-alpine3.10 AS build
 RUN apk add --update nodejs nodejs-npm
 RUN npm i gulp@latest -g
 WORKDIR /build
 
-ENV DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/netcoreapp2.2/Blogging.db"
+ENV DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/netcoreapp3.0/Blogging.db" DOTNET_ROLL_FORWARD_ON_NO_CANDIDATE_FX=2
 
 COPY ./InkBall/src/InkBall.Module/InkBall.Module.csproj ./InkBall/src/InkBall.Module/InkBall.Module.csproj
 COPY ./InkBall/test/InkBall.Tests/InkBall.Tests.csproj ./InkBall/test/InkBall.Tests/InkBall.Tests.csproj
@@ -29,16 +29,16 @@ RUN dotnet publish -c Release -r alpine-x64 \
 
 
 
-FROM mcr.microsoft.com/dotnet/core/runtime-deps:2.2-alpine
+FROM mcr.microsoft.com/dotnet/core/runtime-deps:3.0-alpine
 WORKDIR /app
-COPY --from=build --chown=xfs:xfs /build/AspNetCore.ExistingDb/bin/Release/netcoreapp2.2/alpine-x64/publish/ /build/startApp.sh ./
+COPY --from=build --chown=xfs:xfs /build/AspNetCore.ExistingDb/bin/Release/netcoreapp3.0/alpine-x64/publish/ /build/startApp.sh ./
 
-ENV TZ=Europe/Warsaw USER=xfs ASPNETCORE_URLS=http://+:5000
+ENV TZ=Europe/Warsaw USER=xfs ASPNETCORE_URLS=http://+:5001
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 USER "$USER"
 
 VOLUME /shared
-EXPOSE 5000
+EXPOSE 5001
 
 ENTRYPOINT ["./AspNetCore.ExistingDb"]

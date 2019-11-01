@@ -279,8 +279,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 			services.ConfigureApplicationCookie(options =>
 			{
-				options.LoginPath = "/Identity/Account/Login";
-				options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+				options.LoginPath = Configuration["AppRootPath"] + "/Identity/Account/Login";
+				options.AccessDeniedPath = Configuration["AppRootPath"] + "/Identity/Account/AccessDenied";
 				options.Cookie.HttpOnly = true;
 				options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 				options.Cookie.SameSite = SameSiteMode.Strict;
@@ -323,6 +323,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				options.SecurityConfiguration.AdminRoleName = "IdentityManagerAdministrator";
 				options.SecurityConfiguration.AuthenticationScheme = null;
 				options.SecurityConfiguration.PageRouteAttribute = "idm";
+				options.RootPathBase = Configuration["AppRootPath"].TrimEnd('/');
 			})
 			.AddIdentityMangerService<AspNetCoreIdentityManagerService<ApplicationUser, string, IdentityRole, string>>();
 
@@ -459,9 +460,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			}
 			else
 			{
-				app.UseExceptionHandler("/dotnet/Home/Error");
+				app.UseExceptionHandler("/Home/Error");
 			}
-			app.UseStatusCodePagesWithReExecute("/dotnet/Home/Error/{0}");
+			app.UseStatusCodePagesWithReExecute("/Home/Error/{0}");
 
 #if DEBUG
 			if (env.IsDevelopment())
@@ -481,7 +482,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 			/*app.UseSignalR(routes =>
 			{
-				routes.PrepareSignalRForInkBall("/dotnet/");
+				routes.PrepareSignalRForInkBall(Configuration["AppRootPath"]);
 			});
 
 			app.Map("/dotnet", main =>
@@ -494,6 +495,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapHub<InkBall.Module.Hubs.GameHub>("/" + InkBall.Module.Hubs.GameHub.HubName);
+				//endpoints.PrepareSignalRForInkBall("/");
 				endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 				endpoints.MapRazorPages();
 				app.UseIdentityManager();
