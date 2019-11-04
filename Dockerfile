@@ -34,12 +34,12 @@ FROM mcr.microsoft.com/dotnet/core/runtime-deps:3.0-buster-slim
 WORKDIR /app
 COPY --from=build --chown=www-data:www-data /build/AspNetCore.ExistingDb/bin/Release/netcoreapp3.0/linux-x64/publish/ /build/startApp.sh ./
 
-ENV TZ=Europe/Warsaw USER=www-data ASPNETCORE_URLS=http://+:5001
+ENV TZ=Europe/Warsaw USER=www-data ASPNETCORE_URLS=http://+:5000
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 USER "$USER"
 
 VOLUME /shared
-EXPOSE 5001
+EXPOSE 5000
 
 ENTRYPOINT ["./AspNetCore.ExistingDb"]

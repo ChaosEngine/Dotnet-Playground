@@ -33,12 +33,12 @@ FROM mcr.microsoft.com/dotnet/core/runtime-deps:3.0-alpine
 WORKDIR /app
 COPY --from=build --chown=xfs:xfs /build/AspNetCore.ExistingDb/bin/Release/netcoreapp3.0/alpine-x64/publish/ /build/startApp.sh ./
 
-ENV TZ=Europe/Warsaw USER=xfs ASPNETCORE_URLS=http://+:5001
+ENV TZ=Europe/Warsaw USER=xfs ASPNETCORE_URLS=http://+:5000
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 USER "$USER"
 
 VOLUME /shared
-EXPOSE 5001
+EXPOSE 5000
 
 ENTRYPOINT ["./AspNetCore.ExistingDb"]
