@@ -279,8 +279,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 			services.ConfigureApplicationCookie(options =>
 			{
-				options.LoginPath = Configuration["AppRootPath"] + "/Identity/Account/Login";
-				options.AccessDeniedPath = Configuration["AppRootPath"] + "/Identity/Account/AccessDenied";
+				options.LoginPath = Configuration["AppRootPath"] + "Identity/Account/Login";
+				options.AccessDeniedPath = Configuration["AppRootPath"] + "Identity/Account/AccessDenied";
 				options.Cookie.HttpOnly = true;
 				options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 				options.Cookie.SameSite = SameSiteMode.Strict;
