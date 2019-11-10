@@ -1,0 +1,65 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "command": "dotnet",
+            "type": "process",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "args": [
+                "build",
+                "${workspaceFolder}"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "test",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "test",
+                "${workspaceFolder}/AspNetCore.ExistingDb.Tests/AspNetCore.ExistingDb.Tests.csproj"
+            ],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "publish",
+            "windows": {
+                "command": "dotnet publish -c Release -r win-x64 -p:ShowLinkerSizeComparison=true -p:CrossGenDuringPublish=false AspNetCore.ExistingDb"
+            },
+            "linux": {
+                "command": "dotnet publish -c Release -r linux-x64 -p:ShowLinkerSizeComparison=true -p:CrossGenDuringPublish=false AspNetCore.ExistingDb"
+            },            
+            "type": "shell",
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "clean",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "clean",
+                "${workspaceFolder}/AspNetCore.ExistingDb/AspNetCore.ExistingDb.csproj"
+            ],
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}

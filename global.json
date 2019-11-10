@@ -1,6 +1,3 @@
 {
-	"projects": [ "AspNetCore.ExistingDb", "AspNetCore.ExistingDb.Tests", "Caching-MySQL" ],
-	"sdk": {
-		"version": "2.1.401"
-	}
+	"projects": [ "AspNetCore.ExistingDb", "AspNetCore.ExistingDb.Tests", "Caching-MySQL", "InkBall", "IdentityManager2" ]
 }

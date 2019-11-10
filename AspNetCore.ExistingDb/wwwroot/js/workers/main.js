@@ -1,3 +1,5 @@
+/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "BruteForce" }]*/
+/*global binaryStringToArrayBufferExp arrayBufferToBinaryStringExp*/
 function BruteForce(w, d, divContainerName, libsToLoad, workerCount, updateRate, alphabet, hashToCrack, passCharacterLength,
 	foundAction) {
 
@@ -41,7 +43,7 @@ function BruteForce(w, d, divContainerName, libsToLoad, workerCount, updateRate,
 	function createWorkerMonitor(index) {
 		var element = d.createElement('div');
 		element.id = 'worker-' + index;
-		element.classList.add('worker');element.classList.add('col-md-4');
+		element.classList.add('worker'); element.classList.add('col-md-4');
 
 		element.innerHTML =
 			'<div class="card m-2">\
@@ -75,7 +77,7 @@ function BruteForce(w, d, divContainerName, libsToLoad, workerCount, updateRate,
 			createWorkerMonitor(index);
 
 			worker.addEventListener('message', function (e) {
-				var data = JSON.parse(arrayBufferToBinaryString(e.data));
+				var data = JSON.parse(arrayBufferToBinaryStringExp(e.data));
 
 				if (data.update) {
 					// On a update we update the data of the specific worker
@@ -98,7 +100,7 @@ function BruteForce(w, d, divContainerName, libsToLoad, workerCount, updateRate,
 					// Terminate all workers
 					workers.forEach(function (w) {
 						// Worker.terminate() to interrupt the web worker
-						if (w != null) {
+						if (w !== null) {
 							w.terminate();	w = null;
 						}
 					});
@@ -108,7 +110,7 @@ function BruteForce(w, d, divContainerName, libsToLoad, workerCount, updateRate,
 						e.classList.add('done');
 					});
 
-					if(foundAction != null && typeof(foundAction) != undefined)
+					if(foundAction !== null && typeof(foundAction) !== undefined)
 					{
 						foundAction(data.found.passphrase);
 					}
@@ -126,7 +128,7 @@ function BruteForce(w, d, divContainerName, libsToLoad, workerCount, updateRate,
 
 					var all_nulls = true;
 					workers.forEach(function (w) {
-						if (w != null)
+						if (w !== null)
 							all_nulls = false;
 					});
 					if (all_nulls === true)
@@ -144,7 +146,7 @@ function BruteForce(w, d, divContainerName, libsToLoad, workerCount, updateRate,
 				passCharacterLength: passCharacterLength,
 				updateRate: updateRate
 			};
-			var buff = binaryStringToArrayBuffer(JSON.stringify(cmd));
+			var buff = binaryStringToArrayBufferExp(JSON.stringify(cmd));
 			worker.postMessage(buff, [buff]);
 
 			// Push into the global workers array so we have controll later on
@@ -152,13 +154,13 @@ function BruteForce(w, d, divContainerName, libsToLoad, workerCount, updateRate,
 		});
 
 		startTime = new Date();
-	}
+	};
 
 	this.clear = function () {
 		startTime = null;
 
 		workers.forEach(function (w) {
-			if (w != null) {
+			if (w !== null) {
 				// Worker.terminate() to interrupt the web worker
 				w.terminate();
 			}
@@ -171,5 +173,5 @@ function BruteForce(w, d, divContainerName, libsToLoad, workerCount, updateRate,
 		});
 
 		updateTextContent('.global-message', '');
-	}
+	};
 }

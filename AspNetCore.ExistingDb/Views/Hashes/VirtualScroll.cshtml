@@ -1,0 +1,189 @@
+@{
+	ViewBag.Title = "Virtual Scroll of hashes";
+}
+
+<div id="toolbar">
+	<button id="btninfo" class="btn btn-secondary" type="button" data-toggle="modal" data-target="#exampleModal">&#9432;&nbsp;Row info</button>
+	&nbsp;&nbsp;<span id="spTimeToLoad"></span>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				...
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="container-fluid">
+	<table id="table"
+		   data-unique-id="Key"
+		   data-classes="table table-sm table-hover table-striped"
+		   data-toggle="table"
+		   data-side-pagination="server"
+		   data-url="Load"
+		   data-query-params="extraServerParams"
+		   data-response-handler="responseHandler"
+		   data-pagination="true"
+		   data-pagination-use-intermediate="true"
+		   data-show-refresh="true"
+		   data-search="true"
+		   data-toolbar="#toolbar"
+		   data-icons-prefix="fa"
+		   data-page-size="50"
+		   data-page-list="[50,500,2000,10000]"
+		   data-height="600"
+		   >
+		<thead>
+			<tr>
+				<th data-field="Key" data-sortable="true" data-halign="center" data-align="center">Key</th>
+				<th data-field="HashMD5" data-sortable="true">HashMD5</th>
+				<th data-field="HashSHA256" data-sortable="true">HashSHA256</th>
+				<th data-field="Validate" data-sortable="false" data-halign="center" data-align="center" data-formatter="validateFormatter">Validate</th>
+			</tr>
+		</thead>
+	</table>
+</div>
+
+@section headElements
+{
+	<environment include="Development">
+		<link rel="stylesheet" href="~/css/bootstrap-table.css" />
+	</environment>
+	@*
+		<!-- production is automatically minified and merged into one file on deployment -->
+		<link rel="stylesheet" href="~/css/bootstrap-table.css" />
+		<!-- add custom styles there -->
+	*@
+}
+@section scripts
+{
+	<environment include="Development">
+		<script src="~/lib/bootstrap-table/dist/bootstrap-table.js"></script>
+	</environment>
+	<environment exclude="Development">
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.15.5/dist/bootstrap-table.min.js" integrity="sha256-i6G9CgAfmcq/7vYTD52U9501fb2XJiFGPMRGKn0QV7E=" crossorigin="anonymous"
+				asp-fallback-src="~/lib/bootstrap-table/dist/bootstrap-table.min.js"
+				asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.bootstrapTable">
+		</script>
+	</environment>
+
+	@await Html.PartialAsync("_CryptoJSScriptsPartial")
+
+	<script type="text/javascript">
+		var _startTime = null;
+		var _refreshClicked = "cached";
+
+		function validateFormatter(value, row) {
+			return (row.HashMD5 == null || row.HashSHA256 == null) ? ''
+				: '<button class="btn btn-success btn-sm" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>';
+		}
+
+		function extraServerParams(params) {
+			_startTime = new Date().getTime();
+			params.ExtraParam = _refreshClicked;
+			_refreshClicked = "cached";
+			$('#spTimeToLoad').text('Loading...');
+			return params;
+		}
+
+		function responseHandler(response) {
+			//debugger;
+			const mapped = response.rows.map(function(tab) {
+				return { Key: tab[0], HashMD5: tab[1], HashSHA256: tab[2] };
+			});
+			response.rows = mapped;
+			return response;
+		}
+  
+		function getId(element) {
+			let result = $(element).closest('tr').data('uniqueid');
+			return result;
+		}
+		
+		$(document).ready(function () {
+			const table = $('#table'), epsilon = 2;
+			let lastScroll = false;
+			
+			$('#exampleModal').on('show.bs.modal', function (event) {
+				let tr = table.find('tr.highlight');
+				let id = getId(tr);
+				let msg = (id === undefined) ? 'No row selected' : 'Country code : ' + id;
+			  
+				let modal = $(this);
+				modal.find('.modal-body').text(msg);
+			})
+
+			$("button[name='refresh']").bindFirst('click', function (event) {
+				_refreshClicked = "refresh";
+			});
+			table.on('refresh.bs.table', function (params) {
+				//let opts = table.bootstrapTable('getOptions');
+				params.ExtraParam = "refresh";
+			});
+			// register row-click event
+			table.on('click-row.bs.table', function (element, row, tr) {
+				tr.addClass('highlight').siblings().removeClass('highlight');
+			});
+			// load success
+			table.on('load-success.bs.table', function (data) {
+				$('#spTimeToLoad').text('Took ' + ((new Date().getTime() - _startTime) + 'ms!'));
+
+				lastScroll = false;
+				setTimeout(function() {
+					//console.log('event bind');
+					$('.fixed-table-body').scrollTop(epsilon).bind('scroll', function(event) {
+						//console.log('scroll = ' + $('.fixed-table-body').scrollTop());
+
+						if (lastScroll &&
+							($(this).scrollTop() + $(this).innerHeight() + epsilon) >= $(this)[0].scrollHeight)
+						{
+							console.log('end reached -> nextPage');
+							lastScroll = true;
+
+							const options = table.bootstrapTable('getOptions');
+							if(options.pageNumber >= options.totalPages)
+								table.bootstrapTable('selectPage', 1);
+							else
+								table.bootstrapTable('nextPage');
+							$(this).unbind('scroll');
+						}
+						else if (lastScroll && $(this).scrollTop() <= 0)
+						{
+							console.log('top reached <- prevPage');
+							lastScroll = true;
+
+							const options = table.bootstrapTable('getOptions');
+							if(options.pageNumber <= 1)
+								table.bootstrapTable('selectPage', options.totalPages);
+							else
+								table.bootstrapTable('prevPage');
+							$(this).unbind('scroll');
+						}
+						else
+						{
+							lastScroll = true;
+						}
+					});
+				}, 0);
+			});
+			// load error
+			table.on('load-error.bs.table', function (status, res) {
+				$('#spTimeToLoad').text('error!');
+			});
+		});
+
+	</script>
+}

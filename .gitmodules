@@ -1,3 +1,12 @@
 [submodule "Caching-MySQL"]
 	path = Caching-MySQL
 	url = git@github.com:ChaosEngine/Caching-MySQL.git
+[submodule "InkBall"]
+	path = InkBall
+	url = git@github.com:ChaosEngine/InkBall.git
+[submodule "IdentityManager2"]
+	path = IdentityManager2
+	url = git@github.com:ChaosEngine/IdentityManager2.git
+[submodule "DevReload"]
+	path = DevReload
+	url = git@github.com:ChaosEngine/DevReload.git

@@ -24,11 +24,11 @@ namespace Integration
 		{
 			return myObj.GetType()
 				.GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public)
-				.Select(pi => new { Name = pi.Name, Value = pi.GetValue(myObj, null)?.ToString() })
+				.Select(pi => new { pi.Name, Value = pi.GetValue(myObj, null)?.ToString() })
 				.Union(
 					myObj.GetType()
 						.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public)
-						.Select(fi => new { Name = fi.Name, Value = fi.GetValue(myObj)?.ToString() })
+						.Select(fi => new { fi.Name, Value = fi.GetValue(myObj)?.ToString() })
 				)
 				.ToDictionary(ks => ks.Name, vs => vs.Value);
 		}
@@ -137,7 +137,7 @@ namespace Integration
 		{
 			// Arrange
 			// Act
-			using (HttpResponseMessage response = await _client.GetAsync("/"))
+			using (HttpResponseMessage response = await _client.GetAsync(_fixture.AppRootPath))
 			{
 				// Assert
 				response.EnsureSuccessStatusCode();
@@ -180,7 +180,7 @@ namespace Integration
 			using (var content = new FormUrlEncodedContent(data))
 			{
 				// Act
-				using (var response = await _client.PostAsync($"/Home/{nameof(HomeController.UnintentionalErr)}", content))
+				using (var response = await _client.PostAsync($"{_fixture.AppRootPath}Home/{nameof(HomeController.UnintentionalErr)}", content))
 				{
 					// Assert
 					Assert.NotNull(response);
@@ -212,7 +212,7 @@ namespace Integration
 			using (var content = new FormUrlEncodedContent(data))
 			{
 				// Act
-				using (var response = await _client.PostAsync($"/Home/{nameof(HomeController.ClientsideLog)}", content))
+				using (var response = await _client.PostAsync($"{_fixture.AppRootPath}Home/{nameof(HomeController.ClientsideLog)}", content))
 				{
 					// Assert
 					response.EnsureSuccessStatusCode();
@@ -243,7 +243,7 @@ namespace Integration
 
 			//Arrange
 			//get number of all total rows from previous tests :-)
-			int total_hashes_count = await new HashesDataTablePage(_fixture).Load_Valid("Key", "asc", "aaa", 5, 0, "2");
+			int total_hashes_count = await new HashesDataTablePage(_fixture).Load_Valid("Key", "asc", "aaa", 5, 0, "cached");
 
 
 			// Arrange
@@ -258,7 +258,7 @@ namespace Integration
 			</p>";
 
 			// Act
-			using (HttpResponseMessage response = await _client.GetAsync($"/{HashesController.ASPX}/"))
+			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{HashesController.ASPX}/"))
 			{
 				// Assert
 				response.EnsureSuccessStatusCode();
@@ -290,7 +290,7 @@ namespace Integration
 				// Act
 				do
 				{
-					using (HttpResponseMessage response = await _client.GetAsync($"/{HashesController.ASPX}/"))
+					using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{HashesController.ASPX}/"))
 					{
 						// Assert
 						response.EnsureSuccessStatusCode();
@@ -335,25 +335,25 @@ namespace Integration
 		{
 			// Arrange
 			// Act
-			using (HttpResponseMessage response = await _client.GetAsync($"/{HashesDataTableController.ASPX}/"))
+			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{HashesDataTableController.ASPX}/"))
 			{
 				// Assert
 				response.EnsureSuccessStatusCode();
 
 				var responseString = await response.Content.ReadAsStringAsync();
-				Assert.Contains("<button id=\"btninfo\" class=\"btn btn-default\" type=\"button\" data-toggle=\"modal\" data-target=\"#exampleModal\">&#9432;&nbsp;Row info</button>",
+				Assert.Contains("<button id=\"btninfo\" class=\"btn btn-secondary\" type=\"button\" data-toggle=\"modal\" data-target=\"#exampleModal\">&#9432;&nbsp;Row info</button>",
 					responseString);
 				Assert.Contains("data-page-list=\"[5,10,20,50,500,2000]\"", responseString);
 			}
 		}
 
 		[Theory]
-		[InlineData("Key", "desc", "kawa", 5, 1, "2")]
-		[InlineData("Key", "asc", "awak", 5, 1, "2")]
-		[InlineData("Key", "desc", "kawa", 5, 1, "1")]
-		[InlineData("Key", "asc", "awak", 5, 1, "1")]
-		[InlineData("Key", "asc", "none_existing", 5, 1, "2")]
-		[InlineData("Key", "asc", "none_existing", 5, 1, "1")]
+		[InlineData("Key", "desc", "kawa", 5, 1, "cached")]
+		[InlineData("Key", "asc", "awak", 5, 1, "cached")]
+		[InlineData("Key", "desc", "kawa", 5, 1, "refresh")]
+		[InlineData("Key", "asc", "awak", 5, 1, "refresh")]
+		[InlineData("Key", "asc", "none_existing", 5, 1, "cached")]
+		[InlineData("Key", "asc", "none_existing", 5, 1, "refresh")]
 		public async Task<int> Load_Valid(string sort, string order, string search, int limit, int offset, string extraParam)
 		{
 			if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return 0;//pass on fake DB with no data
@@ -373,7 +373,7 @@ namespace Integration
 			{
 				var queryString = await content.ReadAsStringAsync();
 				// Act
-				using (HttpResponseMessage response = await _client.GetAsync($"/{HashesDataTableController.ASPX}/{nameof(HashesDataTableController.Load)}?{queryString}", HttpCompletionOption.ResponseContentRead))
+				using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{HashesDataTableController.ASPX}/{nameof(HashesDataTableController.Load)}?{queryString}", HttpCompletionOption.ResponseContentRead))
 				{
 					// Assert
 					Assert.NotNull(response);
@@ -384,22 +384,22 @@ namespace Integration
 					var typed_result = new
 					{
 						total = 1,
-						rows = new ThinHashes[] { }
+						rows = new string[][] { }
 					};
 
 					// Deserialize JSON String into concrete class
 					var data = JsonConvert.DeserializeObject(jsonString, typed_result.GetType()) as dynamic;
 					Assert.IsType(typed_result.GetType(), data);
-					Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(data.rows);
+					Assert.IsAssignableFrom<IEnumerable<string[]>>(data.rows);
 
 					Assert.True(data.rows.Length == 5 || data.rows.Length == 0);
 					Assert.True(data.total >= 0);
 
 					if (data.rows.Length > 0)
 					{
-						Assert.NotNull(data.rows[0].Key.StartsWith(search));
+						Assert.NotNull(data.rows[0][0].StartsWith(search));
 
-						if (query_input.TryGetValue("ExtraParam", out string value) && value == "2")
+						if (query_input.TryGetValue("ExtraParam", out string value) && value == "cached")
 						{
 							Assert.True(response.Headers.CacheControl.Public &&
 								response.Headers.CacheControl.MaxAge == AspNetCore.ExistingDb.Repositories.HashesRepository.HashesInfoExpirationInMinutes);
@@ -420,7 +420,7 @@ namespace Integration
 		}
 
 		[Theory]
-		[InlineData("dead", "string", "is", 0xDEAD, 0xBEEF, "1")]
+		[InlineData("dead", "string", "is", 0xDEAD, 0xBEEF, "refresh")]
 		[InlineData("Key", "asc", "awak", 5, 1, "bad")]
 		public async Task Load_Invalid(string sort, string order, string search, int limit, int offset, string extraParam)
 		{
@@ -439,7 +439,7 @@ namespace Integration
 				var queryString = await content.ReadAsStringAsync();
 				// Act
 				using (HttpResponseMessage response =
-					await _client.GetAsync($"/{HashesDataTableController.ASPX}/{nameof(HashesDataTableController.Load)}?{queryString}",
+					await _client.GetAsync($"{_fixture.AppRootPath}{HashesDataTableController.ASPX}/{nameof(HashesDataTableController.Load)}?{queryString}",
 					HttpCompletionOption.ResponseContentRead))
 				{
 					// Assert
@@ -472,7 +472,7 @@ namespace Integration
 
 			// Arrange
 			// Act
-			using (HttpResponseMessage response = await _client.GetAsync($"/{BlogsController.ASPX}/"))
+			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{BlogsController.ASPX}/"))
 			{
 				// Assert
 				response.EnsureSuccessStatusCode();
@@ -488,14 +488,14 @@ namespace Integration
 		{
 			// Arrange
 			// Act
-			using (HttpResponseMessage response = await _client.GetAsync($"/{BlogsController.ASPX}/{nameof(BlogsController.Create)}/"))
+			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{BlogsController.ASPX}/{nameof(BlogsController.Create)}/"))
 			{
 				// Assert
 				response.EnsureSuccessStatusCode();
 
 				var responseString = await response.Content.ReadAsStringAsync();
 				Assert.Contains("<title>New Blog - Dotnet Core Playground</title>", responseString);
-				Assert.Contains("<label class=\"col-md-2 control-label\" for=\"Url\">Url</label>", responseString);
+				Assert.Contains("<label for=\"Url\">Url</label>", responseString);
 			}
 		}
 
@@ -508,7 +508,7 @@ namespace Integration
 			// Arrange
 			string antiforgery_token;
 			List<KeyValuePair<string, string>> data;
-			using (var create_get_response = await _client.GetAsync($"/{BlogsController.ASPX}/{nameof(BlogsController.Create)}/",
+			using (var create_get_response = await _client.GetAsync($"{_fixture.AppRootPath}{BlogsController.ASPX}/{nameof(BlogsController.Create)}/",
 				HttpCompletionOption.ResponseContentRead))
 			{
 				// Assert
@@ -529,19 +529,19 @@ namespace Integration
 				{
 					PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, create_get_response);
 					// Act
-					using (var redirect = await _client.PostAsync($"/{BlogsController.ASPX}/{nameof(BlogsController.Create)}/", formPostBodyData))
+					using (var redirect = await _client.PostAsync($"{_fixture.AppRootPath}{BlogsController.ASPX}/{nameof(BlogsController.Create)}/", formPostBodyData))
 					{
 						// Assert
 						Assert.NotNull(redirect);
 						Assert.Equal(HttpStatusCode.Redirect, redirect.StatusCode);
-						Assert.Equal($"/{BlogsController.ASPX}", redirect.Headers.GetValues("Location").FirstOrDefault());
+						Assert.Contains($"{_fixture.AppRootPath}{BlogsController.ASPX}", redirect.Headers.GetValues("Location").FirstOrDefault());
 					}
 				}
 
 
 				int last_inserted_id;
 				string last_inserted_ProtectedID;
-				using (var index_response = await _client.GetAsync($"/{BlogsController.ASPX}/", HttpCompletionOption.ResponseContentRead))
+				using (var index_response = await _client.GetAsync($"{_fixture.AppRootPath}{BlogsController.ASPX}/", HttpCompletionOption.ResponseContentRead))
 				{
 					var responseString = await index_response.Content.ReadAsStringAsync();
 					MatchCollection matches = Regex.Matches(responseString, @"\<form method=""post"" data-id=""([0-9].*)""\>");
@@ -571,7 +571,7 @@ namespace Integration
 				using (var formPostBodyData = new FormUrlEncodedContent(data))
 				{
 					PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, create_get_response);
-					using (var response = await _client.PostAsync($"/{BlogsController.ASPX}/{nameof(BlogActionEnum.Edit)}/{last_inserted_id}/true",
+					using (var response = await _client.PostAsync($"{_fixture.AppRootPath}{BlogsController.ASPX}/{nameof(BlogActionEnum.Edit)}/{last_inserted_id}/true",
 						formPostBodyData))
 					{
 						Assert.NotNull(response);
@@ -592,7 +592,7 @@ namespace Integration
 				using (var formPostBodyData = new FormUrlEncodedContent(data))
 				{
 					PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, create_get_response);
-					using (var response = await _client.PostAsync($"/{BlogsController.ASPX}/{nameof(BlogActionEnum.Delete)}/{last_inserted_id}/true",
+					using (var response = await _client.PostAsync($"{_fixture.AppRootPath}{BlogsController.ASPX}/{nameof(BlogActionEnum.Delete)}/{last_inserted_id}/true",
 						formPostBodyData))
 					{
 						Assert.NotNull(response);
@@ -622,14 +622,14 @@ namespace Integration
 		{
 			// Arrange
 			// Act
-			using (HttpResponseMessage response = await _client.GetAsync($"/{WebCamGallery.ASPX}/"))
+			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{WebCamGallery.ASPX}/"))
 			{
 				// Assert
 				response.EnsureSuccessStatusCode();
 
 				var responseString = await response.Content.ReadAsStringAsync();
 				Assert.Contains("<title>WebCam Gallery - Dotnet Core Playground</title>", responseString);
-				Assert.Contains("function ReplImg(This)", responseString);
+				Assert.Contains("function ReplImg(el)", responseString);
 
 				if (!string.IsNullOrEmpty(_fixture.ImageDirectory))
 				{
@@ -641,7 +641,7 @@ namespace Integration
 						<img src='https://haos.hopto.org/webcamgallery/images/no_img.gif' alt='no img' class='inactive' onmouseover='ReplImg(this);' />
 					</a>*/
 
-					MatchCollection matches = Regex.Matches(responseString, @"\<img src=""/WebCamImages/(.*\.jpg)"" alt=""(.*\.jpg)"" class='active' onmouseover='ReplImg\(this\);' /\>");
+					MatchCollection matches = Regex.Matches(responseString, @"\<img src=""/.*WebCamImages/(.*\.jpg)"" alt=""(.*\.jpg)"" class='active' onmouseover='ReplImg\(this\);' /\>");
 					Assert.NotEmpty(matches);
 					var images = new List<string>(matches.Count);
 					foreach (Match m in matches)
@@ -664,7 +664,7 @@ namespace Integration
 
 			// Arrange
 			// Act
-			using (HttpResponseMessage response = await _client.GetAsync($"/{WebCamImagesModel.ASPX}/{imageName}", HttpCompletionOption.ResponseHeadersRead))
+			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{WebCamImagesModel.ASPX}/{imageName}", HttpCompletionOption.ResponseHeadersRead))
 			{
 				// Assert
 				Assert.NotNull(response);
@@ -692,7 +692,7 @@ namespace Integration
 			if (!string.IsNullOrEmpty(etag))
 			{
 				// Arrange
-				var request = new HttpRequestMessage(HttpMethod.Get, $"/{WebCamImagesModel.ASPX}/{imageName}");
+				var request = new HttpRequestMessage(HttpMethod.Get, $"{_fixture.AppRootPath}{WebCamImagesModel.ASPX}/{imageName}");
 				//request.Headers.Add(HeaderNames.IfNoneMatch, etag);
 				//request.Headers.TryAddWithoutValidation(HeaderNames.ETag, etag);
 				request.Headers.IfMatch.Add(new System.Net.Http.Headers.EntityTagHeaderValue(etag));
@@ -714,7 +714,7 @@ namespace Integration
 
 			// Arrange
 			// Act
-			using (HttpResponseMessage response = await _client.GetAsync($"/{WebCamImagesModel.ASPX}/?handler=live", HttpCompletionOption.ResponseContentRead))
+			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{WebCamImagesModel.ASPX}/?handler=live", HttpCompletionOption.ResponseContentRead))
 			{
 				// Assert
 				Assert.NotNull(response);
@@ -730,6 +730,35 @@ namespace Integration
 					"image/png" == response.Content.Headers.ContentType.MediaType);
 
 			}//end using
+		}
+	}
+
+	[Collection(nameof(TestServerCollection))]
+	public class IdentityManager2
+	{
+		private readonly TestServerFixture<Startup> _fixture;
+		private readonly HttpClient _client;
+
+		public IdentityManager2(TestServerFixture<Startup> fixture)
+		{
+			_fixture = fixture;
+			_client = fixture.Client;
+		}
+
+		[Fact]
+		public async Task Show_Index()
+		{
+			// Arrange
+			// Act
+			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}assets/Templates.index.html"))
+			{
+				// Assert
+				response.EnsureSuccessStatusCode();
+
+				var responseString = await response.Content.ReadAsStringAsync();
+				Assert.Contains("<title>IdentityManager 2</title>", responseString);
+				Assert.Contains("<script src=\"{pathBase}/assets/Scripts.Bundle.js\"></script>", responseString);
+			}
 		}
 	}
 }

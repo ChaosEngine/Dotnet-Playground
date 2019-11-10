@@ -1,5 +1,5 @@
-﻿using AspNetCore.ExistingDb.Helpers;
-using AspNetCore.ExistingDb.Services;
+﻿using AspNetCore.ExistingDb.Services;
+using EFGetStarted.AspNetCore.ExistingDb;
 using EFGetStarted.AspNetCore.ExistingDb.Models;
 using Lib.AspNetCore.ServerTiming;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using Npgsql;
 using NpgsqlTypes;
+using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -30,7 +31,7 @@ namespace AspNetCore.ExistingDb.Repositories
 
 		Task<IEnumerable<ThinHashes>> AutoComplete(string text);
 
-		Task<(IEnumerable<ThinHashes> Itemz, int Count)> PagedSearchAsync(string sortColumn, string sortOrderDirection, string searchText,
+		Task<(IEnumerable<string[]> Itemz, int Count)> PagedSearchAsync(string sortColumn, string sortOrderDirection, string searchText,
 			int offset, int limit, CancellationToken token);
 
 		Task<HashesInfo> CalculateHashesInfo(ILogger logger, DbContextOptions<BloggingContext> dbContextOptions,
@@ -152,15 +153,8 @@ namespace AspNetCore.ExistingDb.Repositories
 				case "sqliteconnection":
 				case "mysqlconnection":
 				case "sqlconnection":
-					found = (from x in _entities.ThinHashes
-							 where EF.Functions.Like(x.HashMD5, text) || EF.Functions.Like(x.HashSHA256, text)
-							 select x)
-						.Take(20)
-						//.DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT })
-						.ToListAsync();
-					break;
-
 				case "npsqlconnection":
+				case "oracleconnection":
 					found = (from x in _entities.ThinHashes
 							 where EF.Functions.Like(x.HashMD5, text) || EF.Functions.Like(x.HashSHA256, text)
 							 select x)
@@ -170,7 +164,7 @@ namespace AspNetCore.ExistingDb.Repositories
 					break;
 
 				/*case "sqlconnection":
-					found = _entities.ThinHashes.FromSql(
++					found = _entities.ThinHashes.FromSql(
 					$@"SELECT TOP 20 * FROM (
 					SELECT x.[{nameof(Hashes.Key)}], x.{nameof(Hashes.HashMD5)}, x.{nameof(Hashes.HashSHA256)}
 					FROM {nameof(Hashes)} AS x
@@ -201,7 +195,8 @@ namespace AspNetCore.ExistingDb.Repositories
 		/// <param name="columnNames">The column names.</param>
 		/// <param name="searchTextParamName">Name of the search text parameter.</param>
 		/// <returns></returns>
-		private string WhereColumnCondition(char colNamePrefix, char colNameSuffix, IEnumerable<string> columnNames = null, string searchTextParamName = "searchText")
+		private string WhereColumnCondition(char colNamePrefix, char colNameSuffix, IEnumerable<string> columnNames = null,
+			string searchTextParamName = "searchText", char paramPrefix = '@')
 		{
 			var sb = new StringBuilder(
 @"
@@ -212,7 +207,8 @@ namespace AspNetCore.ExistingDb.Repositories
 			foreach (var col in columnNames)
 			{
 				//([Key] LIKE @searchText) OR
-				sb.AppendFormat("{0}({3}{1}{4} LIKE @{2}_{5})", comma, col, searchTextParamName, colNamePrefix, colNameSuffix, col);
+				sb.AppendFormat("{0}({3}{1}{4} LIKE {6}{2}_{5})", comma, col, searchTextParamName, colNamePrefix, colNameSuffix, col,
+					paramPrefix);
 				comma = " OR" + Environment.NewLine + '\t';
 			}
 			sb.Append(@"
@@ -231,7 +227,7 @@ namespace AspNetCore.ExistingDb.Repositories
 		/// <param name="limit">The limit.</param>
 		/// <param name="token">The token.</param>
 		/// <returns></returns>
-		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> PagedSearchSqlServerAsync(string sortColumn, string sortOrderDirection,
+		private async Task<(IEnumerable<string[]> Itemz, int Count)> PagedSearchSqlServerAsync(string sortColumn, string sortOrderDirection,
 					string searchText, int offset, int limit, CancellationToken token)
 		{
 			string col_names = string.Join("],[", AllColumnNames);
@@ -259,7 +255,7 @@ FETCH NEXT @limit ROWS ONLY
 			var conn = _entities.Database.GetDbConnection();
 			try
 			{
-				var found = new List<ThinHashes>(limit);
+				var found = new List<string[]>(limit);
 				int count = -1;
 
 				await conn.OpenAsync(token);
@@ -315,16 +311,16 @@ FETCH NEXT @limit ROWS ONLY
 
 						if (count > 0 && await rdr.NextResultAsync(token) && rdr.HasRows)
 						{
-							string[] strings = new string[3];
 							while (await rdr.ReadAsync(token))
 							{
+								string[] strings = new string[3];
 								rdr.GetValues(strings);
-								found.Add(new ThinHashes
+								found.Add(/*new ThinHashes
 								{
 									Key = strings[0],
 									HashMD5 = strings[1],
 									HashSHA256 = strings[2]
-								});
+								}*/strings);
 							}
 						}
 						else
@@ -352,7 +348,7 @@ FETCH NEXT @limit ROWS ONLY
 		/// <param name="limit">The limit.</param>
 		/// <param name="token">The token.</param>
 		/// <returns></returns>
-		private async Task<(List<ThinHashes> Itemz, int Count)> PagedSearchMySqlAsync(string sortColumn, string sortOrderDirection, string searchText,
+		private async Task<(List<string[]> Itemz, int Count)> PagedSearchMySqlAsync(string sortColumn, string sortOrderDirection, string searchText,
 					int offset, int limit, CancellationToken token)
 		{
 			string col_names = string.Join("`,`", AllColumnNames);
@@ -379,7 +375,7 @@ LIMIT @limit OFFSET @offset
 
 			using (var conn = new MySqlConnection(_configuration.GetConnectionString("MySQL")))
 			{
-				var found = new List<ThinHashes>(limit);
+				var found = new List<string[]>(limit);
 				int count = -1;
 
 				await conn.OpenAsync(token);
@@ -435,16 +431,16 @@ LIMIT @limit OFFSET @offset
 
 						if (count > 0 && await rdr.NextResultAsync(token) && rdr.HasRows)
 						{
-							string[] strings = new string[3];
 							while (await rdr.ReadAsync(token))
 							{
+								string[] strings = new string[3];
 								rdr.GetValues(strings);
-								found.Add(new ThinHashes
+								found.Add(/*new ThinHashes
 								{
 									Key = strings[0],
 									HashMD5 = strings[1],
 									HashSHA256 = strings[2]
-								});
+								}*/strings);
 							}
 						}
 						else
@@ -468,7 +464,7 @@ LIMIT @limit OFFSET @offset
 		/// <param name="limit">The limit.</param>
 		/// <param name="token">The token.</param>
 		/// <returns></returns>
-		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> PagedSearchSqliteAsync(string sortColumn, string sortOrderDirection,
+		private async Task<(IEnumerable<string[]> Itemz, int Count)> PagedSearchSqliteAsync(string sortColumn, string sortOrderDirection,
 					string searchText, int offset, int limit, CancellationToken token)
 		{
 			string col_names = string.Join("],[", AllColumnNames);
@@ -495,7 +491,7 @@ LIMIT @limit OFFSET @offset
 			var conn = _entities.Database.GetDbConnection();
 			try
 			{
-				var found = new List<ThinHashes>(limit);
+				var found = new List<string[]>(limit);
 				int count = -1;
 
 				await conn.OpenAsync(token);
@@ -551,16 +547,16 @@ LIMIT @limit OFFSET @offset
 
 						if (count > 0 && await rdr.NextResultAsync(token) && rdr.HasRows)
 						{
-							string[] strings = new string[3];
 							while (await rdr.ReadAsync(token))
 							{
+								string[] strings = new string[3];
 								rdr.GetValues(strings);
-								found.Add(new ThinHashes
+								found.Add(/*new ThinHashes
 								{
 									Key = strings[0],
 									HashMD5 = strings[1],
 									HashSHA256 = strings[2]
-								});
+								}*/strings);
 							}
 						}
 						else
@@ -588,7 +584,7 @@ LIMIT @limit OFFSET @offset
 		/// <param name="limit">The limit.</param>
 		/// <param name="token">The token.</param>
 		/// <returns></returns>
-		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> PagedSearchPostgresAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit, CancellationToken token)
+		private async Task<(IEnumerable<string[]> Itemz, int Count)> PagedSearchPostgresAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit, CancellationToken token)
 		{
 			string col_names = string.Join("\",\"", PostgresAllColumnNames);
 			string sql =// "SET SESSION SQL_BIG_SELECTS=1;" +
@@ -614,9 +610,9 @@ LIMIT @limit OFFSET @offset
 
 			using (var conn = new NpgsqlConnection(_configuration.GetConnectionString("PostgreSql")))
 			{
-				conn.ProvideClientCertificatesCallback = BloggingContextFactory.MyProvideClientCertificatesCallback;
+				conn.ProvideClientCertificatesCallback = ContextFactory.MyProvideClientCertificatesCallback;
 
-				var found = new List<ThinHashes>(limit);
+				var found = new List<string[]>(limit);
 				int count = -1;
 
 				await conn.OpenAsync(token);
@@ -672,22 +668,139 @@ LIMIT @limit OFFSET @offset
 
 						if (count > 0 && await rdr.NextResultAsync(token) && rdr.HasRows)
 						{
-							string[] strings = new string[3];
 							while (await rdr.ReadAsync(token))
 							{
+								string[] strings = new string[3];
 								rdr.GetValues(strings);
-								found.Add(new ThinHashes
+								found.Add(/*new ThinHashes
 								{
 									Key = strings[0],
 									HashMD5 = strings[1],
 									HashSHA256 = strings[2]
-								});
+								}*/strings);
 							}
 						}
 						else
 						{
 							//found.Add(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
 						}
+					}
+				}
+
+				return (found, count);
+			}//end using
+		}
+
+		/// <summary>
+		/// Searches the oracle asynchronous.
+		/// </summary>
+		/// <param name="sortColumn">The sort column.</param>
+		/// <param name="sortOrderDirection">The sort order direction.</param>
+		/// <param name="searchText">The search text.</param>
+		/// <param name="offset">The offset.</param>
+		/// <param name="limit">The limit.</param>
+		/// <param name="token">The token.</param>
+		/// <returns></returns>
+		private async Task<(IEnumerable<string[]> Itemz, int Count)> PagedSearchOracleAsync(
+			string sortColumn, string sortOrderDirection, string searchText, int offset, int limit, CancellationToken token)
+		{
+			string col_names = string.Join("\",\"", PostgresAllColumnNames);
+			string sql =
+(string.IsNullOrEmpty(searchText) ?
+$@"
+SELECT A.*, (SELECT count(*) FROM ""Hashes"") cnt
+FROM 
+(SELECT /*+ FIRST_ROWS({limit}) */ *
+FROM ""Hashes""
+{(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY \"{PostgresAllColumnNames.FirstOrDefault(x => string.Compare(x, sortColumn, StringComparison.CurrentCultureIgnoreCase) == 0)}\" {sortOrderDirection}")}
+OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY) A
+"
+:
+$@"
+WITH RowAndWhere AS
+(
+    SELECT A.*
+    FROM (SELECT /*+ FIRST_ROWS({limit}) */ *
+		  FROM ""Hashes""
+          WHERE {WhereColumnCondition(colNamePrefix: '"', colNameSuffix: '"', columnNames: PostgresAllColumnNames, paramPrefix: ':')}
+         ) A
+)
+SELECT WhereAndOrder.* FROM (
+  SELECT B.*, (SELECT COUNT(*) FROM RowAndWhere) cnt
+  FROM RowAndWhere B
+  {(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY B.\"{PostgresAllColumnNames.FirstOrDefault(x => string.Compare(x, sortColumn, StringComparison.CurrentCultureIgnoreCase) == 0)}\" {sortOrderDirection}")}
+) WhereAndOrder
+OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
+");
+			using (var conn = new OracleConnection(_configuration.GetConnectionString("Oracle")))
+			{
+				var found = new List<string[]>(limit);
+				int count = 0;
+
+				await conn.OpenAsync(token);
+				using (var cmd = new OracleCommand(sql, conn))
+				{
+					cmd.BindByName = true;
+					cmd.CommandText = sql;
+					_logger.LogInformation("sql => {0}", sql);
+					cmd.CommandTimeout = 240;
+					DbParameter parameter;
+
+					parameter = cmd.CreateParameter();
+					parameter.ParameterName = ":offset";
+					parameter.DbType = DbType.Int32;
+					parameter.Value = offset;
+					cmd.Parameters.Add(parameter);
+
+					parameter = cmd.CreateParameter();
+					parameter.ParameterName = ":limit";
+					parameter.DbType = DbType.Int32;
+					parameter.Value = limit;
+					cmd.Parameters.Add(parameter);
+
+					if (!string.IsNullOrEmpty(searchText))
+					{
+						parameter = cmd.CreateParameter();
+						parameter.ParameterName = $":searchText_{nameof(ThinHashes.Key)}";
+						parameter.DbType = DbType.String;
+						parameter.Size = 20;
+						parameter.Value = searchText + '%';
+						cmd.Parameters.Add(parameter);
+
+						parameter = cmd.CreateParameter();
+						parameter.ParameterName = $":searchText_{nameof(ThinHashes.HashMD5)}";
+						parameter.DbType = DbType.String;
+						parameter.Size = 32;
+						parameter.Value = searchText + '%';
+						cmd.Parameters.Add(parameter);
+
+						parameter = cmd.CreateParameter();
+						parameter.ParameterName = $":searchText_{nameof(ThinHashes.HashSHA256)}";
+						parameter.DbType = DbType.String;
+						parameter.Size = 64;
+						parameter.Value = searchText + '%';
+						cmd.Parameters.Add(parameter);
+					}
+
+					using (var rdr = await cmd.ExecuteReaderAsync(token))
+					{
+						object[] strings = new object[4];
+						while (await rdr.ReadAsync(token))
+						{
+							rdr.GetValues(strings);
+							found.Add(
+							/*new ThinHashes
+							{
+								Key = strings[0].ToString(),
+								HashMD5 = strings[1].ToString(),
+								HashSHA256 = strings[2].ToString()
+							}*/
+							/*strings.Take(3).Cast<string>().ToArray()*/
+							new string[] { (string)strings[0], (string)strings[1], (string)strings[2] }
+							);
+						}
+						if (strings[3] != null)
+							count = int.Parse(strings[3].ToString());
 					}
 				}
 
@@ -705,7 +818,7 @@ LIMIT @limit OFFSET @offset
 		/// <param name="limit">The limit.</param>
 		/// <param name="token">The token.</param>
 		/// <returns></returns>
-		public async Task<(IEnumerable<ThinHashes> Itemz, int Count)> PagedSearchAsync(string sortColumn, string sortOrderDirection, string searchText,
+		public async Task<(IEnumerable<string[]> Itemz, int Count)> PagedSearchAsync(string sortColumn, string sortOrderDirection, string searchText,
 			int offset, int limit, CancellationToken token)
 		{
 			_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("ctor", Watch.ElapsedMilliseconds,
@@ -723,18 +836,28 @@ LIMIT @limit OFFSET @offset
 
 			if (string.IsNullOrEmpty(searchText) || searchText.Length > 2)
 			{
-				switch (_entities.ConnectionTypeName)
+				try
 				{
-					case "mysqlconnection":
-						return await PagedSearchMySqlAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
-					case "sqlconnection":
-						return await PagedSearchSqlServerAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
-					case "sqliteconnection":
-						return await PagedSearchSqliteAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
-					case "npsqlconnection":
-						return await PagedSearchPostgresAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
-					default:
-						throw new NotSupportedException($"Bad {nameof(BloggingContext.ConnectionTypeName)} name");
+					switch (_entities.ConnectionTypeName)
+					{
+						case "mysqlconnection":
+							return await PagedSearchMySqlAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
+						case "sqlconnection":
+							return await PagedSearchSqlServerAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
+						case "sqliteconnection":
+							return await PagedSearchSqliteAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
+						case "npsqlconnection":
+							return await PagedSearchPostgresAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
+						case "oracleconnection":
+							return await PagedSearchOracleAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
+						default:
+							throw new NotSupportedException($"Bad {nameof(BloggingContext.ConnectionTypeName)} name");
+					}
+				}
+				finally
+				{
+					_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("READY",
+						Watch.ElapsedMilliseconds, $"PagedSearch{_entities.ConnectionTypeName}Async ready"));
 				}
 			}
 			else
@@ -776,7 +899,7 @@ LIMIT @limit OFFSET @offset
 
 					_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("READY",
 						Watch.ElapsedMilliseconds, "PagedSearchAsync ready"));
-					return (found, found.FoundCount);
+					return (found.Select(tab => new string[] { tab.Key, tab.HashMD5, tab.HashSHA256 }), found.FoundCount);
 				}
 				finally
 				{
@@ -805,7 +928,8 @@ LIMIT @limit OFFSET @offset
 			{
 				db.Database.SetCommandTimeout(180);//long long running. timeouts prevention
 												   //in sqlite only serializable - https://sqlite.org/isolation.html
-				IsolationLevel isolation_level = db.ConnectionTypeName == "sqliteconnection" ? IsolationLevel.Serializable : IsolationLevel.ReadUncommitted;
+				IsolationLevel isolation_level = new[] { "sqliteconnection", "oracleconnection" }.Contains(db.ConnectionTypeName) ?
+					IsolationLevel.Serializable : IsolationLevel.ReadUncommitted;
 				using (var trans = await db.Database.BeginTransactionAsync(isolation_level, token))//needed, other web nodes will read saved-caculating-state and exit thread
 				{
 					try
@@ -884,6 +1008,7 @@ LIMIT @limit OFFSET @offset
 				case "sqliteconnection":
 				case "mysqlconnection":
 				case "sqlconnection":
+				case "oracleconnection":
 					//case "npsqlconnection":
 					if (hi.Kind == KindEnum.MD5)
 					{

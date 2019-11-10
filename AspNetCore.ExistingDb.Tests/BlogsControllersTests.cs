@@ -151,7 +151,7 @@ namespace Controllers
 				Assert.NotNull(result);
 
 				Assert.IsType<RedirectResult>(result);
-				Assert.Equal($"/{BlogsController.ASPX}", ((RedirectResult)result).Url);
+				Assert.Equal($"{Configuration["AppRootPath"]}{BlogsController.ASPX}", ((RedirectResult)result).Url);
 			}
 		}
 

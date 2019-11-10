@@ -3,20 +3,20 @@
 @inject Microsoft.Extensions.Configuration.IConfiguration Conf
 
 <form method="post" data-id="@Model.BlogId">
-	<span class='displaying'>@Html.DisplayFor(modelItem => Model.Url)</span>
+	<label for="inp_@Model.BlogId" class='displaying text-break'>@Html.DisplayFor(modelItem => Model.Url)</label>
 	<div asp-validation-summary="All" class="text-danger"></div>
 
-	<div class="form-inline">
+	<div class="form-group-sm form-inline">
 		@Html.AntiForgeryToken()
 		<input type="hidden" id="ProtectedID_@Model.BlogId" name="ProtectedID" value="@Model.ProtectedID" />
 		<input asp-for="Url" value="@Model.Url" id="inp_@Model.BlogId" placeholder="Url"
-			   class="edit form-control col-md-6" />
+			   class="edit form-control col-sm-12 col-md-12 col-lg-9" />
 
 		<input name="operation" type="submit" value="@(BlogActionEnum.Edit)"
 			   formaction="~/@(BlogsController.ASPX)/@(BlogActionEnum.Edit)/@Model.BlogId/false"
-			   class="update-case form-control mx-sm-1 btn btn-secondary" />
+			   class="update-case form-control col-sm-12 col-md-2 col-lg-1 mx-sm-1 mx-md-0 mx-lg-1 btn btn-secondary" />
 		<input name="operation" type="submit" value="@(BlogActionEnum.Delete)"
 			   formaction="~/@(BlogsController.ASPX)/@(BlogActionEnum.Delete)/@Model.BlogId/false"
-			   class="delete-case form-control mx-sm-1 btn btn-danger" formnovalidate="formnovalidate" />
+			   class="delete-case form-control col-sm-12 col-md-2 col-lg-1 mx-sm-1 mx-md-1 mx-lg-1 btn btn-danger" formnovalidate="formnovalidate" />
 	</div>
 </form>

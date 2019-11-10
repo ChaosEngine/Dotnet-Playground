@@ -18,12 +18,12 @@
 </form>
 
 <div class="row">
-	<div class="col-md-12">
+	<div class="col-auto">
 		<h2>based on <a href="https://github.com/hishamco/jsLogger">jsLogger</a></h2>
 		<p>Try to click the following buttons and keep your eyes on the default logger provider.</p>
 		<p>
 			<button class="btn btn-secondary" onclick="console.trace('This is a trace message.')">Log Trace</button>
-			<button class="btn btn-default" onclick="console.debug('This is a debug message.')">Log Debug</button>
+			<button class="btn btn-secondary" onclick="console.debug('This is a debug message.')">Log Debug</button>
 			<button class="btn btn-info" onclick="console.info('This is a information message.')">Log Information</button>
 			<button class="btn btn-warning" onclick="console.warn('This is a warning message.')">Log Warning</button>
 			<button class="btn btn-danger" onclick="console.error('This is a error message.')">Log Error</button>
@@ -31,7 +31,7 @@
 		<p>
 			<button class="btn btn-danger" onclick="throw new Error('Unexpected Exception bum!!')">Throw Exception</button>
 			@*@Html.AntiForgeryToken()*@
-			<button class="btn" type="button" id="btnDelay" value="Delay" onclick="FireDelay()">Intentional Delay</button>
+			<button class="btn btn-secondary" type="button" id="btnDelay" value="Delay" onclick="FireDelay()">Intentional Delay</button>
 		</p>
 	</div>
 </div>

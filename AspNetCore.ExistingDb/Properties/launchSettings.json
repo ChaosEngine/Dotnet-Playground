@@ -4,7 +4,7 @@
     "anonymousAuthentication": true,
     "iisExpress": {
       "applicationUrl": "http://localhost:4553/",
-      "sslPort": 0
+      "sslPort": 4554
     }
   },
   "profiles": {
@@ -17,10 +17,10 @@
     "Web-Kestrel": {
       "commandName": "Project",
       "environmentVariables": {
-        "ASPNETCORE_URLS": "http://+:4553",
+        "ASPNETCORE_URLS": "https://+:4553",
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "http://0.0.0.0:4553"
+      "applicationUrl": "https://localhost:4553"
     }
   }
 }

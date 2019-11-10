@@ -20,7 +20,7 @@ using System.Linq;
 
 namespace EFGetStarted.AspNetCore.ExistingDb
 {	
-	/// <summary>
+	/*/// <summary>
 	/// <see cref="ITagHelper"/> implementation targeting &lt;script&gt; elements that supports fallback src paths.
 	/// </summary>
 	/// <remarks>
@@ -445,6 +445,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			/// </summary>
 			Fallback = 2
 		}
-	}
+	}*/
 
 }

@@ -1,0 +1,5 @@
+# comment
+**/*.git*
+*.swp
+**/bin
+**/obj

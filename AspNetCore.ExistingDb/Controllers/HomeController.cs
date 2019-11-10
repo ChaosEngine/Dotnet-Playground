@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -43,8 +44,11 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 		public async Task<IActionResult> About()
 		{
-			ViewData["Message"] = "Your application description page.";
-			ViewData["LoremIpsum"] = new Bogus.DataSets.Lorem().Sentence(100);
+			ViewData["Message"] = "Application description page.";
+
+			ViewData["FullAddress"] = $"{Request.Scheme}://{Request.Host}{_configuration.AppRootPath()}";
+
+			ViewData["AppTitleName"] = _configuration["AppTitleName"];
 
 			return await Task.FromResult(View());
 		}
@@ -81,7 +85,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			switch (action?.Trim()?.ToLowerInvariant())
 			{
 				case "repost":
-					TempData.Add("itwas", $"Clicked something {action}");
+					TempData.TryAdd("itwas", $"Clicked something {action}");
 
 					var destination_url = $"{nameof(UnintentionalErr)}";
 

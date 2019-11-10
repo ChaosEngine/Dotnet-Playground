@@ -67,7 +67,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		internal static Func<HttpClient, IHostingEnvironment, CancellationToken,
 			Task<(DateTime lastModified, byte[] bytes, string contentType, TimeSpan cacheExpiration)>> GetContent;
 
-		public MjpgStreamerHttpClient(HttpClient client, IHostingEnvironment env, IMemoryCache cache)
+		public MjpgStreamerHttpClient(HttpClient client, IHostingEnvironment env, IMemoryCache cache, MjpgStreamerHttpClientHandler handler)
 		{
 			_client = client;
 			_cache = cache;

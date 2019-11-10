@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Lib.AspNetCore.ServerTiming;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +13,19 @@ using Microsoft.Net.Http.Headers;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Models
 {
-	public class WebCamGallery : PageModel
+	public abstract class AnnualMovieGeneratorValidatorModel : PageModel
+	{
+		public bool EnableAnnualMovieGenerator
+		{
+			get
+			{
+				return (base.User != null && base.User.IsInRole("Administrator"))
+					&& System.IO.File.Exists("client_secrets.json");
+			}	
+		}
+	}
+
+	public class WebCamGallery : AnnualMovieGeneratorValidatorModel
 	{
 		public const string ASPX = "WebCamGallery";
 		private readonly string _imageDirectory;

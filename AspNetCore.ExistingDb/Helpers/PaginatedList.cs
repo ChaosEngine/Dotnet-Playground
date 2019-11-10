@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AspNetCore.ExistingDb.Helpers
+namespace EFGetStarted.AspNetCore.ExistingDb
 {
 	public class PaginatedList<T> : List<T>
 	{

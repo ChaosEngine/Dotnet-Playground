@@ -1,4 +1,6 @@
-function arrayBufferToBinaryString(buffer) {
+/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "Exp" }]*/
+/*global forge*/
+function arrayBufferToBinaryStringExp(buffer) {
 	var binary = "";
 	var bytes = new Uint8Array(buffer);
 	var length = bytes.byteLength;
@@ -7,7 +9,7 @@ function arrayBufferToBinaryString(buffer) {
 	return binary;
 }
 
-function binaryStringToArrayBuffer(bin) {
+function binaryStringToArrayBufferExp(bin) {
 	var length = bin.length;
 	var buf = new ArrayBuffer(length);
 	var arr = new Uint8Array(buf);
@@ -21,7 +23,7 @@ function binaryStringToArrayBuffer(bin) {
 // output: d7a8fbb307d7809469ca9abcb0082e4f8d5651e46d3cdb762d02d0bf37c9e592
 
 // Standard hashing function that uses SHA256
-function hash(passphrase) {
+function hashExp(passphrase) {
 	//var hash = CryptoJS.SHA256(passphrase)
 	//return hash.toString();
 	
@@ -30,11 +32,11 @@ function hash(passphrase) {
 	return md.digest().toHex();
 }
 
-function LazyProduct(iCharNum, strAlphabet) {
-	var len = strAlphabet.length;
+function LazyProductExp(iCharNum, strAlphabet) {
+	let len = strAlphabet.length;
 
 	this.length = Math.pow(len, iCharNum);
-	chars = [];
+	let chars = [];
 	
 	this.item = function (n) {
 		for (var i = iCharNum; i--;) {
@@ -44,5 +46,5 @@ function LazyProduct(iCharNum, strAlphabet) {
 			chars[iCharNum - i] = strAlphabet[~~(n / power) % len];
 		}
 		return chars.join('');
-	}
+	};
 }

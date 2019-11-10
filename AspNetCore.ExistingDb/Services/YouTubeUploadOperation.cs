@@ -4,13 +4,15 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AspNetCore.ExistingDb.Services;
+using EFGetStarted.AspNetCore.ExistingDb.Models;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Google.Apis.Upload;
 using Google.Apis.Util.Store;
 using Google.Apis.YouTube.v3;
 using Google.Apis.YouTube.v3.Data;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -59,9 +61,12 @@ namespace AspNetCore.ExistingDb.Services
 			{
 				var logger = scope.ServiceProvider.GetRequiredService<ILogger<YouTubeUploadOperation>>();
 				conf = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+				var context = scope.ServiceProvider.GetRequiredService<BloggingContext>();
+				var env = scope.ServiceProvider.GetRequiredService<IHostingEnvironment>();
+
 
 				await ExecuteYouTubeDataApiV3(conf.GetSection("YouTubeAPI"), _clientSecretsJsonFileName,
-					GetSharedKeysDir(), logger, token);
+					GetSharedKeysDir(), logger, context, env, token);
 			}
 
 
@@ -78,14 +83,14 @@ namespace AspNetCore.ExistingDb.Services
 		}
 
 		private async Task<bool> ExecuteYouTubeDataApiV3(IConfiguration youTubeConf, string clientSecretsJson,
-			string sharedSecretFolder, ILogger<YouTubeUploadOperation> logger, CancellationToken token)
+			string sharedSecretFolder, ILogger<YouTubeUploadOperation> logger, BloggingContext context,
+			IHostingEnvironment environment, CancellationToken token)
 		{
 			UserCredential credential;
 
 			using (var stream = new FileStream(clientSecretsJson, FileMode.Open, FileAccess.Read))
 			{
-				FileDataStore store = string.IsNullOrEmpty(sharedSecretFolder) ?
-					new FileDataStore(this.GetType().ToString()) : new FileDataStore(sharedSecretFolder, true);
+				var store = new EFContextDataStore<BloggingContext>(context, environment, token);
 
 				credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(
 					GoogleClientSecrets.Load(stream).Secrets,
@@ -99,7 +104,6 @@ namespace AspNetCore.ExistingDb.Services
 			using (var youtubeService = new YouTubeService(new BaseClientService.Initializer
 			{
 				HttpClientInitializer = credential,
-				//ApiKey = configuration["ApiKey"],
 				ApplicationName = youTubeConf["ApplicationName"]
 			}))
 			{
@@ -133,6 +137,9 @@ namespace AspNetCore.ExistingDb.Services
 					nextPageToken = playlistItemsListResponse.NextPageToken;
 				}
 
+#if DEBUG
+				already_uploaded = true;
+#endif
 				if (already_uploaded || string.IsNullOrEmpty(_videoFileNameToUpload))
 					return false;
 
@@ -149,7 +156,7 @@ namespace AspNetCore.ExistingDb.Services
 					},
 					Status = new VideoStatus
 					{
-						PrivacyStatus = "private" // or "private" or "public"
+						PrivacyStatus = "unlisted" // or "private" or "public"
 					}
 				};
 
@@ -200,4 +207,92 @@ namespace AspNetCore.ExistingDb.Services
 			}//end using youtubeService
 		}
 	}//end class
+
+	/// <summary>
+	/// EF Core data store that implements <see cref="IDataStore"/>.
+	/// </summary>
+	public class EFContextDataStore<TContext> : IDataStore
+		where TContext : DbContext, IGoogleKeyContext
+	{
+		private readonly TContext _context;
+		private readonly IHostingEnvironment _environment;
+		private readonly CancellationToken _cancellationToken;
+
+		public EFContextDataStore(TContext context, IHostingEnvironment environment, CancellationToken cancellationToken)
+		{
+			_context = context;
+			_environment = environment;
+			_cancellationToken = cancellationToken;
+		}
+
+		public async Task StoreAsync<T>(string key, T value)
+		{
+			if (string.IsNullOrEmpty(key))
+				throw new ArgumentException("Key MUST have a value");
+			if (!Enum.TryParse<EnvEnum>(_environment.EnvironmentName, true, out var env_enum))
+				throw new NotSupportedException("bad env parsing");
+
+			var serialized = Google.Apis.Json.NewtonsoftJsonSerializer.Instance.Serialize(value);
+
+			var found = await _context.GoogleProtectionKeys.FindAsync(new object[] { key, env_enum }, _cancellationToken);
+			if (found == null)
+			{
+				await _context.GoogleProtectionKeys.AddAsync(new GoogleProtectionKey
+				{
+					Id = key,
+					Environment = env_enum,
+					Xml = serialized
+				}, _cancellationToken);
+			}
+			else
+			{
+				found.Xml = serialized;
+			}
+			await _context.SaveChangesAsync(true, _cancellationToken);
+		}
+
+		public async Task DeleteAsync<T>(string key)
+		{
+			if (string.IsNullOrEmpty(key))
+				throw new ArgumentException("Key MUST have a value");
+			if (!Enum.TryParse<EnvEnum>(_environment.EnvironmentName, true, out var env_enum))
+				throw new NotSupportedException("bad env parsing");
+
+			var found = await _context.GoogleProtectionKeys.FindAsync(new object[] { key, env_enum }, _cancellationToken);
+			if (found != null)
+			{
+				_context.Remove(found);
+				await _context.SaveChangesAsync(true, _cancellationToken);
+			}
+		}
+
+		public async Task<T> GetAsync<T>(string key)
+		{
+			if (string.IsNullOrEmpty(key))
+				throw new ArgumentException("Key MUST have a value");
+			if (!Enum.TryParse<EnvEnum>(_environment.EnvironmentName, true, out var env_enum))
+				throw new NotSupportedException("bad env parsing");
+
+			var found = await _context.GoogleProtectionKeys.FindAsync(new object[] { key, env_enum }, _cancellationToken);
+			if (found != null)
+			{
+				var obj = Google.Apis.Json.NewtonsoftJsonSerializer.Instance.Deserialize<T>(found.Xml);
+				return await Task.FromResult<T>(obj);
+			}
+			else
+			{
+				return default(T);
+			}
+		}
+
+		public async Task ClearAsync()
+		{
+			if (!Enum.TryParse<EnvEnum>(_environment.EnvironmentName, true, out var env_enum))
+				throw new NotSupportedException("bad env parsing");
+
+			_context.GoogleProtectionKeys.RemoveRange(_context.GoogleProtectionKeys.Where(w => w.Environment == env_enum));
+
+			await _context.SaveChangesAsync(true, _cancellationToken);
+		}
+	}
 }

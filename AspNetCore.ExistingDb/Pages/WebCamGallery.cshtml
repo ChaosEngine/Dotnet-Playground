@@ -14,10 +14,10 @@
 		<link rel="stylesheet" href="~/lib/video.js/dist/video-js.min.css" />
 	</environment>
 	<environment exclude="Development">
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/blueimp-gallery@2.33.0/css/blueimp-gallery.min.css" integrity="sha256-Y0i7rzAjNSxOrq/x6gK6k0OeK1V2WNWwjh0/l+KapNk=" crossorigin="anonymous"
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/blueimp-gallery@2.35.0/css/blueimp-gallery.min.css" integrity="sha256-naDjnon+nzJq+z5LGT5dfwVi+u7YLvkdWwaUsxAgMxE=" crossorigin="anonymous"
 			  asp-fallback-href="~/lib/blueimp-gallery/css/blueimp-gallery.min.css"
 			  asp-fallback-test-class="blueimp-gallery" asp-fallback-test-property="position" asp-fallback-test-value="fixed" />
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/video.js@7.2.2/dist/video-js.min.css" integrity="sha256-fRRh8wAHObBnLKwq1LdT6o4jjc68e01Sd+nZtUEWDjI=" crossorigin="anonymous"
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/video.js@7.6.5/dist/video-js.min.css" integrity="sha256-kflKPH4F0cGv0BJg6I6+pb5nIO01FMeoK7qWoz1NayE=" crossorigin="anonymous"
 			  asp-fallback-href="~/lib/video.js/dist/video-js.min.css"
 			  asp-fallback-test-class="video-js" asp-fallback-test-property="position" asp-fallback-test-value="relative" />
 	</environment>
@@ -48,6 +48,15 @@
 		}
 	</style>
 }
+
+<p id="secretAction" style="display: none">
+	<button id="btnAnnualMovieGenerator" type="button" class="btn btn-primary" value="Generate"
+		data-toggle="collapse" data-target="#divAnnualMovieGenerator" aria-expanded="false" aria-controls="divAnnualMovieGenerator"
+  		title="Show all annual movie clips" disabled>Annual movie clips</button>
+</p>
+<div class="collapse card card-body" id="divAnnualMovieGenerator">
+    <table id="tbAnnualMovieGenerator" class="table table-sm table-striped table-borderless table-hover"></table>
+</div>
 
 <!-- Nav tabs -->
 <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -96,11 +105,10 @@
 			<!-- End VideoJS -->
 		</div>
 	}
-
 	if (Model.ThumbnailJpgs != null)
 	{
 		@:<div class="tab-pane" id="gallery-tab" role="tabpanel" aria-labelledby="gallery-tab">
-			<button id="btnReplAllImg" type="button" class="btn btn-primary" value="strng" title="Load all images">Load all</button>
+			<button id="btnReplAllImg" type="button" class="btn btn-primary btn-sm" value="strng" title="Load all images" disabled>Load all</button>
 			@:<div id="links">
 			int i = 0;
 			foreach (var jpg in Model.ThumbnailJpgs)
@@ -109,13 +117,13 @@
 				var full = thumbnail.Replace("thumbnail", "out");
 				if (i++ < 7)
 				{
-					<a href="~/WebCamImages/@full" title="@jpg.LastWriteTime">
+					<a href="~/WebCamImages/@full" title="@jpg.LastWriteTime.ToString("u")">
 						<img src="~/WebCamImages/@thumbnail" alt="@thumbnail" class='active' onmouseover='ReplImg(this);' />
 					</a>
 				}
 				else
 				{
-					<a href="~/WebCamImages/@full" title="@jpg.LastWriteTime">
+					<a href="~/WebCamImages/@full" title="@jpg.LastWriteTime.ToString("u")">
 						<img alt='no img' class='inactive' onmouseover='ReplImg(this);' />
 					</a>
 				}
@@ -142,35 +150,19 @@
 		<script type="text/javascript" src="~/lib/video.js/dist/video.min.js"></script>
 	</environment>
 	<environment exclude="Development">
-		<script src="https://cdn.jsdelivr.net/npm/blueimp-gallery@2.33.0/js/blueimp-gallery.min.js" integrity="sha256-ZbBVsWhU9YSV3AZky7xcIVDC4to1i3hUBLmOZ5JkMbQ=" crossorigin="anonymous"
+		<script src="https://cdn.jsdelivr.net/npm/blueimp-gallery@2.35.0/js/blueimp-gallery.min.js" integrity="sha256-8z4Nnk0KAWvFFxa3bobPTOOV12tkvAur1Se4UN4Af3g=" crossorigin="anonymous"
 				asp-fallback-src="~/lib/blueimp-gallery/js/blueimp-gallery.min.js"
 				asp-fallback-test="window.jQuery && window.blueimp"></script>
-		<script src="https://cdn.jsdelivr.net/npm/video.js@7.2.2/dist/video.min.js" integrity="sha256-nOalGlHM44TEt3NjBs0jMq09S4FiMZVNqy4etDo+cUE=" crossorigin="anonymous"
+		<script src="https://cdn.jsdelivr.net/npm/video.js@7.6.5/dist/video.min.js" integrity="sha256-DDYBI87lVdSZOudgc6hh30NBPNzbLZqxBOwwmicNeB0=" crossorigin="anonymous"
 				asp-fallback-src="~/lib/video.js/dist/video.min.js"
 				asp-fallback-test="window.jQuery && videojs.options"></script>
 	</environment>
 	<script type="text/javascript">
-		@*if ('serviceWorker' in navigator) {
-			const swUrl = '@Conf.AppRootPath()sw.min.js?domain=' + encodeURIComponent('@Conf.AppRootPath()');
-
-			navigator.serviceWorker
-				.register(swUrl, { scope: '@Conf.AppRootPath()' })
-				.then(function () {
-					console.log("Service Worker Registered");
-				});
-
-			navigator.serviceWorker
-				.ready
-				.then(function (registration) {
-					console.log('Service Worker Ready');
-				});
-		}*@
-
 		$(document).ready(function () {
 
 			$('#links').click(function (event) {
 				event = event || window.event;
-				var target = event.target || event.srcElement,
+				let target = event.target || event.srcElement,
 					link = target.src ? target.parentNode : target,
 					options = {
 						index: link,
@@ -192,21 +184,70 @@
 				ReplAllImg();
 			});
 
-			//RefreshLiveImage();
 
-		});
-
-		function ReplImg(This)
-		{
-			if (This.tagName != 'IMG')
+			if(location.search !== undefined && location.search.length > 0)
 			{
-				This.firstChild.src = This.href.replace("out", "thumbnail");
-				This.firstChild.class = 'active';
+				const name = location.search.replace('?', '#');
+				const tab = $("#myTab a[href='" + name + "']");
+				if (tab !== undefined)
+					tab.tab('show');
+
+				if (name === '#gallery-tab')
+					$('#btnReplAllImg').prop('disabled', false);
+				else
+					$('#btnReplAllImg').prop('disabled', true);
+			}
+			else
+				$('#btnReplAllImg').prop('disabled', true);
+			if($("#myTab a[href='#gallery-tab']").hasClass('active'))
+			{
+				$('#btnReplAllImg').prop('disabled', false);
+			}
+			$("#myTab a").on('click', function (e) {
+				if (e.target.hash !== undefined)
+				{
+					if(e.target.hash.indexOf('gallery-tab') !== -1)
+						$('#btnReplAllImg').prop('disabled', false);
+					else
+						$('#btnReplAllImg').prop('disabled', true);
+
+					const addr = e.target.hash.replace('#', '?');
+					let stateObj = {
+						foo: addr
+					};
+					window.history.pushState(stateObj, addr, addr);
+				}
+			});
+
+			const enableAnnualMovieGenerator = JSON.parse('@Model.EnableAnnualMovieGenerator'.toLowerCase());
+			if (enableAnnualMovieGenerator === true)
+			{
+				$('#btnAnnualMovieGenerator').prop('disabled', false).on('click', function (event) {
+					if(event.target.attributes['aria-expanded'].value !== 'true') {
+						event.target.disabled = 'disabled';
+						GenerateAnnualMovie(event);
+					}
+					$('#divAnnualMovieGenerator').collapse('toggle');
+				});
+				$('#secretAction').show();
 			}
 			else
 			{
-				This.src = This.parentNode.href.replace("out", "thumbnail");
-				This.class = 'active';
+				$('#secretAction').hide();
+			}
+		});
+
+		function ReplImg(el)
+		{
+			if (el.tagName != 'IMG')
+			{
+				el.firstChild.src = el.href.replace("out", "thumbnail");
+				el.firstChild.class = 'active';
+			}
+			else
+			{
+				el.src = el.parentNode.href.replace("out", "thumbnail");
+				el.class = 'active';
 			}
 		}
 
@@ -270,6 +311,54 @@
 				else
 					console.log('still reloading!');
 			}
+		}
+
+		function GenerateAnnualMovie(event)
+		{
+			const hedrs = { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() }
+			const serialized_bag = JSON.stringify({ 'key': 'value' });
+			$('#tbAnnualMovieGenerator').html(
+				'<thead><tr>' +
+					'<th scope="col">#</th>' +
+					'<th scope="col">Name</th>' +
+					'<th scope="col">Hash</th>' +
+					'<th scope="col">Date</th>' +
+				'</tr></thead><caption>Loading...</caption><tbody></tbody>'
+			);
+				
+			$.ajax({
+				method: 'POST',
+				url: 'AnnualTimelapse/?handler=SecretAction',
+				contentType: "application/json",
+				dataType: 'json',
+				data: serialized_bag,
+				headers: hedrs
+			}).done(function (response, textStatus, jqXHR) {
+				console.log(response);
+				if (response.Result == "error") {
+					alert("error");
+					return;
+				}
+				//const stringified = JSON.stringify(response.product, null, 2);
+				//display.text(stringified);
+
+                $('#tbAnnualMovieGenerator caption').remove();
+				$(response.product).each(function (index, item) {
+                    $('#tbAnnualMovieGenerator tbody').append(
+						'<tr>' +
+							'<td>' + item[0] + '</td>' +
+							'<td>' + item[1] + '</td>' +
+							'<td>' + item[2] + '</td>' +
+							'<td>' + item[3] + '</td>' +
+						'</tr>'
+                    );
+                });
+			}).fail(function (jqXHR, textStatus, errorThrown) {
+				alert("error: " + textStatus + " " + errorThrown);
+				$('#tbAnnualMovieGenerator').html('');
+			}).always(function() {
+				event.target.disabled = '';
+			});
 		}
 
 	</script>

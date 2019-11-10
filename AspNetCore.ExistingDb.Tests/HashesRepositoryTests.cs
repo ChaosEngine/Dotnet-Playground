@@ -204,7 +204,7 @@ namespace Repositories
 					Assert.True(found.Count > 0);
 					Assert.NotEmpty(found.Itemz);
 					Assert.True(1 == found.Itemz.Count());
-					Assert.Equal("fakefakef", found.Itemz.First().Key);
+					Assert.Equal("fakefakef", found.Itemz.First()[0]);
 				}
 			}
 			catch (Exception)
@@ -253,8 +253,8 @@ namespace Repositories
 					Assert.NotEmpty(found.Itemz);
 					Assert.Equal(found.Count, itemsCount);
 					Assert.Equal(10, found.Itemz.Count());
-					Assert.Equal("fakefakef_10", found.Itemz.First().Key);
-					Assert.Equal("fakefakefakefakefakefakefakefakefakefakefakefakefakefakefakefake_10", found.Itemz.First().HashSHA256);
+					Assert.Equal("fakefakef_10", found.Itemz.First()[0]);
+					Assert.Equal("fakefakefakefakefakefakefakefakefakefakefakefakefakefakefakefake_10", found.Itemz.First()[2]);
 				}
 			}
 			catch (Exception)
@@ -306,8 +306,8 @@ namespace Repositories
 					Assert.NotEmpty(found.Itemz);
 					Assert.Equal(found.Count, itemsCount);
 					Assert.Equal(10, found.Itemz.Count());
-					Assert.Equal("alamakota_10", found.Itemz.First().Key);
-					Assert.Equal("63b347973bb99fed9277b33cb4646b205e9a31331acfa574add3d2351f445e43_10", found.Itemz.First().HashSHA256);
+					Assert.Equal("alamakota_10", found.Itemz.First()[0]);
+					Assert.Equal("63b347973bb99fed9277b33cb4646b205e9a31331acfa574add3d2351f445e43_10", found.Itemz.First()[2]);
 				}
 			}
 			catch (Exception)

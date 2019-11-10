@@ -80,12 +80,12 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		public string Search { get; set; }
 
 		[Range(0, int.MaxValue)]
-		public int Limit { get; set; }
+		public int Limit { get; set; } = 20;
 
 		[Range(0, int.MaxValue)]
 		public int Offset { get; set; }
 
-		[RegularExpression("(1|2)", ErrorMessage = "ExtraParam not allowed: only 1|2")]
+		[RegularExpression("(refresh|cached)", ErrorMessage = "ExtraParam not allowed: only refresh|cached")]
 		public string ExtraParam { get; set; }
 
 		public HashesDataTableLoadInput()

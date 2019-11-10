@@ -88,7 +88,7 @@
 				var workerCount = $('#ddlWorkerCount').val();
 				var updateRate = $('#ddlUpdateRate').val();
 
-				var hashToCrack = hash(passToHash);
+				var hashToCrack = hashExp(passToHash);
 				instance = new BruteForce(window, document,
 					'.workers',//element into which display content
 					libs2Load,
