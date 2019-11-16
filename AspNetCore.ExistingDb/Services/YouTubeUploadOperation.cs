@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -48,6 +49,16 @@ namespace AspNetCore.ExistingDb.Services
 			_clientSecretsJsonFileName = clientSecretsJsonFileName;
 		}
 
+		internal static string GetSharedKeysDir(IConfiguration conf)
+		{
+			var sharedKeysDir = conf["SharedKeysDirectory"]?.Replace('/', Path.DirectorySeparatorChar)
+				?.Replace('\\', Path.DirectorySeparatorChar);
+			if (string.IsNullOrEmpty(sharedKeysDir) || !Directory.Exists(sharedKeysDir))
+				sharedKeysDir = null;
+
+			return sharedKeysDir;
+		}
+
 		/// <summary>
 		/// Does the work asynchronous.
 		/// </summary>
@@ -66,19 +77,7 @@ namespace AspNetCore.ExistingDb.Services
 
 
 				await ExecuteYouTubeDataApiV3(conf.GetSection("YouTubeAPI"), _clientSecretsJsonFileName,
-					GetSharedKeysDir(), logger, context, env, token);
-			}
-
-
-			//private function
-			string GetSharedKeysDir()
-			{
-				var sharedKeysDir = conf["SharedKeysDirectory"]?.Replace('/', Path.DirectorySeparatorChar)
-					?.Replace('\\', Path.DirectorySeparatorChar);
-				if (string.IsNullOrEmpty(sharedKeysDir) || !Directory.Exists(sharedKeysDir))
-					sharedKeysDir = null;
-
-				return sharedKeysDir;
+					YouTubeUploadOperation.GetSharedKeysDir(conf), logger, context, env, token);
 			}
 		}
 
@@ -90,7 +89,7 @@ namespace AspNetCore.ExistingDb.Services
 
 			using (var stream = new FileStream(clientSecretsJson, FileMode.Open, FileAccess.Read))
 			{
-				var store = new EFContextDataStore<BloggingContext>(context, environment, token);
+				var store = new GoogleKeyContextStore(context, environment, token);
 
 				credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(
 					GoogleClientSecrets.Load(stream).Secrets,
@@ -107,34 +106,56 @@ namespace AspNetCore.ExistingDb.Services
 				ApplicationName = youTubeConf["ApplicationName"]
 			}))
 			{
-				string new_video_title = $"timelapse {DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)}";
-				bool already_uploaded = false;
+				var lst = new List<PlaylistItem>(365);
 				var nextPageToken = "";
-				while (nextPageToken != null && !already_uploaded)
+				while (nextPageToken != null)
 				{
 					var playlistItemsListRequest = youtubeService.PlaylistItems.List("snippet");
 					playlistItemsListRequest.PlaylistId = youTubeConf["playlistId"];
-					playlistItemsListRequest.Fields = "items(snippet(description,publishedAt,title))";
-					playlistItemsListRequest.MaxResults = 10;
+					// playlistItemsListRequest.Fields = "items(snippet(description,publishedAt,title))";
+					playlistItemsListRequest.MaxResults = 50;
 					playlistItemsListRequest.PageToken = nextPageToken;
 					// Retrieve the list of videos uploaded to the authenticated user's channel.
 					var playlistItemsListResponse = await playlistItemsListRequest.ExecuteAsync(token);
 
 					foreach (var item in playlistItemsListResponse.Items)
-					{
-						// Print information about each video.
-						logger.LogInformation("'{title}' [{description}] {publishedAt}", item.Snippet.Title, item.Snippet.Description,
-							item.Snippet.PublishedAt);
-
-						if (item.Snippet.Title == new_video_title)
-						{
-							already_uploaded = true;
-							logger.LogWarning("'{title}' already uploaded aborting", item.Snippet.Title);
-							break;
-						}
-					}
+						lst.Add(item);
 
 					nextPageToken = playlistItemsListResponse.NextPageToken;
+				}
+
+				string new_video_title = $"timelapse {DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)}";
+				bool already_uploaded = false;
+				var year_ago_date = DateTime.Now.AddYears(-1);
+				int delete_count = 10;
+				foreach (var item in lst)
+				{
+					var date = item.Snippet.PublishedAt.GetValueOrDefault(DateTime.MinValue);
+					bool is_to_be_deleted = date < year_ago_date;
+					if (!is_to_be_deleted)
+					{
+						logger.LogInformation("'{title}' [{description}] {publishedAt}", item.Snippet.Title, item.Snippet.Description,
+							item.Snippet.PublishedAt.GetValueOrDefault().ToString("O"));
+					}
+					else if (delete_count > 0)
+					{
+						logger.LogWarning("DELETING '{title}' [{description}] {publishedAt}", item.Snippet.Title, item.Snippet.Description,
+							item.Snippet.PublishedAt.GetValueOrDefault().ToString("O"));
+						var playlistItemsDeleteRequest = youtubeService.PlaylistItems.Delete(item.Id);
+						var delete_playlist_response = await playlistItemsDeleteRequest.ExecuteAsync(token);
+
+						var videoDeleteRequest = youtubeService.Videos.Delete(item.Snippet.ResourceId.VideoId);
+						var delete_video_response = await videoDeleteRequest.ExecuteAsync(token);
+						
+						delete_count--;
+					}
+
+					if (item.Snippet.Title == new_video_title)
+					{
+						already_uploaded = true;
+						logger.LogWarning("'{title}' already uploaded aborting", item.Snippet.Title);
+						break;
+					}
 				}
 
 #if DEBUG
@@ -208,10 +229,18 @@ namespace AspNetCore.ExistingDb.Services
 		}
 	}//end class
 
+	class GoogleKeyContextStore : EFContextDataStore<BloggingContext>
+	{
+		public GoogleKeyContextStore(BloggingContext context, IWebHostEnvironment environment, CancellationToken cancellationToken)
+			: base(context, environment, cancellationToken)
+		{
+		}
+	}
+
 	/// <summary>
 	/// EF Core data store that implements <see cref="IDataStore"/>.
 	/// </summary>
-	public class EFContextDataStore<TContext> : IDataStore
+	class EFContextDataStore<TContext> : IDataStore
 		where TContext : DbContext, IGoogleKeyContext
 	{
 		private readonly TContext _context;
