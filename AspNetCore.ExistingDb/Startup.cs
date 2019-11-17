@@ -324,6 +324,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				options.SecurityConfiguration.AuthenticationScheme = null;
 				options.SecurityConfiguration.PageRouteAttribute = "idm";
 				options.RootPathBase = Configuration["AppRootPath"].TrimEnd('/');
+				options.TitleNavBarLinkTarget = Configuration["AppRootPath"];
 			})
 			.AddIdentityMangerService<AspNetCoreIdentityManagerService<ApplicationUser, string, IdentityRole, string>>();
 
