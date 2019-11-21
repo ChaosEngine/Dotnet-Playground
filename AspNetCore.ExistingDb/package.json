@@ -72,7 +72,7 @@
 		"blueimp-gallery": "2.36.0",
 		"video.js": "7.6.5",
 		"qrcodejs": "1.0.0",
-		"@microsoft/signalr": "3.0.0",
+		"@microsoft/signalr": "3.0.1",
 		"@microsoft/signalr-protocol-msgpack": "3.0.0",
 		"msgpack5": "4.2.1"
 	},

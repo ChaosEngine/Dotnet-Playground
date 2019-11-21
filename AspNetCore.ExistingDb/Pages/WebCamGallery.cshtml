@@ -73,6 +73,9 @@
 				<a class="nav-link" data-toggle="tab" href="#video-tab" role="tab" aria-controls="video-tab" aria-selected="false">Daily video</a>
 			</li>
 		}
+		<li class="nav-item">
+			<a class="nav-link" data-toggle="tab" href="#youtube-tab" role="tab" aria-controls="youtube-tab" aria-selected="false">Youtube videos</a>
+		</li>
 		if (Model.ThumbnailJpgs != null)
 		{
 			<li class="nav-item">
@@ -97,14 +100,20 @@
   		<div class="tab-pane" id="video-tab" role="tabpanel" aria-labelledby="video-tab">
 			<!-- Begin VideoJS -->
 			<div class="video-js-box">
-				<video id="example_video_1" width="1280" height="960" class="video-js vjs-default-skin vjs-4-3 vjs-fluid vjs-big-play-centered" controls preload="auto" poster="@Model.BaseWebCamURL/poster.jpeg" data-setup="{}">
+				<video width="1280" height="960" class="video-js vjs-default-skin vjs-4-3 vjs-fluid vjs-big-play-centered"
+					controls preload="none" poster="@Model.BaseWebCamURL/poster.jpeg" data-setup="{}">
 					<source src="@Model.BaseWebCamURL/video.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"' />
 					<source src="@Model.BaseWebCamURL/video.webm" type='video/webm; codecs="vp8, vorbis"' />
 				</video>
 			</div>
 			<!-- End VideoJS -->
 		</div>
-	}
+	}	
+	<div class="tab-pane embed-responsive embed-responsive-4by3" id="youtube-tab" role="tabpanel" aria-labelledby="youtube-tab">
+		<iframe width="1280" height="960" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
+			src="https://www.youtube.com/embed?listType=playlist&list=PL209zvnxMlVBS_JUFpkaeGhKUb-K9cwKm&autoplay=0"
+			allowfullscreen></iframe>
+	</div>
 	if (Model.ThumbnailJpgs != null)
 	{
 		@:<div class="tab-pane" id="gallery-tab" role="tabpanel" aria-labelledby="gallery-tab">

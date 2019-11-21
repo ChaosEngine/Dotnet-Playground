@@ -96,7 +96,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 				if (input.ExtraParam == "cached" && found.Itemz.Count() > 0)
 				{
 					HttpContext.Response.GetTypedHeaders().CacheControl =
-						new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
+						new Microsoft.Net.Http.Headers.CacheControlHeaderValue
 						{
 							Public = true,
 							MaxAge = HashesRepository.HashesInfoExpirationInMinutes
