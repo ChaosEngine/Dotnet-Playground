@@ -1,0 +1,29 @@
+name: .NET Core
+
+on:
+  push:
+    branches: 
+      - master
+      - dev
+      - github-actions
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        submodules: true # 'recursive' 'true' or 'false'
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.0.100
+    - name: Build with dotnet
+      run: dotnet build --configuration Release
+    - name: Test with dotnet
+      env:
+        DBKind: "sqlite"
+        ConnectionStrings__Sqlite: "Filename=./bin/Release/netcoreapp3.0/Blogging.db"
+      run: dotnet test -v m --configuration Release
