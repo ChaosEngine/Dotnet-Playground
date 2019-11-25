@@ -100,18 +100,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			await host.RunAsync();
 		}
 
-		/*public Startup(IWebHostEnvironment env)
-		{
-			var builder = new ConfigurationBuilder()
-				.SetBasePath(env.ContentRootPath)
-				.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-				.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-				.AddEnvironmentVariables();
-			if (env.IsDevelopment())
-				builder.AddUserSecrets<Startup>();
-
-			Configuration = builder.Build();
-		}*/
 		public Startup(IConfiguration configuration)
 		{
 			Configuration = configuration;
@@ -156,8 +144,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 		void ConfigureDependencyInjection(IServiceCollection services, IWebHostEnvironment env)
 		{
-			//services.AddSingleton(Configuration);
-
 			services.AddLogging(loggingBuilder =>
 			{
 				loggingBuilder.AddConfiguration(Configuration.GetSection("Logging"));
@@ -206,7 +192,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			//1st time init of static vars
 			HashesRepository.HashesInfoExpirationInMinutes = TimeSpan.FromMinutes(Configuration.GetValue<int>(nameof(HashesRepository.HashesInfoExpirationInMinutes)));
 
-			services.AddSingleton<IUrlHelperFactory, DomainUrlHelperFactory>();
+			//services.AddSingleton<IUrlHelperFactory, DomainUrlHelperFactory>();
 			services.AddHostedService<BackgroundOperationService>();
 			services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>(CreateBackgroundTaskQueue);
 			services.AddServerTiming();
@@ -279,8 +265,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 			services.ConfigureApplicationCookie(options =>
 			{
-				options.LoginPath = Configuration["AppRootPath"] + "Identity/Account/Login";
-				options.AccessDeniedPath = Configuration["AppRootPath"] + "Identity/Account/AccessDenied";
+				options.LoginPath = "/Identity/Account/Login";
+				options.AccessDeniedPath = "/Identity/Account/AccessDenied";
 				options.Cookie.HttpOnly = true;
 				options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 				options.Cookie.SameSite = SameSiteMode.Strict;
@@ -337,7 +323,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		private void UseProxyForwardingAndDomainPathHelper(IApplicationBuilder app)
 		{
 #if DEBUG
-			string path_to_replace = Configuration["AppRootPath"].TrimEnd('/');
+			/*string path_to_replace = Configuration["AppRootPath"].TrimEnd('/');
 
 			//Check for reverse proxing and bump HTTP scheme to https
 			app.Use((context, next) =>
@@ -348,7 +334,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 					context.Request.Scheme = "https";
 
 				return next();
-			});
+			});*/
 #else
 			//Apache/nginx proxy schould pass "X-Forwarded-Proto"
 			app.UseForwardedHeaders(new ForwardedHeadersOptions
@@ -436,45 +422,32 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			}
 			else
 			{
-				app.UseExceptionHandler("/Home/Error");
+				app.UseExceptionHandler("/dotnet/Home/Error");
 			}
-			app.UseStatusCodePagesWithReExecute("/Home/Error/{0}");
-
+			app.UseStatusCodePagesWithReExecute("/dotnet/Home/Error/{0}");
 #if DEBUG
 			if (env.IsDevelopment())
 				app.UseHttpsRedirection();
 #endif
 
-			app.UseStaticFiles();
-
-			app.UseRouting();
-
-			app.UseServerTiming();
-
-			app.UseSession();
-
-			app.UseAuthentication();
-			app.UseAuthorization();
-
-			/*app.UseSignalR(routes =>
-			{
-				routes.PrepareSignalRForInkBall(Configuration["AppRootPath"]);
-			});
-
 			app.Map("/dotnet", main =>
 			{
-				main.UseIdentityManager();
-
 				main.UseStaticFiles();
-				main.UseMvcWithDefaultRoute();
-			});*/
-			app.UseEndpoints(endpoints =>
-			{
-				endpoints.MapHub<InkBall.Module.Hubs.GameHub>("/" + InkBall.Module.Hubs.GameHub.HubName);
-				//endpoints.PrepareSignalRForInkBall("/");
-				endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
-				endpoints.MapRazorPages();
-				app.UseIdentityManager();
+				main.UseRouting();
+				main.UseServerTiming();
+				main.UseSession();
+				main.UseAuthentication();
+				main.UseAuthorization();
+
+				main.UseEndpoints(endpoints =>
+				{
+					endpoints.MapHub<InkBall.Module.Hubs.GameHub>("/" + InkBall.Module.Hubs.GameHub.HubName);
+					//endpoints.PrepareSignalRForInkBall("/");
+					endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+					endpoints.MapRazorPages();
+				});
+
+				main.UseIdentityManager();
 			});
 		}
 	}
