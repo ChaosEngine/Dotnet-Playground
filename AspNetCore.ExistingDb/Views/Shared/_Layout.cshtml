@@ -11,6 +11,7 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+	<meta name="Description" content="Dotnet core examples, tests and experiments pages" />
 	<link rel="manifest" href="~/manifest.json" />
 	<link rel="icon" type="image/x-icon" href="~/images/favicon.png" />
 	<title>@ViewData["Title"] - @Conf["AppTitleName"]</title>
@@ -22,7 +23,7 @@
 	</environment>
 	<environment exclude="Development">
 		<meta name="theme-color" content="darkred" />
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha256-YLGeXaapI0/5IgZopewRJcFXomhRMlYYjugPLSyNjTY=" crossorigin="anonymous"
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.0/dist/css/bootstrap.min.css" integrity="sha256-/ykJw/wDxMa0AQhHDYfuMEwVb4JHMx9h4jD4XvHqVzU=" crossorigin="anonymous"
 			  asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
 			  asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
 		<link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
@@ -84,6 +85,7 @@
 						<div class="dropdown-menu">
 							<a class="dropdown-item" href="~/WebCamGallery">Live</a>
 							<a class="dropdown-item" href="~/WebCamGallery?video-tab">Daily video</a>
+							<a class="dropdown-item" href="~/WebCamGallery?youtube-tab">Youtube videos</a>
 							<a class="dropdown-item" href="~/WebCamGallery?gallery-tab">Gallery</a>
 						</div>
 					</li>
@@ -91,9 +93,9 @@
 						<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">InkBall</a>
 						<div class="dropdown-menu">
 							<a class="dropdown-item" href="~/InkBall/Home">Home</a>
-							<a class="dropdown-item" href="~/InkBall/Games">Game list</a>
-							<a class="dropdown-item" href="~/InkBall/Index">Game</a>
-							<a class="dropdown-item" href="~/InkBall/Highscores">Highscores</a>
+							<a class="dropdown-item" href="~/InkBall/Games" id="aInkList">Game list</a>
+							<a class="dropdown-item" href="~/InkBall/Index" id="aInkGame">Game</a>
+							<a class="dropdown-item" href="~/InkBall/Highscores" id="aInkGameHigh">Highscores</a>
 							<a class="dropdown-item" href="~/Identity/Account/Register">Register</a>
 							<a class="dropdown-item" href="~/InkBall/Rules">Rules</a>
 						</div>
@@ -124,7 +126,7 @@
 				asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
 				asp-fallback-test="window.jQuery">
 		</script>
-		<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha256-fzFFyH01cBVPYzl16KT40wqjhgPtq6FFUB6ckN2+GGw=" crossorigin="anonymous"
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.0/dist/js/bootstrap.bundle.min.js" integrity="sha256-zxevz2MOFpqKf3D9eeNd/gE0X679Aeg6WRhubeSA9Vc=" crossorigin="anonymous"
 				asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"
 				asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal">
 		</script>
