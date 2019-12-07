@@ -1,10 +1,10 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:3.0-buster AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
 	apt-get install -y nodejs
 RUN npm i gulp@latest -g
 WORKDIR /build
 
-ENV DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/netcoreapp3.0/Blogging.db" DOTNET_ROLL_FORWARD_ON_NO_CANDIDATE_FX=2
+ENV DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/netcoreapp3.1/Blogging.db" DOTNET_ROLL_FORWARD_ON_NO_CANDIDATE_FX=2
 
 COPY ./InkBall/src/InkBall.Module/InkBall.Module.csproj ./InkBall/src/InkBall.Module/InkBall.Module.csproj
 COPY ./InkBall/test/InkBall.Tests/InkBall.Tests.csproj ./InkBall/test/InkBall.Tests/InkBall.Tests.csproj
@@ -30,9 +30,9 @@ RUN dotnet publish -c Release -r linux-x64 \
 
 
 
-FROM mcr.microsoft.com/dotnet/core/runtime-deps:3.0-buster-slim
+FROM mcr.microsoft.com/dotnet/core/runtime-deps:3.1-buster-slim
 WORKDIR /app
-COPY --from=build --chown=www-data:www-data /build/AspNetCore.ExistingDb/bin/Release/netcoreapp3.0/linux-x64/publish/ /build/startApp.sh ./
+COPY --from=build --chown=www-data:www-data /build/AspNetCore.ExistingDb/bin/Release/netcoreapp3.1/linux-x64/publish/ /build/startApp.sh ./
 
 ENV TZ=Europe/Warsaw USER=www-data ASPNETCORE_URLS=http://+:5000
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
