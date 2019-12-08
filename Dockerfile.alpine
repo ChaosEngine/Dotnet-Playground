@@ -30,6 +30,7 @@ RUN dotnet publish -c Release -r alpine-x64 \
 
 
 FROM mcr.microsoft.com/dotnet/core/runtime-deps:3.1-alpine
+RUN apk add tzdata
 WORKDIR /app
 COPY --from=build --chown=xfs:xfs /build/AspNetCore.ExistingDb/bin/Release/netcoreapp3.1/alpine-x64/publish/ /build/startApp.sh ./
 
