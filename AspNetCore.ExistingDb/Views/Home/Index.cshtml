@@ -1,6 +1,5 @@
 ﻿@inject Microsoft.Extensions.Configuration.IConfiguration Conf
 @inject Microsoft.AspNetCore.Authorization.IAuthorizationService AuthorizationService
-@inject IdentityManager2.Configuration.IdentityManagerOptions IdMgrOptions
 @{
 	ViewData["Title"] = "Home Page";
 }
@@ -78,11 +77,9 @@
 				<li><a href="~/ViewCodeGenerator/">View-Code Generator</a></li>
 			</environment>
 			<li><a href="~/WebCamGallery">WebCam Gallery</a></li>
-			@if (IdMgrOptions != null &&
-				(await AuthorizationService.AuthorizeAsync(User, null, IdentityManager2.IdentityManagerConstants.IdMgrAuthPolicy)).Succeeded
-				)
+			@if ((await AuthorizationService.AuthorizeAsync(User, null, IdentityManager2.IdentityManagerConstants.IdMgrAuthPolicy)).Succeeded)
 			{
-				<li><a href="~/@IdMgrOptions.SecurityConfiguration.PageRouteAttribute/">Identity Manager 2</a></li>
+				<li><a href="~/idm/">Identity Manager 2</a></li>
 			}
 		</ul>
 	</div>

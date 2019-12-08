@@ -40,6 +40,10 @@ using Microsoft.AspNetCore.Authorization;
 using System.Net;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using IdentityManager2.Api.Controllers;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 //[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
 
@@ -308,8 +312,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				options.SecurityConfiguration.RoleClaimType = "role";
 				options.SecurityConfiguration.AdminRoleName = "IdentityManagerAdministrator";
 				options.SecurityConfiguration.AuthenticationScheme = null;
-				options.SecurityConfiguration.PageRouteAttribute = "idm";
-				options.RootPathBase = Configuration["AppRootPath"].TrimEnd('/');
+				options.SecurityConfiguration.ShowLoginButton = false;
+				//options.SecurityConfiguration.PageRouteAttribute = "idm";
+				//options.RootPathBase = Configuration["AppRootPath"].TrimEnd('/');
 				options.TitleNavBarLinkTarget = Configuration["AppRootPath"];
 			})
 			.AddIdentityMangerService<AspNetCoreIdentityManagerService<ApplicationUser, string, IdentityRole, string>>();
@@ -374,8 +379,11 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			});
 
 			// Add framework services.
-			//services.AddMvc()/*.SetCompatibilityVersion(CompatibilityVersion.Version_2_2)*/;
-			services.AddRazorPages()/*.AddMvcOptions(options => options.EnableEndpointRouting = false)*/;
+			services.AddControllersWithViews(options =>
+			{
+				options.UseCentralRoutePrefix<PageController>(new RouteAttribute("idm"));
+			});
+			services.AddRazorPages();
 
 			var protection_builder = services.AddDataProtection()
 				.SetDefaultKeyLifetime(TimeSpan.FromDays(14))
