@@ -312,7 +312,11 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				options.SecurityConfiguration.RoleClaimType = "role";
 				options.SecurityConfiguration.AdminRoleName = "IdentityManagerAdministrator";
 				options.SecurityConfiguration.AuthenticationScheme = null;
-				options.SecurityConfiguration.ShowLoginButton = false;
+				//options.SecurityConfiguration.ShowLoginButton = false;
+				options.SecurityConfiguration.HostAuthenticationType = IdentityConstants.ApplicationScheme;
+				//options.SecurityConfiguration.HostChallengeType = "Identity.Application";
+				options.SecurityConfiguration.LoginPath = "/Identity/Account/Login";
+				options.SecurityConfiguration.LogoutPath = "/Identity/Account/Logout";
 				//options.SecurityConfiguration.PageRouteAttribute = "idm";
 				//options.RootPathBase = Configuration["AppRootPath"].TrimEnd('/');
 				options.TitleNavBarLinkTarget = Configuration["AppRootPath"];

@@ -139,7 +139,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			MaxConnectionFailedCount = 20;
 			CheckIntervalDelay = 2000;
 			PopoutHtmlTemplate = @"<div id='reload' class='toast' role='alert' aria-live='assertive' aria-atomic='true'
-	data-autohide='false' data-animation='true' style='position: absolute; top: 0; right: 0; z-index: 9999'>
+	data-autohide='false' data-animation='true' style='position:absolute; top:0; right:0; z-index:9999; display:none'>
   <div class='toast-header'>
     <svg class='bd-placeholder-img rounded mr-2' width='20' height='20' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMidYMid slice' focusable='false' role='img'><rect width = '100%' height='100%' fill='red'></rect></svg>
     <strong class='mr-auto'>DevReload</strong>
@@ -155,7 +155,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 <script>
 	$('#reload').toast('hide');
 </script>";
-			TemplateActivationJSFragment = @"$('#reload').toast('show');";
+			TemplateActivationJSFragment = @"$('#reload').show().toast('show');";
 		}
 	}
 #endif

@@ -38,6 +38,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 
 		public string LiveWebCamURL { get; }
 
+		public string YouTubePlaylistId { get; }
+
 		public Stopwatch Watch { get; }
 
 		public WebCamGallery(IConfiguration configuration, IServerTiming serverTiming)
@@ -50,6 +52,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 
 			BaseWebCamURL = configuration["BaseWebCamURL"];
 			LiveWebCamURL = configuration["LiveWebCamURL"];
+
+			YouTubePlaylistId = configuration["YouTubeAPI:playlistId"];
 		}
 
 		public void OnGet()

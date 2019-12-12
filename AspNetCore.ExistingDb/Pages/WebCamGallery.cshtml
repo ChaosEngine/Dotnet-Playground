@@ -72,10 +72,13 @@
 			<li class="nav-item">
 				<a class="nav-link" data-toggle="tab" href="#video-tab" role="tab" aria-controls="video-tab" aria-selected="false">Daily video</a>
 			</li>
-		}
-		<li class="nav-item">
-			<a class="nav-link" data-toggle="tab" href="#youtube-tab" role="tab" aria-controls="youtube-tab" aria-selected="false">Youtube videos</a>
-		</li>
+        }
+        if (Model.YouTubePlaylistId != null)
+        {
+			<li class="nav-item">
+				<a class="nav-link" data-toggle="tab" href="#youtube-tab" role="tab" aria-controls="youtube-tab" aria-selected="false">Youtube videos</a>
+			</li>
+        }
 		if (Model.ThumbnailJpgs != null)
 		{
 			<li class="nav-item">
@@ -108,12 +111,15 @@
 			</div>
 			<!-- End VideoJS -->
 		</div>
-	}	
-	<div class="tab-pane embed-responsive embed-responsive-4by3" id="youtube-tab" role="tabpanel" aria-labelledby="youtube-tab">
-		<iframe width="1280" height="960" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
-			src="https://www.youtube.com/embed?listType=playlist&list=@(Conf["YouTubeAPI:playlistId"])&autoplay=0"
-			allowfullscreen></iframe>
-	</div>
+    }
+    if (Model.YouTubePlaylistId != null)
+    {
+		<div class="tab-pane embed-responsive embed-responsive-4by3" id="youtube-tab" role="tabpanel" aria-labelledby="youtube-tab">
+			<iframe width="1280" height="960" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
+				src="https://www.youtube.com/embed?listType=playlist&list=@(Model.YouTubePlaylistId)&autoplay=0"
+				allowfullscreen></iframe>
+		</div>
+    }
 	if (Model.ThumbnailJpgs != null)
 	{
 		@:<div class="tab-pane" id="gallery-tab" role="tabpanel" aria-labelledby="gallery-tab">
