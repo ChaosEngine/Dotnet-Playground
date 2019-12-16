@@ -427,7 +427,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			{
 				app.UseDeveloperExceptionPage();
 #if DEBUG
-				app.UseDevReload(new MyDevReloadOptions());
+				if(!System.Diagnostics.Debugger.IsAttached)
+					app.UseDevReload(new MyDevReloadOptions());
 #endif
 				//app.UseExceptionHandler("/dotnet/Home/Error");
 				//app.UseBrowserLink();

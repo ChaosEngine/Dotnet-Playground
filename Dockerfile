@@ -1,10 +1,11 @@
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
-	apt-get install -y nodejs
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && apt-get install -y nodejs
 RUN npm i gulp@latest -g
 WORKDIR /build
 
 ENV DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/netcoreapp3.1/Blogging.db" DOTNET_ROLL_FORWARD_ON_NO_CANDIDATE_FX=2
+ARG SOURCE_COMMIT
+ARG SOURCE_BRANCH
 
 COPY ./InkBall/src/InkBall.Module/InkBall.Module.csproj ./InkBall/src/InkBall.Module/InkBall.Module.csproj
 COPY ./InkBall/test/InkBall.Tests/InkBall.Tests.csproj ./InkBall/test/InkBall.Tests/InkBall.Tests.csproj
@@ -20,6 +21,7 @@ COPY ./*.sln ./NuGet.config ./
 RUN dotnet restore -r linux-x64
 
 COPY . .
+RUN sed -i -e "s/GIT_HASH/$SOURCE_COMMIT/g" -e "s/GIT_BRANCH/$SOURCE_BRANCH/g" AspNetCore.ExistingDb/Views/Home/About.cshtml
 RUN dotnet test -v m
 RUN dotnet publish -c Release -r linux-x64 \
     #-p:PublishWithAspNetCoreTargetManifest=false #remove this after prerelease patch publish \

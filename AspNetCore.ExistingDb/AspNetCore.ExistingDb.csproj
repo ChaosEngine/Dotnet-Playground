@@ -37,7 +37,7 @@
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration" Version="3.1.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.0" />
-    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="3.1.0-rc1.final" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="3.1.0" />
 		<PackageReference Include="Oracle.EntityFrameworkCore" Version="2.19.60" />
 		<PackageReference Include="IdentityManager2.AspNetIdentity" Version="1.0.0-beta3" />
 		<PackageReference Include="Lib.AspNetCore.ServerTiming" Version="2.1.0" />
