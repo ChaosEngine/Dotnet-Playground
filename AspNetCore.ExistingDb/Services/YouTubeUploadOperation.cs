@@ -127,7 +127,7 @@ namespace AspNetCore.ExistingDb.Services
 				string new_video_title = $"timelapse {DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)}";
 				bool already_uploaded = false;
 				var year_ago_date = DateTime.Now.AddYears(-1);
-				int delete_count = 20;
+				int delete_count = 10;
 				foreach (var item in lst)
 				{
 					var date = item.Snippet.PublishedAt.GetValueOrDefault(DateTime.MinValue);
