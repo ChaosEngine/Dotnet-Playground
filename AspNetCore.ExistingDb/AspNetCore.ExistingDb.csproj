@@ -56,7 +56,7 @@
 
 	<Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
 		<Exec Command="npm install --unsafe-perm" />
-		<Exec Command="gulp" />
+		<Exec Command="npx gulp" />
 	</Target>
 
 	<!-- <ItemGroup>

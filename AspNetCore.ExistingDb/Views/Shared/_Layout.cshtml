@@ -19,7 +19,10 @@
 		<meta name="theme-color" content="darkslateblue" />
 		<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
 		<link rel="stylesheet" href="~/css/site.css" />
+		@if(!System.Diagnostics.Debugger.IsAttached)
+		{
 		<devreload></devreload>
+		}
 	</environment>
 	<environment exclude="Development">
 		<meta name="theme-color" content="darkred" />

@@ -454,8 +454,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 				main.UseEndpoints(endpoints =>
 				{
-					endpoints.MapHub<InkBall.Module.Hubs.GameHub>("/" + InkBall.Module.Hubs.GameHub.HubName);
-					//endpoints.PrepareSignalRForInkBall("/");
+					//endpoints.MapHub<InkBall.Module.Hubs.GameHub>("/" + InkBall.Module.Hubs.GameHub.HubName);
+					endpoints.PrepareSignalRForInkBall("/");
 					endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 					endpoints.MapRazorPages();
 				});
