@@ -12,12 +12,16 @@
 		<TypeScriptToolsVersion>2.8</TypeScriptToolsVersion>
 		<!--<MvcRazorCompileOnPublish>true</MvcRazorCompileOnPublish>-->
 		<TieredCompilation>true</TieredCompilation>
+		<PublishTrimmed>true</PublishTrimmed>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<None Update="wwwroot\**\*;Views\**\*">
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 		</None>
+		<Content Update="client_secrets.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -36,8 +40,8 @@
 		<PackageReference Include="Bogus" Version="28.4.4" />
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration" Version="3.1.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.0" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.0" />
-    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="3.1.0" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.0" />
+		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="3.1.0" />
 		<PackageReference Include="Oracle.EntityFrameworkCore" Version="2.19.60" />
 		<PackageReference Include="IdentityManager2.AspNetIdentity" Version="1.0.0-beta3" />
 		<PackageReference Include="Lib.AspNetCore.ServerTiming" Version="2.1.0" />
@@ -59,9 +63,10 @@
 		<Exec Command="npx gulp" />
 	</Target>
 
-	<!-- <ItemGroup>
-		<DotNetCliToolReference Include="Pomelo.Extensions.Caching.MySqlConfig.Tools" Version="2.0.2" />
-	</ItemGroup> -->
+	<ItemGroup>
+		<TrimmerRootAssembly Include="System.Threading.Tasks" />
+		<TrimmerRootAssembly Include="System.Net.WebProxy" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Caching-MySQL\src\Pomelo.Extensions.Caching.MySql\Pomelo.Extensions.Caching.MySql.csproj" />
@@ -72,12 +77,6 @@
 
 	<ItemGroup Condition="'$(Configuration)'=='Debug'">
 		<ProjectReference Include="..\DevReload\DevReload.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Content Update="client_secrets.json">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
 	</ItemGroup>
 
 </Project>
