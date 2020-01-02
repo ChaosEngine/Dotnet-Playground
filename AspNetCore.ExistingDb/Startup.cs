@@ -1,4 +1,4 @@
-﻿#if DEBUG
+#if DEBUG
 using Abiosoft.DotNet.DevReload;
 #endif
 using AspNetCore.ExistingDb.Helpers;
@@ -53,6 +53,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 	{
 		public IConfiguration Configuration { get; }
 
+		#region Main
+
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
 			.ConfigureWebHostDefaults(webBuilder =>
@@ -103,6 +105,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 			await host.RunAsync();
 		}
+
+		#endregion Main
 
 		public Startup(IConfiguration configuration)
 		{
