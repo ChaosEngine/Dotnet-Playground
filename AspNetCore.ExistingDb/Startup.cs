@@ -303,6 +303,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				// {
 				// 	policy.RequireAuthenticatedUser();
 				// };
+				options.LoginPath = "/dotnet/Identity/Account/Login";
+				options.LogoutPath = "/dotnet/Identity/Account/Logout";
+				options.RegisterPath = "/dotnet/Identity/Account/Register";
 			});
 
 
