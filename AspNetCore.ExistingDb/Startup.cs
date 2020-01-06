@@ -289,10 +289,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 			services.AddAuthorization(options =>
 			{
-				//options.FallbackPolicy = new AuthorizationPolicyBuilder()
-				//  //.RequireAuthenticatedUser()
-				//  .Build();
-
 				options.AddPolicy("RequireAdministratorRole",
 					policy => policy.RequireRole("Administrator"));
 			})
