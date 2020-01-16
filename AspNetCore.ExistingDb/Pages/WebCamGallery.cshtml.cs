@@ -6,6 +6,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Lib.AspNetCore.ServerTiming;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
@@ -21,7 +22,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 			{
 				return (base.User != null && base.User.IsInRole("Administrator"))
 					&& System.IO.File.Exists("client_secrets.json");
-			}	
+			}
 		}
 	}
 
@@ -37,6 +38,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 
 		public string LiveWebCamURL { get; }
 
+		public string YouTubePlaylistId { get; }
+
 		public Stopwatch Watch { get; }
 
 		public WebCamGallery(IConfiguration configuration, IServerTiming serverTiming)
@@ -49,6 +52,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 
 			BaseWebCamURL = configuration["BaseWebCamURL"];
 			LiveWebCamURL = configuration["LiveWebCamURL"];
+
+			YouTubePlaylistId = configuration["YouTubeAPI:playlistId"];
 		}
 
 		public void OnGet()
@@ -60,18 +65,29 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 			{
 				var di = new DirectoryInfo(_imageDirectory);
 
-				var files = di.EnumerateFiles("thumbnail*.jpg", SearchOption.TopDirectoryOnly);
-				ThumbnailJpgs = files.OrderByDescending(f => f.LastWriteTime)/*.Select(x => x.Name)*/;
+				ThumbnailJpgs = di.EnumerateFiles("thumbnail*.jpg", SearchOption.TopDirectoryOnly)
+					.OrderByDescending(f => f.LastWriteTime);
 
-				//files = di.EnumerateFiles("out*.jpg", SearchOption.TopDirectoryOnly);
-				//FullImageJpgs = files.OrderByDescending(f => f.LastWriteTime)/*.Select(x => x.Name)*/;
+				// FullImageJpgs = di.EnumerateFiles("out*.jpg", SearchOption.TopDirectoryOnly)
+				// 	.OrderByDescending(f => f.LastWriteTime);
 
 				FileInfo img = ThumbnailJpgs.FirstOrDefault();
 				if (img != null)
 				{
 					var expire_date = img.LastWriteTime.AddMinutes(10);
-					Response.Headers[HeaderNames.CacheControl] =
-						$"public,expires={expire_date.ToUniversalTime().ToString("R")}";
+					TimeSpan max_age = expire_date.Subtract(DateTime.Now);
+					if (max_age > TimeSpan.Zero)
+					{
+						Response.GetTypedHeaders().CacheControl =
+							new Microsoft.Net.Http.Headers.CacheControlHeaderValue
+							{
+								Public = true,
+								MaxAge = max_age
+							};
+					}
+					//before
+					// Response.Headers[HeaderNames.CacheControl] =
+					// 	$"public,expires={expire_date.ToUniversalTime().ToString("R")}";
 				}
 			}
 

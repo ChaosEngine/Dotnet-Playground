@@ -9,11 +9,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace AspNetCore.ExistingDb.Helpers
@@ -97,8 +97,7 @@ namespace AspNetCore.ExistingDb.Helpers
 						throw new HttpRequestException($"An error occurred when retrieving Google user information ({response.StatusCode}). Please check if the authentication information is correct and the corresponding Google+ API is enabled.");
 					}
 
-					var payload = JObject.Parse(await response.Content.ReadAsStringAsync());
-
+					var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync()).RootElement;
 					var context = new OAuthCreatingTicketContext(new ClaimsPrincipal(identity), properties, Context, Scheme, Options, Backchannel, tokens, payload);
 					context.RunClaimActions();
 
@@ -117,8 +116,9 @@ namespace AspNetCore.ExistingDb.Helpers
 			IUserClaimsPrincipalFactory<ApplicationUser> claimsFactory,
 			IOptions<IdentityOptions> optionsAccessor,
 			ILogger<SignInManager<ApplicationUser>> logger,
-			IAuthenticationSchemeProvider schemes
-			) : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes)
+			IAuthenticationSchemeProvider schemes,
+			IUserConfirmation<ApplicationUser> confirmation
+			) : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation)
 		{
 		}
 

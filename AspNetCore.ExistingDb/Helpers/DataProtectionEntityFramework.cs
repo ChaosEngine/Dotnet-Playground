@@ -57,15 +57,17 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			using (var scope = _services.CreateScope())
 			{
 				var context = scope.ServiceProvider.GetRequiredService<TContext>();
-				IHostingEnvironment env = scope.ServiceProvider.GetRequiredService<IHostingEnvironment>();
+				var env = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
 				if (env == null)
-					throw new ArgumentNullException(nameof(IHostingEnvironment));
+					throw new ArgumentNullException(nameof(IWebHostEnvironment));
 
 				string environment_like = $"{env.EnvironmentName}_%";
 
+				// Put logger in a local such that `this` isn't captured.
+				var logger = _logger; 
 				var found_keys = context.DataProtectionKeys.AsNoTracking()
 					.Where(w => EF.Functions.Like(w.FriendlyName, environment_like))
-					.Select(key => TryParseKeyXml(key.Xml)).ToList().AsReadOnly();
+					.Select(key => TryParseKeyXml(key.Xml, logger)).ToList().AsReadOnly();
 				return found_keys;
 			}
 		}
@@ -76,9 +78,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			using (var scope = _services.CreateScope())
 			{
 				var context = scope.ServiceProvider.GetRequiredService<TContext>();
-				IHostingEnvironment env = scope.ServiceProvider.GetRequiredService<IHostingEnvironment>();
+				var env = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
 				if (env == null)
-					throw new ArgumentNullException(nameof(IHostingEnvironment));
+					throw new ArgumentNullException(nameof(IWebHostEnvironment));
 
 				if (!Enum.TryParse<EnvEnum>(env.EnvironmentName, true, out var env_enum))
 					throw new NotSupportedException("bad env parsing");
@@ -96,7 +98,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			}
 		}
 
-		private XElement TryParseKeyXml(string xml)
+		private static XElement TryParseKeyXml(string xml, ILogger logger)
 		{
 			try
 			{
@@ -104,7 +106,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			}
 			catch (Exception e)
 			{
-				_logger?.LogExceptionWhileParsingKeyXml(xml, e);
+				logger?.LogExceptionWhileParsingKeyXml(xml, e);
 				return null;
 			}
 		}

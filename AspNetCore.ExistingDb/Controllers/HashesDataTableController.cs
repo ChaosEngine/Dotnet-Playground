@@ -3,7 +3,7 @@ using EFGetStarted.AspNetCore.ExistingDb.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+//using Newtonsoft.Json;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -24,8 +24,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 
 		private readonly ILogger<HashesDataTableController> _logger;
 		private readonly IHashesRepositoryPure _repo;
-		private static readonly JsonSerializerSettings _serializationSettings =
-			new JsonSerializerSettings { MetadataPropertyHandling = MetadataPropertyHandling.Ignore, Formatting = Formatting.None };
+		//private static readonly JsonSerializerSettings _serializationSettings =
+		//	new JsonSerializerSettings { MetadataPropertyHandling = MetadataPropertyHandling.Ignore, Formatting = Formatting.None };
 
 		#region Old code
 		/*private IQueryable<ThinHashes> BaseItems
@@ -96,14 +96,14 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 				if (input.ExtraParam == "cached" && found.Itemz.Count() > 0)
 				{
 					HttpContext.Response.GetTypedHeaders().CacheControl =
-						new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
+						new Microsoft.Net.Http.Headers.CacheControlHeaderValue
 						{
 							Public = true,
 							MaxAge = HashesRepository.HashesInfoExpirationInMinutes
 						};
 				}
 
-				return Json(result, _serializationSettings);
+				return Json(result/*, _serializationSettings*/);
 			}
 			catch (OperationCanceledException ex)
 			{

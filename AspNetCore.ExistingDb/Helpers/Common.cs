@@ -2,10 +2,14 @@
 using Abiosoft.DotNet.DevReload;
 #endif
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
+using System.Linq;
+using System.Text.Json;
 
 namespace EFGetStarted.AspNetCore.ExistingDb
 {
@@ -21,7 +25,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 	{
 		public static void Set<T>(this ISession session, string key, T value)
 		{
-			session.SetString(key, JsonConvert.SerializeObject(value));
+			session.SetString(key, JsonSerializer.Serialize(value));
 		}
 
 		public static T Get<T>(this ISession session, string key)
@@ -30,7 +34,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 			return value == null ?
 				default(T) :
-				JsonConvert.DeserializeObject<T>(value);
+				JsonSerializer.Deserialize<T>(value);
 		}
 	}
 
@@ -38,7 +42,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 	{
 		public static void Put<T>(this ITempDataDictionary tempData, string key, T value) where T : class
 		{
-			tempData[key] = JsonConvert.SerializeObject(value);
+			tempData[key] = JsonSerializer.Serialize(value);
 		}
 
 		public static T Get<T>(this ITempDataDictionary tempData, string key) where T : class
@@ -47,7 +51,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			tempData.TryGetValue(key, out value);
 			return value == null ?
 				default(T) :
-				JsonConvert.DeserializeObject<T>((string)value);
+				JsonSerializer.Deserialize<T>((string)value);
 		}
 	}
 
@@ -61,8 +65,71 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		}
 	}
 
+    static class MvcOptionsExtensions
+    {
+        class RouteConvention<T> : IApplicationModelConvention
+            where T : Controller
+        {
+            private readonly IRouteTemplateProvider _routeTemplateProvider;
+
+            public RouteConvention(IRouteTemplateProvider routeTemplateProvider)
+            {
+                _routeTemplateProvider = routeTemplateProvider;
+            }
+
+            public void Apply(ApplicationModel application)
+            {
+                var matchedSelectors = application.Controllers.FirstOrDefault(c => c.ControllerType == typeof(T))?.Selectors;
+                if (matchedSelectors != null && matchedSelectors.Any())
+                {
+                    var centralPrefix = new AttributeRouteModel(_routeTemplateProvider);
+                    foreach (var selectorModel in matchedSelectors)
+                    {
+                        selectorModel.AttributeRouteModel = AttributeRouteModel.CombineAttributeRouteModel(centralPrefix,
+                            selectorModel.AttributeRouteModel);
+                    }
+                }
+            }
+        }
+
+        /*class PageConvention : IPageConvention
+        {
+            private readonly IRouteTemplateProvider _routeTemplateProvider;
+
+            public PageConvention(IRouteTemplateProvider routeTemplateProvider)
+            {
+                _routeTemplateProvider = routeTemplateProvider;
+            }
+
+            public void Apply(ApplicationModel application)
+            {
+                var matchedSelectors = application.Controllers.FirstOrDefault(c => c.ControllerType == typeof(PageController))?.Selectors;
+                if (matchedSelectors != null && matchedSelectors.Any())
+                {
+                    var centralPrefix = new AttributeRouteModel(_routeTemplateProvider);
+                    foreach (var selectorModel in matchedSelectors)
+                    {
+                        selectorModel.AttributeRouteModel = AttributeRouteModel.CombineAttributeRouteModel(centralPrefix,
+                            selectorModel.AttributeRouteModel);
+                    }
+                }
+            }
+        }*/
+
+        public static void UseCentralRoutePrefix<T>(this MvcOptions opts, IRouteTemplateProvider routeAttribute)
+            where T : Controller
+        {
+            opts.Conventions.Insert(0, new RouteConvention<T>(routeAttribute));
+        }
+
+        /*public static void UseCentralRoutePrefix(this RazorPagesOptions opts, IRouteTemplateProvider routeAttribute)
+		{
+			opts.Conventions.Insert(0, new PageConvention(routeAttribute));
+		}*/
+    }
+
 #if DEBUG
-	public sealed class MyDevReloadOptions : DevReloadOptions
+    public sealed class MyDevReloadOptions : DevReloadOptions
 	{
 		public MyDevReloadOptions()
 		{
@@ -72,7 +139,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			MaxConnectionFailedCount = 20;
 			CheckIntervalDelay = 2000;
 			PopoutHtmlTemplate = @"<div id='reload' class='toast' role='alert' aria-live='assertive' aria-atomic='true'
-	data-autohide='false' data-animation='true' style='position: absolute; top: 0; right: 0; z-index: 9999'>
+	data-autohide='false' data-animation='true' style='position:absolute; top:0; right:0; z-index:9999; display:none'>
   <div class='toast-header'>
     <svg class='bd-placeholder-img rounded mr-2' width='20' height='20' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMidYMid slice' focusable='false' role='img'><rect width = '100%' height='100%' fill='red'></rect></svg>
     <strong class='mr-auto'>DevReload</strong>
@@ -88,7 +155,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 <script>
 	$('#reload').toast('hide');
 </script>";
-			TemplateActivationJSFragment = @"$('#reload').toast('show');";
+			TemplateActivationJSFragment = @"$('#reload').show().toast('show');";
 		}
 	}
 #endif

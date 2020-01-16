@@ -244,7 +244,7 @@ namespace RazorPages
 			{
 				return new List<Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric>();
 			});
-			var environment_mock = new Moq.Mock<IHostingEnvironment>();
+			var environment_mock = new Moq.Mock<IWebHostEnvironment>();
 			environment_mock.SetupGet(m => m.WebRootPath).Returns(() =>
 			{
 				return Path.Combine(ContentRoot, "wwwroot");

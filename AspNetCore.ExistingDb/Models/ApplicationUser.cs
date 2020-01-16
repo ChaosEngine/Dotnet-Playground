@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 using InkBall.Module.Model;
 using Microsoft.AspNetCore.Identity;
-using Newtonsoft.Json;
 
 namespace IdentitySample.DefaultUI.Data
 {
@@ -20,13 +20,13 @@ namespace IdentitySample.DefaultUI.Data
 		{
 			get
 			{
-				return JsonConvert.DeserializeObject<ApplicationUserSettings>(UserSettingsJSON ?? "",
-					new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+				return JsonSerializer.Deserialize<ApplicationUserSettings>(UserSettingsJSON ?? "{}",
+					new JsonSerializerOptions { IgnoreNullValues = true });
 			}
 			set
 			{
-				UserSettingsJSON = JsonConvert.SerializeObject(value,
-					new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+				UserSettingsJSON = JsonSerializer.Serialize(value,
+					new JsonSerializerOptions { IgnoreNullValues = true });
 			}
 		}
 
