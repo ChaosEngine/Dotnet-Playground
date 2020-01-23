@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<VersionPrefix>1.0.4-custom</VersionPrefix>
 		<TargetFramework>netcoreapp3.1</TargetFramework>
-		<LangVersion>7.3</LangVersion>
+		<LangVersion>latest</LangVersion>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 		<AssemblyName>AspNetCore.ExistingDb</AssemblyName>
 		<OutputType>Exe</OutputType>
