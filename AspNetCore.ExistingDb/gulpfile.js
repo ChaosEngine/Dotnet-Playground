@@ -1,5 +1,4 @@
-﻿/// <binding Clean='clean' />
-/*global require*/
+﻿/*global require*/
 "use strict";
 
 const gulp = require("gulp"),
