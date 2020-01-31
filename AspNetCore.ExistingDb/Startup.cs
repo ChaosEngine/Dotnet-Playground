@@ -44,6 +44,7 @@ using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using IdentityManager2.Api.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using MessagePack;
 
 //[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
 
@@ -73,10 +74,15 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			});
 
 		static async Task Main(string[] args)
-		{
+		{			
+			// Adding following lines in order to mitigate:
+			// https://github.com/aspnet/Announcements/issues/405
+			// https://github.com/neuecc/MessagePack-CSharp/security/advisories/GHSA-7q36-4xx7-xcxf
+			// Enable additional security in MessagePack to handle untrusted data.
+			MessagePackSecurity.Active = MessagePackSecurity.UntrustedData;
+			
+			
 			//await CreateHostBuilder(args).Build().RunAsync();
-
-
 			var host = new HostBuilder()
 				.UseContentRoot(Directory.GetCurrentDirectory())
 				.ConfigureAppConfiguration((hostingContext, config) =>
