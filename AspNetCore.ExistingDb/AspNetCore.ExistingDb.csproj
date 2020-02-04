@@ -34,7 +34,7 @@
 		<PackageReference Include="Bogus" Version="28.4.4" />
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration" Version="3.1.1" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.1" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.1" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.1.1" />
 		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="3.1.1" />
 		<PackageReference Include="Oracle.EntityFrameworkCore" Version="2.19.60" />
 		<PackageReference Include="IdentityManager2.AspNetIdentity" Version="1.0.0" />
@@ -45,7 +45,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="3.1.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="3.1.1" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="3.1.1" />
-		<PackageReference Include="MessagePack" Version="1.9.3" />
+		<PackageReference Include="MessagePack" Version="[1.9.3, 2.0.0)" />
 		<PackageReference Include="RedHat.AspNetCore.Server.Kestrel.Transport.Linux" Version="3.0.0-*" />
 	</ItemGroup>
 

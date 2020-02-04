@@ -296,6 +296,9 @@
 
 				var urlCreator = window.URL || window.webkitURL;
 				var imageUrl = urlCreator.createObjectURL(blob);
+				img.onload = function() {
+					urlCreator.revokeObjectURL(this.src);
+				}
 				img.src = imageUrl;
 				img.setAttribute('data-last-modified', hdr_last_modified);
 
