@@ -128,10 +128,10 @@ $(function () {
 	}
 
 	function updateOnlineStatus() {
-		let offlineIndicator = $("#offlineIndicator");
+		const offlineIndicator = $("#offlineIndicator");
 
 		if (offlineIndicator !== undefined) {
-			let condition = navigator.onLine ? "Online" : "Offline";
+			const condition = navigator.onLine ? "Online" : "Offline";
 			offlineIndicator.html(condition);
 			offlineIndicator.show();
 		}
