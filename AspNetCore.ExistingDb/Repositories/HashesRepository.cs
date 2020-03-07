@@ -10,7 +10,9 @@ using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using Npgsql;
 using NpgsqlTypes;
+#if INCLUDE_ORACLE
 using Oracle.ManagedDataAccess.Client;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -691,6 +693,7 @@ LIMIT @limit OFFSET @offset
 			}//end using
 		}
 
+#if INCLUDE_ORACLE
 		/// <summary>
 		/// Searches the oracle asynchronous.
 		/// </summary>
@@ -807,6 +810,7 @@ OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 				return (found, count);
 			}//end using
 		}
+#endif
 
 		/// <summary>
 		/// Searches the asynchronous.
@@ -848,8 +852,10 @@ OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 							return await PagedSearchSqliteAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
 						case "npsqlconnection":
 							return await PagedSearchPostgresAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
+#if INCLUDE_ORACLE
 						case "oracleconnection":
 							return await PagedSearchOracleAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
+#endif
 						default:
 							throw new NotSupportedException($"Bad {nameof(BloggingContext.ConnectionTypeName)} name");
 					}
@@ -871,7 +877,7 @@ OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 					if (_entities.ConnectionTypeName == "mysqlconnection")
 					{
 						trans = await _entities.Database.BeginTransactionAsync(IsolationLevel.ReadUncommitted, token);
-						await _entities.Database.ExecuteSqlCommandAsync("SET SESSION SQL_BIG_SELECTS=1;", token);
+						await _entities.Database.ExecuteSqlRawAsync("SET SESSION SQL_BIG_SELECTS=1;", token);
 					}
 
 					if (!string.IsNullOrEmpty(searchText))
@@ -945,7 +951,7 @@ OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 						hi = new HashesInfo { ID = 0, IsCalculating = true };
 
 						if (db.ConnectionTypeName == "mysqlconnection")
-							await db.Database.ExecuteSqlCommandAsync("SET SQL_BIG_SELECTS=1", token);
+							await db.Database.ExecuteSqlRawAsync("SET SQL_BIG_SELECTS=1", token);
 						await db.HashesInfo.AddAsync(hi, token);
 						await db.SaveChangesAsync(true, token);
 						//temporary save to static to indicate calculation and block new calcultion threads
@@ -957,7 +963,7 @@ OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 						});
 
 						var alphabet = (from h in db.ThinHashes
-										select h.Key.First()
+										select h.Key.Substring(0, 1)
 										).Distinct()
 										.OrderBy(o => o);
 						var count = await db.ThinHashes.CountAsync(token);
@@ -1035,14 +1041,14 @@ OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 					if (hi.Kind == KindEnum.MD5)
 					{
 						search.Size = 32;
-						found = await _entities.ThinHashes.FromSql("SELECT h.* FROM \"Hashes\" h WHERE h.\"hashMD5\" = @search", search)
+						found = await _entities.ThinHashes.FromSqlRaw("SELECT h.* FROM \"Hashes\" h WHERE h.\"hashMD5\" = @search", search)
 							.FirstOrDefaultAsync()
 							?? new ThinHashes { Key = _NOTHING_FOUND_TEXT };
 					}
 					else
 					{
 						search.Size = 64;
-						found = await _entities.ThinHashes.FromSql("SELECT h.* FROM \"Hashes\" h WHERE h.\"hashSHA256\" = @search", search)
+						found = await _entities.ThinHashes.FromSqlRaw("SELECT h.* FROM \"Hashes\" h WHERE h.\"hashSHA256\" = @search", search)
 							.FirstOrDefaultAsync()
 							?? new ThinHashes { Key = _NOTHING_FOUND_TEXT };
 					}

@@ -1,5 +1,4 @@
-﻿/// <binding Clean='clean' />
-/*global require*/
+﻿/*global require*/
 "use strict";
 
 const gulp = require("gulp"),
@@ -25,8 +24,10 @@ var paths = {
 
 ////////////// [Inkball Section] //////////////////
 const babelTranspilerFunction = function (min) {
-	let tunnel = gulp.src('../InkBall/src/InkBall.Module/wwwroot/js/inkball.js')
-		.pipe(babel({
+	let tunnel = gulp.src([
+		'../InkBall/src/InkBall.Module/wwwroot/js/inkball.js',
+		'../InkBall/src/InkBall.Module/wwwroot/js/svgvml.js'
+		]).pipe(babel({
 			"presets":
 				[
 					["@babel/preset-env", { "useBuiltIns": "entry", "corejs": 3 }]

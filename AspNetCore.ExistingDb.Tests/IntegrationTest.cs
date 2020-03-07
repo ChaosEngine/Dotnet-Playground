@@ -4,7 +4,6 @@ using EFGetStarted.AspNetCore.ExistingDb.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +11,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Mime;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Xunit;
@@ -321,6 +321,12 @@ namespace Integration
 	[Collection(nameof(TestServerCollection))]
 	public class HashesDataTablePage
 	{
+		class TypedResult
+		{
+			public int total { get; set; }
+			public string[][] rows { get; set; }
+		};
+
 		private readonly TestServerFixture<Startup> _fixture;
 		private readonly HttpClient _client;
 
@@ -381,14 +387,15 @@ namespace Integration
 					Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
 					var jsonString = await response.Content.ReadAsStringAsync();
-					var typed_result = new
+
+					var typed_result = new TypedResult
 					{
 						total = 1,
 						rows = new string[][] { }
 					};
 
 					// Deserialize JSON String into concrete class
-					var data = JsonConvert.DeserializeObject(jsonString, typed_result.GetType()) as dynamic;
+					var data = JsonSerializer.Deserialize<TypedResult>(jsonString);
 					Assert.IsType(typed_result.GetType(), data);
 					Assert.IsAssignableFrom<IEnumerable<string[]>>(data.rows);
 
@@ -397,7 +404,7 @@ namespace Integration
 
 					if (data.rows.Length > 0)
 					{
-						Assert.NotNull(data.rows[0][0].StartsWith(search));
+						Assert.StartsWith(search, data.rows[0][0]);
 
 						if (query_input.TryGetValue("ExtraParam", out string value) && value == "cached")
 						{
@@ -750,14 +757,14 @@ namespace Integration
 		{
 			// Arrange
 			// Act
-			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}assets/Templates.index.html"))
+			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}assets/Templates.home.html"))
 			{
 				// Assert
 				response.EnsureSuccessStatusCode();
 
 				var responseString = await response.Content.ReadAsStringAsync();
-				Assert.Contains("<title>IdentityManager 2</title>", responseString);
-				Assert.Contains("<script src=\"{pathBase}/assets/Scripts.Bundle.js\"></script>", responseString);
+				Assert.Contains("IdentityManager2", responseString);
+				Assert.Contains("PathBase", responseString);
 			}
 		}
 	}

@@ -116,13 +116,22 @@ $(function () {
 
 	registerServiceWorker(g_AppRootPath);
 
-
+	//if we're not seeing logoutForm form - disable seure/authorized links
+	if (document.getElementById("logoutForm") === null) {
+		["aInkList", "aInkGame", "aInkGameHigh"].forEach(function (link2disable) {
+			let el = document.getElementById(link2disable);
+			el.removeAttribute("href");
+			el.setAttribute("tabindex", "-1");
+			el.setAttribute("aria-disabled", "true");
+			el.classList.add("disabled");
+		});
+	}
 
 	function updateOnlineStatus() {
-		let offlineIndicator = $("#offlineIndicator");
+		const offlineIndicator = $("#offlineIndicator");
 
 		if (offlineIndicator !== undefined) {
-			let condition = navigator.onLine ? "Online" : "Offline";
+			const condition = navigator.onLine ? "Online" : "Offline";
 			offlineIndicator.html(condition);
 			offlineIndicator.show();
 		}
