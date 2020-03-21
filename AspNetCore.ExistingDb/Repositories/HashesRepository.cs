@@ -10,7 +10,9 @@ using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using Npgsql;
 using NpgsqlTypes;
+#if INCLUDE_ORACLE
 using Oracle.ManagedDataAccess.Client;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -691,6 +693,7 @@ LIMIT @limit OFFSET @offset
 			}//end using
 		}
 
+#if INCLUDE_ORACLE
 		/// <summary>
 		/// Searches the oracle asynchronous.
 		/// </summary>
@@ -807,6 +810,7 @@ OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 				return (found, count);
 			}//end using
 		}
+#endif
 
 		/// <summary>
 		/// Searches the asynchronous.
@@ -848,8 +852,10 @@ OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 							return await PagedSearchSqliteAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
 						case "npsqlconnection":
 							return await PagedSearchPostgresAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
+#if INCLUDE_ORACLE
 						case "oracleconnection":
 							return await PagedSearchOracleAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
+#endif
 						default:
 							throw new NotSupportedException($"Bad {nameof(BloggingContext.ConnectionTypeName)} name");
 					}

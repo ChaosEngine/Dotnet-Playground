@@ -11,6 +11,11 @@ var logLevel = {
 
 var g_LogPath = g_AppRootPath + "Home/ClientsideLog";
 
+Array.prototype.slice.call(document.querySelectorAll("nav.navbar")).forEach(function (el) {
+	el.classList.remove("bg-dark");
+	el.classList.add(window.location.host.match(/:\d+/) !== null ? 'bg-dark-development' : 'bg-dark-production');
+});
+
 function ajaxLog(level, message, url, line, col, error) {
 	$.post(g_LogPath, {
 		"level": level, "message": message, "url": url, "line": line, "col": col, "error": error
@@ -127,11 +132,12 @@ $(function () {
 		});
 	}
 
+
 	function updateOnlineStatus() {
-		let offlineIndicator = $("#offlineIndicator");
+		const offlineIndicator = $("#offlineIndicator");
 
 		if (offlineIndicator !== undefined) {
-			let condition = navigator.onLine ? "Online" : "Offline";
+			const condition = navigator.onLine ? "Online" : "Offline";
 			offlineIndicator.html(condition);
 			offlineIndicator.show();
 		}

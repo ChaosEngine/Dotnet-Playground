@@ -59,3 +59,16 @@ body {
 	color: white;
 	display: none;
 }
+
+/*Hashes and VirtualScroll*/
+.bootstrap-table button.btn .fa-sync:after {
+	content: '↻';
+	display: block;
+	font-style: normal;
+	font-weight: bold;
+}
+
+.bootstrap-table table tr.highlight {
+	border-top: groove;
+	border-bottom: groove;
+}
