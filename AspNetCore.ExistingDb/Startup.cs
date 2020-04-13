@@ -437,16 +437,16 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				app.UseDeveloperExceptionPage();
 #if DEBUG
 				if(!System.Diagnostics.Debugger.IsAttached)
-					app.UseDevReload(new MyDevReloadOptions());
+					app.UseDevReload(new MyDevReloadOptions(Configuration["AppRootPath"]));
 #endif
-				//app.UseExceptionHandler("/dotnet/Home/Error");
+				//app.UseExceptionHandler(Configuration["AppRootPath"] + "Home/Error");
 				//app.UseBrowserLink();
 			}
 			else
 			{
-				app.UseExceptionHandler("/dotnet/Home/Error");
+				app.UseExceptionHandler(Configuration["AppRootPath"] + "Home/Error");
 			}
-			app.UseStatusCodePagesWithReExecute("/dotnet/Home/Error/{0}");
+			app.UseStatusCodePagesWithReExecute(Configuration["AppRootPath"] + "Home/Error/{0}");
 #if DEBUG
 			if (env.IsDevelopment())
 				app.UseHttpsRedirection();

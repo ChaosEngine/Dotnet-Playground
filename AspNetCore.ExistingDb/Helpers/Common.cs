@@ -131,9 +131,10 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 #if DEBUG
     public sealed class MyDevReloadOptions : DevReloadOptions
 	{
-		public MyDevReloadOptions()
+		public MyDevReloadOptions(string appRootPath)
 		{
-			Directory = "./";
+            DevReloadPath = appRootPath + "js/__DevReload";
+            Directory = "./";
 			IgnoredSubDirectories = new string[] { ".git", ".node_modules", "bin", "obj" };
 			StaticFileExtensions = new string[] { "css", "js", "html", "cshtml" };
 			MaxConnectionFailedCount = 20;

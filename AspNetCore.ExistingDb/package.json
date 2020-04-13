@@ -1,6 +1,6 @@
 {
 	"name": "aspnetcore.existingdb",
-	"version": "1.0.3-custom",
+	"version": "1.0.4-custom",
 	"private": true,
 	"eslintConfig": {
 		"env": {
@@ -51,7 +51,7 @@
 	"devDependencies": {
 		"@babel/core": "7.9.0",
 		"@babel/plugin-transform-runtime": "7.9.0",
-		"@babel/preset-env": "7.9.0",
+		"@babel/preset-env": "7.9.5",
 		"eslint": "6.8.0",
 		"fs-extra": "9.0.0",
 		"gulp": "4.0.2",
@@ -77,6 +77,6 @@
 		"msgpack5": "4.2.1"
 	},
 	"scripts": {
-		"postinstall": "node -e \"require('fs-extra').copySync('node_modules/bootstrap', 'wwwroot/lib/bootstrap'); require('fs-extra').copySync('node_modules/bootstrap-table', 'wwwroot/lib/bootstrap-table'); require('fs-extra').copySync('node_modules/node-forge', 'wwwroot/lib/forge'); require('fs-extra').copySync('node_modules/jquery', 'wwwroot/lib/jquery'); require('fs-extra').copySync('node_modules/jquery-validation', 'wwwroot/lib/jquery-validation'); require('fs-extra').copySync('node_modules/jquery-validation-unobtrusive', 'wwwroot/lib/jquery-validation-unobtrusive'); require('fs-extra').copySync('node_modules/blueimp-gallery', 'wwwroot/lib/blueimp-gallery'); require('fs-extra').copySync('node_modules/video.js', 'wwwroot/lib/video.js'); require('fs-extra').copySync('node_modules/qrcodejs', 'wwwroot/lib/qrcodejs'); require('fs-extra').copySync('node_modules/@microsoft/signalr', 'wwwroot/lib/signalr'); require('fs-extra').copySync('node_modules/@microsoft/signalr-protocol-msgpack', 'wwwroot/lib/signalr-protocol-msgpack'); require('fs-extra').copySync('node_modules/msgpack5', 'wwwroot/lib/msgpack5');\""
+		"postinstall": "node -e \"var fs = require('fs-extra'); fs.copy('node_modules/bootstrap', 'wwwroot/lib/bootstrap'); fs.copy('node_modules/bootstrap-table', 'wwwroot/lib/bootstrap-table'); fs.copy('node_modules/node-forge', 'wwwroot/lib/forge'); fs.copy('node_modules/jquery', 'wwwroot/lib/jquery'); fs.copy('node_modules/jquery-validation', 'wwwroot/lib/jquery-validation'); fs.copy('node_modules/jquery-validation-unobtrusive', 'wwwroot/lib/jquery-validation-unobtrusive'); fs.copy('node_modules/blueimp-gallery', 'wwwroot/lib/blueimp-gallery'); fs.copy('node_modules/video.js', 'wwwroot/lib/video.js'); fs.copy('node_modules/qrcodejs', 'wwwroot/lib/qrcodejs'); fs.copy('node_modules/@microsoft/signalr', 'wwwroot/lib/signalr'); fs.copy('node_modules/@microsoft/signalr-protocol-msgpack', 'wwwroot/lib/signalr-protocol-msgpack'); fs.copy('node_modules/msgpack5', 'wwwroot/lib/msgpack5');\""
 	}
 }
