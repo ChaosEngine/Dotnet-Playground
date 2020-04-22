@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
-		<VersionPrefix>1.0.4-custom</VersionPrefix>
+    <Version>1.0.5-custom</Version>
 		<TargetFramework>netcoreapp3.1</TargetFramework>
 		<LangVersion>latest</LangVersion>
 		<PreserveCompilationContext>true</PreserveCompilationContext>

@@ -1,6 +1,8 @@
 ﻿/* eslint-disable no-console */
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate|registerServiceWorker" }]*/
 /*global g_AppRootPath forge*/
+"use strict";
+
 var logLevel = {
 	Trace: 0,
 	Debug: 1,
@@ -121,7 +123,7 @@ $(function () {
 
 	registerServiceWorker(g_AppRootPath);
 
-	//if we're not seeing logoutForm form - disable seure/authorized links
+	//if we're not seeing logoutForm form - disable secure/authorized links
 	if (document.getElementById("logoutForm") === null) {
 		["aInkList", "aInkGame", "aInkGameHigh"].forEach(function (link2disable) {
 			let el = document.getElementById(link2disable);
