@@ -94,7 +94,7 @@
 	{
   		<div class="tab-pane active" id="live-tab" role="tabpanel" aria-labelledby="live-tab">
 			<a onclick="RefreshLiveImage()" title='live'>
-				<img id='live' alt='live' class="img-fluid" src="~/WebCamImages/?handler=live" data-last-modified="" />
+				<img id='live' alt='live' class="img-fluid" data-last-modified="" />
 			</a>
 		</div>
 	}
@@ -133,7 +133,7 @@
 				if (i++ < 7)
 				{
 					<a href="~/WebCamImages/@full" title="@jpg.LastWriteTime.ToString("u")">
-						<img src="~/WebCamImages/@thumbnail" alt="@thumbnail" class='active' onmouseover='ReplImg(this);' />
+						<img alt="@thumbnail" class='active' onmouseover='ReplImg(this);' />
 					</a>
 				}
 				else
@@ -172,9 +172,10 @@
 				asp-fallback-src="~/lib/video.js/dist/video.min.js"
 				asp-fallback-test="window.jQuery && videojs.options"></script>
 	</environment>
-	<script type="text/javascript">
+    <script type="text/javascript">
 		$(document).ready(function () {
 
+			//bluimp-gallery handling
 			$('#links').click(function (event) {
 				event = event || window.event;
 				const target = event.target || event.srcElement,
@@ -192,7 +193,7 @@
 			});
 
 			$(".inactive").each(function (index, value) {
-				value.src = '@Conf.AppRootPath()images/no_img.gif';
+                value.src = g_AppRootPath + 'images/no_img.gif';
 			});
 
 			$('#btnReplAllImg').click(function (event) {
@@ -207,22 +208,36 @@
 				if (tab !== undefined)
 					tab.tab('show');
 
-				if (name === '#gallery-tab')
+				if (name === '#gallery-tab') {
 					$('#btnReplAllImg').prop('disabled', false);
+					LoadFirstGallerImages();
+                }
 				else
 					$('#btnReplAllImg').prop('disabled', true);
 			}
 			else
 				$('#btnReplAllImg').prop('disabled', true);
+            const liveImgAddr = g_AppRootPath + 'WebCamImages/?handler=live';
 			if($("#myTab a[href='#gallery-tab']").hasClass('active'))
 			{
 				$('#btnReplAllImg').prop('disabled', false);
+				LoadFirstGallerImages();
+			}
+			else if($("#myTab a[href='#live-tab']").hasClass('active'))
+			{
+                $('#live').attr('src', liveImgAddr);
 			}
 			$("#myTab a").on('click', function (e) {
 				if (e.target.hash !== undefined)
 				{
-					if(e.target.hash.indexOf('gallery-tab') !== -1)
+					if (e.target.hash.indexOf('gallery-tab') !== -1) {
 						$('#btnReplAllImg').prop('disabled', false);
+						LoadFirstGallerImages();
+                    }
+                    else if (e.target.hash.indexOf('live-tab') !== -1) {
+                        $('#live').attr('src', liveImgAddr);
+						$('#btnReplAllImg').prop('disabled', true);
+                    }
 					else
 						$('#btnReplAllImg').prop('disabled', true);
 
@@ -251,6 +266,16 @@
 				$('#secretAction').hide();
 			}
 		});
+
+		function LoadFirstGallerImages()
+		{
+            $('img.active:not([src])').each(function (index, value) {
+				const img = $(value);
+				const alt = img.attr('alt');
+                if (alt && alt !== 'no img')
+					img.attr('src', g_AppRootPath + 'WebCamImages/' + alt);
+            });
+        }
 
 		function ReplImg(el)
 		{
@@ -283,7 +308,7 @@
 			var xhr = new XMLHttpRequest();
 			// Use JSFiddle logo as a sample image to avoid complicating
 			// this example with cross-domain issues.
-			xhr.open("GET", "@Conf.AppRootPath()WebCamImages/?handler=live", true);
+			xhr.open("GET", g_AppRootPath + "WebCamImages/?handler=live", true);
 			xhr.setRequestHeader('Cache-Control', 'no-cache');
 			// Ask for the result as an ArrayBuffer.
 			xhr.responseType = "arraybuffer";
@@ -343,7 +368,7 @@
 					'<th scope="col">Date</th>' +
 				'</tr></thead><caption>Loading...</caption><tbody></tbody>'
 			);
-				
+
 			$.ajax({
 				method: 'POST',
 				url: 'AnnualTimelapse/?handler=SecretAction',
@@ -379,7 +404,7 @@
 			});
 		}
 
-	</script>
+    </script>
 }
 @{ 
 	serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("view", Model.Watch.ElapsedMilliseconds, "after view is generated"));
