@@ -21,7 +21,8 @@ function immediateActions() {
 	});
 
 	//append version to footer
-	document.getElementById('spVersion').textContent = g_Version;
+	if (g_Version && g_Version !== 'PROJECT_VERSION')
+		document.getElementById('spVersion').textContent = ", Version: " + g_Version;
 }
 
 immediateActions();
