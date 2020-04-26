@@ -92,9 +92,9 @@ $.fn.bindFirst = function (name, fn) {
  * @param {string} rootPath is a path of all pages after FQDN name (ex. https://foo-bar.com/rootPath) or '/' if no root path
  * @param {string} version is a whole site version
  */
-function registerServiceWorker(rootPath, version) {
+function registerServiceWorker(rootPath/*, version*/) {
 	if ('serviceWorker' in navigator) {
-		const swUrl = rootPath + 'sw.min.js?domain=' + encodeURIComponent(rootPath) + '&version=' + encodeURIComponent(version);
+		const swUrl = rootPath + 'sw.min.js?domain=' + encodeURIComponent(rootPath)/* + '&version=' + encodeURIComponent(version)*/;
 
 		navigator.serviceWorker
 			.register(swUrl, { scope: rootPath })
@@ -113,8 +113,8 @@ function updateOnlineStatus() {
 	const offlineIndicator = $("#offlineIndicator");
 
 	if (offlineIndicator !== undefined) {
-		const condition = navigator.onLine ? "Online" : "Offline";
-		offlineIndicator.html(condition);
+		const state = navigator.onLine ? "Online" : "Offline";
+		offlineIndicator.html(state);
 		offlineIndicator.show();
 	}
 }
