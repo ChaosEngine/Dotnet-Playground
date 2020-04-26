@@ -9,30 +9,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-	<meta name="Description" content="Dotnet core examples, tests and experiments pages" />
-	<link rel="manifest" href="~/manifest.json" />
-	<link rel="icon" type="image/x-icon" href="~/images/favicon.png" />
-	<title>@ViewData["Title"] - @Conf["AppTitleName"]</title>
-	<environment include="Development">
-		<meta name="theme-color" content="darkslateblue" />
-		<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-		<link rel="stylesheet" href="~/css/site.css" />
-		@if(!System.Diagnostics.Debugger.IsAttached)
-		{
-		<devreload></devreload>
-		}
-	</environment>
-	<environment exclude="Development">
-		<meta name="theme-color" content="darkred" />
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha256-L/W5Wfqfa0sdBNIKN9cG6QA5F2qx4qICmU2VgLruv9Y=" crossorigin="anonymous"
-			  asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
-			  asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
-		<link rel="stylesheet" href="~/css/site.min.css" asp-append-version="false" />
-	</environment>
-	@RenderSection("headElements", required: false)
-	@*@Html.Raw(JavaScriptSnippet.FullScript)*@
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="Description" content="Dotnet core examples, tests and experiments pages" />
+    <link rel="manifest" href="~/manifest.json" />
+    <link rel="icon" type="image/x-icon" href="~/images/favicon.png" />
+    <link rel="apple-touch-icon" href="~/images/favicon.png" />
+    <title>@ViewData["Title"] - @Conf["AppTitleName"]</title>
+    <environment include="Development">
+        <meta name="theme-color" content="darkslateblue" />
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="~/css/site.css" />
+        @if (!System.Diagnostics.Debugger.IsAttached)
+        {
+            <devreload></devreload>
+        }
+    </environment>
+    <environment exclude="Development">
+        <meta name="theme-color" content="darkred" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha256-L/W5Wfqfa0sdBNIKN9cG6QA5F2qx4qICmU2VgLruv9Y=" crossorigin="anonymous"
+              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
+        <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="false" />
+    </environment>
+    @RenderSection("headElements", required: false)
+    @*@Html.Raw(JavaScriptSnippet.FullScript)*@
 </head>
 <body>
     <header>

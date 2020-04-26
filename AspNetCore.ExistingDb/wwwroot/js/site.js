@@ -93,7 +93,8 @@ $.fn.bindFirst = function (name, fn) {
  * @param {string} version is a whole site version
  */
 function registerServiceWorker(rootPath/*, version*/) {
-	if ('serviceWorker' in navigator) {
+	if ('serviceWorker' in navigator &&
+		(navigator.serviceWorker.controller === null || navigator.serviceWorker.controller.state !== "activated")) {
 		const swUrl = rootPath + 'sw.min.js?domain=' + encodeURIComponent(rootPath)/* + '&version=' + encodeURIComponent(version)*/;
 
 		navigator.serviceWorker
