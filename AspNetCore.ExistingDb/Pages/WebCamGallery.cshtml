@@ -199,11 +199,28 @@
 			$('#btnReplAllImg').click(function (event) {
 				ReplAllImg();
 			});
+            const liveImgAddr = g_AppRootPath + 'WebCamImages/?handler=live';
 
+            window.onpopstate = function (event) {
+				//console.log("location: " + document.location + ", state: " + JSON.stringify(event.state));
+				const name = (event.state ? event.state.foo : location.hash) || "#live-tab";
+                const tab = $("#myTab a[href='" + name + "']");
+                if (tab !== undefined)
+                    tab.tab('show');
 
-			if(location.search !== undefined && location.search.length > 0)
+                if (name === '#gallery-tab') {
+                    $('#btnReplAllImg').prop('disabled', false);
+                    LoadFirstGallerImages();
+				}
+                else if (name === '#live-tab') {
+                    $('#live').attr('src', liveImgAddr);
+				}
+                else
+                    $('#btnReplAllImg').prop('disabled', true);
+            };
+            if (location.hash !== undefined && location.hash.length > 0)
 			{
-				const name = location.search.replace('?', '#');
+                const name = location.hash;
 				const tab = $("#myTab a[href='" + name + "']");
 				if (tab !== undefined)
 					tab.tab('show');
@@ -217,7 +234,6 @@
 			}
 			else
 				$('#btnReplAllImg').prop('disabled', true);
-            const liveImgAddr = g_AppRootPath + 'WebCamImages/?handler=live';
 			if($("#myTab a[href='#gallery-tab']").hasClass('active'))
 			{
 				$('#btnReplAllImg').prop('disabled', false);
@@ -241,7 +257,7 @@
 					else
 						$('#btnReplAllImg').prop('disabled', true);
 
-					const addr = e.target.hash.replace('#', '?');
+					const addr = e.target.hash;
 					let stateObj = {
 						foo: addr
 					};
