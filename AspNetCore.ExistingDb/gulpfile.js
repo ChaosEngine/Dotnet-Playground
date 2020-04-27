@@ -20,6 +20,8 @@ var paths = {
 	css: webroot + "css/**/*.css",
 	minCss: webroot + "css/**/*.min.css",
 	concatJsDest: webroot + "js/site.min.js",
+	SWJs: webroot + "sw.js",
+	SWJsDest: webroot + "sw.min.js",
 	concatCssDest: webroot + "css/site.min.css",
 	inkBallJsRelative: "../InkBall/src/InkBall.Module/wwwroot/js/",
 	inkBallCssRelative: "../InkBall/src/InkBall.Module/wwwroot/css/"
@@ -109,6 +111,7 @@ gulp.task('webpack:inkballConcaveMan', function () {
 
 gulp.task("clean:js", gulp.series("clean:inkball", function cleanConcatJsDest(cb) {
 	rimraf(paths.concatJsDest, cb);
+	rimraf(paths.SWJsDest, cb);
 }));
 
 gulp.task("clean:css", function (cb) {
@@ -124,12 +127,16 @@ gulp.task("clean", gulp.series("clean:js", "clean:css"));
 		.pipe(gulp.dest(webroot + "lib/bootstrap/dist/css"));
 });*/
 
-gulp.task("min:js", function () {
+gulp.task("minSWJs:js", function () {
+	return fileMinifyJSFunction(paths.SWJs, paths.SWJsDest);
+});
+
+gulp.task("min:js", gulp.series("minSWJs:js", function concatJsDest() {
 	return gulp.src([paths.js, "!" + paths.minJs], { base: "." })
 		.pipe(concat(paths.concatJsDest))
 		.pipe(terser())
 		.pipe(gulp.dest("."));
-});
+}));
 
 gulp.task("min:css", function () {
 	return gulp.src([paths.css, "!" + paths.minCss])
