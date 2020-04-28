@@ -1,6 +1,4 @@
 {
-	"name": "aspnetcore.existingdb",
-	"version": "1.0.4-custom",
 	"private": true,
 	"eslintConfig": {
 		"env": {
