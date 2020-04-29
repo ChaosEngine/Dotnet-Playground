@@ -386,6 +386,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			{
 				// Set a short timeout for easy testing.
 				options.IdleTimeout = TimeSpan.FromMinutes(60);
+				options.Cookie.Path = Configuration["AppRootPath"].TrimEnd('/');
 				options.Cookie.HttpOnly = true;
 				options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 				options.Cookie.SameSite = SameSiteMode.Strict;
