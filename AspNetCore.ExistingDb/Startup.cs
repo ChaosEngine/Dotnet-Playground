@@ -396,7 +396,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			services.AddControllersWithViews(options =>
 			{
 				options.UseCentralRoutePrefix<PageController>(new RouteAttribute("idm"));
-			});
+			}).AddSessionStateTempDataProvider();
 			services.AddRazorPages();
 
 			var protection_builder = services.AddDataProtection()

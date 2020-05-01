@@ -1,6 +1,6 @@
 ﻿/* eslint-disable no-console */
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate|registerServiceWorker" }]*/
-/*global g_AppRootPath g_Version forge*/
+/*global forge*/
 "use strict";
 
 var logLevel = {
@@ -11,17 +11,20 @@ var logLevel = {
 	Error: 4
 };
 
-var g_LogPath = g_AppRootPath + "Home/ClientsideLog";
+var g_AppRootPath = location.pathname.match(/\/([^/]+)\//)[0],
+	g_LogPath = g_AppRootPath + "Home/ClientsideLog",
+	g_IsDevelopment = window.location.host.match(/:\d+/) !== null,
+	g_Version = 'PROJECT_VERSION';
 
 function immediateActions() {
 	//change header background depending on developmen/production enviromewnt
 	Array.prototype.slice.call(document.querySelectorAll("nav.navbar")).forEach(function (el) {
 		el.classList.remove("bg-dark");
-		el.classList.add(window.location.host.match(/:\d+/) !== null ? 'bg-dark-development' : 'bg-dark-production');
+		el.classList.add(g_IsDevelopment ? 'bg-dark-development' : 'bg-dark-production');
 	});
 
 	//append version to footer
-	if (g_Version && g_Version !== 'PROJECT_VERSION')
+	if (g_Version && g_Version !== '')
 		document.getElementById('spVersion').textContent = ", Version: " + g_Version;
 }
 
@@ -90,12 +93,11 @@ $.fn.bindFirst = function (name, fn) {
 /**
  * Registers service worker globally
  * @param {string} rootPath is a path of all pages after FQDN name (ex. https://foo-bar.com/rootPath) or '/' if no root path
- * @param {string} version is a whole site version
  */
-function registerServiceWorker(rootPath/*, version*/) {
+function registerServiceWorker(rootPath) {
 	if ('serviceWorker' in navigator &&
 		(navigator.serviceWorker.controller === null || navigator.serviceWorker.controller.state !== "activated")) {
-		const swUrl = rootPath + 'sw.min.js?domain=' + encodeURIComponent(rootPath)/* + '&version=' + encodeURIComponent(version)*/;
+		const swUrl = rootPath + 'sw.min.js?domain=' + encodeURIComponent(rootPath);
 
 		navigator.serviceWorker
 			.register(swUrl, { scope: rootPath })
