@@ -386,6 +386,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			{
 				// Set a short timeout for easy testing.
 				options.IdleTimeout = TimeSpan.FromMinutes(60);
+				options.Cookie.Path = Configuration["AppRootPath"].TrimEnd('/');
 				options.Cookie.HttpOnly = true;
 				options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 				options.Cookie.SameSite = SameSiteMode.Strict;
@@ -395,7 +396,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			services.AddControllersWithViews(options =>
 			{
 				options.UseCentralRoutePrefix<PageController>(new RouteAttribute("idm"));
-			});
+			}).AddSessionStateTempDataProvider();
 			services.AddRazorPages();
 
 			var protection_builder = services.AddDataProtection()
@@ -437,16 +438,16 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				app.UseDeveloperExceptionPage();
 #if DEBUG
 				if(!System.Diagnostics.Debugger.IsAttached)
-					app.UseDevReload(new MyDevReloadOptions());
+					app.UseDevReload(new MyDevReloadOptions(Configuration["AppRootPath"]));
 #endif
-				//app.UseExceptionHandler("/dotnet/Home/Error");
+				//app.UseExceptionHandler(Configuration["AppRootPath"] + "Home/Error");
 				//app.UseBrowserLink();
 			}
 			else
 			{
-				app.UseExceptionHandler("/dotnet/Home/Error");
+				app.UseExceptionHandler(Configuration["AppRootPath"] + "Home/Error");
 			}
-			app.UseStatusCodePagesWithReExecute("/dotnet/Home/Error/{0}");
+			app.UseStatusCodePagesWithReExecute(Configuration["AppRootPath"] + "Home/Error/{0}");
 #if DEBUG
 			if (env.IsDevelopment())
 				app.UseHttpsRedirection();

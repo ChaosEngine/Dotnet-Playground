@@ -133,7 +133,8 @@ namespace AspNetCore.ExistingDb.Helpers
 
 		public override async Task SignOutAsync()
 		{
-			await Authentication.InkBallSignOutActionAsync(Context, Logger, Context.User.FindFirstValue(ClaimTypes.NameIdentifier));
+			//TODO: it is questionable whether to execute player-loosing when intentionally signing out
+			//await Authentication.InkBallSignOutActionAsync(Context, Logger, Context.User.FindFirstValue(ClaimTypes.NameIdentifier));
 
 			await base.SignOutAsync();
 		}

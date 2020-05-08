@@ -642,13 +642,13 @@ namespace Integration
 				{
 					/**
 					 <a href="/WebCamImages/out-91.jpg" title="18.02.2018 00:20:01">
-						<img src="/WebCamImages/out-91.jpg" alt="out-91.jpg" class='active' onmouseover='ReplImg(this);' />
+						<img alt="out-91.jpg" class='active' onmouseover='ReplImg(this);' />
 					</a>
 					<a href="/WebCamImages/out-90.jpg" title="18.02.2018 00:10:02">
-						<img src='https://haos.hopto.org/webcamgallery/images/no_img.gif' alt='no img' class='inactive' onmouseover='ReplImg(this);' />
+						<img alt='no img' class='inactive' onmouseover='ReplImg(this);' />
 					</a>*/
 
-					MatchCollection matches = Regex.Matches(responseString, @"\<img src=""/.*WebCamImages/(.*\.jpg)"" alt=""(.*\.jpg)"" class='active' onmouseover='ReplImg\(this\);' /\>");
+					MatchCollection matches = Regex.Matches(responseString, @"\<img alt=""(.*\.jpg)"" class='active' onmouseover='ReplImg\(this\);' /\>");
 					Assert.NotEmpty(matches);
 					var images = new List<string>(matches.Count);
 					foreach (Match m in matches)

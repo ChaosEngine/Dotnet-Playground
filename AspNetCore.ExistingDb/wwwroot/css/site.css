@@ -72,3 +72,7 @@ body {
 	border-top: groove;
 	border-bottom: groove;
 }
+
+footer.container > noscript {
+	color: red
+}

@@ -1,4 +1,4 @@
-﻿/*global require*/
+﻿/*global require, __dirname*/
 "use strict";
 
 const gulp = require("gulp"),
@@ -8,7 +8,9 @@ const gulp = require("gulp"),
 	cleanCSS = require("gulp-clean-css"),
 	terser = require("gulp-terser"),
 	babel = require("gulp-babel"),
-	rename = require("gulp-rename");
+	rename = require("gulp-rename"),
+	path = require('path'),
+	webpack = require('webpack-stream');
 
 var webroot = "./wwwroot/";
 
@@ -18,28 +20,32 @@ var paths = {
 	css: webroot + "css/**/*.css",
 	minCss: webroot + "css/**/*.min.css",
 	concatJsDest: webroot + "js/site.min.js",
-	concatCssDest: webroot + "css/site.min.css"
+	SWJs: webroot + "sw.js",
+	SWJsDest: webroot + "sw.min.js",
+	concatCssDest: webroot + "css/site.min.css",
+	inkBallJsRelative: "../InkBall/src/InkBall.Module/wwwroot/js/",
+	inkBallCssRelative: "../InkBall/src/InkBall.Module/wwwroot/css/"
 	//boostrapSass: webroot + "css/bootstrap.scss"
 };
 
 ////////////// [Inkball Section] //////////////////
 const babelTranspilerFunction = function (min) {
 	let tunnel = gulp.src([
-		'../InkBall/src/InkBall.Module/wwwroot/js/inkball.js',
-		'../InkBall/src/InkBall.Module/wwwroot/js/svgvml.js'
-		]).pipe(babel({
-			"presets":
-				[
-					["@babel/preset-env", { "useBuiltIns": "entry", "corejs": 3 }]
-				],
-			"comments": false
-		}));
+		paths.inkBallJsRelative + 'inkball.js',
+		paths.inkBallJsRelative + 'svgvml.js'
+	]).pipe(babel({
+		"presets":
+			[
+				["@babel/preset-env", { "useBuiltIns": "entry", "corejs": 3 }]
+			],
+		"comments": false
+	}));
 
 	if (min)
 		tunnel = tunnel.pipe(terser());
 
 	return tunnel.pipe(rename({ suffix: min ? '.babelify.min' : '.babelify' }))
-		.pipe(gulp.dest('../InkBall/src/InkBall.Module/wwwroot/js/'));
+		.pipe(gulp.dest(paths.inkBallJsRelative));
 };
 
 const fileMinifyJSFunction = function (src, result) {
@@ -63,27 +69,49 @@ gulp.task("babel", function (cb) {
 });
 
 gulp.task("min:inkball", gulp.parallel(function inkballJs() {
-	return fileMinifyJSFunction("../InkBall/src/InkBall.Module/wwwroot/js/inkball.js",
-		"../InkBall/src/InkBall.Module/wwwroot/js/inkball.min.js");
+	return fileMinifyJSFunction(paths.inkBallJsRelative + "inkball.js",
+		paths.inkBallJsRelative + "inkball.min.js");
 },
 	function inkballSvgVmlJs() {
-		return fileMinifyJSFunction("../InkBall/src/InkBall.Module/wwwroot/js/svgvml.js",
-			"../InkBall/src/InkBall.Module/wwwroot/js/svgvml.min.js");
+		return fileMinifyJSFunction(paths.inkBallJsRelative + "svgvml.js",
+			paths.inkBallJsRelative + "svgvml.min.js");
 	},
 	function inkballCSSMinify() {
-		return fileMinifyCSSFunction("../InkBall/src/InkBall.Module/wwwroot/css/inkball.css",
-			"../InkBall/src/InkBall.Module/wwwroot/css/inkball.min.css");
+		return fileMinifyCSSFunction(paths.inkBallCssRelative + "inkball.css",
+			paths.inkBallCssRelative + "inkball.min.css");
 	}));
 
 gulp.task("clean:inkball", function (cb) {
-	rimraf("../InkBall/src/InkBall.Module/wwwroot/js/*.min.js", cb);
-	rimraf("../InkBall/src/InkBall.Module/wwwroot/js/inkball.babelify*", cb);
-	rimraf("../InkBall/src/InkBall.Module/wwwroot/css/*.min.css", cb);
+	rimraf(paths.inkBallJsRelative + "*.min.js", cb);
+	rimraf(paths.inkBallJsRelative + "inkball.babelify*", cb);
+	rimraf(paths.inkBallCssRelative + "*.min.css", cb);
+	rimraf(paths.inkBallJsRelative + "concavemanBundle.js", cb);
+});
+gulp.task('webpack:inkballConcaveMan', function () {
+	const rootPath = path.basename(__dirname);
+	//console.log('ch_ __dirname = ' + rootPath);
+	return gulp.src(paths.inkBallJsRelative + "concavemanSource.js")
+		.pipe(webpack({
+			resolve: {
+				modules: ['node_modules', `../../../../../${rootPath}/node_modules`]
+			},
+			output: {
+				filename: 'concavemanBundle.js',
+				library: 'concavemanBundle' //add this line to enable re-use
+			},
+			optimization: {
+				minimize: true
+			},
+			mode: "production",
+			stats: "errors-warnings"
+		}))
+		.pipe(gulp.dest(paths.inkBallJsRelative));
 });
 ////////////// [/Inkball Section] //////////////////
 
 gulp.task("clean:js", gulp.series("clean:inkball", function cleanConcatJsDest(cb) {
 	rimraf(paths.concatJsDest, cb);
+	rimraf(paths.SWJsDest, cb);
 }));
 
 gulp.task("clean:css", function (cb) {
@@ -99,12 +127,16 @@ gulp.task("clean", gulp.series("clean:js", "clean:css"));
 		.pipe(gulp.dest(webroot + "lib/bootstrap/dist/css"));
 });*/
 
-gulp.task("min:js", function () {
+gulp.task("minSWJs:js", function () {
+	return fileMinifyJSFunction(paths.SWJs, paths.SWJsDest);
+});
+
+gulp.task("min:js", gulp.series("minSWJs:js", function concatJsDest() {
 	return gulp.src([paths.js, "!" + paths.minJs], { base: "." })
 		.pipe(concat(paths.concatJsDest))
 		.pipe(terser())
 		.pipe(gulp.dest("."));
-});
+}));
 
 gulp.task("min:css", function () {
 	return gulp.src([paths.css, "!" + paths.minCss])
@@ -113,7 +145,7 @@ gulp.task("min:css", function () {
 		.pipe(gulp.dest("."));
 });
 
-gulp.task("min", gulp.parallel("min:js", "min:inkball", "min:css"));
+gulp.task("min", gulp.parallel("min:js", "min:inkball", "min:css", "webpack:inkballConcaveMan"));
 
 //Main entry point
 gulp.task("default", gulp.series(

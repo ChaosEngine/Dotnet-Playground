@@ -7,6 +7,7 @@ WORKDIR /build
 ENV DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/netcoreapp3.1/Blogging.db"
 ARG SOURCE_COMMIT
 ARG SOURCE_BRANCH
+ARG PROJECT_VERSION
 
 COPY ./InkBall/src/InkBall.Module/InkBall.Module.csproj ./InkBall/src/InkBall.Module/InkBall.Module.csproj
 COPY ./InkBall/test/InkBall.Tests/InkBall.Tests.csproj ./InkBall/test/InkBall.Tests/InkBall.Tests.csproj
@@ -23,6 +24,7 @@ RUN dotnet restore -r linux-x64
 
 COPY . .
 RUN sed -i -e "s/GIT_HASH/$SOURCE_COMMIT/g" -e "s/GIT_BRANCH/$SOURCE_BRANCH/g" AspNetCore.ExistingDb/Views/Home/About.cshtml
+RUN sed -i -e "s/PROJECT_VERSION/$PROJECT_VERSION/g" AspNetCore.ExistingDb/wwwroot/js/site.js
 RUN dotnet test -v m
 RUN dotnet publish -c Release -r linux-x64 \
     #-p:PublishWithAspNetCoreTargetManifest=false #remove this after prerelease patch publish \
