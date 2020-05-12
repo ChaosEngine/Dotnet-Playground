@@ -157,8 +157,10 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 	$('#reload').toast('hide');
 </script>";
 			TemplateActivationJSFragment = @"$('#reload').show().toast('show');";
-		}
-	}
+            UseSignalR = true;
+            SignalRHubPath = appRootPath + "DevReloadSignalR";
+        }
+    }
 #endif
 
 }

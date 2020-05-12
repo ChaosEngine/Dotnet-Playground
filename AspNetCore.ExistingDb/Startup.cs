@@ -74,14 +74,14 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			});
 
 		static async Task Main(string[] args)
-		{			
+		{
 			// Adding following lines in order to mitigate:
 			// https://github.com/aspnet/Announcements/issues/405
 			// https://github.com/neuecc/MessagePack-CSharp/security/advisories/GHSA-7q36-4xx7-xcxf
 			// Enable additional security in MessagePack to handle untrusted data.
 			MessagePackSecurity.Active = MessagePackSecurity.UntrustedData;
-			
-			
+
+
 			//await CreateHostBuilder(args).Build().RunAsync();
 			var host = new HostBuilder()
 				.UseContentRoot(Directory.GetCurrentDirectory())
@@ -437,7 +437,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			{
 				app.UseDeveloperExceptionPage();
 #if DEBUG
-				if(!System.Diagnostics.Debugger.IsAttached)
+				if (!System.Diagnostics.Debugger.IsAttached)
 					app.UseDevReload(new MyDevReloadOptions(Configuration["AppRootPath"]));
 #endif
 				//app.UseExceptionHandler(Configuration["AppRootPath"] + "Home/Error");
@@ -466,6 +466,10 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				{
 					//endpoints.MapHub<InkBall.Module.Hubs.GameHub>("/" + InkBall.Module.Hubs.GameHub.HubName);
 					endpoints.PrepareSignalRForInkBall("/");
+#if DEBUG
+					if (!System.Diagnostics.Debugger.IsAttached)
+						endpoints.MapHub<DevReloadHub>("/DevReloadSignalR");
+#endif
 					endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 					endpoints.MapRazorPages();
 				});
