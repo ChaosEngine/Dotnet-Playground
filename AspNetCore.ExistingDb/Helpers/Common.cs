@@ -158,7 +158,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 </script>";
 			TemplateActivationJSFragment = @"$('#reload').show().toast('show');";
             UseSignalR = true;
-            SignalRClientSide = appRootPath + "lib/signalr/dist/browser/signalr.js";
+            SignalRClientSide = @$"<script src='{appRootPath}lib/signalr/dist/browser/signalr.min.js'></script>";
+                //<script src='{appRootPath}lib/msgpack5/dist/msgpack5.min.js'></script>
+                //<script src='{appRootPath}lib/signalr-protocol-msgpack/dist/browser/signalr-protocol-msgpack.min.js'></script>";
             SignalRHubPath = appRootPath + "DevReloadSignalR";
         }
     }
