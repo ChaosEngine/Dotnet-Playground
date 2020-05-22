@@ -229,23 +229,21 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			var builder = services.AddAuthentication();
 			if (!string.IsNullOrEmpty(Configuration["Authentication:Google:ClientId"]))
 			{
-				builder.AddOAuth<GoogleOptions, MyGoogleHandler>(
-					GoogleDefaults.AuthenticationScheme, GoogleDefaults.DisplayName,
-					googleOptions =>
-					{
-						googleOptions.ClientId = Configuration["Authentication:Google:ClientId"];
-						googleOptions.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
-						googleOptions.CallbackPath = Configuration["Authentication:Google:CallbackPath"];
+				builder.AddGoogle(googleOptions =>
+				{
+					googleOptions.ClientId = Configuration["Authentication:Google:ClientId"];
+					googleOptions.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
+					googleOptions.CallbackPath = Configuration["Authentication:Google:CallbackPath"];
 
-						googleOptions.UserInformationEndpoint = "https://www.googleapis.com/oauth2/v2/userinfo";
-						googleOptions.ClaimActions.Clear();
-						googleOptions.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
-						googleOptions.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
-						googleOptions.ClaimActions.MapJsonKey(ClaimTypes.GivenName, "given_name");
-						googleOptions.ClaimActions.MapJsonKey(ClaimTypes.Surname, "family_name");
-						googleOptions.ClaimActions.MapJsonKey("urn:google:profile", "link");
-						googleOptions.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
-					});
+					//googleOptions.UserInformationEndpoint = "https://www.googleapis.com/oauth2/v2/userinfo";
+					//googleOptions.ClaimActions.Clear();
+					//googleOptions.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
+					//googleOptions.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
+					//googleOptions.ClaimActions.MapJsonKey(ClaimTypes.GivenName, "given_name");
+					//googleOptions.ClaimActions.MapJsonKey(ClaimTypes.Surname, "family_name");
+					//googleOptions.ClaimActions.MapJsonKey("urn:google:profile", "link");
+					//googleOptions.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
+				});
 			}
 			if (!string.IsNullOrEmpty(Configuration["Authentication:Facebook:AppId"]))
 			{
@@ -257,15 +255,13 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			}
 			if (!string.IsNullOrEmpty(Configuration["Authentication:Twitter:ConsumerKey"]))
 			{
-				builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<TwitterOptions>, TwitterPostConfigureOptions>());
-				builder.AddRemoteScheme<TwitterOptions, MyTwitterHandler>(
-					TwitterDefaults.AuthenticationScheme, TwitterDefaults.DisplayName,
-					twitterOptions =>
-					{
-						twitterOptions.ConsumerKey = Configuration["Authentication:Twitter:ConsumerKey"];
-						twitterOptions.ConsumerSecret = Configuration["Authentication:Twitter:ConsumerSecret"];
-						twitterOptions.CallbackPath = Configuration["Authentication:Twitter:CallbackPath"];
-					});
+				//builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<TwitterOptions>, TwitterPostConfigureOptions>());
+				builder.AddTwitter(twitterOptions =>
+				{
+					twitterOptions.ConsumerKey = Configuration["Authentication:Twitter:ConsumerKey"];
+					twitterOptions.ConsumerSecret = Configuration["Authentication:Twitter:ConsumerSecret"];
+					twitterOptions.CallbackPath = Configuration["Authentication:Twitter:CallbackPath"];
+				});
 			}
 			if (!string.IsNullOrEmpty(Configuration[$"Authentication:GitHub:{env.EnvironmentName}-ClientID"]))
 			{
