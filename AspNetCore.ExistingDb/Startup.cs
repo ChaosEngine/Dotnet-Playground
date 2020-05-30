@@ -74,14 +74,14 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			});
 
 		static async Task Main(string[] args)
-		{			
+		{
 			// Adding following lines in order to mitigate:
 			// https://github.com/aspnet/Announcements/issues/405
 			// https://github.com/neuecc/MessagePack-CSharp/security/advisories/GHSA-7q36-4xx7-xcxf
 			// Enable additional security in MessagePack to handle untrusted data.
 			MessagePackSecurity.Active = MessagePackSecurity.UntrustedData;
-			
-			
+
+
 			//await CreateHostBuilder(args).Build().RunAsync();
 			var host = new HostBuilder()
 				.UseContentRoot(Directory.GetCurrentDirectory())
@@ -229,23 +229,21 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			var builder = services.AddAuthentication();
 			if (!string.IsNullOrEmpty(Configuration["Authentication:Google:ClientId"]))
 			{
-				builder.AddOAuth<GoogleOptions, MyGoogleHandler>(
-					GoogleDefaults.AuthenticationScheme, GoogleDefaults.DisplayName,
-					googleOptions =>
-					{
-						googleOptions.ClientId = Configuration["Authentication:Google:ClientId"];
-						googleOptions.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
-						googleOptions.CallbackPath = Configuration["Authentication:Google:CallbackPath"];
+				builder.AddGoogle(googleOptions =>
+				{
+					googleOptions.ClientId = Configuration["Authentication:Google:ClientId"];
+					googleOptions.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
+					googleOptions.CallbackPath = Configuration["Authentication:Google:CallbackPath"];
 
-						googleOptions.UserInformationEndpoint = "https://www.googleapis.com/oauth2/v2/userinfo";
-						googleOptions.ClaimActions.Clear();
-						googleOptions.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
-						googleOptions.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
-						googleOptions.ClaimActions.MapJsonKey(ClaimTypes.GivenName, "given_name");
-						googleOptions.ClaimActions.MapJsonKey(ClaimTypes.Surname, "family_name");
-						googleOptions.ClaimActions.MapJsonKey("urn:google:profile", "link");
-						googleOptions.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
-					});
+					//googleOptions.UserInformationEndpoint = "https://www.googleapis.com/oauth2/v2/userinfo";
+					//googleOptions.ClaimActions.Clear();
+					//googleOptions.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
+					//googleOptions.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
+					//googleOptions.ClaimActions.MapJsonKey(ClaimTypes.GivenName, "given_name");
+					//googleOptions.ClaimActions.MapJsonKey(ClaimTypes.Surname, "family_name");
+					//googleOptions.ClaimActions.MapJsonKey("urn:google:profile", "link");
+					//googleOptions.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
+				});
 			}
 			if (!string.IsNullOrEmpty(Configuration["Authentication:Facebook:AppId"]))
 			{
@@ -257,15 +255,13 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			}
 			if (!string.IsNullOrEmpty(Configuration["Authentication:Twitter:ConsumerKey"]))
 			{
-				builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<TwitterOptions>, TwitterPostConfigureOptions>());
-				builder.AddRemoteScheme<TwitterOptions, MyTwitterHandler>(
-					TwitterDefaults.AuthenticationScheme, TwitterDefaults.DisplayName,
-					twitterOptions =>
-					{
-						twitterOptions.ConsumerKey = Configuration["Authentication:Twitter:ConsumerKey"];
-						twitterOptions.ConsumerSecret = Configuration["Authentication:Twitter:ConsumerSecret"];
-						twitterOptions.CallbackPath = Configuration["Authentication:Twitter:CallbackPath"];
-					});
+				//builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<TwitterOptions>, TwitterPostConfigureOptions>());
+				builder.AddTwitter(twitterOptions =>
+				{
+					twitterOptions.ConsumerKey = Configuration["Authentication:Twitter:ConsumerKey"];
+					twitterOptions.ConsumerSecret = Configuration["Authentication:Twitter:ConsumerSecret"];
+					twitterOptions.CallbackPath = Configuration["Authentication:Twitter:CallbackPath"];
+				});
 			}
 			if (!string.IsNullOrEmpty(Configuration[$"Authentication:GitHub:{env.EnvironmentName}-ClientID"]))
 			{
@@ -437,7 +433,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			{
 				app.UseDeveloperExceptionPage();
 #if DEBUG
-				if(!System.Diagnostics.Debugger.IsAttached)
+				if (!System.Diagnostics.Debugger.IsAttached)
 					app.UseDevReload(new MyDevReloadOptions(Configuration["AppRootPath"]));
 #endif
 				//app.UseExceptionHandler(Configuration["AppRootPath"] + "Home/Error");
@@ -466,6 +462,10 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				{
 					//endpoints.MapHub<InkBall.Module.Hubs.GameHub>("/" + InkBall.Module.Hubs.GameHub.HubName);
 					endpoints.PrepareSignalRForInkBall("/");
+#if DEBUG
+					if (!System.Diagnostics.Debugger.IsAttached)
+						endpoints.MapHub<DevReloadHub>("/DevReloadSignalR");
+#endif
 					endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 					endpoints.MapRazorPages();
 				});

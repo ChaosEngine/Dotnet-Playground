@@ -25,26 +25,26 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.3" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.1.3" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.3" />
-		<PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="3.1.3" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.3" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.4" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.1.4" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.4" />
+		<PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="3.1.4" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.4" />
 		<!-- <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="3.1.0" /> -->
 		<PackageReference Include="Bogus" Version="29.0.2" />
-		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration" Version="3.1.2" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.3" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.3" />
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration" Version="3.1.3" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.4" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.4" />
 		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="3.1.1" />
-		<PackageReference Include="Oracle.EntityFrameworkCore" Version="2.19.60" Condition="$(DefineConstants.Contains('INCLUDE_ORACLE'))" />
+		<PackageReference Include="Oracle.EntityFrameworkCore" Version="2.19.70" Condition="$(DefineConstants.Contains('INCLUDE_ORACLE'))" />
 		<PackageReference Include="IdentityManager2.AspNetIdentity" Version="1.0.0" />
 		<PackageReference Include="Lib.AspNetCore.ServerTiming" Version="2.1.0" />
 		<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.10.3" />
 		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.45.0.1929" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="3.1.3" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="3.1.3" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="3.1.3" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="3.1.3" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="3.1.4" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="3.1.4" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="3.1.4" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="3.1.4" />
 		<PackageReference Include="MessagePack" Version="[1.9.11, 2.0.0)" />
 		<PackageReference Include="RedHat.AspNetCore.Server.Kestrel.Transport.Linux" Version="3.0.0-*" />
 	</ItemGroup>
@@ -67,8 +67,8 @@
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(Configuration)'=='Debug'">
-		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.1.3" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.3">
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.1.4" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.4">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
