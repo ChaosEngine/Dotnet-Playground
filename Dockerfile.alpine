@@ -1,5 +1,5 @@
 # syntax = docker/dockerfile:experimental
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1-alpine3.10 AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-alpine3.11 AS build
 RUN --mount=type=cache,target=/root/.nuget --mount=type=cache,target=/root/.local/share/NuGet --mount=type=cache,target=/root/.npm/ --mount=type=cache,target=./AspNetCore.ExistingDb/node_modules
 RUN apk add --update nodejs nodejs-npm
 WORKDIR /build
