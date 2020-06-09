@@ -47,11 +47,11 @@
 		}
 	},
 	"devDependencies": {
-		"@babel/core": "7.10.1",
+		"@babel/core": "7.10.2",
 		"@babel/plugin-transform-runtime": "7.10.1",
-		"@babel/preset-env": "7.10.1",
-		"eslint": "7.1.0",
-		"fs-extra": "9.0.0",
+		"@babel/preset-env": "7.10.2",
+		"eslint": "7.2.0",
+		"fs-extra": "9.0.1",
 		"gulp": "4.0.2",
 		"gulp-babel": "8.0.0",
 		"gulp-terser": "1.2.0",
@@ -69,11 +69,11 @@
 		"jquery": "3.5.1",
 		"jquery-validation": "1.19.2",
 		"jquery-validation-unobtrusive": "3.2.11",
-		"blueimp-gallery": "2.44.0",
+		"blueimp-gallery": "3.0.0",
 		"video.js": "7.8.2",
 		"qrcodejs": "1.0.0",
-		"@microsoft/signalr": "3.1.4",
-		"@microsoft/signalr-protocol-msgpack": "3.1.4",
+		"@microsoft/signalr": "3.1.5",
+		"@microsoft/signalr-protocol-msgpack": "3.1.5",
 		"msgpack5": "4.2.1"
 	},
 	"scripts": {

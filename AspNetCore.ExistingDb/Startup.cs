@@ -61,7 +61,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			.ConfigureWebHostDefaults(webBuilder =>
 			{
 				webBuilder
-				.UseKestrel()
+				.UseKestrel(opts => opts.AddServerHeader = false)
 				//.UseLibuv()
 				.UseSockets()
 				/*.UseLinuxTransport(async opts =>
@@ -97,7 +97,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				.ConfigureWebHost(webBuilder =>
 				{
 					webBuilder
-					.UseKestrel()
+					.UseKestrel(opts => opts.AddServerHeader = false)
 					//.UseLibuv()
 					.UseSockets()
 					.UseLinuxTransport(async opts =>
