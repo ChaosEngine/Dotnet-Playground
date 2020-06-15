@@ -13,7 +13,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 	[Authorize(Roles = "Administrator")]
 	public class AnnualTimelapseModel : AnnualMovieGeneratorValidatorModel
 	{
-		public class SomeBag
+		public sealed class SomeBag
 		{
 			public string Result { get; set; }
 
