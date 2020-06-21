@@ -30,21 +30,40 @@ var paths = {
 
 ////////////// [Inkball Section] //////////////////
 const babelTranspilerFunction = function (min) {
-	let tunnel = gulp.src([
+	return gulp.src([
 		paths.inkBallJsRelative + 'inkball.js',
-		paths.inkBallJsRelative + 'svgvml.js'
-	]).pipe(babel({
-		"presets":
-			[
-				["@babel/preset-env", { "useBuiltIns": "entry", "corejs": 3 }]
-			],
-		"comments": false
-	}));
-
-	if (min)
-		tunnel = tunnel.pipe(terser());
-
-	return tunnel.pipe(rename({ suffix: min ? '.babelify.min' : '.babelify' }))
+		//paths.inkBallJsRelative + 'svgvml.js',
+		//paths.inkBallJsRelative + 'concavemanSource.js'
+	]).pipe(webpack({
+		resolve: {
+			modules: ['node_modules', `../../../../../${path.basename(__dirname)}/node_modules`]
+		},
+		entry: {
+			'inkballBundle': paths.inkBallJsRelative + 'inkball.js',
+			'concavemanBundle': paths.inkBallJsRelative + 'concavemanSource.js'
+		},
+		output: {
+			filename: '[name].js'
+		},
+		module: {
+			rules: [{
+				use: {
+					loader: 'babel-loader',
+					options: {
+						presets: [
+							["@babel/preset-env", { "useBuiltIns": "entry", "corejs": 3 }]
+						],
+					},
+				},
+			}],
+		},
+		optimization: {
+			minimize: min
+		},
+		mode: "production",
+		stats: "errors-warnings"
+	}))
+		.pipe(rename({ suffix: min ? '.min' : '' }))
 		.pipe(gulp.dest(paths.inkBallJsRelative));
 };
 
@@ -83,17 +102,15 @@ gulp.task("min:inkball", gulp.parallel(function inkballJs() {
 
 gulp.task("clean:inkball", function (cb) {
 	rimraf(paths.inkBallJsRelative + "*.min.js", cb);
-	rimraf(paths.inkBallJsRelative + "inkball.babelify*", cb);
+	rimraf(paths.inkBallJsRelative + "*.babelify*", cb);
 	rimraf(paths.inkBallCssRelative + "*.min.css", cb);
-	rimraf(paths.inkBallJsRelative + "concavemanBundle.js", cb);
+	rimraf(paths.inkBallJsRelative + "*Bundle.js", cb);
 });
 gulp.task('webpack:inkballConcaveMan', function () {
-	const rootPath = path.basename(__dirname);
-	//console.log('ch_ __dirname = ' + rootPath);
 	return gulp.src(paths.inkBallJsRelative + "concavemanSource.js")
 		.pipe(webpack({
 			resolve: {
-				modules: ['node_modules', `../../../../../${rootPath}/node_modules`]
+				modules: ['node_modules', `../../../../../${path.basename(__dirname)}/node_modules`]
 			},
 			output: {
 				filename: 'concavemanBundle.js',
@@ -145,7 +162,9 @@ gulp.task("min:css", function () {
 		.pipe(gulp.dest("."));
 });
 
-gulp.task("min", gulp.parallel("min:js", "min:inkball", "min:css", "webpack:inkballConcaveMan"));
+gulp.task("min", gulp.parallel("min:js", "min:inkball", "min:css"
+	//, "webpack:inkballConcaveMan"
+));
 
 //Main entry point
 gulp.task("default", gulp.series(
