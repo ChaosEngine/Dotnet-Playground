@@ -7,7 +7,7 @@ const gulp = require("gulp"),
 	concat = require("gulp-concat"),
 	cleanCSS = require("gulp-clean-css"),
 	terser = require("gulp-terser"),
-	babel = require("gulp-babel"),
+	//babel = require("gulp-babel"),
 	rename = require("gulp-rename"),
 	path = require('path'),
 	webpack = require('webpack-stream');
@@ -31,7 +31,7 @@ var paths = {
 ////////////// [Inkball Section] //////////////////
 const babelTranspilerFunction = function (min) {
 	return gulp.src([
-		paths.inkBallJsRelative + 'inkball.js',
+		paths.inkBallJsRelative + 'inkball.js'
 		//paths.inkBallJsRelative + 'svgvml.js',
 		//paths.inkBallJsRelative + 'concavemanSource.js'
 	]).pipe(webpack({
@@ -52,10 +52,10 @@ const babelTranspilerFunction = function (min) {
 					options: {
 						presets: [
 							["@babel/preset-env", { "useBuiltIns": "entry", "corejs": 3 }]
-						],
-					},
-				},
-			}],
+						]
+					}
+				}
+			}]
 		},
 		optimization: {
 			minimize: min

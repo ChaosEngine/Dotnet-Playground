@@ -1,4 +1,4 @@
-﻿/* eslint-disable no-console */
+﻿/*eslint-disable no-console*/
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate|registerServiceWorker" }]*/
 /*global forge*/
 "use strict";

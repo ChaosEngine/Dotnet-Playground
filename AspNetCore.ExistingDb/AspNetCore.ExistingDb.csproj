@@ -43,7 +43,7 @@
 		<PackageReference Include="IdentityManager2.AspNetIdentity" Version="1.0.0" />
 		<PackageReference Include="Lib.AspNetCore.ServerTiming" Version="2.1.0" />
 		<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.11.0" />
-		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.46.0.1994" />
+		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.46.0.1995" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="3.1.5" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="3.1.5" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="3.1.5" />
