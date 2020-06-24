@@ -39,11 +39,14 @@ const babelTranspilerFunction = function (min) {
 			modules: ['node_modules', `../../../../../${path.basename(__dirname)}/node_modules`]
 		},
 		entry: {
-			'inkballBundle': paths.inkBallJsRelative + 'inkball.js',
-			'concavemanBundle': paths.inkBallJsRelative + 'concavemanSource.js'
+			'inkball': paths.inkBallJsRelative + 'inkball.js',
+			//'svgvml.babelify': paths.inkBallJsRelative + 'svgvml.js',
+			'concaveman': paths.inkBallJsRelative + 'concavemanSource.js'
 		},
 		output: {
-			filename: '[name].js'
+			filename: '[name]Bundle.js',
+			chunkFilename: '[name]Bundle.js',
+			publicPath: '../js/'
 		},
 		module: {
 			rules: [{
