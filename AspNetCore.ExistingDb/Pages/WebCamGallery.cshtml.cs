@@ -71,23 +71,26 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 				// FullImageJpgs = di.EnumerateFiles("out*.jpg", SearchOption.TopDirectoryOnly)
 				// 	.OrderByDescending(f => f.LastWriteTime);
 
-				FileInfo img = ThumbnailJpgs.FirstOrDefault();
-				if (img != null)
+				if (false == User.Identity.IsAuthenticated)
 				{
-					var expire_date = img.LastWriteTime.AddMinutes(10);
-					TimeSpan max_age = expire_date.Subtract(DateTime.Now);
-					if (max_age > TimeSpan.Zero)
+					FileInfo img = ThumbnailJpgs.FirstOrDefault();
+					if (img != null)
 					{
-						Response.GetTypedHeaders().CacheControl =
-							new Microsoft.Net.Http.Headers.CacheControlHeaderValue
-							{
-								Public = true,
-								MaxAge = max_age
-							};
+						var expire_date = img.LastWriteTime.AddMinutes(10);
+						TimeSpan max_age = expire_date.Subtract(DateTime.Now);
+						if (max_age > TimeSpan.Zero)
+						{
+							Response.GetTypedHeaders().CacheControl =
+								new Microsoft.Net.Http.Headers.CacheControlHeaderValue
+								{
+									Public = true,
+									MaxAge = max_age
+								};
+						}
+						//before
+						// Response.Headers[HeaderNames.CacheControl] =
+						// 	$"public,expires={expire_date.ToUniversalTime().ToString("R")}";
 					}
-					//before
-					// Response.Headers[HeaderNames.CacheControl] =
-					// 	$"public,expires={expire_date.ToUniversalTime().ToString("R")}";
 				}
 			}
 

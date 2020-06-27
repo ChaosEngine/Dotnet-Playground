@@ -20,12 +20,12 @@ namespace AspNetCore.ExistingDb.Helpers
 {
 	public class MyGoogleHandler : GoogleHandler
 	{
-		private readonly IConfiguration _configuration;
+		//private readonly IConfiguration _configuration;
 
 		public MyGoogleHandler(IOptionsMonitor<GoogleOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, IConfiguration configuration)
 			: base(options, logger, encoder, clock)
 		{
-			_configuration = configuration;
+			//_configuration = configuration;
 		}
 
 		// public override Task<bool> ShouldHandleRequestAsync()
@@ -36,12 +36,12 @@ namespace AspNetCore.ExistingDb.Helpers
 
 	public class MyTwitterHandler : TwitterHandler
 	{
-		private readonly IConfiguration _configuration;
+		//private readonly IConfiguration _configuration;
 
 		public MyTwitterHandler(IOptionsMonitor<TwitterOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, IConfiguration configuration)
 		   : base(options, logger, encoder, clock)
 		{
-			_configuration = configuration;
+			//_configuration = configuration;
 		}
 
 		// public override Task<bool> ShouldHandleRequestAsync()
@@ -52,7 +52,7 @@ namespace AspNetCore.ExistingDb.Helpers
 
 	public class MyGithubHandler : OAuthHandler<MyGithubHandler.GitHubOptions>
 	{
-		private readonly IConfiguration _configuration;
+		//private readonly IConfiguration _configuration;
 
 		public class GitHubOptions : OAuthOptions
 		{
@@ -75,7 +75,7 @@ namespace AspNetCore.ExistingDb.Helpers
 		public MyGithubHandler(IOptionsMonitor<GitHubOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, IConfiguration configuration)
 		   : base(options, logger, encoder, clock)
 		{
-			_configuration = configuration;
+			//_configuration = configuration;
 		}
 
 		// public override Task<bool> ShouldHandleRequestAsync()
@@ -94,7 +94,7 @@ namespace AspNetCore.ExistingDb.Helpers
 				{
 					if (!response.IsSuccessStatusCode)
 					{
-						throw new HttpRequestException($"An error occurred when retrieving Google user information ({response.StatusCode}). Please check if the authentication information is correct and the corresponding Google+ API is enabled.");
+						throw new HttpRequestException($"An error occurred when retrieving user information ({response.StatusCode}). Please check if the authentication information is correct and the corresponding API is enabled.");
 					}
 
 					var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync()).RootElement;
@@ -133,7 +133,8 @@ namespace AspNetCore.ExistingDb.Helpers
 
 		public override async Task SignOutAsync()
 		{
-			await Authentication.InkBallSignOutActionAsync(Context, Logger, Context.User.FindFirstValue(ClaimTypes.NameIdentifier));
+			//TODO: it is questionable whether to execute player-loosing when intentionally signing out
+			//await Authentication.InkBallSignOutActionAsync(Context, Logger, Context.User.FindFirstValue(ClaimTypes.NameIdentifier));
 
 			await base.SignOutAsync();
 		}

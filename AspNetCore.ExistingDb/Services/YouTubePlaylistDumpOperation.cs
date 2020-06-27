@@ -65,13 +65,13 @@ namespace AspNetCore.ExistingDb.Services
 					dest_dir, logger, context, env, token);
 
 				var query = lst.OrderBy(o => o.Snippet.PublishedAt);
-				Product = query.Where(tab => tab.Snippet.PublishedAt >= year_ago_date)
-					.Select(item => new object[] {
+				Product = query.Select(item => new object[] {
 						item.Snippet.Position,
 						item.Snippet.Title,
 						item.Snippet.ResourceId.VideoId,
-						item.Snippet.PublishedAt
-					}).ToArray();
+						DateTime.Parse(item.Snippet.PublishedAt)
+					})
+					.Where(tab => (DateTime)tab[3] >= year_ago_date);
 
 				if (!string.IsNullOrEmpty(dest_dir))
 				{
@@ -79,12 +79,12 @@ namespace AspNetCore.ExistingDb.Services
 					{
 						foreach (var item in query)
 						{
-							var date = item.Snippet.PublishedAt.GetValueOrDefault(DateTime.MinValue);
+							var date = DateTime.Parse(item.Snippet.PublishedAt);
 							bool is_to_be_deleted = date < year_ago_date;
 							if (!is_to_be_deleted)
 								await writer.WriteLineAsync($"youtube {item.Snippet.ResourceId.VideoId}");
 							else
-								await writer.WriteLineAsync($"#youtube {item.Snippet.ResourceId.VideoId} #too old {date.ToString("O")} - for deletion");
+								await writer.WriteLineAsync($"#youtube {item.Snippet.ResourceId.VideoId} #too old {date:O} - for deletion");
 
 						}
 						await writer.FlushAsync();

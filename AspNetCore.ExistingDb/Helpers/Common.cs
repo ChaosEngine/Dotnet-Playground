@@ -131,9 +131,10 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 #if DEBUG
     public sealed class MyDevReloadOptions : DevReloadOptions
 	{
-		public MyDevReloadOptions()
+		public MyDevReloadOptions(string appRootPath)
 		{
-			Directory = "./";
+            DevReloadPath = appRootPath + "js/__DevReload";
+            Directory = "./";
 			IgnoredSubDirectories = new string[] { ".git", ".node_modules", "bin", "obj" };
 			StaticFileExtensions = new string[] { "css", "js", "html", "cshtml" };
 			MaxConnectionFailedCount = 20;
@@ -141,7 +142,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			PopoutHtmlTemplate = @"<div id='reload' class='toast' role='alert' aria-live='assertive' aria-atomic='true'
 	data-autohide='false' data-animation='true' style='position:absolute; top:0; right:0; z-index:9999; display:none'>
   <div class='toast-header'>
-    <svg class='bd-placeholder-img rounded mr-2' width='20' height='20' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMidYMid slice' focusable='false' role='img'><rect width = '100%' height='100%' fill='red'></rect></svg>
+    <svg class='bd-placeholder-img rounded mr-2' width='20' height='20' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMidYMid slice' focusable='false' role='img'><rect width='100%' height='100%' fill='red'></rect></svg>
     <strong class='mr-auto'>DevReload</strong>
     <small>just now</small>
     <button type='button' class='ml-2 mb-1 close' data-dismiss='toast' aria-label='Close'>
@@ -156,8 +157,13 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 	$('#reload').toast('hide');
 </script>";
 			TemplateActivationJSFragment = @"$('#reload').show().toast('show');";
-		}
-	}
+            UseSignalR = true;
+            SignalRClientSide = @$"<script src='{appRootPath}lib/signalr/dist/browser/signalr.min.js'></script>";
+                //<script src='{appRootPath}lib/msgpack5/dist/msgpack5.min.js'></script>
+                //<script src='{appRootPath}lib/signalr-protocol-msgpack/dist/browser/signalr-protocol-msgpack.min.js'></script>";
+            SignalRHubPath = appRootPath + "DevReloadSignalR";
+        }
+    }
 #endif
 
 }

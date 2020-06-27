@@ -1,6 +1,8 @@
 ﻿/* eslint-disable no-console */
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate|registerServiceWorker" }]*/
-/*global g_AppRootPath forge*/
+/*global forge*/
+"use strict";
+
 var logLevel = {
 	Trace: 0,
 	Debug: 1,
@@ -9,12 +11,42 @@ var logLevel = {
 	Error: 4
 };
 
-var g_LogPath = g_AppRootPath + "Home/ClientsideLog";
+var g_AppRootPath = location.pathname.match(/\/([^/]+)\//)[0],
+	g_LogPath = g_AppRootPath + "Home/ClientsideLog",
+	g_IsDevelopment = window.location.host.match(/:\d+/) !== null,
+	g_Version = 'PROJECT_VERSION';
+
+function immediateActions() {
+	//change header background depending on developmen/production enviromewnt
+	Array.prototype.slice.call(document.querySelectorAll("nav.navbar")).forEach(function (el) {
+		el.classList.remove("bg-dark");
+		el.classList.add(g_IsDevelopment ? 'bg-dark-development' : 'bg-dark-production');
+	});
+
+	//append version to footer
+	if (g_Version && g_Version !== '')
+		document.getElementById('spVersion').textContent = ", Version: " + g_Version;
+}
+
+immediateActions();
 
 function ajaxLog(level, message, url, line, col, error) {
 	$.post(g_LogPath, {
 		"level": level, "message": message, "url": url, "line": line, "col": col, "error": error
 	});
+}
+
+function handleLogoutForm() {
+	//if we're not seeing logoutForm form - disable secure/authorized links
+	if (document.getElementById("logoutForm") === null) {
+		["aInkList", "aInkGame", "aInkGameHigh"].forEach(function (link2disable) {
+			let el = document.getElementById(link2disable);
+			el.removeAttribute("href");
+			el.setAttribute("tabindex", "-1");
+			el.setAttribute("aria-disabled", "true");
+			el.classList.add("disabled");
+		});
+	}
 }
 
 function clientValidate(button) {
@@ -63,7 +95,8 @@ $.fn.bindFirst = function (name, fn) {
  * @param {string} rootPath is a path of all pages after FQDN name (ex. https://foo-bar.com/rootPath) or '/' if no root path
  */
 function registerServiceWorker(rootPath) {
-	if ('serviceWorker' in navigator) {
+	if ('serviceWorker' in navigator &&
+		(navigator.serviceWorker.controller === null || navigator.serviceWorker.controller.state !== "activated")) {
 		const swUrl = rootPath + 'sw.min.js?domain=' + encodeURIComponent(rootPath);
 
 		navigator.serviceWorker
@@ -76,6 +109,16 @@ function registerServiceWorker(rootPath) {
 			.ready.then(function () {
 				console.log('Service Worker Ready');
 			});
+	}
+}
+
+function updateOnlineStatus() {
+	const offlineIndicator = $("#offlineIndicator");
+
+	if (offlineIndicator !== undefined) {
+		const state = navigator.onLine ? "Online" : "Offline";
+		offlineIndicator.html(state);
+		offlineIndicator.show();
 	}
 }
 
@@ -114,34 +157,14 @@ $(function () {
 		org_error.call(this, arguments);
 	};
 
-	registerServiceWorker(g_AppRootPath);
+	registerServiceWorker(g_AppRootPath, g_Version);
 
-	//if we're not seeing logoutForm form - disable seure/authorized links
-	if (document.getElementById("logoutForm") === null) {
-		["aInkList", "aInkGame", "aInkGameHigh"].forEach(function (link2disable) {
-			let el = document.getElementById(link2disable);
-			el.removeAttribute("href");
-			el.setAttribute("tabindex", "-1");
-			el.setAttribute("aria-disabled", "true");
-			el.classList.add("disabled");
-		});
-	}
-
-	function updateOnlineStatus() {
-		const offlineIndicator = $("#offlineIndicator");
-
-		if (offlineIndicator !== undefined) {
-			const condition = navigator.onLine ? "Online" : "Offline";
-			offlineIndicator.html(condition);
-			offlineIndicator.show();
-		}
-	}
+	handleLogoutForm();
 
 	window.addEventListener('online', updateOnlineStatus);
 	window.addEventListener('offline', updateOnlineStatus);
 	if (navigator.onLine === false)
 		updateOnlineStatus();
-
 });
 
 window.onerror = function (msg, url, line, col, error) {

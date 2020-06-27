@@ -1,6 +1,4 @@
 {
-	"name": "aspnetcore.existingdb",
-	"version": "1.0.3-custom",
 	"private": true,
 	"eslintConfig": {
 		"env": {
@@ -49,34 +47,36 @@
 		}
 	},
 	"devDependencies": {
-		"@babel/core": "7.8.7",
-		"@babel/plugin-transform-runtime": "7.8.3",
-		"@babel/preset-env": "7.8.7",
-		"eslint": "6.8.0",
-		"fs-extra": "8.1.0",
+		"@babel/core": "7.10.2",
+		"@babel/plugin-transform-runtime": "7.10.1",
+		"@babel/preset-env": "7.10.2",
+		"eslint": "7.2.0",
+		"fs-extra": "9.0.1",
 		"gulp": "4.0.2",
 		"gulp-babel": "8.0.0",
 		"gulp-terser": "1.2.0",
 		"gulp-concat": "2.6.1",
 		"gulp-clean-css": "4.3.0",
 		"gulp-rename": "2.0.0",
-		"rimraf": "3.0.2"
+		"rimraf": "3.0.2",
+		"concaveman": "1.1.1",
+		"webpack-stream": "5.2.1"
 	},
 	"dependencies": {
-		"bootstrap": "4.4.1",
+		"bootstrap": "4.5.0",
 		"bootstrap-table": "1.16.0",
 		"node-forge": "0.9.1",
-		"jquery": "3.4.1",
-		"jquery-validation": "1.19.1",
+		"jquery": "3.5.1",
+		"jquery-validation": "1.19.2",
 		"jquery-validation-unobtrusive": "3.2.11",
-		"blueimp-gallery": "2.36.0",
-		"video.js": "7.6.6",
+		"blueimp-gallery": "3.0.0",
+		"video.js": "7.8.2",
 		"qrcodejs": "1.0.0",
-		"@microsoft/signalr": "3.1.2",
-		"@microsoft/signalr-protocol-msgpack": "3.1.2",
+		"@microsoft/signalr": "3.1.5",
+		"@microsoft/signalr-protocol-msgpack": "3.1.5",
 		"msgpack5": "4.2.1"
 	},
 	"scripts": {
-		"postinstall": "node -e \"require('fs-extra').copySync('node_modules/bootstrap', 'wwwroot/lib/bootstrap'); require('fs-extra').copySync('node_modules/bootstrap-table', 'wwwroot/lib/bootstrap-table'); require('fs-extra').copySync('node_modules/node-forge', 'wwwroot/lib/forge'); require('fs-extra').copySync('node_modules/jquery', 'wwwroot/lib/jquery'); require('fs-extra').copySync('node_modules/jquery-validation', 'wwwroot/lib/jquery-validation'); require('fs-extra').copySync('node_modules/jquery-validation-unobtrusive', 'wwwroot/lib/jquery-validation-unobtrusive'); require('fs-extra').copySync('node_modules/blueimp-gallery', 'wwwroot/lib/blueimp-gallery'); require('fs-extra').copySync('node_modules/video.js', 'wwwroot/lib/video.js'); require('fs-extra').copySync('node_modules/qrcodejs', 'wwwroot/lib/qrcodejs'); require('fs-extra').copySync('node_modules/@microsoft/signalr', 'wwwroot/lib/signalr'); require('fs-extra').copySync('node_modules/@microsoft/signalr-protocol-msgpack', 'wwwroot/lib/signalr-protocol-msgpack'); require('fs-extra').copySync('node_modules/msgpack5', 'wwwroot/lib/msgpack5');\""
+		"postinstall": "node -e \"var fs = require('fs-extra'); fs.copy('node_modules/bootstrap', 'wwwroot/lib/bootstrap'); fs.copy('node_modules/bootstrap-table', 'wwwroot/lib/bootstrap-table'); fs.copy('node_modules/node-forge', 'wwwroot/lib/forge'); fs.copy('node_modules/jquery', 'wwwroot/lib/jquery'); fs.copy('node_modules/jquery-validation', 'wwwroot/lib/jquery-validation'); fs.copy('node_modules/jquery-validation-unobtrusive', 'wwwroot/lib/jquery-validation-unobtrusive'); fs.copy('node_modules/blueimp-gallery', 'wwwroot/lib/blueimp-gallery'); fs.copy('node_modules/video.js', 'wwwroot/lib/video.js'); fs.copy('node_modules/qrcodejs', 'wwwroot/lib/qrcodejs'); fs.copy('node_modules/@microsoft/signalr', 'wwwroot/lib/signalr'); fs.copy('node_modules/@microsoft/signalr-protocol-msgpack', 'wwwroot/lib/signalr-protocol-msgpack'); fs.copy('node_modules/msgpack5', 'wwwroot/lib/msgpack5');\""
 	}
 }

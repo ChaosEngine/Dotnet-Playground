@@ -130,23 +130,23 @@ namespace AspNetCore.ExistingDb.Services
 				int delete_count = 10;
 				foreach (var item in lst)
 				{
-					var date = item.Snippet.PublishedAt.GetValueOrDefault(DateTime.MinValue);
+					var date = DateTime.Parse(item.Snippet.PublishedAt);
 					bool is_to_be_deleted = date < year_ago_date;
 					if (!is_to_be_deleted)
 					{
 						logger.LogInformation("'{title}' [{description}] {publishedAt}", item.Snippet.Title, item.Snippet.Description,
-							item.Snippet.PublishedAt.GetValueOrDefault().ToString("O"));
+							date.ToString("O"));
 					}
 					else if (delete_count > 0)
 					{
 						logger.LogWarning("DELETING '{title}' [{description}] {publishedAt}", item.Snippet.Title, item.Snippet.Description,
-							item.Snippet.PublishedAt.GetValueOrDefault().ToString("O"));
+							date.ToString("O"));
 						var playlistItemsDeleteRequest = youtubeService.PlaylistItems.Delete(item.Id);
 						var delete_playlist_response = await playlistItemsDeleteRequest.ExecuteAsync(token);
 
 						var videoDeleteRequest = youtubeService.Videos.Delete(item.Snippet.ResourceId.VideoId);
 						var delete_video_response = await videoDeleteRequest.ExecuteAsync(token);
-						
+
 						delete_count--;
 					}
 
