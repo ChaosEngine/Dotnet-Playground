@@ -636,7 +636,7 @@ namespace Integration
 
 				var responseString = await response.Content.ReadAsStringAsync();
 				Assert.Contains("<title>WebCam Gallery - Dotnet Core Playground</title>", responseString);
-				Assert.Contains("function ReplImg(el)", responseString);
+				Assert.Contains("function ReplImg(event)", responseString);
 
 				if (!string.IsNullOrEmpty(_fixture.ImageDirectory))
 				{
@@ -648,7 +648,7 @@ namespace Integration
 						<img alt='no img' class='inactive' onmouseover='ReplImg(this);' />
 					</a>*/
 
-					MatchCollection matches = Regex.Matches(responseString, @"\<img alt=""(.*\.jpg)"" class='active' onmouseover='ReplImg\(this\);' /\>");
+					MatchCollection matches = Regex.Matches(responseString, @"\<img alt=""(.*\.jpg)"" class='active' /\>");
 					Assert.NotEmpty(matches);
 					var images = new List<string>(matches.Count);
 					foreach (Match m in matches)

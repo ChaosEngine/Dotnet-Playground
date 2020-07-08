@@ -93,8 +93,8 @@
 	if (!string.IsNullOrEmpty(Model.LiveWebCamURL))
 	{
   		<div class="tab-pane active" id="live-tab" role="tabpanel" aria-labelledby="live-tab">
-			<a onclick="RefreshLiveImage()" title='live'>
-				<img id='live' alt='live' class="img-fluid" data-last-modified="" />
+			<a onclick="RefreshLiveImage()" title='live' style="width:1280px; height:960px">
+				<img id='live' alt='live' width="1280" height="960" class="img-fluid" data-last-modified="" src="~/images/no_img.svg" />
 			</a>
 		</div>
 	}
@@ -116,8 +116,8 @@
     {
 		<div class="tab-pane embed-responsive embed-responsive-4by3" id="youtube-tab" role="tabpanel" aria-labelledby="youtube-tab">
 			<iframe width="1280" height="960" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
-				src="https://www.youtube.com/embed?listType=playlist&list=@(Model.YouTubePlaylistId)&autoplay=0"
-				allowfullscreen></iframe>
+				data-src="https://www.youtube.com/embed?listType=playlist&list=@(Model.YouTubePlaylistId)&autoplay=0" style="display:none"
+				allowfullscreen loading="lazy"></iframe>
 		</div>
     }
 	if (Model.ThumbnailJpgs != null)
@@ -133,13 +133,13 @@
 				if (i++ < 7)
 				{
 					<a href="~/WebCamImages/@full" title="@jpg.LastWriteTime.ToString("u")">
-						<img alt="@thumbnail" class='active' onmouseover='ReplImg(this);' />
+						<img alt="@thumbnail" class='active' />
 					</a>
 				}
 				else
 				{
 					<a href="~/WebCamImages/@full" title="@jpg.LastWriteTime.ToString("u")">
-						<img alt='no img' class='inactive' onmouseover='ReplImg(this);' />
+						<img alt='no img' class='inactive' />
 					</a>
 				}
 			}
@@ -192,8 +192,10 @@
 				blueimp.Gallery(links, options);
 			});
 
-			$(".inactive").each(function (index, value) {
-                value.src = g_AppRootPath + 'images/no_img.gif';
+			$("img.inactive").each(function (index, value) {
+				//$(value).mouseover(ReplImg);
+				value.onmouseover = ReplImg;
+                value.src = g_AppRootPath + 'images/no_img.svg';
 			});
 
 			$('#btnReplAllImg').click(function (event) {
@@ -215,6 +217,9 @@
                 else if (name === '#live-tab') {
                     $('#live').attr('src', liveImgAddr);
 				}
+				else if (name === '#youtube-tab') {
+					LoadYouTubeIFrame();
+                }
                 else
                     $('#btnReplAllImg').prop('disabled', true);
             };
@@ -228,6 +233,9 @@
 				if (name === '#gallery-tab') {
 					$('#btnReplAllImg').prop('disabled', false);
 					LoadFirstGallerImages();
+				}
+                else if (name === '#youtube-tab') {
+                    LoadYouTubeIFrame();
                 }
 				else
 					$('#btnReplAllImg').prop('disabled', true);
@@ -239,6 +247,10 @@
 				$('#btnReplAllImg').prop('disabled', false);
 				LoadFirstGallerImages();
 			}
+			else if ($("#myTab a[href='#youtube-tab']").hasClass('active'))
+			{
+                LoadYouTubeIFrame();
+            }
 			else if($("#myTab a[href='#live-tab']").hasClass('active'))
 			{
                 $('#live').attr('src', liveImgAddr);
@@ -253,7 +265,10 @@
                     else if (e.target.hash.indexOf('live-tab') !== -1) {
                         $('#live').attr('src', liveImgAddr);
 						$('#btnReplAllImg').prop('disabled', true);
-                    }
+					}
+                    else if (e.target.hash.indexOf('youtube-tab') !== -1) {
+                        LoadYouTubeIFrame();
+					}
 					else
 						$('#btnReplAllImg').prop('disabled', true);
 
@@ -285,16 +300,26 @@
 
 		function LoadFirstGallerImages()
 		{
-            $('img.active:not([src])').each(function (index, value) {
+			$('img.active:not([src])').each(function (index, value) {
+                //value.onmouseover = ReplImg;
 				const img = $(value);
 				const alt = img.attr('alt');
                 if (alt && alt !== 'no img')
 					img.attr('src', g_AppRootPath + 'WebCamImages/' + alt);
             });
+		}
+
+		function LoadYouTubeIFrame()
+		{
+            Array.prototype.slice.call(document.querySelectorAll("#youtube-tab iframe:not([src])")).forEach(function(ytb) {
+				ytb.style.display = 'block';
+				ytb.src = ytb.dataset.src;
+            });
         }
 
-		function ReplImg(el)
+        function ReplImg(event)
 		{
+			const el = event.currentTarget;
 			if (el.tagName != 'IMG')
 			{
 				el.firstChild.src = el.href.replace("out", "thumbnail");
@@ -303,13 +328,14 @@
 			else
 			{
 				el.src = el.parentNode.href.replace("out", "thumbnail");
-				el.class = 'active';
+                el.classList.remove("inactive");
+                el.classList.add('active');
 			}
 		}
 
 		function ReplAllImg()
 		{
-			$(".inactive").each(function (index, value) {
+			$("img.inactive").each(function (index, value) {
 				ReplImg(value);
 			});
 		}

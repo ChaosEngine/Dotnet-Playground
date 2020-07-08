@@ -23,7 +23,7 @@ const RESOURCES = [
 	'images/banner2.svg',
 	'images/banner3.svg',
 	'images/banner4.svg',
-	'images/no_img.gif',
+	'images/no_img.svg',
 	'img/homescreen.webp',
 	'img/homescreen.jpg',
 
