@@ -636,7 +636,7 @@ namespace Integration
 
 				var responseString = await response.Content.ReadAsStringAsync();
 				Assert.Contains("<title>WebCam Gallery - Dotnet Core Playground</title>", responseString);
-				Assert.Contains("function ReplImg(event)", responseString);
+				Assert.Contains("WebCamGalleryOnLoad", responseString);
 
 				if (!string.IsNullOrEmpty(_fixture.ImageDirectory))
 				{
