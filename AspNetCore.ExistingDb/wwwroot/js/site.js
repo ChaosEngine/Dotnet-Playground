@@ -194,6 +194,10 @@ function LoadFirstGallerImages() {
 	});
 }
 
+function LoadVideoJS() {
+	const player = videojs('my-player');
+}
+
 function LoadYouTubeIFrame() {
 	Array.prototype.slice.call(document.querySelectorAll("#youtube-tab iframe:not([src])")).forEach(function (ytb) {
 		ytb.style.display = 'block';
@@ -373,6 +377,9 @@ function WebCamGalleryOnLoad(enableAnnualMovieGenerator) {
 		else if (name === '#youtube-tab') {
 			LoadYouTubeIFrame();
 		}
+		else if (name === '#video-tab') {
+			LoadVideoJS();
+		}
 		else
 			$('#btnReplAllImg').prop('disabled', true);
 	};
@@ -386,6 +393,9 @@ function WebCamGalleryOnLoad(enableAnnualMovieGenerator) {
 			$('#btnReplAllImg').prop('disabled', false);
 			LoadFirstGallerImages();
 		}
+		else if (name === '#video-tab') {
+			LoadVideoJS();
+		}
 		else if (name === '#youtube-tab') {
 			LoadYouTubeIFrame();
 		}
@@ -397,6 +407,9 @@ function WebCamGalleryOnLoad(enableAnnualMovieGenerator) {
 	if ($("#myTab a[href='#gallery-tab']").hasClass('active')) {
 		$('#btnReplAllImg').prop('disabled', false);
 		LoadFirstGallerImages();
+	}
+	else if ($("#myTab a[href='#video-tab']").hasClass('active')) {
+		LoadVideoJS();
 	}
 	else if ($("#myTab a[href='#youtube-tab']").hasClass('active')) {
 		LoadYouTubeIFrame();
@@ -413,6 +426,9 @@ function WebCamGalleryOnLoad(enableAnnualMovieGenerator) {
 			else if (e.target.hash.indexOf('live-tab') !== -1) {
 				$('#live').attr('src', liveImgAddr);
 				$('#btnReplAllImg').prop('disabled', true);
+			}
+			else if (e.target.hash.indexOf('video-tab') !== -1) {
+				LoadVideoJS();
 			}
 			else if (e.target.hash.indexOf('youtube-tab') !== -1) {
 				LoadYouTubeIFrame();

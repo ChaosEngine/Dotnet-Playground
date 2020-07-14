@@ -21,32 +21,6 @@
 			  asp-fallback-href="~/lib/video.js/dist/video-js.min.css"
 			  asp-fallback-test-class="video-js" asp-fallback-test-property="position" asp-fallback-test-value="relative" />
 	</environment>
-	<style type="text/css">
-		#links a > img {
-			width: 133px;
-			height: 100px;
-		}
-		#links a {
-			text-decoration: none;
-		}
-		.vjs-default-skin .vjs-big-play-button {
-			top: 50%;
-			left: 50%;
-			margin: -1em auto auto -2em;
-			width: 80px;
-			height: 50px;
-		}
-		/* Extra large devices (large desktops, 1200px and up) */
-		@@media (min-width: 1200px) {
-			.video-js-box {
-				width: 1280px !important;
-				height: 960px !important;
-			}
-			#live.img-fluid {
-				max-width: 1280px !important;
-			}
-		}
-	</style>
 }
 
 <p id="secretAction" style="display: none">
@@ -103,8 +77,8 @@
   		<div class="tab-pane" id="video-tab" role="tabpanel" aria-labelledby="video-tab">
 			<!-- Begin VideoJS -->
 			<div class="video-js-box">
-				<video width="1280" height="960" class="video-js vjs-default-skin vjs-4-3 vjs-fluid vjs-big-play-centered"
-					controls preload="none" poster="@Model.BaseWebCamURL/poster.jpeg" data-setup="{}">
+				<video id="my-player" width="1280" height="960" class="video-js vjs-default-skin vjs-4-3 vjs-fluid vjs-big-play-centered"
+					controls preload="none" poster="@Model.BaseWebCamURL/poster.jpeg">
 					<source src="@Model.BaseWebCamURL/video.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"' />
 					<source src="@Model.BaseWebCamURL/video.webm" type='video/webm; codecs="vp8, vorbis"' />
 				</video>
