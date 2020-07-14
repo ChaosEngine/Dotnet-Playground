@@ -341,7 +341,7 @@ namespace Integration
 		{
 			// Arrange
 			// Act
-			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{HashesDataTableController.ASPX}/"))
+			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{VirtualScrollController.ASPX}/"))
 			{
 				// Assert
 				response.EnsureSuccessStatusCode();
@@ -349,7 +349,7 @@ namespace Integration
 				var responseString = await response.Content.ReadAsStringAsync();
 				Assert.Contains("<button id=\"btninfo\" class=\"btn btn-secondary\" type=\"button\" data-toggle=\"modal\" data-target=\"#exampleModal\">&#9432;&nbsp;Row info</button>",
 					responseString);
-				Assert.Contains("data-page-list=\"[5,10,20,50,500,2000]\"", responseString);
+				Assert.Contains("data-page-list=\"[50,500,2000,10000]\"", responseString);
 			}
 		}
 
@@ -379,7 +379,7 @@ namespace Integration
 			{
 				var queryString = await content.ReadAsStringAsync();
 				// Act
-				using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{HashesDataTableController.ASPX}/{nameof(HashesDataTableController.Load)}?{queryString}", HttpCompletionOption.ResponseContentRead))
+				using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{VirtualScrollController.ASPX}/{nameof(HashesDataTableController.Load)}?{queryString}", HttpCompletionOption.ResponseContentRead))
 				{
 					// Assert
 					Assert.NotNull(response);
@@ -446,7 +446,7 @@ namespace Integration
 				var queryString = await content.ReadAsStringAsync();
 				// Act
 				using (HttpResponseMessage response =
-					await _client.GetAsync($"{_fixture.AppRootPath}{HashesDataTableController.ASPX}/{nameof(HashesDataTableController.Load)}?{queryString}",
+					await _client.GetAsync($"{_fixture.AppRootPath}{VirtualScrollController.ASPX}/{nameof(HashesDataTableController.Load)}?{queryString}",
 					HttpCompletionOption.ResponseContentRead))
 				{
 					// Assert

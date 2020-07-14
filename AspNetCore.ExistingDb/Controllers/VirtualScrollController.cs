@@ -6,7 +6,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 {
 	public class VirtualScrollController : HashesDataTableController
 	{
-		public new const string ASPX = "VirtualScroll";
+		public const string ASPX = "VirtualScroll";
 
 		public VirtualScrollController(IHashesRepositoryPure repo, ILogger<HashesDataTableController> logger) : base(repo, logger)
 		{
