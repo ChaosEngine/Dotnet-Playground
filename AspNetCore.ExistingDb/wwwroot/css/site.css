@@ -79,7 +79,7 @@ body {
 footer.container > noscript {
 	color: red
 }
-/***************VirtualScroll end***************/
+
 /***************WebCamGallery start*************/
 #gallery-tab #links a {
 	text-decoration: none;
@@ -108,4 +108,3 @@ footer.container > noscript {
 		max-width: 1280px !important;
 	}
 }
-/***************WebCamGallery end***************/
