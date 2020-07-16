@@ -9,7 +9,8 @@ const gulp = require("gulp"),
 	//babel = require("gulp-babel"),
 	rename = require("gulp-rename"),
 	path = require('path'),
-	webpack = require('webpack-stream');
+	webpack = require('webpack-stream'),
+	EsmWebpackPlugin = require("@purtuga/esm-webpack-plugin");
 
 var webroot = "./wwwroot/";
 
@@ -95,6 +96,9 @@ gulp.task('webpack:inkballConcaveMan', function () {
 				filename: 'concavemanBundle.js',
 				library: 'concavemanBundle' //add this line to enable re-use
 			},
+			plugins: [
+				new EsmWebpackPlugin()
+			],
 			optimization: {
 				minimize: true
 			},
