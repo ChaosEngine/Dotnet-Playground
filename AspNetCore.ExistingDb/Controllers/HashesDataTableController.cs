@@ -18,15 +18,13 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 		Task<IActionResult> Load(HashesDataTableLoadInput input);
 	}
 
-	public class HashesDataTableController : BaseController<ThinHashes>, IHashesDataTableController
+	public abstract class HashesDataTableController : BaseController<ThinHashes>, IHashesDataTableController
 	{
-		public const string ASPX = "HashesDataTable";
+		//public const string ASPX = "HashesDataTable";
 
 		private readonly ILogger<HashesDataTableController> _logger;
 		private readonly IHashesRepositoryPure _repo;
-		//private static readonly JsonSerializerSettings _serializationSettings =
-		//	new JsonSerializerSettings { MetadataPropertyHandling = MetadataPropertyHandling.Ignore, Formatting = Formatting.None };
-
+		
 		public HashesDataTableController(IHashesRepositoryPure repo, ILogger<HashesDataTableController> logger) : base()
 		{
 			_logger = logger;
@@ -34,12 +32,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 			_repo.SetReadOnly(true);
 		}
 
-		[HttpGet(ASPX)]
-		public virtual IActionResult Index()
-		{
-			string view_name = "Views/Hashes/HashesDataTable.cshtml";
-			return View(view_name);
-		}
+		public abstract IActionResult Index();
 
 		[HttpGet]
 		public async Task<IActionResult> Load(HashesDataTableLoadInput input)

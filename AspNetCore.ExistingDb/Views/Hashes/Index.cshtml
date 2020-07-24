@@ -4,30 +4,6 @@
 @{
 	ViewBag.Title = "MyRainbow rainbow table";
 }
-@section headElements
-{
-<style type="text/css">
-	.glyphicon-refresh-animate {
-		text-align:center;
-		font-weight:bold;
-		font-size: x-large;
-		display:inline-block;
-
-		animation-name: spin;
-		animation-duration: 750ms;
-		animation-iteration-count: infinite;
-		animation-timing-function: linear;
-		/* transform: rotate(3deg); */
-		/* transform: rotate(0.3rad);/ */
-		/* transform: rotate(3grad); */
-		/* transform: rotate(.03turn); */
-	}
-	@@keyframes spin {
-		from { transform:rotate(0deg); }
-		to { transform:rotate(360deg); }
-	}
-</style>
-}
 <h2>Rainbow table trivial example</h2>
 @{
 	if (((HashesInfo)ViewBag.Info) != null && ((HashesInfo)ViewBag.Info).IsCalculating == false)
@@ -66,7 +42,7 @@
 	</div>
 	<div class="form-group">
 		<div class="col-md-10">
-			<button type="submit" id="btnSearch" class="btn btn-lg btn-warning"><div style='display:inline-block'></div> Search</button>
+			<button type="submit" id="btnSearch" class="btn btn-lg btn-warning">Search</button>
 		</div>
 	</div>
 	<div class="form-group">
@@ -93,11 +69,11 @@
 	@await Html.PartialAsync("_CryptoJSScriptsPartial")
 
 	<script type="text/javascript">
-		var g_LastTimeOfRun = new Date().getTime();
+		let g_LastTimeOfRun = new Date().getTime();
 		$(function () {
 			$.validator.addMethod('hashlength',
 				function (value, element, params) {
-					var kind = $(params).val();
+					const kind = $(params).val();
 
 					if ((kind == "MD5" && value.length != 32) || (kind == "SHA256" && value.length != 64))
 						return false;
@@ -130,18 +106,18 @@
 					$(this).data("lastval", $(this).val());
 
 					//change action
-					var value = $(this).val();
-					var time_of_run = new Date().getTime();
+					const value = $(this).val();
+					const time_of_run = new Date().getTime();
 					
 					//dont flood ajax reuqests, wait 1 sec in between
 					if (value.length > 4 && ((time_of_run - g_LastTimeOfRun) > 1000)) {
 						g_LastTimeOfRun = new Date().getTime();
 
-						var button = $('#btnSearch');//simulate button click-like behaviour: disable
+						const button = $('#btnSearch');//simulate button click-like behaviour: disable
 						button.prop('disabled', true);
-						button.html("<div class='glyphicon-refresh-animate'>&#8635;</div> Loading...");
+                        button.html("<span class='spinner-border spinner-border-sm align-middle' role='status' aria-hidden='true'></span> Loading...");
 
-						var hedrs = { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() }
+						const hedrs = { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() }
 
 						$.ajax({
 							method: "POST", url: '@(nameof(HashesController.Autocomplete))',
@@ -152,13 +128,13 @@
 							$('#trFirstResult').hide();
 
 							button.prop('disabled', false);//simulate button click-like behaviour: enable
-							button.html("<div style='display:inline-block'></div> Search");
+							button.text("Search");
 
-							var t = $('#result_tab tbody');
+							let t = $('#result_tab tbody');
 							t.find('tr:visible').not('#trFirstResult').remove();
 
 							$.each(found, function (i, item) {
-								var $tr = $('<tr>').append(
+								const $tr = $('<tr>').append(
 									$('<td>').text(item.key),
 									$('<td>').text(item.hashMD5),
 									$('<td>').text(item.hashSHA256),
@@ -174,14 +150,14 @@
 		});
 
 		function AjaxifySearch(e) {
-			var divResult = $('#divResult');
-			var search = $('#txtSearch').val();
+			const divResult = $('#divResult');
+			const search = $('#txtSearch').val();
 			if (search == null || search == '') {
 				divResult.text('no hash to decode');
 				return;
 			}
 
-			var sha_kind = $('.radio-inline input:radio:checked').val();
+			const sha_kind = $('.radio-inline input:radio:checked').val();
 			switch (sha_kind) {
 				case 'MD5':
 					if (search.length < 32) {
@@ -200,13 +176,13 @@
 					return;
 			}
 
-			var button = $('#btnSearch');
+			const button = $('#btnSearch');
 			button.prop('disabled', true);
-			button.html("<div class='glyphicon-refresh-animate'>&#8635;</div> Loading...");
+            button.html("<span class='spinner-border spinner-border-sm align-middle' role='status' aria-hidden='true'></span> Loading...");
 			divResult.text('');
 			$('#result_tab').hide();
 
-			var hedrs = { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() }
+			const hedrs = { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() }
 
 			$.ajax({
 				method: "POST", url: '@(nameof(HashesController.Search))',
@@ -216,7 +192,7 @@
 				},
 			}).done(function (found) {
 				button.prop('disabled', false);
-				button.html("<div style='display:inline-block'></div> Search");
+				button.text("Search");
 
 				if (/^error.*/.test(found)) {
 					divResult.text(found);
@@ -224,7 +200,7 @@
 				}
 				$('#result_tab').show();
 
-				var t = $('#result_tab tbody');
+				let t = $('#result_tab tbody');
 				t.find('tr:visible').not('#trFirstResult').remove();
 				$('#trFirstResult').show();
 

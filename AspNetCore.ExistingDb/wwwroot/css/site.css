@@ -53,14 +53,17 @@ body {
 
 #offlineIndicator {
 	position: absolute;
-	top: 0; left: 0; bottom: 0; right: 0;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
 	z-index: -1;
 	overflow: hidden;
 	color: white;
 	display: none;
 }
 
-/*Hashes and VirtualScroll*/
+/***************VirtualScroll start***************/
 .bootstrap-table button.btn .fa-sync:after {
 	content: '↻';
 	display: block;
@@ -75,4 +78,33 @@ body {
 
 footer.container > noscript {
 	color: red
+}
+
+/***************WebCamGallery start*************/
+#gallery-tab #links a {
+	text-decoration: none;
+}
+
+#gallery-tab #links a > img {
+	width: 133px;
+	height: 100px;
+}
+
+#video-tab .vjs-default-skin .vjs-big-play-button {
+	top: 50%;
+	left: 50%;
+	margin: -1em auto auto -2em;
+	width: 80px;
+	height: 50px;
+}
+/* Extra large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {
+	.video-js-box {
+		width: 1280px !important;
+		height: 960px !important;
+	}
+
+	#live.img-fluid {
+		max-width: 1280px !important;
+	}
 }

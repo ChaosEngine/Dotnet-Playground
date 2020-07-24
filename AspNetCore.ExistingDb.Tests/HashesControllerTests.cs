@@ -605,7 +605,7 @@ namespace Controllers
 			IHashesRepository repository = mock.Object;
 
 
-			using (var controller = new WebControllers.HashesDataTableController(repository, Logger))
+			using (var controller = new WebControllers.VirtualScrollController(repository, Logger))
 			{
 				// Act
 				var result = controller.Index();
@@ -641,7 +641,7 @@ namespace Controllers
 				new ThinHashes { Key = "aaaad", HashMD5 = "fba2fdaf36fdf1931d552535a57eb984", HashSHA256 = "d0977789a5e2f79fdfbb4b1dbb342d90c88eeae3d3c68297a3a3027c859af2ee" },
 			});
 
-			using (var controller = new WebControllers.HashesDataTableController(repository, Logger))
+			using (var controller = new WebControllers.VirtualScrollController(repository, Logger))
 			{
 				((Controller)controller).ControllerContext = HashesHelpers.MockContollerContext();
 
@@ -733,7 +733,7 @@ namespace Controllers
 			Moq.Mock<IHashesRepository> mock = HashesHelpers.MockHashesRepository();
 			IHashesRepository repository = mock.Object;
 
-			using (var controller = new WebControllers.HashesDataTableController(repository, Logger))
+			using (var controller = new WebControllers.VirtualScrollController(repository, Logger))
 			{
 				((Controller)controller).ControllerContext = HashesHelpers.MockContollerContext();
 				((Controller)controller).HttpContext.RequestAborted = new CancellationToken(true);
@@ -753,7 +753,7 @@ namespace Controllers
 			Moq.Mock<IHashesRepository> mock = HashesHelpers.MockHashesRepository();
 			IHashesRepository repository = mock.Object;
 
-			using (var controller = new WebControllers.HashesDataTableController(repository, Logger))
+			using (var controller = new WebControllers.VirtualScrollController(repository, Logger))
 			{
 				((Controller)controller).ControllerContext = HashesHelpers.MockContollerContext();
 

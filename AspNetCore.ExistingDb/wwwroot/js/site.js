@@ -1,6 +1,6 @@
-﻿/* eslint-disable no-console */
+﻿/*eslint-disable no-console*/
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate|registerServiceWorker" }]*/
-/*global forge*/
+/*global forge, last_refresh*/
 "use strict";
 
 var logLevel = {
@@ -182,3 +182,281 @@ window.onerror = function (msg, url, line, col, error) {
 	// Internet Explorer) will be suppressed.
 	return suppressErrorAlert;
 };
+
+///////////////////WebCamGallery functions start/////////////////
+function LoadFirstGallerImages() {
+	$('img.active:not([src])').each(function (index, value) {
+		//value.onmouseover = ReplImg;
+		const img = $(value);
+		const alt = img.attr('alt');
+		if (alt && alt !== 'no img')
+			img.attr('src', g_AppRootPath + 'WebCamImages/' + alt);
+	});
+}
+
+function LoadVideoJS() {
+	const player = videojs('my-player');
+}
+
+function LoadYouTubeIFrame() {
+	Array.prototype.slice.call(document.querySelectorAll("#youtube-tab iframe:not([src])")).forEach(function (ytb) {
+		ytb.style.display = 'block';
+		ytb.src = ytb.dataset.src;
+	});
+}
+
+function ReplImg(event) {
+	const el = event.currentTarget || event;
+	if (el.tagName != 'IMG') {
+		el.firstChild.src = el.href.replace("out", "thumbnail");
+		el.firstChild.class = 'active';
+	}
+	else {
+		el.src = el.parentNode.href.replace("out", "thumbnail");
+		el.classList.remove("inactive");
+		el.classList.add('active');
+	}
+}
+
+function ReplAllImg() {
+	$("img.inactive").each(function (index, value) {
+		ReplImg(value);
+	});
+}
+
+function LoadImageAsBinaryArray(img) {
+	img.setAttribute('data-last-modified', 'refreshing');
+
+	// Simulate a call to Dropbox or other service that can
+	// return an image as an ArrayBuffer.
+	var xhr = new XMLHttpRequest();
+	// Use JSFiddle logo as a sample image to avoid complicating
+	// this example with cross-domain issues.
+	xhr.open("GET", g_AppRootPath + "WebCamImages/?handler=live", true);
+	xhr.setRequestHeader('Cache-Control', 'no-cache');
+	// Ask for the result as an ArrayBuffer.
+	xhr.responseType = "arraybuffer";
+	xhr.onload = function (e) {
+		// Obtain a blob: URL for the image data.
+		var arrayBufferView = new Uint8Array(this.response);
+		var blob = new Blob([arrayBufferView], { type: "image/jpeg" });
+
+		var hdr_last_modified = this.getResponseHeader('Last-Modified');
+
+		var urlCreator = window.URL || window.webkitURL;
+		var imageUrl = urlCreator.createObjectURL(blob);
+		img.onload = function () {
+			urlCreator.revokeObjectURL(this.src);
+		}
+		img.src = imageUrl;
+		img.setAttribute('data-last-modified', hdr_last_modified);
+
+		last_refresh = new Date();
+	};
+	xhr.send();
+}
+
+/**
+ * on live img refresh click
+ * @param {any} liveImageExpireTimeInSeconds
+ */
+function RefreshLiveImage(liveImageExpireTimeInSeconds) {
+	//document.getElementById('live').src = '/WebCamImages/?handler=live&' + Math.random();
+	var live = document.querySelector("#live");
+	if (live != null) {
+		var data_last_modified = live.getAttribute('data-last-modified');
+		if (data_last_modified != "refreshing") {
+			var now = new Date();
+			var secs_between = (now - last_refresh) * 0.001;
+			var msg = String(secs_between) + ' secs elapsed since last live-image load';
+			if (secs_between > liveImageExpireTimeInSeconds) {
+				msg += ', reloading!';
+				LoadImageAsBinaryArray(live);
+			}
+			console.log(msg);
+		}
+		else
+			console.log('still reloading!');
+	}
+}
+
+function GenerateAnnualMovie(event) {
+	const hedrs = { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() }
+	const serialized_bag = JSON.stringify({ Result: "query", Product: ["qqq", "xxxx", "yyyy", "zzzzzz"] });
+	$('#tbAnnualMovieGenerator').html(
+		'<thead><tr>' +
+		'<th scope="col">#</th>' +
+		'<th scope="col">Name</th>' +
+		'<th scope="col">Hash</th>' +
+		'<th scope="col">Date</th>' +
+		'</tr></thead><caption>Loading...</caption><tbody></tbody>'
+	);
+
+	$.ajax({
+		method: 'POST',
+		url: 'AnnualTimelapse/?handler=SecretAction',
+		contentType: "application/json",
+		dataType: 'json',
+		data: serialized_bag,
+		headers: hedrs
+	}).done(function (response, textStatus, jqXHR) {
+		console.log(response);
+		if (response.Result == "error") {
+			alert("error");
+			return;
+		}
+		//const stringified = JSON.stringify(response.product, null, 2);
+		//display.text(stringified);
+
+		$('#tbAnnualMovieGenerator caption').remove();
+		$(response.product).each(function (index, item) {
+			$('#tbAnnualMovieGenerator tbody').append(
+				'<tr>' +
+				'<td>' + item[0] + '</td>' +
+				'<td>' + item[1] + '</td>' +
+				'<td>' + item[2] + '</td>' +
+				'<td>' + item[3] + '</td>' +
+				'</tr>'
+			);
+		});
+	}).fail(function (jqXHR, textStatus, errorThrown) {
+		alert("error: " + textStatus + " " + errorThrown);
+		$('#tbAnnualMovieGenerator').html('');
+	}).always(function () {
+		event.target.disabled = '';
+	});
+}
+
+/**
+ * WebCamGallery onload event
+ * @param {boolean} enableAnnualMovieGenerator
+ */
+function WebCamGalleryOnLoad(enableAnnualMovieGenerator) {
+	//bluimp-gallery handling
+	$('#links').click(function (event) {
+		event = event || window.event;
+		const target = event.target || event.srcElement,
+			link = target.src ? target.parentNode : target,
+			options = {
+				index: link,
+				event: event,
+				onopen: function () {
+					// Callback function executed when the Gallery is initialized
+					ReplAllImg();
+				},
+			},
+			links = this.getElementsByTagName('a');
+		blueimp.Gallery(links, options);
+	});
+
+	$("img.inactive").each(function (index, value) {
+		//$(value).mouseover(ReplImg);
+		value.onmouseover = ReplImg;
+		value.src = g_AppRootPath + 'images/no_img.svg';
+	});
+
+	$('#btnReplAllImg').click(function (event) {
+		ReplAllImg();
+	});
+	const liveImgAddr = g_AppRootPath + 'WebCamImages/?handler=live';
+
+	window.onpopstate = function (event) {
+		//console.log("location: " + document.location + ", state: " + JSON.stringify(event.state));
+		const name = (event.state ? event.state.foo : location.hash) || "#live-tab";
+		const tab = $("#myTab a[href='" + name + "']");
+		if (tab !== undefined)
+			tab.tab('show');
+
+		if (name === '#gallery-tab') {
+			$('#btnReplAllImg').prop('disabled', false);
+			LoadFirstGallerImages();
+		}
+		else if (name === '#live-tab') {
+			$('#live').attr('src', liveImgAddr);
+		}
+		else if (name === '#youtube-tab') {
+			LoadYouTubeIFrame();
+		}
+		else if (name === '#video-tab') {
+			LoadVideoJS();
+		}
+		else
+			$('#btnReplAllImg').prop('disabled', true);
+	};
+	if (location.hash !== undefined && location.hash.length > 0) {
+		const name = location.hash;
+		const tab = $("#myTab a[href='" + name + "']");
+		if (tab !== undefined)
+			tab.tab('show');
+
+		if (name === '#gallery-tab') {
+			$('#btnReplAllImg').prop('disabled', false);
+			LoadFirstGallerImages();
+		}
+		else if (name === '#video-tab') {
+			LoadVideoJS();
+		}
+		else if (name === '#youtube-tab') {
+			LoadYouTubeIFrame();
+		}
+		else
+			$('#btnReplAllImg').prop('disabled', true);
+	}
+	else
+		$('#btnReplAllImg').prop('disabled', true);
+	if ($("#myTab a[href='#gallery-tab']").hasClass('active')) {
+		$('#btnReplAllImg').prop('disabled', false);
+		LoadFirstGallerImages();
+	}
+	else if ($("#myTab a[href='#video-tab']").hasClass('active')) {
+		LoadVideoJS();
+	}
+	else if ($("#myTab a[href='#youtube-tab']").hasClass('active')) {
+		LoadYouTubeIFrame();
+	}
+	else if ($("#myTab a[href='#live-tab']").hasClass('active')) {
+		$('#live').attr('src', liveImgAddr);
+	}
+	$("#myTab a").on('click', function (e) {
+		if (e.target.hash !== undefined) {
+			if (e.target.hash.indexOf('gallery-tab') !== -1) {
+				$('#btnReplAllImg').prop('disabled', false);
+				LoadFirstGallerImages();
+			}
+			else if (e.target.hash.indexOf('live-tab') !== -1) {
+				$('#live').attr('src', liveImgAddr);
+				$('#btnReplAllImg').prop('disabled', true);
+			}
+			else if (e.target.hash.indexOf('video-tab') !== -1) {
+				LoadVideoJS();
+			}
+			else if (e.target.hash.indexOf('youtube-tab') !== -1) {
+				LoadYouTubeIFrame();
+			}
+			else
+				$('#btnReplAllImg').prop('disabled', true);
+
+			const addr = e.target.hash;
+			let stateObj = {
+				foo: addr
+			};
+			window.history.pushState(stateObj, addr, addr);
+		}
+	});
+
+	//const enableAnnualMovieGenerator = JSON.parse('@Model.EnableAnnualMovieGenerator'.toLowerCase());
+	if (enableAnnualMovieGenerator === true) {
+		$('#btnAnnualMovieGenerator').prop('disabled', false).on('click', function (event) {
+			if (event.target.attributes['aria-expanded'].value !== 'true') {
+				event.target.disabled = 'disabled';
+				GenerateAnnualMovie(event);
+			}
+			$('#divAnnualMovieGenerator').collapse('toggle');
+		});
+		$('#secretAction').show();
+	}
+	else {
+		$('#secretAction').hide();
+	}
+}
+///////////////////WebCamGallery functions end///////////////////

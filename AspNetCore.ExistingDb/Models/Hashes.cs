@@ -73,7 +73,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		[RegularExpression("(Key|HashMD5|HashSHA256)", ErrorMessage = "Characters are not allowed: only Key|HashMD5|HashSHA256")]
 		public string Sort { get; set; }
 
-		[Required, RegularExpression("(asc|desc)", ErrorMessage = "Order not allowed: only asc|desc")]
+		[RegularExpression("(asc|desc)", ErrorMessage = "Order not allowed: only asc|desc")]
 		public string Order { get; set; }
 
 		[RegularExpression("[a-zA-Z0-9].*", ErrorMessage = "Characters are not allowed")]
