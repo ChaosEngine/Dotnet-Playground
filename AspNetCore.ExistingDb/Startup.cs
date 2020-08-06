@@ -175,7 +175,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			services.AddScoped<IBloggingRepository, BloggingRepository>();
 
 			string dbs_config;
-#if COSMOSDB
+#if INCLUDE_COSMOSDB
 			if (Configuration.GetSection("CosmosDB")?["enabled"] == true.ToString())
 			{
 				services.AddScoped<IHashesRepositoryPure, ThinHashesDocumentDBRepository>(serviceProvider =>
