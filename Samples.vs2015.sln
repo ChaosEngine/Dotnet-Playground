@@ -7,13 +7,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.dockerignore = .dockerignore
 		.gitignore = .gitignore
-		buildDockerImage.sh = buildDockerImage.sh
 		docker-compose.yml = docker-compose.yml
 		Dockerfile = Dockerfile
 		Dockerfile.alpine = Dockerfile.alpine
 		global.json = global.json
 		haproxy\haproxy.cfg = haproxy\haproxy.cfg
 		NuGet.config = NuGet.config
+		runContainer.sh = runContainer.sh
 		startApp.sh = startApp.sh
 	EndProjectSection
 EndProject
