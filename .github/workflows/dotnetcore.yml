@@ -5,7 +5,7 @@ on:
     branches: 
       - master
       - dev
-      - github-actions
+      - inkball
 
 jobs:
   build:
