@@ -175,6 +175,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			services.AddScoped<IBloggingRepository, BloggingRepository>();
 
 			string dbs_config;
+#if COSMOSDB
 			if (Configuration.GetSection("CosmosDB")?["enabled"] == true.ToString())
 			{
 				services.AddScoped<IHashesRepositoryPure, ThinHashesDocumentDBRepository>(serviceProvider =>
@@ -193,6 +194,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				services.AddScoped<IThinHashesDocumentDBRepository, ThinHashesDocumentDBRepository>();
 			}
 			else
+#endif
 			{
 				services.AddScoped<IHashesRepositoryPure, HashesRepository>();
 				dbs_config = Configuration["DBKind"]?.ToLower();
@@ -287,7 +289,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 
 
-			#region WIP
+#region WIP
 
 			services.AddAuthorization(options =>
 			{
@@ -328,7 +330,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			})
 			.AddIdentityMangerService<AspNetCoreIdentityManagerService<ApplicationUser, string, IdentityRole, string>>();
 
-			#endregion WIP
+#endregion WIP
 
 
 
