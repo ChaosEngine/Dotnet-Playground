@@ -66,7 +66,7 @@
 		"@purtuga/esm-webpack-plugin": "1.2.1"
 	},
 	"dependencies": {
-		"bootstrap": "4.5.1",
+		"bootstrap": "4.5.2",
 		"bootstrap-table": "1.17.1",
 		"node-forge": "0.9.1",
 		"jquery": "3.5.1",
