@@ -72,11 +72,11 @@
 		"jquery": "3.5.1",
 		"jquery-validation": "1.19.2",
 		"jquery-validation-unobtrusive": "3.2.11",
-		"blueimp-gallery": "3.2.0",
+		"blueimp-gallery": "3.3.0",
 		"video.js": "7.8.4",
 		"qrcodejs": "1.0.0",
-		"@microsoft/signalr": "3.1.6",
-		"@microsoft/signalr-protocol-msgpack": "3.1.6",
+		"@microsoft/signalr": "3.1.7",
+		"@microsoft/signalr-protocol-msgpack": "3.1.7",
 		"msgpack5": "4.2.1"
 	},
 	"scripts": {
