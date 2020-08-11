@@ -19,7 +19,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1.101
+        dotnet-version: 3.1.x
     - name: Build with dotnet
       env:
         DOTNET_ROLL_FORWARD_ON_NO_CANDIDATE_FX: 2
