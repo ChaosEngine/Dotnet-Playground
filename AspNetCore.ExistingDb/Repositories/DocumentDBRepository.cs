@@ -1,4 +1,6 @@
-﻿using Microsoft.Azure.Documents;
+﻿#if INCLUDE_COSMOSDB
+
+using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents.Linq;
 using System;
@@ -186,3 +188,5 @@ namespace AspNetCore.ExistingDb.Repositories
 		}
 	}
 }
+
+#endif
