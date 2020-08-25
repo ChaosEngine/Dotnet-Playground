@@ -167,9 +167,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 					loggingBuilder.AddDebug();
 			});
 #if DEBUG
-			////services.AddSingleton<ICompilationService, RoslynCompilationService>();
-			//services.AddSingleton<Microsoft.AspNetCore.Razor.Language.RazorTemplateEngine, CustomTemplateEngine>();
-
 			//services.AddApplicationInsightsTelemetry();
 #endif
 			services.AddScoped<IBloggingRepository, BloggingRepository>();
