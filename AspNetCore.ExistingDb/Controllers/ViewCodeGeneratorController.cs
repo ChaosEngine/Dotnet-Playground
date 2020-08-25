@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Razor.Language;
 using System.IO;
+#if DEBUG
+using Microsoft.AspNetCore.Razor.Language;
+#endif
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 {
