@@ -1,37 +1,42 @@
-﻿using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Razor.Language;
+using System.IO;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 {
 	[Route("[controller]")]
 	public sealed class ViewCodeGeneratorController : Controller
 	{
-		public static string CompiledViewCode { get; set; }
+		private string GetCompiledViewCode()
+		{
+#if DEBUG
+			if (System.IO.File.Exists(Path.Combine(Directory.GetCurrentDirectory(), @"Views\ViewCodeGenerator\Index.cshtml")))
+			{
+				var projectEngine = RazorProjectEngine.Create(
+					RazorConfiguration.Default,
+					RazorProjectFileSystem.Create(Directory.GetCurrentDirectory()));
+				var item = projectEngine.FileSystem.GetItem(@"\Views\ViewCodeGenerator\Index.cshtml", FileKinds.Legacy);
+				var output = projectEngine.Process(item);
+
+				// Things available
+				var syntaxTree = output.GetSyntaxTree();
+				var intermediateDocument = output.GetDocumentIntermediateNode();
+				var csharpDocument = output.GetCSharpDocument();
+
+				return csharpDocument.GeneratedCode;
+			}
+			else
+#endif
+				return "";
+		}
 
 		public IActionResult Index()
 		{
-			ViewData["CompiledViewCode"] = CompiledViewCode;
+			string compiledViewCode = GetCompiledViewCode();
+
+			ViewData["CompiledViewCode"] = compiledViewCode;
 
 			return View();
-		}
-
-		[HttpPost("[action]")]
-		[ValidateAntiForgeryToken]
-		public IActionResult CompiledContent(string text)
-		{
-			if (!ModelState.IsValid)
-			{
-				return View(nameof(Index), null);
-			}
-
-			return Json(CompiledViewCode ?? "");
 		}
 	}
 }
