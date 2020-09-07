@@ -1,19 +1,19 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "Exp" }]*/
 /*global forge*/
 function arrayBufferToBinaryStringExp(buffer) {
-	var binary = "";
-	var bytes = new Uint8Array(buffer);
-	var length = bytes.byteLength;
-	for (var i = 0; i < length; i++)
+	let binary = "";
+	const bytes = new Uint8Array(buffer);
+	const length = bytes.byteLength;
+	for (let i = 0; i < length; i++)
 		binary += String.fromCharCode(bytes[i]);
 	return binary;
 }
 
 function binaryStringToArrayBufferExp(bin) {
-	var length = bin.length;
-	var buf = new ArrayBuffer(length);
-	var arr = new Uint8Array(buf);
-	for (var i = 0; i < length; i++)
+	const length = bin.length;
+	const buf = new ArrayBuffer(length);
+	const arr = new Uint8Array(buf);
+	for (let i = 0; i < length; i++)
 		arr[i] = bin.charCodeAt(i);
 	return buf;
 }
@@ -27,7 +27,7 @@ function hashExp(passphrase) {
 	//var hash = CryptoJS.SHA256(passphrase)
 	//return hash.toString();
 	
-	var md = forge.md.sha256.create();
+	let md = forge.md.sha256.create();
 	md.update(passphrase);
 	return md.digest().toHex();
 }
@@ -39,8 +39,8 @@ function LazyProductExp(iCharNum, strAlphabet) {
 	let chars = [];
 	
 	this.item = function (n) {
-		for (var i = iCharNum; i--;) {
-			var power = Math.pow(len, i);
+		for (let i = iCharNum; i--;) {
+			const power = Math.pow(len, i);
 
 			// ~~ is double bitwise NOT making it truncate decimal to integer
 			chars[iCharNum - i] = strAlphabet[~~(n / power) % len];
