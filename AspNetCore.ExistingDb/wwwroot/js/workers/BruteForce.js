@@ -1,7 +1,6 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "BruteForce" }]*/
 /*global binaryStringToArrayBufferExp arrayBufferToBinaryStringExp*/
-function BruteForce(d, libsToLoad, workerCount, updateRate, alphabet, hashToCrack, passCharacterLength,
-	foundAction) {
+function BruteForce(d, libsToLoad, workerCount, updateRate, alphabet, hashToCrack, passCharacterLength, foundAction) {
 
 	let passphraseLimit = Math.pow(alphabet.length/*10 digits*/, passCharacterLength/*number of digits*/),
 		workers = [], startTime = null;
