@@ -100,17 +100,29 @@
 			<button id="btnReplAllImg" type="button" class="btn btn-primary btn-sm" value="strng" title="Load all images" disabled>Load all</button>
 			@:<div id="links">
 			int i = 0;
-			foreach (var jpg in Model.ThumbnailJpgs)
+			foreach (var img in Model.ThumbnailJpgs)
 			{
-				var thumbnail = jpg.Name;
-				var full = thumbnail.Replace("thumbnail", "out");
+				var thumbnail = System.IO.Path.GetFileNameWithoutExtension(img.Name);
+				var outo = thumbnail.Replace("thumbnail", "out");
 				if (i++ < 7)
 				{
-					<a href="~/WebCamImages/@full" title="@jpg.LastWriteTime.ToString("u")"><img alt="@thumbnail" class='active' /></a>
+					@*<a href="~/WebCamImages/@(outo).jpg" title="@img.LastWriteTime.ToString("u")"><img alt="@(thumbnail).jpg" class='active' /></a>*@
+					<a href="~/WebCamImages/@(outo).jpg" title="@img.LastWriteTime.ToString("u")">
+						<picture>
+							<source type="image/webp" srcset="~/WebCamImages/@(thumbnail).webp" />
+							<img alt="@thumbnail" src="~/WebCamImages/@(thumbnail).jpg" class='active' />
+						</picture>
+					</a>
 				}
 				else
 				{
-					<a href="~/WebCamImages/@full" title="@jpg.LastWriteTime.ToString("u")"><img alt='no img' class='inactive' /></a>
+					@*<a href="~/WebCamImages/@(outo).jpg" title="@img.LastWriteTime.ToString("u")"><img alt='no img' class='inactive' /></a>*@
+					<a href="~/WebCamImages/@(outo).jpg" title="@img.LastWriteTime.ToString("u")">
+						<picture>
+							<source type="image/svg+xml" srcset="images/no_img.svg" />
+							<img alt='no img' class='inactive' />
+						</picture>
+					</a>
 				}
 			}
 			@:</div>

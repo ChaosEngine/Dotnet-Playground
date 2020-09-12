@@ -184,6 +184,29 @@ window.onerror = function (msg, url, line, col, error) {
 };
 
 ///////////////////WebCamGallery functions start/////////////////
+/**
+ * check_webp_feature (taken from https://developers.google.com/speed/webp/faq#how_can_i_detect_browser_support_for_webp)
+ * @param {any} feature can be one of 'lossy', 'lossless', 'alpha' or 'animation'.
+ * @param {any} callback 'callback(result)' will be passed back the detection result (in an asynchronous way!)
+ */
+function check_webp_feature(feature, callback) {
+	const kTestImages = {
+		lossy: "UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA",
+		lossless: "UklGRhoAAABXRUJQVlA4TA0AAAAvAAAAEAcQERGIiP4HAA==",
+		alpha: "UklGRkoAAABXRUJQVlA4WAoAAAAQAAAAAAAAAAAAQUxQSAwAAAARBxAR/Q9ERP8DAABWUDggGAAAABQBAJ0BKgEAAQAAAP4AAA3AAP7mtQAAAA==",
+		animation: "UklGRlIAAABXRUJQVlA4WAoAAAASAAAAAAAAAAAAQU5JTQYAAAD/////AABBTk1GJgAAAAAAAAAAAAAAAAAAAGQAAABWUDhMDQAAAC8AAAAQBxAREYiI/gcA"
+	};
+	const img = new Image();
+	img.onload = function () {
+		const result = (img.width > 0) && (img.height > 0);
+		callback(result);
+	};
+	img.onerror = function () {
+		callback(false);
+	};
+	img.src = "data:image/webp;base64," + kTestImages[feature];
+}
+
 function LoadFirstGallerImages() {
 	$('img.active:not([src])').each(function (index, value) {
 		//value.onmouseover = ReplImg;
@@ -207,15 +230,20 @@ function LoadYouTubeIFrame() {
 
 function ReplImg(event) {
 	const el = event.currentTarget || event;
-	if (el.tagName != 'IMG') {
-		el.firstChild.src = el.href.replace("out", "thumbnail");
-		el.firstChild.class = 'active';
+	if (el.classList.contains('active')) return;
+
+	const thumb_url = el.parentNode.parentNode.href.replace("out", "thumbnail").replace(".jpg", "").replace(".webp", "");
+	el.src = thumb_url + ".jpg";
+	el.alt = "thumbnail-" + thumb_url.split(/thumbnail-(\d+)/)[1];
+
+	const source = el.parentNode.getElementsByTagName('source')[0];
+	if (source.srcset === "images/no_img.svg") {
+		source.type = "image/webp";
+		source.srcset = thumb_url + ".webp";
 	}
-	else {
-		el.src = el.parentNode.href.replace("out", "thumbnail");
-		el.classList.remove("inactive");
-		el.classList.add('active');
-	}
+
+	el.classList.remove("inactive");
+	el.classList.add('active');
 }
 
 function ReplAllImg() {
@@ -335,18 +363,54 @@ function WebCamGalleryOnLoad(enableAnnualMovieGenerator) {
 	//bluimp-gallery handling
 	$('#links').click(function (event) {
 		event = event || window.event;
-		const target = event.target || event.srcElement,
-			link = target.src ? target.parentNode : target,
-			options = {
-				index: link,
-				event: event,
-				onopen: function () {
-					// Callback function executed when the Gallery is initialized
-					ReplAllImg();
-				},
-			},
-			links = this.getElementsByTagName('a');
-		blueimp.Gallery(links, options);
+		event.preventDefault();
+
+		check_webp_feature('lossy', function (isWebPSupported) {
+			const target = event.target || event.srcElement,
+				links = target.parentNode.parentNode.parentNode,
+				link = target.src ? target.parentNode.parentNode : target,
+				options = {
+					//index: link,
+					event: event,
+					onopen: function () {
+						// Callback function executed when the Gallery is initialized
+						ReplAllImg();
+					},
+				};
+
+			let urls;
+			if (isWebPSupported) {//webp supported
+				urls = Array.prototype.slice.call(links.getElementsByTagName('a')).map(function (a) {
+					const href = a.href.replace(".jpg", ".webp");
+					return {
+						title: a.title,
+						href: href,
+						type: 'image/webp',
+						thumbnail: href.replace("out", "thumbnail")
+					}
+				});
+				const tmp = link.href.replace(".jpg", ".webp");
+				options.index = -1;
+				urls.some(function (value, i) {
+					if (value.href == tmp) {
+						options.index = i;
+						return true;
+					}
+				});
+			}
+			else {//webp not supported
+				urls = Array.prototype.slice.call(links.getElementsByTagName('a'));
+				options.index = -1;
+				urls.some(function (value, i) {
+					if (value.href == link.href) {
+						options.index = i;
+						return true;
+					}
+				});
+			}
+
+			blueimp.Gallery(urls, options);
+		});
 	});
 
 	$("img.inactive").each(function (index, value) {
