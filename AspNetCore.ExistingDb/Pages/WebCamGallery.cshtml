@@ -102,24 +102,23 @@
 			int i = 0;
 			foreach (var img in Model.ThumbnailJpgs)
 			{
-				var thumbnail = System.IO.Path.GetFileNameWithoutExtension(img.Name);
-				var outo = thumbnail.Replace("thumbnail", "out");
+				var thumbnail = img.Name;
 				if (i++ < 7)
 				{
 					@*<a href="~/WebCamImages/@(outo).jpg" title="@img.LastWriteTime.ToString("u")"><img alt="@(thumbnail).jpg" class='active' /></a>*@
-					<a href="~/WebCamImages/@(outo).jpg" title="@img.LastWriteTime.ToString("u")">
+					<a href="~/WebCamImages/@thumbnail" title="@img.LastWriteTime.ToString("u")">
 						<picture>
-							<source type="image/webp" srcset="~/WebCamImages/@(thumbnail).webp" />
-							<img alt="@thumbnail" src="~/WebCamImages/@(thumbnail).jpg" class='active' />
+							<source />
+							<img alt="@thumbnail" class='active' />
 						</picture>
 					</a>
 				}
 				else
 				{
 					@*<a href="~/WebCamImages/@(outo).jpg" title="@img.LastWriteTime.ToString("u")"><img alt='no img' class='inactive' /></a>*@
-					<a href="~/WebCamImages/@(outo).jpg" title="@img.LastWriteTime.ToString("u")">
+					<a href="~/WebCamImages/@thumbnail" title="@img.LastWriteTime.ToString("u")">
 						<picture>
-							<source type="image/svg+xml" srcset="images/no_img.svg" />
+							<source />
 							<img alt='no img' class='inactive' />
 						</picture>
 					</a>

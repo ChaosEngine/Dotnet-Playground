@@ -12,12 +12,13 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
 		private string GetCompiledViewCode()
 		{
 #if DEBUG
-			if (System.IO.File.Exists(Path.Combine(Directory.GetCurrentDirectory(), @"Views\ViewCodeGenerator\Index.cshtml")))
+			string view = @"Pages\WebCamGallery.cshtml";
+			if (System.IO.File.Exists(Path.Combine(Directory.GetCurrentDirectory(), view)))
 			{
 				var projectEngine = RazorProjectEngine.Create(
 					RazorConfiguration.Default,
 					RazorProjectFileSystem.Create(Directory.GetCurrentDirectory()));
-				var item = projectEngine.FileSystem.GetItem(@"\Views\ViewCodeGenerator\Index.cshtml", FileKinds.Legacy);
+				var item = projectEngine.FileSystem.GetItem('\\' + view, FileKinds.Legacy);
 				var output = projectEngine.Process(item);
 
 				// Things available

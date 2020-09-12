@@ -210,10 +210,15 @@ function check_webp_feature(feature, callback) {
 function LoadFirstGallerImages() {
 	$('img.active:not([src])').each(function (index, value) {
 		//value.onmouseover = ReplImg;
-		const img = $(value);
-		const alt = img.attr('alt');
-		if (alt && alt !== 'no img')
-			img.attr('src', g_AppRootPath + 'WebCamImages/' + alt);
+		const img = value;
+		const alt = img.alt;
+		if (alt && alt !== 'no img') {
+			img.src = g_AppRootPath + 'WebCamImages/' + alt;
+
+			const source = img.parentNode.getElementsByTagName('source')[0];
+			source.type = "image/webp";
+			source.srcset = g_AppRootPath + 'WebCamImages/' + alt.replace(".jpg", ".webp");
+		}
 	});
 }
 
@@ -232,7 +237,7 @@ function ReplImg(event) {
 	const el = event.currentTarget || event;
 	if (el.classList.contains('active')) return;
 
-	const thumb_url = el.parentNode.parentNode.href.replace("out", "thumbnail").replace(".jpg", "").replace(".webp", "");
+	const thumb_url = el.parentNode.parentNode.href.replace("thumbnail", "out").replace(".jpg", "").replace(".webp", "");
 	el.src = thumb_url + ".jpg";
 	el.alt = "thumbnail-" + thumb_url.split(/thumbnail-(\d+)/)[1];
 
@@ -379,44 +384,47 @@ function WebCamGalleryOnLoad(enableAnnualMovieGenerator) {
 				};
 
 			let urls;
-			if (isWebPSupported) {//webp supported
-				urls = Array.prototype.slice.call(links.getElementsByTagName('a')).map(function (a) {
-					const href = a.href.replace(".jpg", ".webp");
-					return {
-						title: a.title,
-						href: href,
-						type: 'image/webp',
-						thumbnail: href.replace("out", "thumbnail")
-					}
-				});
-				const tmp = link.href.replace(".jpg", ".webp");
-				options.index = -1;
-				urls.some(function (value, i) {
-					if (value.href == tmp) {
-						options.index = i;
-						return true;
-					}
-				});
-			}
-			else {//webp not supported
-				urls = Array.prototype.slice.call(links.getElementsByTagName('a'));
-				options.index = -1;
-				urls.some(function (value, i) {
-					if (value.href == link.href) {
-						options.index = i;
-						return true;
-					}
-				});
-			}
+			urls = Array.prototype.slice.call(links.getElementsByTagName('a')).map(function (a) {
+				let href, type;
+				if (isWebPSupported) {//webp supported
+					href = a.href.replace(".jpg", ".webp");
+					type = 'image/webp';
+				}
+				else {
+					href = a.href;
+					type = 'image/jpeg';
+				}
+				return {
+					title: a.title,
+					href: href.replace("thumbnail", "out"),
+					type: type,
+					thumbnail: href
+				}
+			});
+			//calculate clicked image index in url list
+			const tmp = isWebPSupported ? link.href.replace(".jpg", ".webp") : link.href;
+			options.index = -1;
+			urls.some(function (value, i) {
+				if (value.thumbnail == tmp) {
+					options.index = i;
+					return true;
+				}
+			});
 
 			blueimp.Gallery(urls, options);
 		});
 	});
 
 	$("img.inactive").each(function (index, value) {
-		//$(value).mouseover(ReplImg);
+		const empty = "images/no_img.svg";
+
 		value.onmouseover = ReplImg;
-		value.src = g_AppRootPath + 'images/no_img.svg';
+		const empty_img = g_AppRootPath + empty;
+		value.src = empty_img;
+
+		const source = value.parentNode.getElementsByTagName('source')[0];
+		source.type = "image/svg+xml";
+		source.srcset = empty;
 	});
 
 	$('#btnReplAllImg').click(function (event) {
