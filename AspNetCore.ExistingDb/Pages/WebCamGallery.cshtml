@@ -67,7 +67,7 @@
 	if (!string.IsNullOrEmpty(Model.LiveWebCamURL))
 	{
   		<div class="tab-pane active" id="live-tab" role="tabpanel" aria-labelledby="live-tab">
-			<a onclick="RefreshLiveImage(@(MjpgStreamerHttpClient.LiveImageExpireTimeInSeconds))" title='live' style="width:1280px; height:960px">
+			<a id='aLive' title='live' style="width:1280px; height:960px">
 				<img id='live' alt='live' width="1280" height="960" class="img-fluid" data-last-modified="" src="~/images/no_img.svg" />
 			</a>
 		</div>
@@ -99,30 +99,17 @@
 		@:<div class="tab-pane" id="gallery-tab" role="tabpanel" aria-labelledby="gallery-tab">
 			<button id="btnReplAllImg" type="button" class="btn btn-primary btn-sm" value="strng" title="Load all images" disabled>Load all</button>
 			@:<div id="links">
-			int i = 0;
 			foreach (var img in Model.ThumbnailJpgs)
 			{
 				var thumbnail = img.Name;
-				if (i++ < 7)
-				{
-					@*<a href="~/WebCamImages/@(outo).jpg" title="@img.LastWriteTime.ToString("u")"><img alt="@(thumbnail).jpg" class='active' /></a>*@
-					<a href="~/WebCamImages/@thumbnail" title="@img.LastWriteTime.ToString("u")">
-						<picture>
-							<source />
-							<img alt="@thumbnail" class='active' />
-						</picture>
-					</a>
-				}
-				else
-				{
-					@*<a href="~/WebCamImages/@(outo).jpg" title="@img.LastWriteTime.ToString("u")"><img alt='no img' class='inactive' /></a>*@
-					<a href="~/WebCamImages/@thumbnail" title="@img.LastWriteTime.ToString("u")">
-						<picture>
-							<source />
-							<img alt='no img' class='inactive' />
-						</picture>
-					</a>
-				}
+
+				@*<a href="~/WebCamImages/@(outo).jpg" title="@img.LastWriteTime.ToString("u")"><img alt='no img' class='inactive' /></a>*@
+				<a href="~/WebCamImages/@thumbnail" title="@img.LastWriteTime.ToString("u")">
+					<picture>
+						<source />
+						<img alt='no img' class='inactive' />
+					</picture>
+				</a>
 			}
 			@:</div>
 			<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">
@@ -154,11 +141,8 @@
 				asp-fallback-test="window.jQuery && videojs.options"></script>
 	</environment>
     <script type="text/javascript">
-
-		var last_refresh = new Date();
-
 		$(document).ready(function () {
-			WebCamGalleryOnLoad(JSON.parse('@Model.EnableAnnualMovieGenerator'.toLowerCase()));
+			WebCamGalleryOnLoad(JSON.parse('@Model.EnableAnnualMovieGenerator'.toLowerCase()), @MjpgStreamerHttpClient.LiveImageExpireTimeInSeconds);
 		});
 
     </script>

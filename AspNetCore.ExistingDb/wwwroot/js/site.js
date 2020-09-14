@@ -1,6 +1,6 @@
 ﻿/*eslint-disable no-console*/
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate|registerServiceWorker" }]*/
-/*global forge, last_refresh*/
+/*global forge*/
 "use strict";
 
 var logLevel = {
@@ -185,188 +185,108 @@ window.onerror = function (msg, url, line, col, error) {
 
 ///////////////////WebCamGallery functions start/////////////////
 /**
- * check_webp_feature (taken from https://developers.google.com/speed/webp/faq#how_can_i_detect_browser_support_for_webp)
- * @param {any} feature can be one of 'lossy', 'lossless', 'alpha' or 'animation'.
- * @param {any} callback 'callback(result)' will be passed back the detection result (in an asynchronous way!)
- */
-function check_webp_feature(feature, callback) {
-	const kTestImages = {
-		lossy: "UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA",
-		lossless: "UklGRhoAAABXRUJQVlA4TA0AAAAvAAAAEAcQERGIiP4HAA==",
-		alpha: "UklGRkoAAABXRUJQVlA4WAoAAAAQAAAAAAAAAAAAQUxQSAwAAAARBxAR/Q9ERP8DAABWUDggGAAAABQBAJ0BKgEAAQAAAP4AAA3AAP7mtQAAAA==",
-		animation: "UklGRlIAAABXRUJQVlA4WAoAAAASAAAAAAAAAAAAQU5JTQYAAAD/////AABBTk1GJgAAAAAAAAAAAAAAAAAAAGQAAABWUDhMDQAAAC8AAAAQBxAREYiI/gcA"
-	};
-	const img = new Image();
-	img.onload = function () {
-		const result = (img.width > 0) && (img.height > 0);
-		callback(result);
-	};
-	img.onerror = function () {
-		callback(false);
-	};
-	img.src = "data:image/webp;base64," + kTestImages[feature];
-}
-
-function LoadFirstGallerImages() {
-	$('img.active:not([src])').each(function (index, value) {
-		//value.onmouseover = ReplImg;
-		const img = value;
-		const alt = img.alt;
-		if (alt && alt !== 'no img') {
-			img.src = g_AppRootPath + 'WebCamImages/' + alt;
-
-			const source = img.parentNode.getElementsByTagName('source')[0];
-			source.type = "image/webp";
-			source.srcset = g_AppRootPath + 'WebCamImages/' + alt.replace(".jpg", ".webp");
-		}
-	});
-}
-
-function LoadVideoJS() {
-	const player = videojs('my-player');
-}
-
-function LoadYouTubeIFrame() {
-	Array.prototype.slice.call(document.querySelectorAll("#youtube-tab iframe:not([src])")).forEach(function (ytb) {
-		ytb.style.display = 'block';
-		ytb.src = ytb.dataset.src;
-	});
-}
-
-function ReplImg(event) {
-	const el = event.currentTarget || event;
-	if (el.classList.contains('active')) return;
-
-	const thumb_url = el.parentNode.parentNode.href.replace("thumbnail", "out").replace(".jpg", "").replace(".webp", "");
-	el.src = thumb_url + ".jpg";
-	el.alt = "thumbnail-" + thumb_url.split(/thumbnail-(\d+)/)[1];
-
-	const source = el.parentNode.getElementsByTagName('source')[0];
-	if (source.srcset === "images/no_img.svg") {
-		source.type = "image/webp";
-		source.srcset = thumb_url + ".webp";
-	}
-
-	el.classList.remove("inactive");
-	el.classList.add('active');
-}
-
-function ReplAllImg() {
-	$("img.inactive").each(function (index, value) {
-		ReplImg(value);
-	});
-}
-
-function LoadImageAsBinaryArray(img) {
-	img.setAttribute('data-last-modified', 'refreshing');
-
-	// Simulate a call to Dropbox or other service that can
-	// return an image as an ArrayBuffer.
-	var xhr = new XMLHttpRequest();
-	// Use JSFiddle logo as a sample image to avoid complicating
-	// this example with cross-domain issues.
-	xhr.open("GET", g_AppRootPath + "WebCamImages/?handler=live", true);
-	xhr.setRequestHeader('Cache-Control', 'no-cache');
-	// Ask for the result as an ArrayBuffer.
-	xhr.responseType = "arraybuffer";
-	xhr.onload = function (e) {
-		// Obtain a blob: URL for the image data.
-		var arrayBufferView = new Uint8Array(this.response);
-		var blob = new Blob([arrayBufferView], { type: "image/jpeg" });
-
-		var hdr_last_modified = this.getResponseHeader('Last-Modified');
-
-		var urlCreator = window.URL || window.webkitURL;
-		var imageUrl = urlCreator.createObjectURL(blob);
-		img.onload = function () {
-			urlCreator.revokeObjectURL(this.src);
-		}
-		img.src = imageUrl;
-		img.setAttribute('data-last-modified', hdr_last_modified);
-
-		last_refresh = new Date();
-	};
-	xhr.send();
-}
-
-/**
- * on live img refresh click
- * @param {any} liveImageExpireTimeInSeconds
- */
-function RefreshLiveImage(liveImageExpireTimeInSeconds) {
-	//document.getElementById('live').src = '/WebCamImages/?handler=live&' + Math.random();
-	var live = document.querySelector("#live");
-	if (live != null) {
-		var data_last_modified = live.getAttribute('data-last-modified');
-		if (data_last_modified != "refreshing") {
-			var now = new Date();
-			var secs_between = (now - last_refresh) * 0.001;
-			var msg = String(secs_between) + ' secs elapsed since last live-image load';
-			if (secs_between > liveImageExpireTimeInSeconds) {
-				msg += ', reloading!';
-				LoadImageAsBinaryArray(live);
-			}
-			console.log(msg);
-		}
-		else
-			console.log('still reloading!');
-	}
-}
-
-function GenerateAnnualMovie(event) {
-	const hedrs = { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() }
-	const serialized_bag = JSON.stringify({ Result: "query", Product: ["qqq", "xxxx", "yyyy", "zzzzzz"] });
-	$('#tbAnnualMovieGenerator').html(
-		'<thead><tr>' +
-		'<th scope="col">#</th>' +
-		'<th scope="col">Name</th>' +
-		'<th scope="col">Hash</th>' +
-		'<th scope="col">Date</th>' +
-		'</tr></thead><caption>Loading...</caption><tbody></tbody>'
-	);
-
-	$.ajax({
-		method: 'POST',
-		url: 'AnnualTimelapse/?handler=SecretAction',
-		contentType: "application/json",
-		dataType: 'json',
-		data: serialized_bag,
-		headers: hedrs
-	}).done(function (response, textStatus, jqXHR) {
-		console.log(response);
-		if (response.Result == "error") {
-			alert("error");
-			return;
-		}
-		//const stringified = JSON.stringify(response.product, null, 2);
-		//display.text(stringified);
-
-		$('#tbAnnualMovieGenerator caption').remove();
-		$(response.product).each(function (index, item) {
-			$('#tbAnnualMovieGenerator tbody').append(
-				'<tr>' +
-				'<td>' + item[0] + '</td>' +
-				'<td>' + item[1] + '</td>' +
-				'<td>' + item[2] + '</td>' +
-				'<td>' + item[3] + '</td>' +
-				'</tr>'
-			);
-		});
-	}).fail(function (jqXHR, textStatus, errorThrown) {
-		alert("error: " + textStatus + " " + errorThrown);
-		$('#tbAnnualMovieGenerator').html('');
-	}).always(function () {
-		event.target.disabled = '';
-	});
-}
-
-/**
  * WebCamGallery onload event
  * @param {boolean} enableAnnualMovieGenerator
+ * @param {any} liveImageExpireTimeInSeconds
  */
-function WebCamGalleryOnLoad(enableAnnualMovieGenerator) {
-	//bluimp-gallery handling
-	$('#links').click(function (event) {
+function WebCamGalleryOnLoad(enableAnnualMovieGenerator, liveImageExpireTimeInSeconds) {
+	let last_refresh = new Date();
+
+	/**
+	 * on live img refresh click
+	 */
+	function RefreshLiveImage() {
+		const live = document.querySelector("#live");
+		if (live != null) {
+			const data_last_modified = live.getAttribute('data-last-modified');
+			if (data_last_modified != "refreshing") {
+				const now = new Date();
+				const secs_between = (now - last_refresh) * 0.001;
+				let msg = String(secs_between) + ' secs elapsed since last live-image load';
+				if (secs_between > liveImageExpireTimeInSeconds) {
+					msg += ', reloading!';
+					LoadImageAsBinaryArray(live);
+				}
+				console.log(msg);
+			}
+			else
+				console.log('still reloading!');
+		}
+	}
+
+	/**
+	 * check_webp_feature (taken from https://developers.google.com/speed/webp/faq#how_can_i_detect_browser_support_for_webp)
+	 * @param {any} feature can be one of 'lossy', 'lossless', 'alpha' or 'animation'.
+	 * @param {any} callback 'callback(result)' will be passed back the detection result (in an asynchronous way!)
+	 */
+	function check_webp_feature(feature, callback) {
+		const kTestImages = {
+			lossy: "UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA",
+			lossless: "UklGRhoAAABXRUJQVlA4TA0AAAAvAAAAEAcQERGIiP4HAA==",
+			alpha: "UklGRkoAAABXRUJQVlA4WAoAAAAQAAAAAAAAAAAAQUxQSAwAAAARBxAR/Q9ERP8DAABWUDggGAAAABQBAJ0BKgEAAQAAAP4AAA3AAP7mtQAAAA==",
+			animation: "UklGRlIAAABXRUJQVlA4WAoAAAASAAAAAAAAAAAAQU5JTQYAAAD/////AABBTk1GJgAAAAAAAAAAAAAAAAAAAGQAAABWUDhMDQAAAC8AAAAQBxAREYiI/gcA"
+		};
+		const img = new Image();
+		img.onload = function () {
+			const result = (img.width > 0) && (img.height > 0);
+			callback(result);
+		};
+		img.onerror = function () {
+			callback(false);
+		};
+		img.src = "data:image/webp;base64," + kTestImages[feature];
+	}
+
+	function LoadFirstGallerImages() {
+		$('img.active:not([src])').each(function (index, value) {
+			const img = value;
+			const alt = img.alt;
+			if (alt && alt !== 'no img') {
+				img.src = g_AppRootPath + 'WebCamImages/' + alt;
+
+				const source = img.parentNode.getElementsByTagName('source')[0];
+				source.type = "image/webp";
+				source.srcset = g_AppRootPath + 'WebCamImages/' + alt.replace(".jpg", ".webp");
+			}
+		});
+	}
+
+	function LoadVideoJS() {
+		const player = videojs('my-player');
+	}
+
+	function LoadYouTubeIFrame() {
+		Array.prototype.slice.call(document.querySelectorAll("#youtube-tab iframe:not([src])")).forEach(function (ytb) {
+			ytb.style.display = 'block';
+			ytb.src = ytb.dataset.src;
+		});
+	}
+
+	function ReplImg(event) {
+		const el = event.currentTarget || event;
+		if (el.classList.contains('active')) return;
+
+		const thumb_url = el.parentNode.parentNode.href.replace("thumbnail", "out").replace(".jpg", "").replace(".webp", "");
+		el.src = thumb_url + ".jpg";
+		el.alt = "thumbnail-" + thumb_url.split(/thumbnail-(\d+)/)[1];
+
+		const source = el.parentNode.getElementsByTagName('source')[0];
+		if (source.srcset === "" || source.srcset === "images/no_img.svg") {
+			source.type = "image/webp";
+			source.srcset = thumb_url + ".webp";
+		}
+
+		el.classList.remove("inactive");
+		el.classList.add('active');
+	}
+
+	function ReplAllImg() {
+		$("img.inactive").each(function (index, value) {
+			ReplImg(value);
+		});
+	}
+
+	function LoadBlueImpGallery(event) {
 		event = event || window.event;
 		event.preventDefault();
 
@@ -383,8 +303,7 @@ function WebCamGalleryOnLoad(enableAnnualMovieGenerator) {
 					},
 				};
 
-			let urls;
-			urls = Array.prototype.slice.call(links.getElementsByTagName('a')).map(function (a) {
+			const urls = Array.prototype.slice.call(links.getElementsByTagName('a')).map(function (a) {
 				let href, type;
 				if (isWebPSupported) {//webp supported
 					href = a.href.replace(".jpg", ".webp");
@@ -413,23 +332,113 @@ function WebCamGalleryOnLoad(enableAnnualMovieGenerator) {
 
 			blueimp.Gallery(urls, options);
 		});
-	});
+	}
+
+	function LoadImageAsBinaryArray(img) {
+		img.setAttribute('data-last-modified', 'refreshing');
+
+		// Simulate a call to Dropbox or other service that can
+		// return an image as an ArrayBuffer.
+		const xhr = new XMLHttpRequest();
+		// Use JSFiddle logo as a sample image to avoid complicating
+		// this example with cross-domain issues.
+		xhr.open("GET", g_AppRootPath + "WebCamImages/?handler=live", true);
+		xhr.setRequestHeader('Cache-Control', 'no-cache');
+		// Ask for the result as an ArrayBuffer.
+		xhr.responseType = "arraybuffer";
+		xhr.onload = function (e) {
+			// Obtain a blob: URL for the image data.
+			const arrayBufferView = new Uint8Array(this.response);
+			const blob = new Blob([arrayBufferView], { type: "image/jpeg" });
+
+			const hdr_last_modified = this.getResponseHeader('Last-Modified');
+
+			const urlCreator = window.URL || window.webkitURL;
+			const imageUrl = urlCreator.createObjectURL(blob);
+			img.onload = function () {
+				urlCreator.revokeObjectURL(this.src);
+			}
+			img.src = imageUrl;
+			img.setAttribute('data-last-modified', hdr_last_modified);
+
+			last_refresh = new Date();
+		};
+		xhr.send();
+	}
+
+	function GenerateAnnualMovie(event) {
+		const hedrs = { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() }
+		const serialized_bag = JSON.stringify({ Result: "query", Product: ["qqq", "xxxx", "yyyy", "zzzzzz"] });
+		$('#tbAnnualMovieGenerator').html(
+			'<thead><tr>' +
+			'<th scope="col">#</th>' +
+			'<th scope="col">Name</th>' +
+			'<th scope="col">Hash</th>' +
+			'<th scope="col">Date</th>' +
+			'</tr></thead><caption>Loading...</caption><tbody></tbody>'
+		);
+
+		$.ajax({
+			method: 'POST',
+			url: 'AnnualTimelapse/?handler=SecretAction',
+			contentType: "application/json",
+			dataType: 'json',
+			data: serialized_bag,
+			headers: hedrs
+		}).done(function (response, textStatus, jqXHR) {
+			console.log(response);
+			if (response.Result == "error") {
+				alert("error");
+				return;
+			}
+			//const stringified = JSON.stringify(response.product, null, 2);
+			//display.text(stringified);
+
+			$('#tbAnnualMovieGenerator caption').remove();
+			$(response.product).each(function (index, item) {
+				$('#tbAnnualMovieGenerator tbody').append(
+					'<tr>' +
+					'<td>' + item[0] + '</td>' +
+					'<td>' + item[1] + '</td>' +
+					'<td>' + item[2] + '</td>' +
+					'<td>' + item[3] + '</td>' +
+					'</tr>'
+				);
+			});
+		}).fail(function (jqXHR, textStatus, errorThrown) {
+			alert("error: " + textStatus + " " + errorThrown);
+			$('#tbAnnualMovieGenerator').html('');
+		}).always(function () {
+			event.target.disabled = '';
+		});
+	}
+
+	//live image anchor tag refresh
+	$('#aLive').click(RefreshLiveImage);
+
+	//bluimp-gallery handling
+	$('#links').click(LoadBlueImpGallery);
+
+	$('#btnReplAllImg').click(ReplAllImg);
 
 	$("img.inactive").each(function (index, value) {
-		const empty = "images/no_img.svg";
+		if (index < 7) {
+			ReplImg(value);
+		}
+		else {
+			const empty = "images/no_img.svg";
 
-		value.onmouseover = ReplImg;
-		const empty_img = g_AppRootPath + empty;
-		value.src = empty_img;
+			if (!value.onmouseover)
+				value.onmouseover = ReplImg;
+			const empty_img = g_AppRootPath + empty;
+			value.src = empty_img;
 
-		const source = value.parentNode.getElementsByTagName('source')[0];
-		source.type = "image/svg+xml";
-		source.srcset = empty;
+			const source = value.parentNode.getElementsByTagName('source')[0];
+			source.type = "image/svg+xml";
+			source.srcset = empty;
+		}
 	});
 
-	$('#btnReplAllImg').click(function (event) {
-		ReplAllImg();
-	});
 	const liveImgAddr = g_AppRootPath + 'WebCamImages/?handler=live';
 
 	window.onpopstate = function (event) {

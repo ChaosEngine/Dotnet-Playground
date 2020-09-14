@@ -61,15 +61,11 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 			_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("ctor", Watch.ElapsedMilliseconds, "from ctor till GET"));
 			Watch.Restart();
 
-			if (Directory.Exists(_imageDirectory))
+			var di = new DirectoryInfo(_imageDirectory);
+			if (di.Exists)
 			{
-				var di = new DirectoryInfo(_imageDirectory);
-
 				ThumbnailJpgs = di.EnumerateFiles("thumbnail*.jpg", SearchOption.TopDirectoryOnly)
 					.OrderByDescending(f => f.LastWriteTime);
-
-				// FullImageJpgs = di.EnumerateFiles("out*.jpg", SearchOption.TopDirectoryOnly)
-				// 	.OrderByDescending(f => f.LastWriteTime);
 
 				if (false == User.Identity.IsAuthenticated)
 				{
