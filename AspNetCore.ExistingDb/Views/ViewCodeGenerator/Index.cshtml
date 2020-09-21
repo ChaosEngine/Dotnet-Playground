@@ -1,11 +1,56 @@
 ﻿@inject Microsoft.Extensions.Configuration.IConfiguration Conf
 @{
-	string strongVal = "<strong>blah</strong>";
+    string strongVal = "<strong>blah</strong>";
+}
+@section headElements
+{
+    <style type="text/css">
+        #editor {
+            position: absolute;
+            width: 1000px;
+            height: 600px;
+        }
+    </style>
 }
 
 <h2>Testing code generator</h2>
 <p>value = @Html.Raw(strongVal)</p>
 
-<pre id="preContent">
+<pre id="editor">
 @ViewData["CompiledViewCode"]
 </pre>
+
+@section Scripts
+{
+    <environment include="Development">
+        <script src="~/lib/ace-builds/ace.js" type="text/javascript" charset="utf-8"></script>
+        <script src="~/lib/ace-builds/mode-csharp.js" type="text/javascript" charset="utf-8"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js" integrity="sha512-GZ1RIgZaSc8rnco/8CXfRdCpDxRCphenIiZ2ztLy3XQfCbQUSCuk8IudvNHxkRA3oUg6q0qejgN/qqyG1duv5Q==" crossorigin="anonymous"
+                asp-fallback-src="~/lib/ace-builds/ace.js"
+                asp-fallback-test="window.ace"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/mode-csharp.min.js" integrity="sha512-cL0i7GkFrPc0HWnVglGkXqQ2gLB4YWtkik0VTGdInhetWpLck/Qlx6bBz4PB67Z4Iszj7VJSeM0AmP3teXg4Vg==" crossorigin="anonymous"
+                asp-fallback-src="~/lib/ace-builds/mode-csharp.js"
+                asp-fallback-test="(window.ace && window.ace.require('ace/mode/csharp') !== undefined)"></script>
+    </environment>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            if (window.ace && ace) {
+                const editor = ace.edit("editor");
+                const csharp = ace.require("ace/mode/csharp");
+                if (csharp) {
+                    const csharpMode = csharp.Mode;
+                    editor.session.setMode(new csharpMode());
+                }
+                else
+                    console.log('ace csharpMode not loaded!');
+                editor.session.setOption("wrap", true);
+                editor.renderer.setOption("showPrintMargin", false);
+                //editor.setOption("readOnly", true);
+            }
+            else
+                console.log('no ace loaded!');
+        });
+    </script>
+}
