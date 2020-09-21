@@ -4,11 +4,17 @@
 }
 @section headElements
 {
-    <style type="text/css">
-        #editor {
-            position: absolute;
-            width: 1000px;
-            height: 600px;
+    <style type="text/css" media="screen">
+        .ace_editor {
+            border: 1px solid lightgray;
+            margin: auto;
+            height: 200px;
+            width: 100%;
+        }
+
+        .scrollmargin {
+            height: 80px;
+            text-align: center;
         }
     </style>
 }
@@ -35,9 +41,31 @@
                 asp-fallback-test="(window.ace && window.ace.require('ace/mode/csharp') !== undefined)"></script>
     </environment>
     <script type="text/javascript">
+        function AceSetCommandEnabled(ed, name, enabled) {
+            const command = ed.commands.byName[name];
+            if (!command.bindKeyOriginal)
+                command.bindKeyOriginal = command.bindKey;
+            command.bindKey = enabled ? command.bindKeyOriginal : null;
+            ed.commands.addCommand(command);
+            // special case for backspace and delete which will be called from
+            // textarea if not handled by main commandb binding
+            if (!enabled) {
+                let key = command.bindKeyOriginal;
+                if (key && typeof key === "object")
+                    key = key[ed.commands.platform];
+                if (/backspace|delete/i.test(key))
+                    ed.commands.bindKey(key, "null")
+            }
+        }
+
         $(document).ready(function () {
             if (window.ace && ace) {
-                const editor = ace.edit("editor");
+                const editor = ace.edit("editor", {
+                    maxLines: 30,
+                    wrap: true,
+                    showPrintMargin: false,
+                    autoScrollEditorIntoView: true
+                });
                 const csharp = ace.require("ace/mode/csharp");
                 if (csharp) {
                     const csharpMode = csharp.Mode;
@@ -45,9 +73,20 @@
                 }
                 else
                     console.log('ace csharpMode not loaded!');
-                editor.session.setOption("wrap", true);
-                editor.renderer.setOption("showPrintMargin", false);
                 //editor.setOption("readOnly", true);
+
+                editor.on('focus', function () {
+                    AceSetCommandEnabled(editor, "indent", true);
+                    AceSetCommandEnabled(editor, "outdent", true);
+                });
+                editor.commands.addCommand({
+                    name: "escape",
+                    bindKey: { win: "Esc", mac: "Esc" },
+                    exec: function () {
+                        AceSetCommandEnabled(editor, "indent", false);
+                        AceSetCommandEnabled(editor, "outdent", false);
+                    }
+                });
             }
             else
                 console.log('no ace loaded!');

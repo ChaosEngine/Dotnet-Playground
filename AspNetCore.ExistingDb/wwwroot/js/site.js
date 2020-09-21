@@ -1,5 +1,5 @@
 ﻿/*eslint-disable no-console*/
-/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate|registerServiceWorker" }]*/
+/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate" }]*/
 /*global forge*/
 "use strict";
 
@@ -27,26 +27,13 @@ function immediateActions() {
 	if (g_Version && g_Version !== '')
 		document.getElementById('spVersion').textContent = ", Version: " + g_Version;
 }
-
+//execute immediatelly
 immediateActions();
 
 function ajaxLog(level, message, url, line, col, error) {
 	$.post(g_LogPath, {
 		"level": level, "message": message, "url": url, "line": line, "col": col, "error": error
 	});
-}
-
-function handleLogoutForm() {
-	//if we're not seeing logoutForm form - disable secure/authorized links
-	if (document.getElementById("logoutForm") === null) {
-		["aInkList", "aInkGame", "aInkGameHigh"].forEach(function (link2disable) {
-			let el = document.getElementById(link2disable);
-			el.removeAttribute("href");
-			el.setAttribute("tabindex", "-1");
-			el.setAttribute("aria-disabled", "true");
-			el.classList.add("disabled");
-		});
-	}
 }
 
 function clientValidate(button) {
@@ -91,41 +78,61 @@ $.fn.bindFirst = function (name, fn) {
 };
 
 /**
- * Registers service worker globally
- * @param {string} rootPath is a path of all pages after FQDN name (ex. https://foo-bar.com/rootPath) or '/' if no root path
- */
-function registerServiceWorker(rootPath) {
-	if ('serviceWorker' in navigator &&
-		(navigator.serviceWorker.controller === null || navigator.serviceWorker.controller.state !== "activated")) {
-		const swUrl = rootPath + 'sw.min.js?domain=' + encodeURIComponent(rootPath);
-
-		navigator.serviceWorker
-			.register(swUrl, { scope: rootPath })
-			.then(function () {
-				console.log("Service Worker Registered");
-			});
-
-		navigator.serviceWorker
-			.ready.then(function () {
-				console.log('Service Worker Ready');
-			});
-	}
-}
-
-function updateOnlineStatus() {
-	const offlineIndicator = $("#offlineIndicator");
-
-	if (offlineIndicator !== undefined) {
-		const state = navigator.onLine ? "Online" : "Offline";
-		offlineIndicator.html(state);
-		offlineIndicator.show();
-	}
-}
-
-/**
  * Global document ready function
  */
 $(function () {
+
+	/**
+	 * Enable/disable menu, dropdown links depending on login status
+	 */
+	function handleLogoutForm() {
+		//if we're not seeing logoutForm form - disable secure/authorized links, otherwise enable registration
+		const links2disable = document.getElementById("logoutForm") === null ?
+			["aInkList", "aInkGame", "aInkGameHigh"] :
+			["aInkRegister"];
+
+		links2disable.forEach(function (id) {
+			const el = document.getElementById(id);
+			el.removeAttribute("href");
+			el.setAttribute("tabindex", "-1");
+			el.setAttribute("aria-disabled", "true");
+			el.classList.add("disabled");
+		});
+	}
+
+	/**
+	 * Registers service worker globally
+	 * @param {string} rootPath is a path of all pages after FQDN name (ex. https://foo-bar.com/rootPath) or '/' if no root path
+	 */
+	function registerServiceWorker(rootPath) {
+		if ('serviceWorker' in navigator &&
+			(navigator.serviceWorker.controller === null || navigator.serviceWorker.controller.state !== "activated")) {
+			const swUrl = rootPath + 'sw.min.js?domain=' + encodeURIComponent(rootPath);
+
+			navigator.serviceWorker
+				.register(swUrl, { scope: rootPath })
+				.then(function () {
+					console.log("Service Worker Registered");
+				});
+
+			navigator.serviceWorker
+				.ready.then(function () {
+					console.log('Service Worker Ready');
+				});
+		}
+	}
+
+	function updateOnlineStatus() {
+		const offlineIndicator = $("#offlineIndicator");
+
+		if (offlineIndicator !== undefined) {
+			const state = navigator.onLine ? "Online" : "Offline";
+			offlineIndicator.html(state);
+			offlineIndicator.show();
+		}
+	}
+
+
 	var org_trace = console.trace;
 	var org_debug = console.debug;
 	var org_info = console.info;
