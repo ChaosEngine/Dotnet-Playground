@@ -90,6 +90,11 @@ footer.container > noscript {
 		height: 100px;
 	}
 
+	#gallery-tab #links a img:hover {
+		transform: scale(1.5, 1.5);
+		box-shadow: 0px 0px 10px rgba(0,0,0,0.8);
+	}
+
 #video-tab .vjs-default-skin .vjs-big-play-button {
 	top: 50%;
 	left: 50%;

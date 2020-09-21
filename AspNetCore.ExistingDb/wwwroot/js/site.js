@@ -273,7 +273,7 @@ function WebCamGalleryOnLoad(enableAnnualMovieGenerator, liveImageExpireTimeInSe
 		const el = event.currentTarget || event;
 		if (el.classList.contains('active')) return;
 
-		const thumb_url = el.parentNode.parentNode.href.replace("thumbnail", "out").replace(".jpg", "").replace(".webp", "");
+		const thumb_url = el.parentNode.parentNode.href.replace(".jpg", "").replace(".webp", "");
 		el.src = thumb_url + ".jpg";
 		el.alt = "thumbnail-" + thumb_url.split(/thumbnail-(\d+)/)[1];
 
