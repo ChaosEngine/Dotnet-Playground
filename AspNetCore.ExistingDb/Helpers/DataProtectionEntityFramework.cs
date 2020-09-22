@@ -137,7 +137,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 		}
 	}
 
-	internal static class LoggingExtensions
+	static class LoggingExtensions
 	{
 		private static readonly Action<ILogger, string, Exception> _anExceptionOccurredWhileParsingKeyXml;
 		private static readonly Action<ILogger, string, string, Exception> _savingKeyToDbContext;
@@ -154,10 +154,10 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				formatString: "Saving key '{FriendlyName}' to '{DbContext}'.");
 		}
 
-		public static void LogExceptionWhileParsingKeyXml(this ILogger logger, string keyXml, Exception exception)
+		internal static void LogExceptionWhileParsingKeyXml(this ILogger logger, string keyXml, Exception exception)
 			=> _anExceptionOccurredWhileParsingKeyXml(logger, keyXml, exception);
 
-		public static void LogSavingKeyToDbContext(this ILogger logger, string friendlyName, string contextName)
+		internal static void LogSavingKeyToDbContext(this ILogger logger, string friendlyName, string contextName)
 			=> _savingKeyToDbContext(logger, friendlyName, contextName, null);
 	}
 

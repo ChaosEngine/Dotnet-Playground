@@ -3,20 +3,13 @@
 /*global forge*/
 "use strict";
 
-var logLevel = {
-	Trace: 0,
-	Debug: 1,
-	Information: 2,
-	Warning: 3,
-	Error: 4
-};
-
 var g_AppRootPath = location.pathname.match(/\/([^/]+)\//)[0],
 	g_LogPath = g_AppRootPath + "Home/ClientsideLog",
 	g_IsDevelopment = window.location.host.match(/:\d+/) !== null,
 	g_Version = 'PROJECT_VERSION';
 
-function immediateActions() {
+//executed immediatelly function
+(function () {
 	//change header background depending on developmen/production enviromewnt
 	Array.prototype.slice.call(document.querySelectorAll("nav.navbar")).forEach(function (el) {
 		el.classList.remove("bg-dark");
@@ -26,15 +19,7 @@ function immediateActions() {
 	//append version to footer
 	if (g_Version && g_Version !== '')
 		document.getElementById('spVersion').textContent = ", Version: " + g_Version;
-}
-//execute immediatelly
-immediateActions();
-
-function ajaxLog(level, message, url, line, col, error) {
-	$.post(g_LogPath, {
-		"level": level, "message": message, "url": url, "line": line, "col": col, "error": error
-	});
-}
+})();
 
 function clientValidate(button) {
 	let tr = $(button).parent().parent();
@@ -81,6 +66,12 @@ $.fn.bindFirst = function (name, fn) {
  * Global document ready function
  */
 $(function () {
+
+	function ajaxLog(level, message, url, line, col, error) {
+		$.post(g_LogPath, {
+			level: level, message: message, url: url, line: line, col: col, error: error
+		});
+	}
 
 	/**
 	 * Enable/disable menu, dropdown links depending on login status
@@ -132,6 +123,19 @@ $(function () {
 		}
 	}
 
+
+	/**
+	 * Mapped after Microsoft.Extensions.Logging
+	 * */
+	const logLevel = {
+		Trace: 0,
+		Debug: 1,
+		Information: 2,
+		Warning: 3,
+		Critical: 5,
+		Error: 4,
+		None: 6
+	};
 
 	var org_trace = console.trace;
 	var org_debug = console.debug;

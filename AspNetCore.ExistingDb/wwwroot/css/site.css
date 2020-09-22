@@ -91,7 +91,7 @@ footer.container > noscript {
 	}
 
 	#gallery-tab #links a img:hover {
-		transform: scale(1.5, 1.5);
+		transform: scale(1.2, 1.2);
 		box-shadow: 0px 0px 10px rgba(0,0,0,0.8);
 	}
 
