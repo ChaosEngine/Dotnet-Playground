@@ -1,8 +1,6 @@
 ﻿using EFGetStarted.AspNetCore.ExistingDb;
 using EFGetStarted.AspNetCore.ExistingDb.Controllers;
 using EFGetStarted.AspNetCore.ExistingDb.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using System;
@@ -701,8 +699,7 @@ namespace Integration
 							Assert.NotNull(c_type);
 							Assert.Equal("image/webp", response.Content.Headers.ContentType.MediaType);
 
-							Assert.NotNull(response.Headers.ETag);
-							_ = response.Headers.ETag.Tag;
+							Assert.NotNull(response.Content.Headers.LastModified);
 							break;
 						case ".jpg":
 						case ".jpeg":
@@ -713,14 +710,35 @@ namespace Integration
 							Assert.NotNull(c_type);
 							Assert.Equal(MediaTypeNames.Image.Jpeg, response.Content.Headers.ContentType.MediaType);
 
-							Assert.NotNull(response.Headers.ETag);
-							_ = response.Headers.ETag.Tag;
+							Assert.NotNull(response.Content.Headers.LastModified);
 							break;
 						default:
 							Assert.False(response.IsSuccessStatusCode, "bad extension");
 							break;
 					}
 
+					if (response.IsSuccessStatusCode)
+					{
+						if ((DateTime.Now - response.Content.Headers.LastModified.Value.ToLocalTime()) <= TimeSpan.FromDays(1))
+						{
+							Assert.NotNull(response.Headers.CacheControl.MaxAge);
+						}
+
+						//test getting the same image but with IfModifiedSince header set - we shoud get HTTP NotModified (304) response code
+						// Arrange
+						using var request = new HttpRequestMessage(HttpMethod.Get, $"{_fixture.AppRootPath}{WebCamImagesModel.ASPX}/{imageName}");
+
+						DateTimeOffset last = response.Content.Headers.LastModified.Value;
+						request.Headers.Add(HeaderNames.IfModifiedSince, last.AddMinutes(10).ToUniversalTime().ToString("r"));
+
+						// Act
+						using (HttpResponseMessage response1 = await _client.SendAsync(request))
+						{
+							// Assert
+							Assert.NotNull(response1);
+							Assert.Equal(HttpStatusCode.NotModified, response1.StatusCode);
+						}
+					}
 				}
 				else
 				{
@@ -728,24 +746,6 @@ namespace Integration
 					Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
 				}
 			}//end using
-
-			/*//test getting the same mage ut with ETAG set - we shoud get HTTP NotModified (304) response code
-			if (!string.IsNullOrEmpty(etag))
-			{
-				// Arrange
-				var request = new HttpRequestMessage(HttpMethod.Get, $"{_fixture.AppRootPath}{WebCamImagesModel.ASPX}/{imageName}");
-				//request.Headers.Add(HeaderNames.IfNoneMatch, etag);
-				//request.Headers.TryAddWithoutValidation(HeaderNames.ETag, etag);
-				request.Headers.IfMatch.Add(new System.Net.Http.Headers.EntityTagHeaderValue(etag));
-
-				// Act
-				using (HttpResponseMessage response = await _client.SendAsync(request))
-				{
-					// Assert
-					Assert.NotNull(response);
-					Assert.Equal(HttpStatusCode.NotModified, response.StatusCode);
-				}
-			}*/
 		}
 
 		[Fact]
