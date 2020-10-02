@@ -96,8 +96,9 @@ $(function () {
 	 * @param {string} rootPath is a path of all pages after FQDN name (ex. https://foo-bar.com/rootPath) or '/' if no root path
 	 */
 	function registerServiceWorker(rootPath) {
-		if ('serviceWorker' in navigator &&
-			(navigator.serviceWorker.controller === null || navigator.serviceWorker.controller.state !== "activated")) {
+		if ('serviceWorker' in navigator
+			//&& (navigator.serviceWorker.controller === null || navigator.serviceWorker.controller.state !== "activated")
+		) {
 			const swUrl = rootPath + 'sw.min.js?domain=' + encodeURIComponent(rootPath);
 
 			navigator.serviceWorker
