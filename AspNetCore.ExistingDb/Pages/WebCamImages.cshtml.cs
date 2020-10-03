@@ -53,58 +53,29 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 						_ => throw new NotSupportedException("not supported content-type or extension"),
 					};
 
-					#region Old code
+					var length = fi.Length;
+					DateTimeOffset last = fi.LastWriteTime;
+					// Truncate to the second.
+					var lastModified = new DateTimeOffset(last.Year, last.Month, last.Day, last.Hour, last.Minute, last.Second, last.Offset).ToUniversalTime();
 
-					//var length = fi.Length;
-					//DateTimeOffset last = fi.LastWriteTime;
-					//// Truncate to the second.
-					//var lastModified = new DateTimeOffset(last.Year, last.Month, last.Day, last.Hour, last.Minute, last.Second, last.Offset).ToUniversalTime();
+					long etagHash = lastModified.ToFileTime() ^ length;
+					var etag_str = $"\"{Convert.ToString(etagHash, 16)}\"";
 
-					//long etagHash = lastModified.ToFileTime() ^ length;
-					//var etag_str = $"\"{Convert.ToString(etagHash, 16)}\"";
-
-					//if (Request.Headers.TryGetValue(HeaderNames.IfNoneMatch, out StringValues incomingEtag)
-					//	&& string.Compare(incomingEtag[0], etag_str) == 0)
-					//{
-					//	Response.Clear();
-					//	Response.StatusCode = (int)HttpStatusCode.NotModified;
-					//	serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("GET", watch.ElapsedMilliseconds, "NotModified GET"));
-
-					//	return new StatusCodeResult((int)HttpStatusCode.NotModified);
-					//}
-					//var etag = new EntityTagHeaderValue(etag_str);
-
-
-					//PhysicalFileResult pfr = base.PhysicalFile(path, content_type);
-					//pfr.EntityTag = etag;
-					//pfr.LastModified = lastModified;
-
-					#endregion Old code
-
-					TimeSpan max_age = DateTime.Now - fi.LastWriteTime;
-					if (max_age <= TimeSpan.FromDays(1))
+					if (Request.Headers.TryGetValue(HeaderNames.IfNoneMatch, out StringValues incomingEtag)
+						&& string.Compare(incomingEtag[0], etag_str) == 0)
 					{
-						Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue
-						{
-							Public = true,
-							MaxAge = max_age
-						};
-					}
-					if (Request.Headers.TryGetValue(HeaderNames.IfModifiedSince, out StringValues ifModifiedSince))
-					{
-						var modifiedSince = DateTime.Parse(ifModifiedSince).ToLocalTime();
-						if (modifiedSince >= fi.LastWriteTime)
-						{
-							serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("GET", watch.ElapsedMilliseconds, "NotModified GET"));
+						Response.Clear();
+						Response.StatusCode = (int)HttpStatusCode.NotModified;
+						serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("GET", watch.ElapsedMilliseconds, "NotModified GET"));
 
-							return new StatusCodeResult((int)HttpStatusCode.NotModified);
-						}
+						return new StatusCodeResult((int)HttpStatusCode.NotModified);
 					}
+					var etag = new EntityTagHeaderValue(etag_str);
+
 
 					PhysicalFileResult pfr = base.PhysicalFile(path, content_type);
-					//pfr.EntityTag = etag;
-					pfr.LastModified = fi.LastWriteTime;
-
+					pfr.EntityTag = etag;
+					//pfr.LastModified = lastModified;
 					serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("GET", watch.ElapsedMilliseconds, "full file GET"));
 
 					return pfr;

@@ -197,45 +197,27 @@ namespace RazorPages
 						return;//bad file name or type or content-type not much we can test more
 				};
 
-				//Assert.NotNull(((PhysicalFileResult)result).EntityTag);
-				Assert.NotNull(((PhysicalFileResult)result).LastModified);
+				Assert.NotNull(((PhysicalFileResult)result).EntityTag);
+				//Assert.NotNull(((PhysicalFileResult)result).LastModified);
 				Assert.Equal(imageName, Path.GetFileName(((PhysicalFileResult)result).FileName));
 
 
+				//test strong caching with ETAG and date tag checking
 				//Arrange
 				var fi = new FileInfo(Path.Combine(Configuration["ImageDirectory"], imageName));
 				DateTimeOffset last = fi.LastWriteTime;
-				//long etagHash = new DateTimeOffset(last.Year, last.Month, last.Day, last.Hour, last.Minute, last.Second, last.Offset)
-				//	.ToUniversalTime().ToFileTime() ^ fi.Length;
-				//var etag_str = '\"' + Convert.ToString(etagHash, 16) + '\"';
-				//wcim.Request.Headers.Add(HeaderNames.IfNoneMatch, new StringValues(etag_str));
+				long etagHash = new DateTimeOffset(last.Year, last.Month, last.Day, last.Hour, last.Minute, last.Second, last.Offset)
+					.ToUniversalTime().ToFileTime() ^ fi.Length;
+				var etag_str = '\"' + Convert.ToString(etagHash, 16) + '\"';
+				wcim.Request.Headers.Add(HeaderNames.IfNoneMatch, new StringValues(etag_str));
 
-				{
-					//case 1: cache not expired, browser has fresh file
-					wcim.Request.Headers.Clear();
-					wcim.Request.Headers.Add(HeaderNames.IfModifiedSince, new StringValues(last.AddMinutes(10).ToUniversalTime().ToString("r")));
+				//Act
+				result = wcim.OnGet(base.Configuration, serverTiming_mock.Object, imageName);
 
-					//Act
-					result = wcim.OnGet(base.Configuration, serverTiming_mock.Object, imageName);
-
-					//Assert			
-					Assert.NotNull(result);
-					Assert.IsType<StatusCodeResult>(result);
-					Assert.Equal((int)HttpStatusCode.NotModified, ((StatusCodeResult)result).StatusCode);
-				}
-				{
-					//case 2: cache expired, browser has older file
-					wcim.Request.Headers.Clear();
-					wcim.Request.Headers.Add(HeaderNames.IfModifiedSince, new StringValues(last.AddMinutes(-10).ToUniversalTime().ToString("r")));
-
-					//Act
-					result = wcim.OnGet(base.Configuration, serverTiming_mock.Object, imageName);
-
-					//Assert			
-					Assert.NotNull(result);
-					Assert.IsType<PhysicalFileResult>(result);
-					Assert.Equal(imageName, Path.GetFileName(((PhysicalFileResult)result).FileName));
-				}
+				//Assert			
+				Assert.NotNull(result);
+				Assert.IsType<StatusCodeResult>(result);
+				Assert.Equal((int)HttpStatusCode.NotModified, ((StatusCodeResult)result).StatusCode);
 			}
 		}
 
