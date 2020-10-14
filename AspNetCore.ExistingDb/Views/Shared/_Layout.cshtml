@@ -81,10 +81,24 @@
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="~/WebCamGallery" role="button" aria-haspopup="true" aria-expanded="false">WebCam</a>
                             <div class="dropdown-menu">
-                                <a class="dropdown-item" href="~/WebCamGallery">Live</a>
-                                <a class="dropdown-item" href="~/WebCamGallery#video-tab">Daily video</a>
-                                <a class="dropdown-item" href="~/WebCamGallery#youtube-tab">Youtube videos</a>
-                                <a class="dropdown-item" href="~/WebCamGallery#gallery-tab">Gallery</a>
+                                <cache>
+                                @if (!string.IsNullOrEmpty(Conf["LiveWebCamURL"]))
+                                {
+                                    <a class="dropdown-item" href="~/WebCamGallery">Live</a>
+                                }
+                                @if (!string.IsNullOrEmpty(Conf["BaseWebCamURL"]))
+                                {
+                                    <a class="dropdown-item" href="~/WebCamGallery#video-tab">Daily video</a>
+                                }
+                                @if (!string.IsNullOrEmpty(Conf["YouTubeAPI:playlistId"]))
+                                {
+                                    <a class="dropdown-item" href="~/WebCamGallery#youtube-tab">Youtube videos</a>
+                                }
+                                @if (!string.IsNullOrEmpty(Conf["ImageDirectory"]))
+                                {
+                                    <a class="dropdown-item" href="~/WebCamGallery#gallery-tab">Gallery</a>
+                                }
+                                </cache>
                             </div>
                         </li>
                         <li class="nav-item dropdown">
