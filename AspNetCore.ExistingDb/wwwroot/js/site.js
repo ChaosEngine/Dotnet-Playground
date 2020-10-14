@@ -497,6 +497,9 @@ function WebCamGalleryOnLoad(enableAnnualMovieGenerator, liveImageExpireTimeInSe
 	}
 	else
 		$('#btnReplAllImg').prop('disabled', true);
+
+	if ($("#myTab a.active").length <= 0)
+		$("#myTab a").first().tab('show');
 	if ($("#myTab a[href='#gallery-tab']").hasClass('active')) {
 		$('#btnReplAllImg').prop('disabled', false);
 		LoadFirstGallerImages();
