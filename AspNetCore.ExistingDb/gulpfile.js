@@ -70,6 +70,9 @@ const babelTranspilerFunction = function (min) {
 		optimization: {
 			minimize: min
 		},
+		performance: {
+			hints: process.env.NODE_ENV === 'production' ? "warning" : false
+		},
 		mode: "production",
 		stats: "errors-warnings"
 	}))
@@ -109,6 +112,9 @@ gulp.task('webpack:inkballConcaveMan', function () {
 			],
 			optimization: {
 				minimize: true
+			},
+			performance: {
+				hints: process.env.NODE_ENV === 'production' ? "warning" : false
 			},
 			mode: "production",
 			stats: "errors-warnings"
