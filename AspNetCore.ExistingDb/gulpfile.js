@@ -40,7 +40,7 @@ const babelTranspilerFunction = function (min) {
 	return gulp.src([
 		paths.inkBallJsRelative + 'inkball.js'
 		//paths.inkBallJsRelative + 'svgvml.js',
-		//paths.inkBallJsRelative + 'concavemanSource.js'
+		//paths.inkBallJsRelative + 'AISource.js'
 	]).pipe(webpack({
 		resolve: {
 			modules: ['node_modules', `../../../../../${path.basename(__dirname)}/node_modules`]
@@ -48,7 +48,7 @@ const babelTranspilerFunction = function (min) {
 		entry: {
 			'inkball': paths.inkBallJsRelative + 'inkball.js'
 			//, 'svgvml.babelify': paths.inkBallJsRelative + 'svgvml.js',
-			//, 'concaveman': paths.inkBallJsRelative + 'concavemanSource.js'
+			//, 'AI': paths.inkBallJsRelative + 'AISource.js'
 		},
 		output: {
 			filename: '[name]Bundle.js',
@@ -94,8 +94,8 @@ const fileMinifyCSSFunction = function (src, result) {
 		.pipe(gulp.dest("."));
 };
 
-gulp.task('webpack:inkballConcaveMan', function () {
-	return gulp.src(paths.inkBallJsRelative + "concavemanSource.js")
+gulp.task('webpack:inkballAI', function () {
+	return gulp.src(paths.inkBallJsRelative + "AISource.js")
 		.pipe(webpack({
 			resolve: {
 				modules: ['node_modules', `../../../../../${path.basename(__dirname)}/node_modules`],
@@ -104,8 +104,8 @@ gulp.task('webpack:inkballConcaveMan', function () {
 				}
 			},
 			output: {
-				filename: 'concavemanBundle.js',
-				library: 'concavemanBundle' //add this line to enable re-use
+				filename: 'AIBundle.js',
+				library: 'AIBundle' //add this line to enable re-use
 			},
 			plugins: [
 				new EsmWebpackPlugin()
@@ -122,7 +122,7 @@ gulp.task('webpack:inkballConcaveMan', function () {
 		.pipe(gulp.dest(paths.inkBallJsRelative));
 });
 
-gulp.task("babel", gulp.series("webpack:inkballConcaveMan", function transpilers(cb) {
+gulp.task("webpack", gulp.series("webpack:inkballAI", function webpackAndBabelTranspilers(cb) {
 	babelTranspilerFunction(false);
 	babelTranspilerFunction(true);
 	return cb();
@@ -195,5 +195,5 @@ gulp.task("min", gulp.parallel("min:js", "min:inkball", "min:css"));
 //Main entry point
 gulp.task("default", gulp.series(
 	"clean",
-	"babel", "min")
+	"webpack", "min")
 );
