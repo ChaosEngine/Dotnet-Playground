@@ -1,4 +1,4 @@
-﻿/*global require, __dirname*/
+﻿/*global require, __dirname, process*/
 "use strict";
 
 const gulp = require("gulp"),
