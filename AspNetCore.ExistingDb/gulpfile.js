@@ -10,6 +10,7 @@ const gulp = require("gulp"),
 	rename = require("gulp-rename"),
 	path = require('path'),
 	webpack = require('webpack-stream'),
+	WorkerPlugin = require('worker-plugin'),
 	EsmWebpackPlugin = require("@purtuga/esm-webpack-plugin");
 
 var webroot = "./wwwroot/";
@@ -46,15 +47,22 @@ const babelTranspilerFunction = function (min) {
 			modules: ['node_modules', `../../../../../${path.basename(__dirname)}/node_modules`]
 		},
 		entry: {
-			'inkball': paths.inkBallJsRelative + 'inkball.js'
-			//, 'svgvml.babelify': paths.inkBallJsRelative + 'svgvml.js',
-			//, 'AI': paths.inkBallJsRelative + 'AISource.js'
+			'inkball': [
+				'@babel/polyfill',
+				paths.inkBallJsRelative + 'inkball.js'
+			]
 		},
 		output: {
 			filename: '[name]Bundle.js',
 			chunkFilename: '[name]Bundle.js',
 			publicPath: '../js/'
 		},
+		//plugins: [
+		//	new WorkerPlugin({
+		//		// use "self" as the global object when receiving hot updates.
+		//		globalObject: 'self' // <-- this is the default value
+		//	})
+		//],
 		module: {
 			rules: [{
 				use: {
@@ -95,7 +103,7 @@ const fileMinifyCSSFunction = function (src, result) {
 };
 
 gulp.task('webpack:inkballAI', function () {
-	return gulp.src(paths.inkBallJsRelative + "AISource.js")
+	return gulp.src(paths.inkBallJsRelative + "AIWorker.js")
 		.pipe(webpack({
 			resolve: {
 				modules: ['node_modules', `../../../../../${path.basename(__dirname)}/node_modules`],
@@ -103,15 +111,40 @@ gulp.task('webpack:inkballAI', function () {
 					'tinyqueue': 'tinyqueue/tinyqueue.js' //https://github.com/mapbox/concaveman/issues/18
 				}
 			},
+			entry: {
+				'AIWorker': [
+					'@babel/polyfill',
+					paths.inkBallJsRelative + 'AIWorker.js'
+				]
+			},
+			target: "webworker",
 			output: {
-				filename: 'AIBundle.js',
-				library: 'AIBundle' //add this line to enable re-use
+				filename: '[name]Bundle.js'
 			},
 			plugins: [
-				new EsmWebpackPlugin()
+				//new EsmWebpackPlugin(),
+				new WorkerPlugin({
+					// use "self" as the global object when receiving hot updates.
+					globalObject: 'self' // <-- this is the default value
+				})
 			],
+			module: {
+				rules: [{
+					use: {
+						loader: 'babel-loader',
+						options: {
+							presets: [
+								["@babel/preset-env", { "useBuiltIns": "entry", "corejs": 3 }]
+							]
+							//, plugins: [
+							//	"@babel/plugin-transform-runtime"
+							//]
+						}
+					}
+				}]
+			},
 			optimization: {
-				minimize: true
+				minimize: !true
 			},
 			performance: {
 				hints: process.env.NODE_ENV === 'production' ? "warning" : false

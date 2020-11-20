@@ -1,5 +1,5 @@
 # syntax = docker/dockerfile:experimental
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
+FROM mcr.microsoft.com/dotnet/sdk:3.1-buster AS build
 RUN --mount=type=cache,target=/root/.nuget --mount=type=cache,target=/root/.local/share/NuGet --mount=type=cache,target=/root/.npm/ --mount=type=cache,target=./AspNetCore.ExistingDb/node_modules
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && apt-get install -y nodejs
 WORKDIR /build
@@ -35,7 +35,7 @@ RUN dotnet publish -c Release -r linux-x64 \
 
 
 
-FROM mcr.microsoft.com/dotnet/core/runtime-deps:3.1-buster-slim
+FROM mcr.microsoft.com/dotnet/runtime-deps:3.1-buster-slim
 WORKDIR /app
 COPY --from=build --chown=www-data:www-data /build/AspNetCore.ExistingDb/bin/Release/netcoreapp3.1/linux-x64/publish/ /build/startApp.sh ./
 
