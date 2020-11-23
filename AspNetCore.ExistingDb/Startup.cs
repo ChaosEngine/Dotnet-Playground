@@ -395,7 +395,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			services.AddRazorPages();
 
 			var protection_builder = services.AddDataProtection()
-				.SetDefaultKeyLifetime(TimeSpan.FromDays(14))
+				//.SetDefaultKeyLifetime(TimeSpan.FromDays(14))	//the default id 90 days - enough
 				.PersistKeysToDbContext<BloggingContext>();
 			if (!string.IsNullOrEmpty(Configuration["DataProtection:CertFile"]))
 				protection_builder.ProtectKeysWithCertificate(new X509Certificate2(Configuration["DataProtection:CertFile"], Configuration["DataProtection:CertPassword"]));
