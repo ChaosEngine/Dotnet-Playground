@@ -48,7 +48,7 @@ const babelTranspilerFunction = function (min) {
 		},
 		entry: {
 			'inkball': [
-				'@babel/polyfill',
+				//'@babel/polyfill',
 				paths.inkBallJsRelative + 'inkball.js'
 			]
 		},
@@ -144,7 +144,7 @@ gulp.task('webpack:inkballAI', function () {
 				}]
 			},
 			optimization: {
-				minimize: !true
+				minimize: true
 			},
 			performance: {
 				hints: process.env.NODE_ENV === 'production' ? "warning" : false
