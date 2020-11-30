@@ -31,7 +31,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				case "maria":
 					conn_str = configuration.GetConnectionString("MySQL");
 					if (dbContextOpts != null)
-						dbContextOpts.UseMySql(conn_str);
+						dbContextOpts.UseMySql(conn_str, new MySqlServerVersion(new Version(8, 0, 21)));
 					if (distributedCacheServices != null)
 					{
 						distributedCacheServices.AddDistributedMySqlCache(opts =>

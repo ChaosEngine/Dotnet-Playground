@@ -41,7 +41,7 @@ namespace AspNetCore.ExistingDb.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ExpiresAtTime")
-                        .HasName("Index_ExpiresAtTime");
+                        .HasDatabaseName("Index_ExpiresAtTime");
 
                     b.ToTable("SessionCache");
                 });

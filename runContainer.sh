@@ -12,4 +12,4 @@
 #		docker run -it --rm -p 8080:5000 --name aspnetcore --env-file docker-env.txt -v /home/container/EntityFramework.Docs/sockets:/sockets -v /home/container/EntityFramework.Docs/shared:/shared -v /var/www/localhost/htdocs/webcamgallery:/webcamgallery chaosengine/aspnetcore
 #		docker run -it --rm -p 8080:5000 --name aspnetcore --env-file docker-env.txt -v /home/container/EntityFramework.Docs/sockets:/sockets -v /home/container/EntityFramework.Docs/shared:/shared -v /var/www/localhost/htdocs/webcamgallery:/webcamgallery chaosengine/aspnetcore:alpine
 #
-docker run -d --rm -p 8080:5000 --name dotnetplayground --env-file docker-prod.env -v /home/container/Dotnet-Playground/shared:/shared -v /var/www/localhost/htdocs/webcamgallery:/webcamgallery:ro chaosengine/dotnetplayground:alpine3.1
+docker run -d --rm -p 8080:5000 --name dotnetplayground --env-file docker-prod.env -v /home/container/Dotnet-Playground/shared:/shared -v /var/www/localhost/htdocs/webcamgallery:/webcamgallery:ro chaosengine/dotnetplayground:alpine5.0

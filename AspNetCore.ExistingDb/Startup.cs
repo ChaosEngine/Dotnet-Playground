@@ -75,11 +75,11 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 		static async Task Main(string[] args)
 		{
-			// Adding following lines in order to mitigate:
-			// https://github.com/aspnet/Announcements/issues/405
-			// https://github.com/neuecc/MessagePack-CSharp/security/advisories/GHSA-7q36-4xx7-xcxf
-			// Enable additional security in MessagePack to handle untrusted data.
-			MessagePackSecurity.Active = MessagePackSecurity.UntrustedData;
+			//// Adding following lines in order to mitigate:
+			//// https://github.com/aspnet/Announcements/issues/405
+			//// https://github.com/neuecc/MessagePack-CSharp/security/advisories/GHSA-7q36-4xx7-xcxf
+			//// Enable additional security in MessagePack to handle untrusted data.
+			//MessagePackSecurity.Active = MessagePackSecurity.UntrustedData;
 
 
 			//await CreateHostBuilder(args).Build().RunAsync();
@@ -416,10 +416,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			})
 			.AddMessagePackProtocol(options =>
 			{
-				options.FormatterResolvers = new List<MessagePack.IFormatterResolver>()
-				{
-					MessagePack.Resolvers.StandardResolver.Instance
-				};
+				options.SerializerOptions.WithResolver(MessagePack.Resolvers.StandardResolver.Instance);
 			});
 		}
 
