@@ -416,7 +416,11 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			})
 			.AddMessagePackProtocol(options =>
 			{
-				options.SerializerOptions.WithResolver(MessagePack.Resolvers.StandardResolver.Instance);
+				//options.SerializerOptions.WithResolver(MessagePack.Resolvers.StandardResolver.Instance);
+				options.SerializerOptions = MessagePackSerializerOptions
+					.Standard
+					.WithResolver(MessagePack.Resolvers.StandardResolver.Instance)
+					.WithSecurity(MessagePackSecurity.UntrustedData);
 			});
 		}
 
