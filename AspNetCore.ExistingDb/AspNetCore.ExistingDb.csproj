@@ -13,6 +13,8 @@
 		<!--<MvcRazorCompileOnPublish>true</MvcRazorCompileOnPublish>-->
 		<TieredCompilation>true</TieredCompilation>
 		<PublishTrimmed>true</PublishTrimmed>
+		<TrimMode>link</TrimMode>
+		<SuppressTrimAnalysisWarnings>false</SuppressTrimAnalysisWarnings>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -58,9 +60,8 @@
 	</Target>
 
 	<ItemGroup>
-		<TrimmerRootAssembly Include="System.Threading.Tasks" />
-		<TrimmerRootAssembly Include="System.Net.WebProxy" />
-    <TrimmerRootAssembly Include="System.Runtime" />
+    <TrimmerRootAssembly Include="System.Threading.Tasks" />
+		<TrimmerRootAssembly Include="System.Runtime" />
 	</ItemGroup>
 
 	<ItemGroup>
