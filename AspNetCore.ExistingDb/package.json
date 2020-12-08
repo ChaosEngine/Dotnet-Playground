@@ -49,7 +49,7 @@
 	},
 	"devDependencies": {
 		"@babel/core": "7.12.9",
-		"core-js": "3.8.0",
+		"core-js": "3.8.1",
 		"@babel/plugin-transform-runtime": "7.12.1",
 		"@babel/preset-env": "7.12.7",
 		"@babel/polyfill": "7.12.1",
@@ -72,7 +72,7 @@
 	},
 	"dependencies": {
 		"bootstrap": "4.5.3",
-		"bootstrap-table": "1.18.0",
+		"bootstrap-table": "1.18.1",
 		"node-forge": "0.10.0",
 		"jquery": "3.5.1",
 		"jquery-validation": "1.19.2",
@@ -80,8 +80,8 @@
 		"blueimp-gallery": "3.3.0",
 		"video.js": "7.10.2",
 		"qrcodejs": "1.0.0",
-		"@microsoft/signalr": "5.0.0",
-		"@microsoft/signalr-protocol-msgpack": "5.0.0",
+		"@microsoft/signalr": "5.0.1",
+		"@microsoft/signalr-protocol-msgpack": "5.0.1",
 		"msgpack5": "4.2.1",
 		"ace-builds": "1.4.12"
 	},
