@@ -1,22 +1,15 @@
 ﻿/*eslint-disable no-console*/
-/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate|registerServiceWorker" }]*/
+/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate" }]*/
 /*global forge*/
 "use strict";
-
-var logLevel = {
-	Trace: 0,
-	Debug: 1,
-	Information: 2,
-	Warning: 3,
-	Error: 4
-};
 
 var g_AppRootPath = location.pathname.match(/\/([^/]+)\//)[0],
 	g_LogPath = g_AppRootPath + "Home/ClientsideLog",
 	g_IsDevelopment = window.location.host.match(/:\d+/) !== null,
 	g_Version = 'PROJECT_VERSION';
 
-function immediateActions() {
+//executed immediatelly function
+(function () {
 	//change header background depending on developmen/production enviromewnt
 	Array.prototype.slice.call(document.querySelectorAll("nav.navbar")).forEach(function (el) {
 		el.classList.remove("bg-dark");
@@ -26,28 +19,7 @@ function immediateActions() {
 	//append version to footer
 	if (g_Version && g_Version !== '')
 		document.getElementById('spVersion').textContent = ", Version: " + g_Version;
-}
-
-immediateActions();
-
-function ajaxLog(level, message, url, line, col, error) {
-	$.post(g_LogPath, {
-		"level": level, "message": message, "url": url, "line": line, "col": col, "error": error
-	});
-}
-
-function handleLogoutForm() {
-	//if we're not seeing logoutForm form - disable secure/authorized links
-	if (document.getElementById("logoutForm") === null) {
-		["aInkList", "aInkGame", "aInkGameHigh"].forEach(function (link2disable) {
-			let el = document.getElementById(link2disable);
-			el.removeAttribute("href");
-			el.setAttribute("tabindex", "-1");
-			el.setAttribute("aria-disabled", "true");
-			el.classList.add("disabled");
-		});
-	}
-}
+})();
 
 function clientValidate(button) {
 	let tr = $(button).parent().parent();
@@ -91,41 +63,81 @@ $.fn.bindFirst = function (name, fn) {
 };
 
 /**
- * Registers service worker globally
- * @param {string} rootPath is a path of all pages after FQDN name (ex. https://foo-bar.com/rootPath) or '/' if no root path
- */
-function registerServiceWorker(rootPath) {
-	if ('serviceWorker' in navigator &&
-		(navigator.serviceWorker.controller === null || navigator.serviceWorker.controller.state !== "activated")) {
-		const swUrl = rootPath + 'sw.min.js?domain=' + encodeURIComponent(rootPath);
-
-		navigator.serviceWorker
-			.register(swUrl, { scope: rootPath })
-			.then(function () {
-				console.log("Service Worker Registered");
-			});
-
-		navigator.serviceWorker
-			.ready.then(function () {
-				console.log('Service Worker Ready');
-			});
-	}
-}
-
-function updateOnlineStatus() {
-	const offlineIndicator = $("#offlineIndicator");
-
-	if (offlineIndicator !== undefined) {
-		const state = navigator.onLine ? "Online" : "Offline";
-		offlineIndicator.html(state);
-		offlineIndicator.show();
-	}
-}
-
-/**
  * Global document ready function
  */
 $(function () {
+
+	function ajaxLog(level, message, url, line, col, error) {
+		$.post(g_LogPath, {
+			level: level, message: message, url: url, line: line, col: col, error: error
+		});
+	}
+
+	/**
+	 * Enable/disable menu, dropdown links depending on login status
+	 */
+	function handleLogoutForm() {
+		//if we're not seeing logoutForm form - disable secure/authorized links, otherwise enable registration
+		const links2disable = document.getElementById("logoutForm") === null ?
+			["aInkList", "aInkGame", "aInkGameHigh"] :
+			["aInkRegister"];
+
+		links2disable.forEach(function (id) {
+			const el = document.getElementById(id);
+			el.removeAttribute("href");
+			el.setAttribute("tabindex", "-1");
+			el.setAttribute("aria-disabled", "true");
+			el.classList.add("disabled");
+		});
+	}
+
+	/**
+	 * Registers service worker globally
+	 * @param {string} rootPath is a path of all pages after FQDN name (ex. https://foo-bar.com/rootPath) or '/' if no root path
+	 */
+	function registerServiceWorker(rootPath) {
+		if ('serviceWorker' in navigator
+			//&& (navigator.serviceWorker.controller === null || navigator.serviceWorker.controller.state !== "activated")
+		) {
+			const swUrl = rootPath + 'sw.min.js?domain=' + encodeURIComponent(rootPath);
+
+			navigator.serviceWorker
+				.register(swUrl, { scope: rootPath })
+				.then(function () {
+					console.log("Service Worker Registered");
+				});
+
+			navigator.serviceWorker
+				.ready.then(function () {
+					console.log('Service Worker Ready');
+				});
+		}
+	}
+
+	function updateOnlineStatus() {
+		const offlineIndicator = $("#offlineIndicator");
+
+		if (offlineIndicator !== undefined) {
+			const state = navigator.onLine ? "Online" : "Offline";
+			offlineIndicator.html(state);
+			offlineIndicator.show();
+		}
+	}
+
+
+	/**
+	 * Mapped after Microsoft.Extensions.Logging
+	 * */
+	const logLevel = {
+		Trace: 0,
+		Debug: 1,
+		Information: 2,
+		Warning: 3,
+		Critical: 5,
+		Error: 4,
+		None: 6
+	};
+
 	var org_trace = console.trace;
 	var org_debug = console.debug;
 	var org_info = console.info;
@@ -266,7 +278,7 @@ function WebCamGalleryOnLoad(enableAnnualMovieGenerator, liveImageExpireTimeInSe
 		const el = event.currentTarget || event;
 		if (el.classList.contains('active')) return;
 
-		const thumb_url = el.parentNode.parentNode.href.replace("thumbnail", "out").replace(".jpg", "").replace(".webp", "");
+		const thumb_url = el.parentNode.parentNode.href.replace(".jpg", "").replace(".webp", "");
 		el.src = thumb_url + ".jpg";
 		el.alt = "thumbnail-" + thumb_url.split(/thumbnail-(\d+)/)[1];
 

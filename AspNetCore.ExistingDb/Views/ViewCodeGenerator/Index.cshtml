@@ -1,11 +1,95 @@
 ﻿@inject Microsoft.Extensions.Configuration.IConfiguration Conf
 @{
-	string strongVal = "<strong>blah</strong>";
+    string strongVal = "<strong>blah</strong>";
+}
+@section headElements
+{
+    <style type="text/css" media="screen">
+        .ace_editor {
+            border: 1px solid lightgray;
+            margin: auto;
+            height: 200px;
+            width: 100%;
+        }
+
+        .scrollmargin {
+            height: 80px;
+            text-align: center;
+        }
+    </style>
 }
 
 <h2>Testing code generator</h2>
 <p>value = @Html.Raw(strongVal)</p>
 
-<pre id="preContent">
+<pre id="editor">
 @ViewData["CompiledViewCode"]
 </pre>
+
+@section Scripts
+{
+    <environment include="Development">
+        <script src="~/lib/ace-builds/ace.js" type="text/javascript" charset="utf-8"></script>
+        <script src="~/lib/ace-builds/mode-csharp.js" type="text/javascript" charset="utf-8"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js" integrity="sha512-GZ1RIgZaSc8rnco/8CXfRdCpDxRCphenIiZ2ztLy3XQfCbQUSCuk8IudvNHxkRA3oUg6q0qejgN/qqyG1duv5Q==" crossorigin="anonymous"
+                asp-fallback-src="~/lib/ace-builds/ace.js"
+                asp-fallback-test="window.ace"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/mode-csharp.min.js" integrity="sha512-cL0i7GkFrPc0HWnVglGkXqQ2gLB4YWtkik0VTGdInhetWpLck/Qlx6bBz4PB67Z4Iszj7VJSeM0AmP3teXg4Vg==" crossorigin="anonymous"
+                asp-fallback-src="~/lib/ace-builds/mode-csharp.js"
+                asp-fallback-test="(window.ace && window.ace.require('ace/mode/csharp') !== undefined)"></script>
+    </environment>
+    <script type="text/javascript">
+        function AceSetCommandEnabled(ed, name, enabled) {
+            const command = ed.commands.byName[name];
+            if (!command.bindKeyOriginal)
+                command.bindKeyOriginal = command.bindKey;
+            command.bindKey = enabled ? command.bindKeyOriginal : null;
+            ed.commands.addCommand(command);
+            // special case for backspace and delete which will be called from
+            // textarea if not handled by main commandb binding
+            if (!enabled) {
+                let key = command.bindKeyOriginal;
+                if (key && typeof key === "object")
+                    key = key[ed.commands.platform];
+                if (/backspace|delete/i.test(key))
+                    ed.commands.bindKey(key, "null")
+            }
+        }
+
+        $(document).ready(function () {
+            if (window.ace && ace) {
+                const editor = ace.edit("editor", {
+                    maxLines: 30,
+                    wrap: true,
+                    showPrintMargin: false,
+                    autoScrollEditorIntoView: true
+                });
+                const csharp = ace.require("ace/mode/csharp");
+                if (csharp) {
+                    const csharpMode = csharp.Mode;
+                    editor.session.setMode(new csharpMode());
+                }
+                else
+                    console.log('ace csharpMode not loaded!');
+                //editor.setOption("readOnly", true);
+
+                editor.on('focus', function () {
+                    AceSetCommandEnabled(editor, "indent", true);
+                    AceSetCommandEnabled(editor, "outdent", true);
+                });
+                editor.commands.addCommand({
+                    name: "escape",
+                    bindKey: { win: "Esc", mac: "Esc" },
+                    exec: function () {
+                        AceSetCommandEnabled(editor, "indent", false);
+                        AceSetCommandEnabled(editor, "outdent", false);
+                    }
+                });
+            }
+            else
+                console.log('no ace loaded!');
+        });
+    </script>
+}

@@ -61,7 +61,15 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			.ConfigureWebHostDefaults(webBuilder =>
 			{
 				webBuilder
-				.UseKestrel(opts => opts.AddServerHeader = false)
+				.UseKestrel(opts =>
+				{
+					opts.AddServerHeader = false;
+					string ASPNETCORE_URLS = Environment.GetEnvironmentVariable("ASPNETCORE_URLS");
+					if (!string.IsNullOrEmpty(ASPNETCORE_URLS) && ASPNETCORE_URLS.Contains("unix:/"))
+					{
+						opts.ListenUnixSocket("/sockets/www.sock");
+					}
+				})
 				//.UseLibuv()
 				.UseSockets()
 				/*.UseLinuxTransport(async opts =>
@@ -75,11 +83,11 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 		static async Task Main(string[] args)
 		{
-			// Adding following lines in order to mitigate:
-			// https://github.com/aspnet/Announcements/issues/405
-			// https://github.com/neuecc/MessagePack-CSharp/security/advisories/GHSA-7q36-4xx7-xcxf
-			// Enable additional security in MessagePack to handle untrusted data.
-			MessagePackSecurity.Active = MessagePackSecurity.UntrustedData;
+			//// Adding following lines in order to mitigate:
+			//// https://github.com/aspnet/Announcements/issues/405
+			//// https://github.com/neuecc/MessagePack-CSharp/security/advisories/GHSA-7q36-4xx7-xcxf
+			//// Enable additional security in MessagePack to handle untrusted data.
+			//MessagePackSecurity.Active = MessagePackSecurity.UntrustedData;
 
 
 			//await CreateHostBuilder(args).Build().RunAsync();
@@ -97,7 +105,15 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				.ConfigureWebHost(webBuilder =>
 				{
 					webBuilder
-					.UseKestrel(opts => opts.AddServerHeader = false)
+					.UseKestrel(opts =>
+					{
+						opts.AddServerHeader = false;
+						string ASPNETCORE_URLS = Environment.GetEnvironmentVariable("ASPNETCORE_URLS");
+						if (!string.IsNullOrEmpty(ASPNETCORE_URLS) && ASPNETCORE_URLS.Contains("unix:/"))
+						{
+							opts.ListenUnixSocket("/sockets/www.sock");
+						}
+					})
 					//.UseLibuv()
 					.UseSockets()
 					.UseLinuxTransport(async opts =>
@@ -283,11 +299,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 
 
 
-
-
-
-#region WIP
-
 			services.AddAuthorization(options =>
 			{
 				options.AddPolicy("RequireAdministratorRole",
@@ -310,7 +321,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			});
 
 
-
 			services.AddIdentityManager(options =>
 			{
 				options.SecurityConfiguration.RoleClaimType = "role";
@@ -326,11 +336,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				options.TitleNavBarLinkTarget = Configuration["AppRootPath"];
 			})
 			.AddIdentityMangerService<AspNetCoreIdentityManagerService<ApplicationUser, string, IdentityRole, string>>();
-
-#endregion WIP
-
-
-
 		}
 
 		private void UseProxyForwardingAndDomainPathHelper(IApplicationBuilder app)
@@ -395,7 +400,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			services.AddRazorPages();
 
 			var protection_builder = services.AddDataProtection()
-				.SetDefaultKeyLifetime(TimeSpan.FromDays(14))
+				//.SetDefaultKeyLifetime(TimeSpan.FromDays(14))	//the default id 90 days - enough
 				.PersistKeysToDbContext<BloggingContext>();
 			if (!string.IsNullOrEmpty(Configuration["DataProtection:CertFile"]))
 				protection_builder.ProtectKeysWithCertificate(new X509Certificate2(Configuration["DataProtection:CertFile"], Configuration["DataProtection:CertPassword"]));
@@ -416,10 +421,11 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 			})
 			.AddMessagePackProtocol(options =>
 			{
-				options.FormatterResolvers = new List<MessagePack.IFormatterResolver>()
-				{
-					MessagePack.Resolvers.StandardResolver.Instance
-				};
+				//options.SerializerOptions.WithResolver(MessagePack.Resolvers.StandardResolver.Instance);
+				options.SerializerOptions = MessagePackSerializerOptions
+					.Standard
+					.WithResolver(MessagePack.Resolvers.StandardResolver.Instance)
+					.WithSecurity(MessagePackSecurity.UntrustedData);
 			});
 		}
 

@@ -1,10 +1,10 @@
 # syntax = docker/dockerfile:experimental
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1-alpine AS build
+FROM mcr.microsoft.com/dotnet/sdk:5.0-alpine AS build
 RUN --mount=type=cache,target=/root/.nuget --mount=type=cache,target=/root/.local/share/NuGet --mount=type=cache,target=/root/.npm/ --mount=type=cache,target=./AspNetCore.ExistingDb/node_modules
 RUN apk add --update nodejs nodejs-npm
 WORKDIR /build
 
-ENV DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/netcoreapp3.1/Blogging.db"
+ENV DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/net5.0/Blogging.db"
 ARG SOURCE_COMMIT
 ARG SOURCE_BRANCH
 ARG PROJECT_VERSION
@@ -35,10 +35,10 @@ RUN dotnet publish -c Release -r alpine-x64 \
 
 
 
-FROM mcr.microsoft.com/dotnet/core/runtime-deps:3.1-alpine
+FROM mcr.microsoft.com/dotnet/runtime-deps:5.0-alpine
 RUN apk add tzdata
 WORKDIR /app
-COPY --from=build --chown=xfs:xfs /build/AspNetCore.ExistingDb/bin/Release/netcoreapp3.1/alpine-x64/publish/ /build/startApp.sh ./
+COPY --from=build --chown=xfs:xfs /build/AspNetCore.ExistingDb/bin/Release/net5.0/alpine-x64/publish/ /build/startApp.sh ./
 
 ENV TZ=Europe/Warsaw USER=xfs ASPNETCORE_URLS=http://+:5000
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone

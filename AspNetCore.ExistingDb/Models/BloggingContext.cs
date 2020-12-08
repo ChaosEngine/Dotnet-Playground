@@ -154,7 +154,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 			modelBuilder.Entity<SessionCache>(entity =>
 			{
 				entity.HasIndex(e => e.ExpiresAtTime)
-					.HasName("Index_ExpiresAtTime");
+					.HasDatabaseName("Index_ExpiresAtTime");
 
 				entity.Property(e => e.Id).HasMaxLength(449);
 				entity.Property(e => e.Value).IsRequired();

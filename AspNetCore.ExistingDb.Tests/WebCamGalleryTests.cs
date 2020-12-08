@@ -158,6 +158,9 @@ namespace RazorPages
 		[Theory]
 		[InlineData("out-1.jpg")]
 		[InlineData("thumbnail-1.jpg")]
+		[InlineData("out-1.webp")]
+		[InlineData("thumbnail-1.webp")]
+		[InlineData("out-1.avif")]
 		public void OnImageGetTest(string imageName)
 		{
 			//Arrange
@@ -178,16 +181,28 @@ namespace RazorPages
 			if (!string.IsNullOrEmpty(Configuration["ImageDirectory"]))
 			{
 				Assert.NotNull(result);
-				Assert.IsType<PhysicalFileResult>(result);
-				Assert.Equal(MediaTypeNames.Image.Jpeg, ((PhysicalFileResult)result).ContentType);
+
+				switch (Path.GetExtension(imageName))
+				{
+					case ".webp":
+						Assert.IsType<PhysicalFileResult>(result);
+						Assert.Equal("image/webp", ((PhysicalFileResult)result).ContentType);
+						break;
+					case ".jpg":
+						Assert.IsType<PhysicalFileResult>(result);
+						Assert.Equal(MediaTypeNames.Image.Jpeg, ((PhysicalFileResult)result).ContentType);
+						break;
+					default:
+						Assert.IsType<NotFoundResult>(result);
+						return;//bad file name or type or content-type not much we can test more
+				};
+
 				Assert.NotNull(((PhysicalFileResult)result).EntityTag);
 				//Assert.NotNull(((PhysicalFileResult)result).LastModified);
-			}
+				Assert.Equal(imageName, Path.GetFileName(((PhysicalFileResult)result).FileName));
 
 
-			//test strong caching with ETAG and date tag checking
-			if (!string.IsNullOrEmpty(Configuration["ImageDirectory"]))
-			{
+				//test strong caching with ETAG and date tag checking
 				//Arrange
 				var fi = new FileInfo(Path.Combine(Configuration["ImageDirectory"], imageName));
 				DateTimeOffset last = fi.LastWriteTime;
