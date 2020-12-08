@@ -2,10 +2,12 @@
 using EFGetStarted.AspNetCore.ExistingDb.Controllers;
 using EFGetStarted.AspNetCore.ExistingDb.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -641,22 +643,32 @@ namespace Integration
 				if (!string.IsNullOrEmpty(_fixture.ImageDirectory))
 				{
 					/**
-					 <a href="/WebCamImages/out-91.jpg" title="18.02.2018 00:20:01">
-						<img alt="out-91.jpg" class='active' onmouseover='ReplImg(this);' />
+					 <a href="/dotnet/WebCamImages/thumbnail-0.jpg" title="2020-09-14 08:40:01Z">
+						<picture>
+							<source />
+							<img alt='no img' class='inactive' />
+						</picture>
 					</a>
-					<a href="/WebCamImages/out-90.jpg" title="18.02.2018 00:10:02">
-						<img alt='no img' class='inactive' onmouseover='ReplImg(this);' />
+					<a href="/dotnet/WebCamImages/thumbnail-144.jpg" title="2020-09-14 08:30:01Z">
+						<picture>
+							<source />
+							<img alt='no img' class='inactive' />
+						</picture>
 					</a>*/
 
-					MatchCollection matches = Regex.Matches(responseString, @"\<img alt=""(.*\.jpg)"" class='active' /\>");
+					MatchCollection matches = Regex.Matches(responseString, @"\<a href=""(.*thumbnail-.*\.jpg)"" title=""(.*)"">");
 					Assert.NotEmpty(matches);
 					var images = new List<string>(matches.Count);
-					foreach (Match m in matches)
+					foreach (Match m in matches.Take(7))
 					{
 						var match_count = m.Success ? m.Groups[1].Captures.Count : 0;
 						Assert.True(match_count > 0);
-						var id = m.Groups[1].Captures[match_count - 1].Value;
-						images.Add(id);
+
+						var img = m.Groups[1].Captures[match_count - 1].Value;
+						images.Add(img);
+
+						var date = m.Groups[2].Captures[match_count - 1].Value;
+						Assert.True(DateTime.TryParse(date, out DateTime dt));
 					}
 					Assert.True(images.Count > 4);
 				}
@@ -665,10 +677,10 @@ namespace Integration
 
 		[Theory]
 		[InlineData("out-1.jpg")]
+		[InlineData("out-1.webp")]
+		[InlineData("out-1.avif")]
 		public async Task GetImage(string imageName)
 		{
-			string etag = null;
-
 			// Arrange
 			// Act
 			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{WebCamImagesModel.ASPX}/{imageName}", HttpCompletionOption.ResponseHeadersRead))
@@ -678,15 +690,37 @@ namespace Integration
 
 				if (!string.IsNullOrEmpty(_fixture.ImageDirectory))
 				{
-					response.EnsureSuccessStatusCode();
+					IEnumerable<string> c_type;
+					switch (Path.GetExtension(imageName))
+					{
+						case ".webp":
+							response.EnsureSuccessStatusCode();
 
-					Assert.IsType<StreamContent>(response.Content);
-					Assert.True(response.Content.Headers.TryGetValues("Content-Type", out IEnumerable<string> c_type));
-					Assert.NotNull(c_type);
-					Assert.Equal(MediaTypeNames.Image.Jpeg, response.Content.Headers.ContentType.MediaType);
-					Assert.NotNull(response.Headers.ETag);
+							Assert.IsType<StreamContent>(response.Content);
+							Assert.True(response.Content.Headers.TryGetValues("Content-Type", out c_type));
+							Assert.NotNull(c_type);
+							Assert.Equal("image/webp", response.Content.Headers.ContentType.MediaType);
 
-					etag = response.Headers.ETag.Tag;
+							Assert.NotNull(response.Headers.ETag);
+							_ = response.Headers.ETag.Tag;
+							break;
+						case ".jpg":
+						case ".jpeg":
+							response.EnsureSuccessStatusCode();
+
+							Assert.IsType<StreamContent>(response.Content);
+							Assert.True(response.Content.Headers.TryGetValues("Content-Type", out c_type));
+							Assert.NotNull(c_type);
+							Assert.Equal(MediaTypeNames.Image.Jpeg, response.Content.Headers.ContentType.MediaType);
+
+							Assert.NotNull(response.Headers.ETag);
+							_ = response.Headers.ETag.Tag;
+							break;
+						default:
+							Assert.False(response.IsSuccessStatusCode, "bad extension");
+							break;
+					}
+
 				}
 				else
 				{

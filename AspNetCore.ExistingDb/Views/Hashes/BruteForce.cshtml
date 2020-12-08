@@ -1,29 +1,6 @@
 ﻿@{
 	ViewBag.Title = "Brute Force hashes";
 }
-@section headElements
-{
-	<style type="text/css">
-		.workers .worker {
-			opacity: 1;
-			transition: opacity 0.3s ease-out;
-		}
-		.workers .worker.found .title {
-			background-color: rgba(0, 114, 0, 0.5);
-		}
-		.workers .worker.done:not(.found) {
-			opacity: 0.4;
-		}
-		.workers .worker.done:not(.found) .title {
-			background-color: rgba(110, 6, 6, 0.5);
-		}
-		.workers .worker .title {
-			background-color: rgba(80, 0, 0, 0.5);
-			color: rgba(255, 255, 255, 0.9);
-			transition: background 0.3s ease-out;
-		}
-	</style>
-}
 <h1>Brute forcing hashes to plain text (with trivial strings)</h1>
 <p id="pParagraph">Based on <a target="_blank" href="http://embed.plnkr.co/mnlQ6P">http://embed.plnkr.co/mnlQ6P</a></p>
 
@@ -59,12 +36,12 @@
 	@await Html.PartialAsync("_CryptoJSScriptsPartial")
 
 	<environment names="Development">
-		<script src="~/js/workers/shared.js"></script>
-		<script src="~/js/workers/main.js"></script>
+		<script src="~/js/workers/shared.min.js"></script>
+		<script src="~/js/workers/BruteForce.js"></script>
 	</environment>
 
 	<script type="text/javascript">
-		var instance = null;
+		let instance = null;
 
 		$(document).ready(function () {
 
@@ -76,8 +53,8 @@
 					return;
 				}
 
-				var passToHash = $('#txtHash').val();
-				var alphabet = $('#txtAlphabet').val();
+				const passToHash = $('#txtHash').val();
+				const alphabet = $('#txtAlphabet').val();
 				
 				if (passToHash == null || passToHash == '' || alphabet == null || alphabet == '') {
 					$('.global-message').text('nothing to decode');
@@ -85,19 +62,18 @@
 				}
 				$("#btnCrack").text('Cancel');
 
-				var workerCount = $('#ddlWorkerCount').val();
-				var updateRate = $('#ddlUpdateRate').val();
+				const workerCount = $('#ddlWorkerCount').val();
+				const updateRate = $('#ddlUpdateRate').val();
 
-				var hashToCrack = hashExp(passToHash);
-				instance = new BruteForce(window, document,
-					'.workers',//element into which display content
+				const hashToCrack = hashExp(passToHash);
+				instance = new BruteForce(document,
 					libs2Load,
 					workerCount,//worker count
 					updateRate,
 					alphabet,//alphabet from which to start crunching hashes
 					hashToCrack,//hashToCrack
 					passToHash.length,//pass characters length
-					function(foundPass){
+					function(foundPass) {
 						$("#btnCrack").text('Reset');
 					}
 				);

@@ -1,9 +1,8 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "BruteForce" }]*/
 /*global binaryStringToArrayBufferExp arrayBufferToBinaryStringExp*/
-function BruteForce(w, d, divContainerName, libsToLoad, workerCount, updateRate, alphabet, hashToCrack, passCharacterLength,
-	foundAction) {
+function BruteForce(d, libsToLoad, workerCount, updateRate, alphabet, hashToCrack, passCharacterLength, foundAction) {
 
-	var passphraseLimit = Math.pow(alphabet.length/*10 digits*/, passCharacterLength/*number of digits*/),
+	let passphraseLimit = Math.pow(alphabet.length/*10 digits*/, passCharacterLength/*number of digits*/),
 		workers = [], startTime = null;
 
 	function onError(e) {
@@ -19,11 +18,10 @@ function BruteForce(w, d, divContainerName, libsToLoad, workerCount, updateRate,
 	}
 
 	function splitNumIntoRanges(num, count) {
-		var inc = Math.ceil(num / count),
-			seq = 1,
-			chunks = [];
+		const inc = Math.ceil(num / count), chunks = [];
+		let seq = 1;
 
-		for (var i = 1; i < count; i++) {
+		for (let i = 1; i < count; i++) {
 			chunks.push({
 				low: seq,
 				high: seq + inc
@@ -41,7 +39,7 @@ function BruteForce(w, d, divContainerName, libsToLoad, workerCount, updateRate,
 	}
 
 	function createWorkerMonitor(index) {
-		var element = d.createElement('div');
+		const element = d.createElement('div');
 		element.id = 'worker-' + index;
 		element.classList.add('worker'); element.classList.add('col-md-4');
 
@@ -58,7 +56,7 @@ function BruteForce(w, d, divContainerName, libsToLoad, workerCount, updateRate,
 				</div>\
 			</div>';
 
-		d.querySelector(divContainerName).appendChild(element);
+		d.querySelector('.workers').appendChild(element);
 	}
 
 	function updateTextContent(selector, content) {
@@ -72,12 +70,12 @@ function BruteForce(w, d, divContainerName, libsToLoad, workerCount, updateRate,
 		// Splitting the limit number into pieces and distribute equally along the
 		// workers.
 		splitNumIntoRanges(passphraseLimit, workerCount).forEach(function (range, index) {
-			var worker = new Worker('../js/workers/worker.min.js');
+			const worker = new Worker('../js/workers/BruteForceWorker.min.js');
 
 			createWorkerMonitor(index);
 
 			worker.addEventListener('message', function (e) {
-				var data = JSON.parse(arrayBufferToBinaryStringExp(e.data));
+				const data = JSON.parse(arrayBufferToBinaryStringExp(e.data));
 
 				if (data.update) {
 					// On a update we update the data of the specific worker
@@ -126,7 +124,7 @@ function BruteForce(w, d, divContainerName, libsToLoad, workerCount, updateRate,
 					workers[index].terminate();
 					workers[index] = null;
 
-					var all_nulls = true;
+					let all_nulls = true;
 					workers.forEach(function (w) {
 						if (w !== null)
 							all_nulls = false;
@@ -138,7 +136,7 @@ function BruteForce(w, d, divContainerName, libsToLoad, workerCount, updateRate,
 			worker.addEventListener('error', onError, false);
 
 			// Start the worker with a postMessage and pass the parameters
-			var cmd = {
+			const cmd = {
 				libsToLoad: libsToLoad,
 				hash: hashToCrack,
 				range: range,
@@ -146,7 +144,7 @@ function BruteForce(w, d, divContainerName, libsToLoad, workerCount, updateRate,
 				passCharacterLength: passCharacterLength,
 				updateRate: updateRate
 			};
-			var buff = binaryStringToArrayBufferExp(JSON.stringify(cmd));
+			const buff = binaryStringToArrayBufferExp(JSON.stringify(cmd));
 			worker.postMessage(buff, [buff]);
 
 			// Push into the global workers array so we have controll later on

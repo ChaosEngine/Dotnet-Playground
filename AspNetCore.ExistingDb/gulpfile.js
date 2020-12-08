@@ -1,4 +1,4 @@
-﻿/*global require, __dirname*/
+﻿/*global require, __dirname, process*/
 "use strict";
 
 const gulp = require("gulp"),
@@ -10,18 +10,27 @@ const gulp = require("gulp"),
 	rename = require("gulp-rename"),
 	path = require('path'),
 	webpack = require('webpack-stream'),
+	WorkerPlugin = require('worker-plugin'),
 	EsmWebpackPlugin = require("@purtuga/esm-webpack-plugin");
 
 var webroot = "./wwwroot/";
 
 var paths = {
 	js: webroot + "js/**/*.js",
-	minJs: webroot + "js/**/*.min.js",
+	minJs: webroot + "js/**/*{.min,Worker*}.js",
 	css: webroot + "css/**/*.css",
 	minCss: webroot + "css/**/*.min.css",
 	concatJsDest: webroot + "js/site.min.js",
+	//<ServiceWorker>
 	SWJs: webroot + "sw.js",
 	SWJsDest: webroot + "sw.min.js",
+	//<ServiceWorker/>
+	//<WebWorkers>
+	BruteForceWorkerJs: webroot + "js/workers/BruteForceWorker.js",
+	BruteForceWorkerJsDest: webroot + "js/workers/BruteForceWorker.min.js",
+	SharedJs: webroot + "js/workers/shared.js",
+	SharedJsDest: webroot + "js/workers/shared.min.js",
+	//<WebWorkers/>
 	concatCssDest: webroot + "css/site.min.css",
 	inkBallJsRelative: "../InkBall/src/InkBall.Module/wwwroot/js/",
 	inkBallCssRelative: "../InkBall/src/InkBall.Module/wwwroot/css/"
@@ -32,21 +41,28 @@ const babelTranspilerFunction = function (min) {
 	return gulp.src([
 		paths.inkBallJsRelative + 'inkball.js'
 		//paths.inkBallJsRelative + 'svgvml.js',
-		//paths.inkBallJsRelative + 'concavemanSource.js'
+		//paths.inkBallJsRelative + 'AISource.js'
 	]).pipe(webpack({
 		resolve: {
 			modules: ['node_modules', `../../../../../${path.basename(__dirname)}/node_modules`]
 		},
 		entry: {
-			'inkball': paths.inkBallJsRelative + 'inkball.js'
-			//, 'svgvml.babelify': paths.inkBallJsRelative + 'svgvml.js',
-			//, 'concaveman': paths.inkBallJsRelative + 'concavemanSource.js'
+			'inkball': [
+				//'@babel/polyfill',
+				paths.inkBallJsRelative + 'inkball.js'
+			]
 		},
 		output: {
 			filename: '[name]Bundle.js',
 			chunkFilename: '[name]Bundle.js',
 			publicPath: '../js/'
 		},
+		//plugins: [
+		//	new WorkerPlugin({
+		//		// use "self" as the global object when receiving hot updates.
+		//		globalObject: 'self' // <-- this is the default value
+		//	})
+		//],
 		module: {
 			rules: [{
 				use: {
@@ -61,6 +77,9 @@ const babelTranspilerFunction = function (min) {
 		},
 		optimization: {
 			minimize: min
+		},
+		performance: {
+			hints: process.env.NODE_ENV === 'production' ? "warning" : false
 		},
 		mode: "production",
 		stats: "errors-warnings"
@@ -83,8 +102,8 @@ const fileMinifyCSSFunction = function (src, result) {
 		.pipe(gulp.dest("."));
 };
 
-gulp.task('webpack:inkballConcaveMan', function () {
-	return gulp.src(paths.inkBallJsRelative + "concavemanSource.js")
+gulp.task('webpack:inkballAI', function () {
+	return gulp.src(paths.inkBallJsRelative + "AIWorker.js")
 		.pipe(webpack({
 			resolve: {
 				modules: ['node_modules', `../../../../../${path.basename(__dirname)}/node_modules`],
@@ -92,15 +111,43 @@ gulp.task('webpack:inkballConcaveMan', function () {
 					'tinyqueue': 'tinyqueue/tinyqueue.js' //https://github.com/mapbox/concaveman/issues/18
 				}
 			},
+			entry: {
+				'AIWorker': [
+					'@babel/polyfill',
+					paths.inkBallJsRelative + 'AIWorker.js'
+				]
+			},
+			target: "webworker",
 			output: {
-				filename: 'concavemanBundle.js',
-				library: 'concavemanBundle' //add this line to enable re-use
+				filename: '[name]Bundle.js'
 			},
 			plugins: [
-				new EsmWebpackPlugin()
+				//new EsmWebpackPlugin(),
+				new WorkerPlugin({
+					// use "self" as the global object when receiving hot updates.
+					globalObject: 'self' // <-- this is the default value
+				})
 			],
+			module: {
+				rules: [{
+					use: {
+						loader: 'babel-loader',
+						options: {
+							presets: [
+								["@babel/preset-env", { "useBuiltIns": "entry", "corejs": 3 }]
+							]
+							//, plugins: [
+							//	"@babel/plugin-transform-runtime"
+							//]
+						}
+					}
+				}]
+			},
 			optimization: {
 				minimize: true
+			},
+			performance: {
+				hints: process.env.NODE_ENV === 'production' ? "warning" : false
 			},
 			mode: "production",
 			stats: "errors-warnings"
@@ -108,7 +155,7 @@ gulp.task('webpack:inkballConcaveMan', function () {
 		.pipe(gulp.dest(paths.inkBallJsRelative));
 });
 
-gulp.task("babel", gulp.series("webpack:inkballConcaveMan", function transpilers(cb) {
+gulp.task("webpack", gulp.series("webpack:inkballAI", function webpackAndBabelTranspilers(cb) {
 	babelTranspilerFunction(false);
 	babelTranspilerFunction(true);
 	return cb();
@@ -138,6 +185,8 @@ gulp.task("clean:inkball", function (cb) {
 gulp.task("clean:js", gulp.series("clean:inkball", function cleanConcatJsDest(cb) {
 	rimraf(paths.concatJsDest, cb);
 	rimraf(paths.SWJsDest, cb);
+	rimraf(paths.BruteForceWorkerJsDest, cb);
+	rimraf(paths.SharedJsDest, cb);
 }));
 
 gulp.task("clean:css", function (cb) {
@@ -150,12 +199,22 @@ gulp.task("minSWJs:js", function () {
 	return fileMinifyJSFunction(paths.SWJs, paths.SWJsDest);
 });
 
-gulp.task("min:js", gulp.series("minSWJs:js", function concatJsDest() {
-	return gulp.src([paths.js, "!" + paths.minJs], { base: "." })
-		.pipe(concat(paths.concatJsDest))
-		.pipe(terser())
-		.pipe(gulp.dest("."));
-}));
+gulp.task("minBruteForceWorker:js", function () {
+	return fileMinifyJSFunction(paths.BruteForceWorkerJs, paths.BruteForceWorkerJsDest);
+});
+
+gulp.task("Shared:js", function () {
+	return fileMinifyJSFunction(paths.SharedJs, paths.SharedJsDest);
+});
+
+gulp.task("min:js", gulp.series("minSWJs:js", "minBruteForceWorker:js", "Shared:js",
+	function concatJsDest() {
+		return gulp.src([paths.js, "!" + paths.minJs], { base: "." })
+			.pipe(concat(paths.concatJsDest))
+			.pipe(terser())
+			.pipe(gulp.dest("."));
+	}
+));
 
 gulp.task("min:css", function () {
 	return gulp.src([paths.css, "!" + paths.minCss])
@@ -169,5 +228,5 @@ gulp.task("min", gulp.parallel("min:js", "min:inkball", "min:css"));
 //Main entry point
 gulp.task("default", gulp.series(
 	"clean",
-	"babel", "min")
+	"webpack", "min")
 );

@@ -176,7 +176,7 @@ namespace Controllers
 				return tddf.Object;
 			});
 
-			CancellationToken token;
+			CancellationToken token = default;
 			httpContextMock.SetupProperty(r => r.RequestAborted, token).SetReturnsDefault(token);
 
 			httpContextMock.Setup(r => r.RequestServices.GetService(typeof(Microsoft.AspNetCore.Mvc.ModelBinding.Validation.IObjectModelValidator))).Returns(() =>

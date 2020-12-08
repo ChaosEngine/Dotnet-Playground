@@ -1,10 +1,10 @@
 # syntax = docker/dockerfile:experimental
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
+FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build
 RUN --mount=type=cache,target=/root/.nuget --mount=type=cache,target=/root/.local/share/NuGet --mount=type=cache,target=/root/.npm/ --mount=type=cache,target=./AspNetCore.ExistingDb/node_modules
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && apt-get install -y nodejs
 WORKDIR /build
 
-ENV DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/netcoreapp3.1/Blogging.db"
+ENV DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/net5.0/Blogging.db"
 ARG SOURCE_COMMIT
 ARG SOURCE_BRANCH
 ARG PROJECT_VERSION
@@ -35,9 +35,9 @@ RUN dotnet publish -c Release -r linux-x64 \
 
 
 
-FROM mcr.microsoft.com/dotnet/core/runtime-deps:3.1-buster-slim
+FROM mcr.microsoft.com/dotnet/runtime-deps:5.0-buster-slim
 WORKDIR /app
-COPY --from=build --chown=www-data:www-data /build/AspNetCore.ExistingDb/bin/Release/netcoreapp3.1/linux-x64/publish/ /build/startApp.sh ./
+COPY --from=build --chown=www-data:www-data /build/AspNetCore.ExistingDb/bin/Release/net5.0/linux-x64/publish/ /build/startApp.sh ./
 
 ENV TZ=Europe/Warsaw USER=www-data ASPNETCORE_URLS=http://+:5000
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone

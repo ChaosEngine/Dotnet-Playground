@@ -1,6 +1,6 @@
 ﻿<environment include="Development">
 	<script type="text/javascript">
-		var libs2Load = ['../../lib/forge/dist/forge.min.js', 'shared.js'];
+		var libs2Load = ['../../lib/forge/dist/forge.min.js', 'shared.min.js'];
 	</script>
 	<script src="~/lib/forge/dist/forge.min.js"></script>
 </environment>
@@ -8,15 +8,15 @@
 	<script type="text/javascript">
 		var libs2Load = [];
 	</script>
-	<script src="https://cdn.jsdelivr.net/npm/node-forge@0.9.1/dist/forge.min.js" integrity="sha256-yXrGIwDKUYCS7/LLjJjlicO5+zzXbW9CAeHpOLEi/rk=" crossorigin="anonymous"
+	<script src="https://cdn.jsdelivr.net/npm/node-forge@0.10.0/dist/forge.min.js" integrity="sha256-USLEydvGvJHNf+f1ViqTsCqZkSyDtmG2UsL3cEAVBvI=" crossorigin="anonymous"
 			asp-fallback-src="~/lib/forge/dist/forge.min.js"
-			asp-fallback-test="(window.forge && window.forge.sha256 && libs2Load.push('https://cdn.jsdelivr.net/npm/node-forge@0.9.1/dist/forge.min.js'))"></script>
+			asp-fallback-test="(window.forge && window.forge.sha256 && libs2Load.push('https://cdn.jsdelivr.net/npm/node-forge@0.9.2/dist/forge.min.js'))"></script>
 	<script type="text/javascript">
 		if(libs2Load.length <= 0)
 		{
-			libs2Load = ['../../lib/forge/dist/forge.min.js', 'shared.js'];
+			libs2Load = ['../../lib/forge/dist/forge.min.js', 'shared.min.js'];
 		}
 		else
-			libs2Load.push('shared.js');
+			libs2Load.push('shared.min.js');
 	</script>
 </environment>

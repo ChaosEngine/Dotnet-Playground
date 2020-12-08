@@ -68,9 +68,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 				ThumbnailJpgs = di.EnumerateFiles("thumbnail*.jpg", SearchOption.TopDirectoryOnly)
 					.OrderByDescending(f => f.LastWriteTime);
 
-				// FullImageJpgs = di.EnumerateFiles("out*.jpg", SearchOption.TopDirectoryOnly)
-				// 	.OrderByDescending(f => f.LastWriteTime);
-
 				if (false == User.Identity.IsAuthenticated)
 				{
 					FileInfo img = ThumbnailJpgs.FirstOrDefault();

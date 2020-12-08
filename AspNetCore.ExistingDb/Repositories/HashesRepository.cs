@@ -7,7 +7,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MySql.Data.MySqlClient;
+using MySqlConnector;
 using Npgsql;
 using NpgsqlTypes;
 #if INCLUDE_ORACLE
@@ -963,7 +963,7 @@ OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 						});
 
 						var alphabet = (from h in db.ThinHashes
-										select h.Key.Substring(0, 1)
+										select h.Key.FirstOrDefault()
 										).Distinct()
 										.OrderBy(o => o);
 						var count = await db.ThinHashes.CountAsync(token);

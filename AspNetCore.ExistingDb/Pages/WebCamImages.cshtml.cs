@@ -27,7 +27,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		/// <param name="serverTiming">The server timing.</param>
 		/// <param name="fileName">Name of the file.</param>
 		/// <returns></returns>
-		public IActionResult OnGet([FromServices]IConfiguration configuration, [FromServices]IServerTiming serverTiming, string fileName)
+		public IActionResult OnGet([FromServices] IConfiguration configuration, [FromServices] IServerTiming serverTiming, string fileName)
 		{
 			var watch = new Stopwatch();
 			watch.Start();
@@ -45,6 +45,14 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 				if (Path.GetDirectoryName(path) == imageDirectory)
 				{
 					var fi = new FileInfo(path);
+
+					string content_type = fi.Extension switch
+					{
+						".webp" => "image/webp",
+						".jpg" => MediaTypeNames.Image.Jpeg,
+						_ => throw new NotSupportedException("not supported content-type or extension"),
+					};
+
 					var length = fi.Length;
 					DateTimeOffset last = fi.LastWriteTime;
 					// Truncate to the second.
@@ -64,8 +72,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 					}
 					var etag = new EntityTagHeaderValue(etag_str);
 
-					//var fs = new FileStream(path, FileMode.Open, FileAccess.Read);
-					PhysicalFileResult pfr = base.PhysicalFile(path, MediaTypeNames.Image.Jpeg);
+
+					PhysicalFileResult pfr = base.PhysicalFile(path, content_type);
 					pfr.EntityTag = etag;
 					//pfr.LastModified = lastModified;
 					serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("GET", watch.ElapsedMilliseconds, "full file GET"));
@@ -84,8 +92,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 		/// <param name="serverTiming">The server timing.</param>
 		/// <param name="fileName">Name of the file.</param>
 		/// <returns></returns>
-		public async Task<IActionResult> OnGetLiveAsync([FromServices]IServerTiming serverTiming,
-			[FromServices]IMjpgStreamerHttpClient client)
+		public async Task<IActionResult> OnGetLiveAsync([FromServices] IServerTiming serverTiming,
+			[FromServices] IMjpgStreamerHttpClient client)
 		{
 			var watch = new Stopwatch();
 			watch.Start();
