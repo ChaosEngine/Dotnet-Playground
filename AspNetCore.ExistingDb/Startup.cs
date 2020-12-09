@@ -116,10 +116,10 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 					})
 					//.UseLibuv()
 					.UseSockets()
-					.UseLinuxTransport(async opts =>
+					/*.UseLinuxTransport(async opts =>
 					{
 						await Console.Out.WriteLineAsync("Using Linux Transport");
-					})
+					})*/
 					//.UseIISIntegration()
 					.UseStartup<Startup>();
 				})
