@@ -50,7 +50,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="5.0.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="5.0.1" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="5.0.1" />
-    <PackageReference Include="MessagePack" Version="2.2.60" />
+    <PackageReference Include="MessagePack" Version="2.2.85" />
 		<PackageReference Include="RedHat.AspNetCore.Server.Kestrel.Transport.Linux" Version="3.0.0-*" />
 	</ItemGroup>
 
