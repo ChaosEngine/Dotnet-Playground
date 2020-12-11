@@ -693,6 +693,17 @@ namespace Integration
 					IEnumerable<string> c_type;
 					switch (Path.GetExtension(imageName))
 					{
+						case ".avif":
+							response.EnsureSuccessStatusCode();
+
+							Assert.IsType<StreamContent>(response.Content);
+							Assert.True(response.Content.Headers.TryGetValues("Content-Type", out c_type));
+							Assert.NotNull(c_type);
+							Assert.Equal("image/avif", response.Content.Headers.ContentType.MediaType);
+
+							Assert.NotNull(response.Headers.ETag);
+							_ = response.Headers.ETag.Tag;
+							break;
 						case ".webp":
 							response.EnsureSuccessStatusCode();
 

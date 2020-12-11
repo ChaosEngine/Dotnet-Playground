@@ -184,6 +184,10 @@ namespace RazorPages
 
 				switch (Path.GetExtension(imageName))
 				{
+					case ".avif":
+						Assert.IsType<PhysicalFileResult>(result);
+						Assert.Equal("image/avif", ((PhysicalFileResult)result).ContentType);
+						break;
 					case ".webp":
 						Assert.IsType<PhysicalFileResult>(result);
 						Assert.Equal("image/webp", ((PhysicalFileResult)result).ContentType);

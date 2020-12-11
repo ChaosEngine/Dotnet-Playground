@@ -10,6 +10,7 @@
 		return binary;
 	}
 	// https://github.com/digitalbazaar/forge/issues/818 - new build 0.10.0 version is not working inside web workers
+	/*eslint no-global-assign: "off"*/
 	window = self;
 
 	// This is the entry point for our worker

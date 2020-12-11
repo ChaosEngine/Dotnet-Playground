@@ -105,10 +105,11 @@
 
 				@*<a href="~/WebCamImages/@(outo).jpg" title="@img.LastWriteTime.ToString("u")"><img alt='no img' class='inactive' /></a>*@
 				<a href="~/WebCamImages/@thumbnail" title="@img.LastWriteTime.ToString("u")">
-					<picture>
-						<source />
-						<img alt='no img' class='inactive' />
-					</picture>
+                    <picture>
+                        <source />
+                        <source />
+                        <img alt='no img' class='inactive' />
+                    </picture>
 				</a>
 			}
 			@:</div>

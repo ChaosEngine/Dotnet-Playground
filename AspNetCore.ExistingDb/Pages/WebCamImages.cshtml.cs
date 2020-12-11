@@ -49,6 +49,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 					string content_type = fi.Extension switch
 					{
 						".webp" => "image/webp",
+						".avif" => "image/avif",
 						".jpg" => MediaTypeNames.Image.Jpeg,
 						_ => throw new NotSupportedException("not supported content-type or extension"),
 					};
