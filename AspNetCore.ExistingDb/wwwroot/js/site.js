@@ -227,38 +227,41 @@ function WebCamGalleryOnLoad(enableAnnualMovieGenerator, liveImageExpireTimeInSe
 	}
 
 	/**
-	 * check_webp_feature (taken from https://developers.google.com/speed/webp/faq#how_can_i_detect_browser_support_for_webp)
-	 * @param {any} feature can be one of 'lossy', 'lossless', 'alpha' or 'animation'.
-	 * @param {any} callback 'callback(result)' will be passed back the detection result (in an asynchronous way!)
+	 * Based on https://developers.google.com/speed/webp/faq#how_can_i_detect_browser_support_for_webp and https://github.com/leechy/imgsupport
+	 * @param {string} imgType is image type to test support
+	 * @param {function} callback 'callback(result)' will be passed back the detection result (in an asynchronous way!)
 	 */
-	function check_webp_feature(feature, callback) {
-		const kTestImages = {
-			lossy: "UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA",
-			lossless: "UklGRhoAAABXRUJQVlA4TA0AAAAvAAAAEAcQERGIiP4HAA==",
-			alpha: "UklGRkoAAABXRUJQVlA4WAoAAAAQAAAAAAAAAAAAQUxQSAwAAAARBxAR/Q9ERP8DAABWUDggGAAAABQBAJ0BKgEAAQAAAP4AAA3AAP7mtQAAAA==",
-			animation: "UklGRlIAAABXRUJQVlA4WAoAAAASAAAAAAAAAAAAQU5JTQYAAAD/////AABBTk1GJgAAAAAAAAAAAAAAAAAAAGQAAABWUDhMDQAAAC8AAAAQBxAREYiI/gcA"
-		};
-		const img = new Image();
-		img.onload = function () {
-			const result = (img.width > 0) && (img.height > 0);
-			callback(result);
-		};
-		img.onerror = function () {
-			callback(false);
-		};
-		img.src = "data:image/webp;base64," + kTestImages[feature];
-	}
-
-	function check_avif_feature(callback) {
-		function handler(height) {
-			callback(height === 2);
+	function checkImageFeature(imgType, callback) {
+		switch (imgType) {
+			case 'webp':
+				{
+					const kTestImages_loss = "UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA";
+					const img = new Image();
+					img.onload = function () {
+						const result = (img.width > 0) && (img.height > 0);
+						callback(result);
+					};
+					img.onerror = function () {
+						callback(false);
+					};
+					img.src = "data:image/webp;base64," + kTestImages_loss;
+				}
+				break;
+			case 'avif':
+				{
+					const img = new Image();
+					img.onload = function () {
+						callback(img.height === 2);
+					};
+					img.onerror = function () {
+						callback(false);
+					};
+					img.src = 'data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADybWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAeaWxvYwAAAABEAAABAAEAAAABAAABGgAAAB0AAAAoaWluZgAAAAAAAQAAABppbmZlAgAAAAABAABhdjAxQ29sb3IAAAAAamlwcnAAAABLaXBjbwAAABRpc3BlAAAAAAAAAAIAAAACAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQ0MAAAAABNjb2xybmNseAACAAIAAYAAAAAXaXBtYQAAAAAAAAABAAEEAQKDBAAAACVtZGF0EgAKCBgANogQEAwgMg8f8D///8WfhwB8+ErK42A=';
+				}
+				break;
+			default:
+				throw Error('bad imgType');
 		}
-
-		const AVIF = new Image();
-		AVIF.onload = AVIF.onerror = function () {
-			handler(AVIF.height);
-		};
-		AVIF.src = 'data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADybWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAeaWxvYwAAAABEAAABAAEAAAABAAABGgAAAB0AAAAoaWluZgAAAAAAAQAAABppbmZlAgAAAAABAABhdjAxQ29sb3IAAAAAamlwcnAAAABLaXBjbwAAABRpc3BlAAAAAAAAAAIAAAACAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQ0MAAAAABNjb2xybmNseAACAAIAAYAAAAAXaXBtYQAAAAAAAAABAAEEAQKDBAAAACVtZGF0EgAKCBgANogQEAwgMg8f8D///8WfhwB8+ErK42A=';
 	}
 
 	function LoadFirstGallerImages() {
@@ -294,7 +297,7 @@ function WebCamGalleryOnLoad(enableAnnualMovieGenerator, liveImageExpireTimeInSe
 		const el = event.currentTarget || event;
 		if (el.classList.contains('active')) return;
 
-		const thumb_url = el.parentNode.parentNode.href.replace(".jpg", "").replace(".webp", "");
+		const thumb_url = el.parentNode.parentNode.href.replace(/\.[^.]*$/, "");
 		el.src = thumb_url + ".jpg";
 		el.alt = "thumbnail-" + thumb_url.split(/thumbnail-(\d+)/)[1];
 
@@ -324,54 +327,63 @@ function WebCamGalleryOnLoad(enableAnnualMovieGenerator, liveImageExpireTimeInSe
 		event = event || window.event;
 		event.preventDefault();
 
-		check_webp_feature('lossy', function (isWebPSupported) {
-			check_avif_feature(function (isAvifSupported) {
-				const target = event.target || event.srcElement,
-					links = target.parentNode.parentNode.parentNode,
-					link = target.src ? target.parentNode.parentNode : target,
-					options = {
-						//index: link,
-						event: event,
-						onopen: function () {
-							// Callback function executed when the Gallery is initialized
-							ReplAllImg();
-						}
-					};
+		function prepareImagesForGallery(event, isAvifSupported, isWebPSupported) {
+			const target = event.target || event.srcElement,
+				links = target.parentNode.parentNode.parentNode,
+				link = target.src ? target.parentNode.parentNode : target,
+				options = {
+					//index: link,
+					event: event,
+					onopen: function () {
+						// Callback function executed when the Gallery is initialized
+						ReplAllImg();
+					}
+				};
 
-				const urls = Array.prototype.slice.call(links.getElementsByTagName('a')).map(function (a) {
-					let href, type;
-					if (isAvifSupported) {//avif supported
-						href = a.href.replace(".jpg", ".avif");
-						type = 'image/avif';
-					}
-					else if (isWebPSupported) {//webp supported
-						href = a.href.replace(".jpg", ".webp");
-						type = 'image/webp';
-					}
-					else {
-						href = a.href;
-						type = 'image/jpeg';
-					}
-					return {
-						title: a.title,
-						href: href.replace("thumbnail", "out"),
-						type: type,
-						thumbnail: href
-					};
-				});
-				//calculate clicked image index in url list
-				const tmp = isAvifSupported ? link.href.replace(".jpg", ".avif")
-					: (isWebPSupported ? link.href.replace(".jpg", ".webp") : link.href);
-				options.index = -1;
-				urls.some(function (value, i) {
-					if (value.thumbnail === tmp) {
-						options.index = i;
-						return true;
-					}
-				});
-
-				blueimp.Gallery(urls, options);
+			const urls = Array.prototype.slice.call(links.getElementsByTagName('a')).map(function (a) {
+				let href, type;
+				if (isAvifSupported) {//avif supported
+					href = a.href.replace(".jpg", ".avif");
+					type = 'image/avif';
+				}
+				else if (isWebPSupported) {//webp supported
+					href = a.href.replace(".jpg", ".webp");
+					type = 'image/webp';
+				}
+				else {
+					href = a.href;
+					type = 'image/jpeg';
+				}
+				return {
+					title: a.title,
+					href: href.replace("thumbnail", "out"),
+					type: type,
+					thumbnail: href
+				};
 			});
+			//calculate clicked image index in url list
+			const tmp = isAvifSupported ? link.href.replace(".jpg", ".avif")
+				: (isWebPSupported ? link.href.replace(".jpg", ".webp") : link.href);
+			options.index = -1;
+			urls.some(function (value, i) {
+				if (value.thumbnail === tmp) {
+					options.index = i;
+					return true;
+				}
+			});
+
+			blueimp.Gallery(urls, options);
+		}
+
+		checkImageFeature('avif', function (isAvifSupported) {
+			if (isAvifSupported === false) {
+				checkImageFeature('webp', function (isWebPSupported) {
+					prepareImagesForGallery(event, isAvifSupported, isWebPSupported);
+				});
+			} else {
+				const isWebPSupported = false;
+				prepareImagesForGallery(event, isAvifSupported, isWebPSupported);
+			}
 		});
 	}
 
