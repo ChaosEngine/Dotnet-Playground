@@ -235,7 +235,6 @@ function WebCamGalleryOnLoad(enableAnnualMovieGenerator, liveImageExpireTimeInSe
 		switch (imgType) {
 			case 'webp':
 				{
-					const kTestImages_loss = "UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA";
 					const img = new Image();
 					img.onload = function () {
 						const result = (img.width > 0) && (img.height > 0);
@@ -244,7 +243,7 @@ function WebCamGalleryOnLoad(enableAnnualMovieGenerator, liveImageExpireTimeInSe
 					img.onerror = function () {
 						callback(false);
 					};
-					img.src = "data:image/webp;base64," + kTestImages_loss;
+					img.src = "data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA";
 				}
 				break;
 			case 'avif':
@@ -271,11 +270,21 @@ function WebCamGalleryOnLoad(enableAnnualMovieGenerator, liveImageExpireTimeInSe
 			if (alt && alt !== 'no img') {
 				img.src = g_AppRootPath + 'WebCamImages/' + alt;
 
-				const source_avif = img.parentNode.getElementsByTagName('source')[0];
+				let source_avif, source_webp;
+				const all_sources = img.parentNode.getElementsByTagName('source');
+				if (all_sources.length <= 0) {
+					source_avif = document.createElement('source');
+					img.parentNode.insertBefore(source_avif, img);
+					source_webp = document.createElement('source');
+					img.parentNode.insertBefore(source_webp, img);
+				}
+				else {
+					source_avif = all_sources[0];
+					source_webp = all_sources[1];
+				}
 				source_avif.type = "image/avif";
 				source_avif.srcset = g_AppRootPath + 'WebCamImages/' + alt.replace(".jpg", ".avif");
 
-				const source_webp = img.parentNode.getElementsByTagName('source')[1];
 				source_webp.type = "image/webp";
 				source_webp.srcset = g_AppRootPath + 'WebCamImages/' + alt.replace(".jpg", ".webp");
 			}
@@ -301,13 +310,24 @@ function WebCamGalleryOnLoad(enableAnnualMovieGenerator, liveImageExpireTimeInSe
 		el.src = thumb_url + ".jpg";
 		el.alt = "thumbnail-" + thumb_url.split(/thumbnail-(\d+)/)[1];
 
-		const source_avif = el.parentNode.getElementsByTagName('source')[0];
+		let source_avif, source_webp;
+		const all_sources = el.parentNode.getElementsByTagName('source');
+		if (all_sources.length <= 0) {
+			source_avif = document.createElement('source');
+			el.parentNode.insertBefore(source_avif, el);
+			source_webp = document.createElement('source');
+			el.parentNode.insertBefore(source_webp, el);
+		}
+		else {
+			source_avif = all_sources[0];
+			source_webp = all_sources[1];
+		}
+
 		if (source_avif.srcset === "" || source_avif.srcset === "images/no_img.svg") {
 			source_avif.type = "image/avif";
 			source_avif.srcset = thumb_url + ".avif";
 		}
 
-		const source_webp = el.parentNode.getElementsByTagName('source')[1];
 		if (source_webp.srcset === "" || source_webp.srcset === "images/no_img.svg") {
 			source_webp.type = "image/webp";
 			source_webp.srcset = thumb_url + ".webp";
@@ -486,9 +506,15 @@ function WebCamGalleryOnLoad(enableAnnualMovieGenerator, liveImageExpireTimeInSe
 			const empty_img = g_AppRootPath + empty;
 			value.src = empty_img;
 
-			const source = value.parentNode.getElementsByTagName('source')[0];
+			//const source = value.parentNode.getElementsByTagName('source')[0];
+			let source = document.createElement('source');
 			source.type = "image/svg+xml";
 			source.srcset = empty;
+			value.parentNode.insertBefore(source, value);
+			source = document.createElement('source');
+			source.type = "image/svg+xml";
+			source.srcset = empty;
+			value.parentNode.insertBefore(source, value);
 		}
 	});
 
