@@ -40,7 +40,7 @@ var paths = {
 const inkballEntryPoint = function (min) {
 	return gulp.src([
 		paths.inkBallJsRelative + 'inkball.js'
-		//paths.inkBallJsRelative + 'svgvml.js',
+		//paths.inkBallJsRelative + 'shared.js',
 		//paths.inkBallJsRelative + 'AISource.js'
 	]).pipe(webpack({
 		resolve: {
@@ -171,9 +171,9 @@ gulp.task("min:inkball", gulp.parallel(function inkballJs() {
 	return fileMinifyJSFunction(paths.inkBallJsRelative + "inkball.js",
 		paths.inkBallJsRelative + "inkball.min.js");
 },
-	function inkballSvgVmlJs() {
-		return fileMinifyJSFunction(paths.inkBallJsRelative + "svgvml.js",
-			paths.inkBallJsRelative + "svgvml.min.js");
+	function inkballSharedJs() {
+		return fileMinifyJSFunction(paths.inkBallJsRelative + "shared.js",
+			paths.inkBallJsRelative + "shared.min.js");
 	},
 	function inkballCSSMinify() {
 		return fileMinifyCSSFunction(paths.inkBallCssRelative + "inkball.css",
