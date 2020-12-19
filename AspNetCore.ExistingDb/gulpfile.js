@@ -53,8 +53,8 @@ const inkballEntryPoint = function (min) {
 			]
 		},
 		output: {
-			filename: '[name]Bundle.js',
-			chunkFilename: '[name]Bundle.js',
+			filename: '[name].Bundle.js',
+			chunkFilename: '[name].Bundle.js',
 			publicPath: '../js/'
 		},
 		//plugins: [
@@ -107,7 +107,7 @@ const inkballAIWorker = function (doPollyfill) {
 			},
 			target: "webworker",
 			output: {
-				filename: doPollyfill === true ? '[name]PolyfillBundle.js' : '[name]Bundle.js'
+				filename: doPollyfill === true ? '[name].PolyfillBundle.js' : '[name].Bundle.js'
 			},
 			plugins: [
 				//new esmWebpackPlugin(),
