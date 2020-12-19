@@ -10,8 +10,8 @@ const gulp = require("gulp"),
 	rename = require("gulp-rename"),
 	path = require('path'),
 	webpack = require('webpack-stream'),
-	WorkerPlugin = require('worker-plugin'),
-	EsmWebpackPlugin = require("@purtuga/esm-webpack-plugin");
+	//esmWebpackPlugin = require("@purtuga/esm-webpack-plugin"),
+	workerPlugin = require('worker-plugin');
 
 var webroot = "./wwwroot/";
 
@@ -37,7 +37,7 @@ var paths = {
 };
 
 ////////////// [Inkball Section] //////////////////
-const babelTranspilerFunction = function (min) {
+const inkballEntryPoint = function (min) {
 	return gulp.src([
 		paths.inkBallJsRelative + 'inkball.js'
 		//paths.inkBallJsRelative + 'svgvml.js',
@@ -58,7 +58,7 @@ const babelTranspilerFunction = function (min) {
 			publicPath: '../js/'
 		},
 		//plugins: [
-		//	new WorkerPlugin({
+		//	new workerPlugin({
 		//		// use "self" as the global object when receiving hot updates.
 		//		globalObject: 'self' // <-- this is the default value
 		//	})
@@ -88,21 +88,7 @@ const babelTranspilerFunction = function (min) {
 		.pipe(gulp.dest(paths.inkBallJsRelative));
 };
 
-const fileMinifyJSFunction = function (src, result) {
-	return gulp.src([src, "!" + result], { base: "." })
-		.pipe(concat(result))
-		.pipe(terser())
-		.pipe(gulp.dest("."));
-};
-
-const fileMinifyCSSFunction = function (src, result) {
-	return gulp.src([src, "!" + result], { base: "." })
-		.pipe(concat(result))
-		.pipe(cleanCSS())
-		.pipe(gulp.dest("."));
-};
-
-gulp.task('webpack:inkballAI', function () {
+const inkballAIWorker = function (doPollyfill) {
 	return gulp.src(paths.inkBallJsRelative + "AIWorker.js")
 		.pipe(webpack({
 			resolve: {
@@ -112,23 +98,25 @@ gulp.task('webpack:inkballAI', function () {
 				}
 			},
 			entry: {
-				'AIWorker': [
+				'AIWorker': doPollyfill === true ? [
 					'@babel/polyfill',
 					paths.inkBallJsRelative + 'AIWorker.js'
-				]
+				] : [
+						paths.inkBallJsRelative + 'AIWorker.js'
+					]
 			},
 			target: "webworker",
 			output: {
-				filename: '[name]Bundle.js'
+				filename: doPollyfill === true ? '[name]PolyfillBundle.js' : '[name]Bundle.js'
 			},
 			plugins: [
-				//new EsmWebpackPlugin(),
-				new WorkerPlugin({
+				//new esmWebpackPlugin(),
+				new workerPlugin({
 					// use "self" as the global object when receiving hot updates.
 					globalObject: 'self' // <-- this is the default value
 				})
 			],
-			module: {
+			module: doPollyfill === true ? {
 				rules: [{
 					use: {
 						loader: 'babel-loader',
@@ -142,7 +130,7 @@ gulp.task('webpack:inkballAI', function () {
 						}
 					}
 				}]
-			},
+			} : {},
 			optimization: {
 				minimize: true
 			},
@@ -153,13 +141,31 @@ gulp.task('webpack:inkballAI', function () {
 			stats: "errors-warnings"
 		}))
 		.pipe(gulp.dest(paths.inkBallJsRelative));
-});
+};
 
-gulp.task("webpack", gulp.series("webpack:inkballAI", function webpackAndBabelTranspilers(cb) {
-	babelTranspilerFunction(false);
-	babelTranspilerFunction(true);
+gulp.task("webpack", gulp.parallel(function inkballWebWorkerEntryPoint(cb) {
+	inkballAIWorker(true);
+	inkballAIWorker(false);
+	return cb();
+}, function inkballMainEntryPoint(cb) {
+	inkballEntryPoint(false);
+	inkballEntryPoint(true);
 	return cb();
 }));
+
+const fileMinifyJSFunction = function (src, result) {
+	return gulp.src([src, "!" + result], { base: "." })
+		.pipe(concat(result))
+		.pipe(terser())
+		.pipe(gulp.dest("."));
+};
+
+const fileMinifyCSSFunction = function (src, result) {
+	return gulp.src([src, "!" + result], { base: "." })
+		.pipe(concat(result))
+		.pipe(cleanCSS())
+		.pipe(gulp.dest("."));
+};
 
 gulp.task("min:inkball", gulp.parallel(function inkballJs() {
 	return fileMinifyJSFunction(paths.inkBallJsRelative + "inkball.js",
