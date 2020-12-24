@@ -129,8 +129,12 @@ function BruteForce(d, libsToLoad, workerCount, updateRate, alphabet, hashToCrac
 						if (w !== null)
 							all_nulls = false;
 					});
-					if (all_nulls === true)
+					if (all_nulls === true) {
+						toArray(d.querySelectorAll('.worker.done:not(.found)')).forEach(function (e) {
+							e.classList.add('failed');
+						});
 						updateTextContent('.global-message', 'nothing found, sorry :-/');
+					}
 				}
 			});
 			worker.addEventListener('error', onError, false);

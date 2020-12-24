@@ -4,7 +4,6 @@
 #		DOCKER_BUILDKIT=1 $DOCKER build \
 #		    --build-arg SOURCE_BRANCH=$(git rev-parse --abbrev-ref HEAD) \
 #		    --build-arg SOURCE_COMMIT=$(git rev-parse HEAD) \
-#		    --build-arg PROJECT_VERSION=$(xmllint --xpath 'string(//Version)' AspNetCore.ExistingDb/AspNetCore.ExistingDb.csproj) \
 #		    -f Dockerfile.alpine \
 #		    -t chaosengine/dotnetplayground:alpine5.0 .
 #

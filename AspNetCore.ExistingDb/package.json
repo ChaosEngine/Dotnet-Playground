@@ -62,6 +62,8 @@
 		"gulp-concat": "2.6.1",
 		"gulp-clean-css": "4.3.0",
 		"gulp-rename": "2.0.0",
+		"gulp-sass": "4.1.0",
+		"gulp-header": "2.0.9",
 		"rimraf": "3.0.2",
 		"concaveman": "1.2.0",
 		"webpack-stream": "6.1.1",

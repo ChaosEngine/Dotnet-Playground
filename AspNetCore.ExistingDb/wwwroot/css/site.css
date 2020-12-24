@@ -1,138 +1,117 @@
-﻿html,
+@charset "UTF-8";
+html,
 body {
-	height: 100vh;
-}
+  height: 100vh; }
 
 body {
-	position: relative;
-}
+  position: relative; }
 
 /* Wrapping element */
 /* Set some basic padding to keep content from hitting the edges */
 .body-content {
-	padding-top: 4.5rem;
-}
+  padding-top: 4.5rem; }
 
 /* Carousel */
 .carousel-caption p {
-	font-size: 20px;
-	line-height: 1.4;
-}
+  font-size: 20px;
+  line-height: 1.4; }
 
 /* Make .svg files in the carousel display properly in older browsers */
 .carousel-inner .item img[src$=".svg"] {
-	width: 100%;
-}
+  width: 100%; }
 
 /* QR code generator */
 #qrCode {
-	margin: 15px;
-}
+  margin: 15px; }
 
 /* Hide/rearrange for smaller screens */
 @media screen and (max-width: 767px) {
-	/* Hide captions */
-	.carousel-caption {
-		display: none;
-	}
-}
-
+  /* Hide captions */
+  .carousel-caption {
+    display: none; } }
 
 /*My custom styling*/
-.bg-dark-development {
+/*.bg-dark-development {
 	background-color: darkslateblue;
 }
-
 .bg-dark-production {
 	background-color: darkred;
-}
+}*/
+.bg-my-theme {
+  background-color: darkred;
+  /*$themeColor is an injectted variable on gulp build pipeline by gulp-sass, gulp-header */ }
 
 .navbar-dark .navbar-nav .nav-link {
-	color: #fff;
-}
+  color: #fff; }
 
 #offlineIndicator {
-	position: absolute;
-	top: 0;
-	left: 0;
-	bottom: 0;
-	right: 0;
-	z-index: -1;
-	overflow: hidden;
-	color: white;
-	display: none;
-}
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  z-index: -1;
+  overflow: hidden;
+  color: white;
+  display: none; }
+
+footer.container > noscript {
+  color: red; }
+
+#spVersion::after {
+  content: ", Version: 1.0.11-inkball"; }
 
 /***************VirtualScroll start***************/
 .bootstrap-table button.btn .fa-sync:after {
-	content: '↻';
-	display: block;
-	font-style: normal;
-	font-weight: bold;
-}
+  content: '↻';
+  display: block;
+  font-style: normal;
+  font-weight: bold; }
 
 .bootstrap-table table tr.highlight {
-	border-top: groove;
-	border-bottom: groove;
-}
-
-footer.container > noscript {
-	color: red
-}
+  border-top: groove;
+  border-bottom: groove; }
 
 /***************WebCamGallery start*************/
 #gallery-tab #links a {
-	text-decoration: none;
-}
-
-	#gallery-tab #links a img {
-		width: 133px;
-		height: 100px;
-	}
-
-	#gallery-tab #links a img:hover {
-		transform: scale(1.2, 1.2);
-		box-shadow: 0px 0px 10px rgba(0,0,0,0.8);
-	}
+  text-decoration: none; }
+  #gallery-tab #links a img {
+    width: 133px;
+    height: 100px; }
+  #gallery-tab #links a img:hover {
+    transform: scale(1.2, 1.2);
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.8); }
 
 #video-tab .vjs-default-skin .vjs-big-play-button {
-	top: 50%;
-	left: 50%;
-	margin: -1em auto auto -2em;
-	width: 80px;
-	height: 50px;
-}
+  top: 50%;
+  left: 50%;
+  margin: -1em auto auto -2em;
+  width: 80px;
+  height: 50px; }
+
 /* Extra large devices (large desktops, 1200px and up) */
 @media (min-width: 1200px) {
-	.video-js-box {
-		width: 1280px !important;
-		height: 960px !important;
-	}
+  .video-js-box {
+    width: 1280px !important;
+    height: 960px !important; }
+  #live.img-fluid {
+    max-width: 1280px !important; } }
 
-	#live.img-fluid {
-		max-width: 1280px !important;
-	}
-}
 /***************BruteForce start*************/
+.workers .worker.found .title {
+  background-color: rgba(0, 114, 0, 0.5); }
+
+.workers .worker.failed .title {
+  background-color: lightgray; }
+
 .workers .worker {
-	opacity: 1;
-	transition: opacity 0.3s ease-out;
-}
-
-	.workers .worker.found .title {
-		background-color: rgba(0, 114, 0, 0.5);
-	}
-
-	.workers .worker.done:not(.found) {
-		opacity: 0.4;
-	}
-
-		.workers .worker.done:not(.found) .title {
-			background-color: rgba(110, 6, 6, 0.5);
-		}
-
-	.workers .worker .title {
-		background-color: rgba(80, 0, 0, 0.5);
-		color: rgba(255, 255, 255, 0.9);
-		transition: background 0.3s ease-out;
-	}
+  opacity: 1;
+  transition: opacity 0.3s ease-out; }
+  .workers .worker .done:not(.found) {
+    opacity: 0.4; }
+  .workers .worker .done:not(.found) .title {
+    background-color: rgba(110, 6, 6, 0.5); }
+  .workers .worker .title {
+    background-color: rgba(80, 0, 0, 0.5);
+    color: rgba(255, 255, 255, 0.9);
+    transition: background 0.3s ease-out; }

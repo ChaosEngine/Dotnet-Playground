@@ -2,6 +2,8 @@
 "use strict";
 
 const gulp = require("gulp"),
+	sass = require("gulp-sass"),
+	header = require('gulp-header'),
 	rimraf = require("rimraf"),
 	concat = require("gulp-concat"),
 	cleanCSS = require("gulp-clean-css"),
@@ -19,7 +21,11 @@ var paths = {
 	js: webroot + "js/**/*.js",
 	minJs: webroot + "js/**/*{.min,Worker*}.js",
 	css: webroot + "css/**/*.css",
+	scss: webroot + "css/**/*.scss",
 	minCss: webroot + "css/**/*.min.css",
+	destCSSDir: webroot + "css/",
+	concatCssDest: webroot + "css/site.css",
+	concatCssDestMin: webroot + "css/site.min.css",
 	concatJsDest: webroot + "js/site.min.js",
 	//<ServiceWorker>
 	SWJs: webroot + "sw.js",
@@ -31,7 +37,6 @@ var paths = {
 	SharedJs: webroot + "js/workers/shared.js",
 	SharedJsDest: webroot + "js/workers/shared.min.js",
 	//<WebWorkers/>
-	concatCssDest: webroot + "css/site.min.css",
 	inkBallJsRelative: "../InkBall/src/InkBall.Module/wwwroot/js/",
 	inkBallCssRelative: "../InkBall/src/InkBall.Module/wwwroot/css/"
 };
@@ -197,6 +202,7 @@ gulp.task("clean:js", gulp.series("clean:inkball", function cleanConcatJsDest(cb
 
 gulp.task("clean:css", function (cb) {
 	rimraf(paths.concatCssDest, cb);
+	rimraf(paths.concatCssDestMin, cb);
 });
 
 gulp.task("clean", gulp.series("clean:js", "clean:css"));
@@ -224,12 +230,66 @@ gulp.task("min:js", gulp.series("minSWJs:js", "minBruteForceWorker:js", "Shared:
 
 gulp.task("min:css", function () {
 	return gulp.src([paths.css, "!" + paths.minCss])
-		.pipe(concat(paths.concatCssDest))
+		.pipe(concat(paths.concatCssDestMin))
 		.pipe(cleanCSS())
 		.pipe(gulp.dest("."));
 });
 
-gulp.task("min", gulp.parallel("min:js", "min:inkball", "min:css"));
+const processInputArgs = function () {
+	let colorTheme = undefined;//process.env.NODE_ENV === 'production' ? 'darkred' : 'darkslateblue';
+	let env = undefined;
+	let projectVersion = undefined;
+	const argv = process.argv;
+	//console.log('pure argv = ' + JSON.stringify(argv));
+	const interestingArgs = argv.length > 2 ? argv.splice(2).find(x => x.startsWith('--')) : undefined;
+
+	if (interestingArgs !== undefined && interestingArgs.length > 0) {
+		const params = interestingArgs.split(' ').map(item => item.split('=', 2)).map(kv => {
+			let xxx = {};
+			//console.log(kv[0], kv[1]);
+			xxx[kv[0].substring(2)] = kv[1];
+			return xxx;
+		});
+		if (params !== null && params.length > 0) {
+			for (const par of params) {
+				//console.log('par = '+par);
+				if (par['version'] !== undefined && par['version'].length > 0)
+					projectVersion = par['version'];
+				//if (par['env'] !== undefined && par['env'].length > 0)
+				//	env = par['env'];
+			}
+		}
+		console.log(`Argv => ` + JSON.stringify(params));
+	}
+
+	if (projectVersion !== undefined && projectVersion.length > 0) {
+		env = 'production';
+		projectVersion = ', Version: ' + projectVersion;
+		colorTheme = 'darkred';
+	}
+	else {
+		env = 'development';
+		projectVersion = '';
+		colorTheme = 'darkslateblue';
+	}
+
+	return { env, colorTheme, projectVersion };
+};
+
+const processSCSS = function (sourcePattern, notPattern) {
+	const { colorTheme, projectVersion } = processInputArgs();
+
+	return gulp.src([sourcePattern, "!" + notPattern])
+		.pipe(header('$themeColor: ${color};\n$projectVersion: ${version};\n', { color: colorTheme, version: `'${projectVersion}'` }))
+		.pipe(sass().on('error', sass.logError))
+		.pipe(gulp.dest(notPattern));
+};
+
+gulp.task("min:scss", gulp.series(function scssToCss() {
+	return processSCSS(paths.scss, paths.destCSSDir);
+}, "min:css"));
+
+gulp.task("min", gulp.parallel("min:js", "min:inkball", "min:scss"));
 
 //Main entry point
 gulp.task("default", gulp.series(
