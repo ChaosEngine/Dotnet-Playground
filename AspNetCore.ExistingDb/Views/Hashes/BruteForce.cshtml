@@ -36,7 +36,7 @@
 	@await Html.PartialAsync("_CryptoJSScriptsPartial")
 
 	<environment names="Development">
-		<script src="~/js/workers/shared.min.js"></script>
+		<script src="~/js/workers/shared.js"></script>
 		<script src="~/js/workers/BruteForce.js"></script>
 	</environment>
 
@@ -67,7 +67,6 @@
 
 				const hashToCrack = hashExp(passToHash);
 				instance = new BruteForce(document,
-					libs2Load,
 					workerCount,//worker count
 					updateRate,
 					alphabet,//alphabet from which to start crunching hashes

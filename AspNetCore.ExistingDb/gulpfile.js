@@ -2,6 +2,8 @@
 "use strict";
 
 const gulp = require("gulp"),
+	sass = require("gulp-sass"),
+	header = require('gulp-header'),
 	rimraf = require("rimraf"),
 	concat = require("gulp-concat"),
 	cleanCSS = require("gulp-clean-css"),
@@ -10,8 +12,8 @@ const gulp = require("gulp"),
 	rename = require("gulp-rename"),
 	path = require('path'),
 	webpack = require('webpack-stream'),
-	WorkerPlugin = require('worker-plugin'),
-	EsmWebpackPlugin = require("@purtuga/esm-webpack-plugin");
+	//esmWebpackPlugin = require("@purtuga/esm-webpack-plugin"),
+	workerPlugin = require('worker-plugin');
 
 var webroot = "./wwwroot/";
 
@@ -19,7 +21,11 @@ var paths = {
 	js: webroot + "js/**/*.js",
 	minJs: webroot + "js/**/*{.min,Worker*}.js",
 	css: webroot + "css/**/*.css",
+	scss: webroot + "css/**/*.scss",
 	minCss: webroot + "css/**/*.min.css",
+	destCSSDir: webroot + "css/",
+	concatCssDest: webroot + "css/site.css",
+	concatCssDestMin: webroot + "css/site.min.css",
 	concatJsDest: webroot + "js/site.min.js",
 	//<ServiceWorker>
 	SWJs: webroot + "sw.js",
@@ -31,16 +37,22 @@ var paths = {
 	SharedJs: webroot + "js/workers/shared.js",
 	SharedJsDest: webroot + "js/workers/shared.min.js",
 	//<WebWorkers/>
-	concatCssDest: webroot + "css/site.min.css",
 	inkBallJsRelative: "../InkBall/src/InkBall.Module/wwwroot/js/",
 	inkBallCssRelative: "../InkBall/src/InkBall.Module/wwwroot/css/"
 };
 
+const minCSS = function (sourcePattern, notPattern, dest) {
+	return gulp.src([sourcePattern, "!" + notPattern])
+		.pipe(concat(dest))
+		.pipe(cleanCSS())
+		.pipe(gulp.dest("."));
+};
+
 ////////////// [Inkball Section] //////////////////
-const babelTranspilerFunction = function (min) {
+const inkballEntryPoint = function (min) {
 	return gulp.src([
 		paths.inkBallJsRelative + 'inkball.js'
-		//paths.inkBallJsRelative + 'svgvml.js',
+		//paths.inkBallJsRelative + 'shared.js',
 		//paths.inkBallJsRelative + 'AISource.js'
 	]).pipe(webpack({
 		resolve: {
@@ -53,12 +65,12 @@ const babelTranspilerFunction = function (min) {
 			]
 		},
 		output: {
-			filename: '[name]Bundle.js',
-			chunkFilename: '[name]Bundle.js',
+			filename: '[name].Bundle.js',
+			chunkFilename: '[name].Bundle.js',
 			publicPath: '../js/'
 		},
 		//plugins: [
-		//	new WorkerPlugin({
+		//	new workerPlugin({
 		//		// use "self" as the global object when receiving hot updates.
 		//		globalObject: 'self' // <-- this is the default value
 		//	})
@@ -88,21 +100,7 @@ const babelTranspilerFunction = function (min) {
 		.pipe(gulp.dest(paths.inkBallJsRelative));
 };
 
-const fileMinifyJSFunction = function (src, result) {
-	return gulp.src([src, "!" + result], { base: "." })
-		.pipe(concat(result))
-		.pipe(terser())
-		.pipe(gulp.dest("."));
-};
-
-const fileMinifyCSSFunction = function (src, result) {
-	return gulp.src([src, "!" + result], { base: "." })
-		.pipe(concat(result))
-		.pipe(cleanCSS())
-		.pipe(gulp.dest("."));
-};
-
-gulp.task('webpack:inkballAI', function () {
+const inkballAIWorker = function (doPollyfill) {
 	return gulp.src(paths.inkBallJsRelative + "AIWorker.js")
 		.pipe(webpack({
 			resolve: {
@@ -112,23 +110,25 @@ gulp.task('webpack:inkballAI', function () {
 				}
 			},
 			entry: {
-				'AIWorker': [
+				'AIWorker': doPollyfill === true ? [
 					'@babel/polyfill',
 					paths.inkBallJsRelative + 'AIWorker.js'
-				]
+				] : [
+						paths.inkBallJsRelative + 'AIWorker.js'
+					]
 			},
 			target: "webworker",
 			output: {
-				filename: '[name]Bundle.js'
+				filename: doPollyfill === true ? '[name].PolyfillBundle.js' : '[name].Bundle.js'
 			},
 			plugins: [
-				//new EsmWebpackPlugin(),
-				new WorkerPlugin({
+				//new esmWebpackPlugin(),
+				new workerPlugin({
 					// use "self" as the global object when receiving hot updates.
 					globalObject: 'self' // <-- this is the default value
 				})
 			],
-			module: {
+			module: doPollyfill === true ? {
 				rules: [{
 					use: {
 						loader: 'babel-loader',
@@ -142,7 +142,7 @@ gulp.task('webpack:inkballAI', function () {
 						}
 					}
 				}]
-			},
+			} : {},
 			optimization: {
 				minimize: true
 			},
@@ -153,31 +153,53 @@ gulp.task('webpack:inkballAI', function () {
 			stats: "errors-warnings"
 		}))
 		.pipe(gulp.dest(paths.inkBallJsRelative));
-});
+};
 
-gulp.task("webpack", gulp.series("webpack:inkballAI", function webpackAndBabelTranspilers(cb) {
-	babelTranspilerFunction(false);
-	babelTranspilerFunction(true);
+gulp.task("webpack", gulp.parallel(function inkballWebWorkerEntryPoint(cb) {
+	inkballAIWorker(true);
+	inkballAIWorker(false);
+	return cb();
+}, function inkballMainEntryPoint(cb) {
+	inkballEntryPoint(false);
+	inkballEntryPoint(true);
 	return cb();
 }));
 
-gulp.task("min:inkball", gulp.parallel(function inkballJs() {
+const fileMinifyJSFunction = function (src, result) {
+	return gulp.src([src, "!" + result], { base: "." })
+		.pipe(concat(result))
+		.pipe(terser())
+		.pipe(gulp.dest("."));
+};
+
+const fileMinifySCSSFunction = function (src, result) {
+	return gulp.src([src, "!" + result], { base: "." })
+		.pipe(concat(result))
+		.pipe(sass().on('error', sass.logError))
+		.pipe(gulp.dest("."));
+};
+
+gulp.task("min:inkball", gulp.parallel(function inkballJsAndCSS() {
 	return fileMinifyJSFunction(paths.inkBallJsRelative + "inkball.js",
 		paths.inkBallJsRelative + "inkball.min.js");
 },
-	function inkballSvgVmlJs() {
-		return fileMinifyJSFunction(paths.inkBallJsRelative + "svgvml.js",
-			paths.inkBallJsRelative + "svgvml.min.js");
+	function inkballSharedJs() {
+		return fileMinifyJSFunction(paths.inkBallJsRelative + "shared.js",
+			paths.inkBallJsRelative + "shared.min.js");
 	},
-	function inkballCSSMinify() {
-		return fileMinifyCSSFunction(paths.inkBallCssRelative + "inkball.css",
-			paths.inkBallCssRelative + "inkball.min.css");
-	}));
+	gulp.series(function scssToCSS() {
+		return fileMinifySCSSFunction(paths.inkBallCssRelative + "inkball.scss", paths.inkBallCssRelative + "inkball.css");
+	},
+		function cssToMinCSS() {
+			return minCSS(paths.inkBallCssRelative + "inkball.css", paths.inkBallCssRelative + "inkball.min.css",
+				paths.inkBallCssRelative + "inkball.min.css");
+		})
+));
 
 gulp.task("clean:inkball", function (cb) {
 	rimraf(paths.inkBallJsRelative + "*.min.js", cb);
 	rimraf(paths.inkBallJsRelative + "*.babelify*", cb);
-	rimraf(paths.inkBallCssRelative + "*.min.css", cb);
+	rimraf(paths.inkBallCssRelative + "*.css", cb);
 	rimraf(paths.inkBallJsRelative + "*Bundle.js", cb);
 });
 ////////////// [/Inkball Section] //////////////////
@@ -191,6 +213,7 @@ gulp.task("clean:js", gulp.series("clean:inkball", function cleanConcatJsDest(cb
 
 gulp.task("clean:css", function (cb) {
 	rimraf(paths.concatCssDest, cb);
+	rimraf(paths.concatCssDestMin, cb);
 });
 
 gulp.task("clean", gulp.series("clean:js", "clean:css"));
@@ -216,14 +239,66 @@ gulp.task("min:js", gulp.series("minSWJs:js", "minBruteForceWorker:js", "Shared:
 	}
 ));
 
-gulp.task("min:css", function () {
-	return gulp.src([paths.css, "!" + paths.minCss])
-		.pipe(concat(paths.concatCssDest))
-		.pipe(cleanCSS())
-		.pipe(gulp.dest("."));
+gulp.task("min:css", function runTaskMinCSS() {
+	return minCSS(paths.css, paths.minCss, paths.concatCssDestMin);
 });
 
-gulp.task("min", gulp.parallel("min:js", "min:inkball", "min:css"));
+const processInputArgs = function () {
+	let colorTheme = undefined;//process.env.NODE_ENV === 'production' ? 'darkred' : 'darkslateblue';
+	let env = undefined;
+	let projectVersion = undefined;
+	const argv = process.argv;
+	//console.log('pure argv = ' + JSON.stringify(argv));
+	const interestingArgs = argv.length > 2 ? argv.splice(2).find(x => x.startsWith('--')) : undefined;
+
+	if (interestingArgs !== undefined && interestingArgs.length > 0) {
+		const params = interestingArgs.split(' ').map(item => item.split('=', 2)).map(kv => {
+			let xxx = {};
+			//console.log(kv[0], kv[1]);
+			xxx[kv[0].substring(2)] = kv[1];
+			return xxx;
+		});
+		if (params !== null && params.length > 0) {
+			for (const par of params) {
+				//console.log('par = '+par);
+				if (par['version'] !== undefined && par['version'].length > 0)
+					projectVersion = par['version'];
+				//if (par['env'] !== undefined && par['env'].length > 0)
+				//	env = par['env'];
+			}
+		}
+		// eslint-disable-next-line no-console
+		console.log('Argv => ' + JSON.stringify(params));
+	}
+
+	if (projectVersion !== undefined && projectVersion.length > 0) {
+		env = 'production';
+		projectVersion = ', Version: ' + projectVersion;
+		colorTheme = 'darkred';
+	}
+	else {
+		env = 'development';
+		projectVersion = '';
+		colorTheme = 'darkslateblue';
+	}
+
+	return { env, colorTheme, projectVersion };
+};
+
+const processSCSS = function (sourcePattern, notPattern) {
+	const { colorTheme, projectVersion } = processInputArgs();
+
+	return gulp.src([sourcePattern, "!" + notPattern])
+		.pipe(header('$themeColor: ${color};\n$projectVersion: ${version};\n', { color: colorTheme, version: `'${projectVersion}'` }))
+		.pipe(sass().on('error', sass.logError))
+		.pipe(gulp.dest(notPattern));
+};
+
+gulp.task("min:scss", gulp.series(function scssToCss() {
+	return processSCSS(paths.scss, paths.destCSSDir);
+}, "min:css"));
+
+gulp.task("min", gulp.parallel("min:js", "min:inkball", "min:scss"));
 
 //Main entry point
 gulp.task("default", gulp.series(

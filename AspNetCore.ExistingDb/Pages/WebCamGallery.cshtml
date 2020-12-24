@@ -89,7 +89,7 @@
     if (!string.IsNullOrEmpty(Model.YouTubePlaylistId))
     {
 		<div class="tab-pane embed-responsive embed-responsive-4by3" id="youtube-tab" role="tabpanel" aria-labelledby="youtube-tab">
-			<iframe width="1280" height="960" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
+			<iframe width="1280" height="960" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
 				data-src="https://www.youtube.com/embed?listType=playlist&list=@(Model.YouTubePlaylistId)&autoplay=0" style="display:none"
 				allowfullscreen loading="lazy"></iframe>
 		</div>
@@ -106,8 +106,6 @@
 				@*<a href="~/WebCamImages/@(outo).jpg" title="@img.LastWriteTime.ToString("u")"><img alt='no img' class='inactive' /></a>*@
 				<a href="~/WebCamImages/@thumbnail" title="@img.LastWriteTime.ToString("u")">
                     <picture>
-                        <source />
-                        <source />
                         <img alt='no img' class='inactive' />
                     </picture>
 				</a>

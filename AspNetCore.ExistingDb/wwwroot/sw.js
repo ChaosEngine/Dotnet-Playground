@@ -3,51 +3,55 @@
 //Offline mode service worker implementation
 
 const CACHE_NAME = 'cache';
-const RESOURCES = [
-	'',
-	'Home/About',
-	'Home/Contact',
-	'Home/UnintentionalErr/',
-	'Blogs',
-	'Blogs/Create',
-	'WebCamGallery',
-	'WebCamImages/?handler=live',
-	'VirtualScroll/',
-	'Hashes/',
-	'BruteForce/',
-	'InkBall/Home',
-	'InkBall/Rules',
-
-	'images/favicon.png',
-	'images/banner1.svg',
-	'images/banner2.svg',
-	'images/banner3.svg',
-	'images/banner4.svg',
-	'images/no_img.svg',
-	'img/homescreen.webp',
-	'img/homescreen.jpg',
-
-	'lib/jquery/dist/jquery.min.js',
-	'lib/bootstrap/dist/css/bootstrap.min.css',
-	'lib/bootstrap/dist/js/bootstrap.bundle.min.js',
-	'lib/blueimp-gallery/css/blueimp-gallery.min.css',
-	'lib/video.js/dist/video-js.min.css',
-	'lib/blueimp-gallery/js/blueimp-gallery.min.js',
-	'lib/video.js/dist/video.min.js',
-	'lib/forge/dist/forge.min.js',
-	'js/workers/shared.js',
-	'js/workers/shared.min.js',
-	'js/workers/BruteForceWorker.js',
-	'js/workers/BruteForceWorker.min.js',
-	'css/site.css',
-	'css/site.min.css',
-	'js/site.js',
-	'js/site.min.js'
-];
 
 self.addEventListener('install', function (event) {
 	const url = new URL(location);
 	const domain = url.searchParams.get('domain');
+	const isDev = url.searchParams.get('isDev');
+	const suffix = isDev === true || isDev === "true" || isDev === 1 || isDev === "1" ? '' : '.min';
+
+	const RESOURCES = [
+		'',
+		'Home/About',
+		'Home/Contact',
+		'Home/UnintentionalErr/',
+		'Blogs',
+		'Blogs/Create',
+		'WebCamGallery',
+		'WebCamImages/?handler=live',
+		'VirtualScroll/',
+		'Hashes/',
+		'BruteForce/',
+		'InkBall/Home',
+		'InkBall/Rules',
+
+		'images/favicon.png',
+		'images/banner1.svg',
+		'images/banner2.svg',
+		'images/banner3.svg',
+		'images/banner4.svg',
+		'images/no_img.svg',
+		'img/homescreen.webp',
+		'img/homescreen.jpg',
+
+		'lib/jquery/dist/jquery.min.js',
+		'lib/bootstrap/dist/css/bootstrap.min.css',
+		'lib/bootstrap/dist/js/bootstrap.bundle.min.js',
+		'lib/blueimp-gallery/css/blueimp-gallery.min.css',
+		'lib/blueimp-gallery/js/blueimp-gallery.min.js',
+		'lib/video.js/dist/video-js.min.css',
+		'lib/video.js/dist/video.min.js',
+		'lib/forge/dist/forge.min.js',
+		//'js/workers/shared.js',
+		`js/workers/shared${suffix}.js`,
+		//'js/workers/BruteForceWorker.js',
+		`js/workers/BruteForceWorker${suffix}.js`,
+		//'css/site.css',
+		`css/site${suffix}.css`,
+		//'js/site.js',
+		`js/site${suffix}.js`
+	];
+
 
 	event.waitUntil(
 		caches.open(CACHE_NAME).then(function (cache) {

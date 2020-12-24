@@ -37,7 +37,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-my-theme">
             <div class="container">
                 <span id="offlineIndicator"></span>
                 <a href="~/" class="navbar-brand" title="@dbs_config">@Environment.MachineName</a>
@@ -118,13 +118,13 @@
             </div>
         </nav>
     </header>
-    <main role="main" class="container body-content">
+    <main class="container body-content">
         @RenderBody()
         <hr />
     </main>
     <footer class="container">
         <noscript>Your browser does not support JavaScript! REALLY?!</noscript>
-        <p>&copy; 2020 - @Conf["AppTitleName"]<span id="spVersion"></span></p>
+        <p id="spVersion">&copy; 2020 - @Conf["AppTitleName"]</p>
     </footer>
     <environment include="Development">
         <script src="~/lib/jquery/dist/jquery.min.js"></script>
