@@ -1,6 +1,6 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "BruteForce" }]*/
-/*global binaryStringToArrayBufferExp arrayBufferToBinaryStringExp*/
-function BruteForce(d, libsToLoad, workerCount, updateRate, alphabet, hashToCrack, passCharacterLength, foundAction) {
+/*global binaryStringToArrayBufferExp arrayBufferToBinaryStringExp libs2Load*/
+function BruteForce(d,/* libsToLoad,*/ workerCount, updateRate, alphabet, hashToCrack, passCharacterLength, foundAction) {
 
 	let passphraseLimit = Math.pow(alphabet.length/*10 digits*/, passCharacterLength/*number of digits*/),
 		workers = [], startTime = null;
@@ -70,7 +70,8 @@ function BruteForce(d, libsToLoad, workerCount, updateRate, alphabet, hashToCrac
 		// Splitting the limit number into pieces and distribute equally along the
 		// workers.
 		splitNumIntoRanges(passphraseLimit, workerCount).forEach(function (range, index) {
-			const worker = new Worker('../js/workers/BruteForceWorker.min.js');
+			const suffix = libs2Load.indexOf("shared.js") === -1 ? '.min' : '';
+			const worker = new Worker('../js/workers/BruteForceWorker' + suffix + '.js');
 
 			createWorkerMonitor(index);
 
@@ -99,7 +100,7 @@ function BruteForce(d, libsToLoad, workerCount, updateRate, alphabet, hashToCrac
 					workers.forEach(function (w) {
 						// Worker.terminate() to interrupt the web worker
 						if (w !== null) {
-							w.terminate();	w = null;
+							w.terminate(); w = null;
 						}
 					});
 					workers = [];
@@ -108,8 +109,7 @@ function BruteForce(d, libsToLoad, workerCount, updateRate, alphabet, hashToCrac
 						e.classList.add('done');
 					});
 
-					if(foundAction !== null && typeof(foundAction) !== undefined)
-					{
+					if (foundAction !== null && typeof (foundAction) !== undefined) {
 						foundAction(data.found.passphrase);
 					}
 				}
@@ -141,7 +141,7 @@ function BruteForce(d, libsToLoad, workerCount, updateRate, alphabet, hashToCrac
 
 			// Start the worker with a postMessage and pass the parameters
 			const cmd = {
-				libsToLoad: libsToLoad,
+				libs2Load: libs2Load,
 				hash: hashToCrack,
 				range: range,
 				alphabet: alphabet,

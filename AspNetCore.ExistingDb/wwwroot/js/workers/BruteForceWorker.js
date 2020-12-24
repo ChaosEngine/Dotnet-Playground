@@ -18,8 +18,8 @@
 		const data = JSON.parse(arrayBufferToBinaryStringExp(e.data));
 
 		// In web workers we can use importScripts to load external javascripts
-		for (let i = 0; i < data.libsToLoad.length; ++i)
-			importScripts(data.libsToLoad[i]);
+		for (let i = 0; i < data.libs2Load.length; ++i)
+			importScripts(data.libs2Load[i]);
 
 		// Save a timestamp when we started
 		let lastUpdateMilis = new Date().getTime(),
