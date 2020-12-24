@@ -41,6 +41,13 @@ var paths = {
 	inkBallCssRelative: "../InkBall/src/InkBall.Module/wwwroot/css/"
 };
 
+const minCSS = function (sourcePattern, notPattern, dest) {
+	return gulp.src([sourcePattern, "!" + notPattern])
+		.pipe(concat(dest))
+		.pipe(cleanCSS())
+		.pipe(gulp.dest("."));
+};
+
 ////////////// [Inkball Section] //////////////////
 const inkballEntryPoint = function (min) {
 	return gulp.src([
@@ -165,14 +172,14 @@ const fileMinifyJSFunction = function (src, result) {
 		.pipe(gulp.dest("."));
 };
 
-const fileMinifyCSSFunction = function (src, result) {
+const fileMinifySCSSFunction = function (src, result) {
 	return gulp.src([src, "!" + result], { base: "." })
 		.pipe(concat(result))
-		.pipe(cleanCSS())
+		.pipe(sass().on('error', sass.logError))
 		.pipe(gulp.dest("."));
 };
 
-gulp.task("min:inkball", gulp.parallel(function inkballJs() {
+gulp.task("min:inkball", gulp.parallel(function inkballJsAndCSS() {
 	return fileMinifyJSFunction(paths.inkBallJsRelative + "inkball.js",
 		paths.inkBallJsRelative + "inkball.min.js");
 },
@@ -180,15 +187,19 @@ gulp.task("min:inkball", gulp.parallel(function inkballJs() {
 		return fileMinifyJSFunction(paths.inkBallJsRelative + "shared.js",
 			paths.inkBallJsRelative + "shared.min.js");
 	},
-	function inkballCSSMinify() {
-		return fileMinifyCSSFunction(paths.inkBallCssRelative + "inkball.css",
-			paths.inkBallCssRelative + "inkball.min.css");
-	}));
+	gulp.series(function scssToCSS() {
+		return fileMinifySCSSFunction(paths.inkBallCssRelative + "inkball.scss", paths.inkBallCssRelative + "inkball.css");
+	},
+		function cssToMinCSS() {
+			return minCSS(paths.inkBallCssRelative + "inkball.css", paths.inkBallCssRelative + "inkball.min.css",
+				paths.inkBallCssRelative + "inkball.min.css");
+		})
+));
 
 gulp.task("clean:inkball", function (cb) {
 	rimraf(paths.inkBallJsRelative + "*.min.js", cb);
 	rimraf(paths.inkBallJsRelative + "*.babelify*", cb);
-	rimraf(paths.inkBallCssRelative + "*.min.css", cb);
+	rimraf(paths.inkBallCssRelative + "*.css", cb);
 	rimraf(paths.inkBallJsRelative + "*Bundle.js", cb);
 });
 ////////////// [/Inkball Section] //////////////////
@@ -228,11 +239,8 @@ gulp.task("min:js", gulp.series("minSWJs:js", "minBruteForceWorker:js", "Shared:
 	}
 ));
 
-gulp.task("min:css", function () {
-	return gulp.src([paths.css, "!" + paths.minCss])
-		.pipe(concat(paths.concatCssDestMin))
-		.pipe(cleanCSS())
-		.pipe(gulp.dest("."));
+gulp.task("min:css", function runTaskMinCSS() {
+	return minCSS(paths.css, paths.minCss, paths.concatCssDestMin);
 });
 
 const processInputArgs = function () {
@@ -259,7 +267,8 @@ const processInputArgs = function () {
 				//	env = par['env'];
 			}
 		}
-		console.log(`Argv => ` + JSON.stringify(params));
+		// eslint-disable-next-line no-console
+		console.log('Argv => ' + JSON.stringify(params));
 	}
 
 	if (projectVersion !== undefined && projectVersion.length > 0) {
