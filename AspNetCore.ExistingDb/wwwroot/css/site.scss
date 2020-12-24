@@ -70,7 +70,7 @@ footer.container > noscript {
 }
 
 #spVersion::after {
-	content: $projectVersion
+	content: $projectVersion /*$projectVersion is an injectted variable on gulp build pipeline by gulp-sass, gulp-header */
 }
 
 /***************VirtualScroll start***************/
@@ -110,6 +110,7 @@ footer.container > noscript {
 	width: 80px;
 	height: 50px;
 }
+
 /* Extra large devices (large desktops, 1200px and up) */
 @media (min-width: 1200px) {
 	.video-js-box {
@@ -122,31 +123,29 @@ footer.container > noscript {
 	}
 }
 /***************BruteForce start*************/
-.workers {
-	.worker.found .title {
+.workers .worker {
+	&.found .title {
 		background-color: rgba(0, 114, 0, 0.5);
 	}
 
-	.worker.failed .title {
+	&.failed .title {
 		background-color: lightgray;
 	}
 
-	.worker {
-		opacity: 1;
-		transition: opacity 0.3s ease-out;
+	opacity: 1;
+	transition: opacity 0.3s ease-out;
 
-		.done:not(.found) {
-			opacity: 0.4;
-		}
+	.done:not(.found) {
+		opacity: 0.4;
+	}
 
-		.done:not(.found) .title {
-			background-color: rgba(110, 6, 6, 0.5);
-		}
+	.done:not(.found) .title {
+		background-color: rgba(110, 6, 6, 0.5);
+	}
 
-		.title {
-			background-color: rgba(80, 0, 0, 0.5);
-			color: rgba(255, 255, 255, 0.9);
-			transition: background 0.3s ease-out;
-		}
+	.title {
+		background-color: rgba(80, 0, 0, 0.5);
+		color: rgba(255, 255, 255, 0.9);
+		transition: background 0.3s ease-out;
 	}
 }
