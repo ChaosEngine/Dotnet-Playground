@@ -4,22 +4,22 @@
 "use strict";
 
 var g_AppRootPath = location.pathname.match(/\/([^/]+)\//)[0],
-	g_LogPath = g_AppRootPath + "Home/ClientsideLog";
-	//g_IsDevelopment = window.location.host.match(/:\d+/) !== null,
+	g_LogPath = g_AppRootPath + "Home/ClientsideLog",
+	g_IsDevelopment = window.location.host.match(/:\d+/) !== null;
 	//g_Version = 'PROJECT_VERSION';
 
 //executed immediatelly function
-//(function () {
-//	//change header background depending on developmen/production enviromewnt
-//	Array.prototype.slice.call(document.querySelectorAll("nav.navbar")).forEach(function (el) {
-//		el.classList.remove("bg-dark");
-//		el.classList.add(g_IsDevelopment ? 'bg-dark-development' : 'bg-dark-production');
-//	});
+/*(function () {
+	//change header background depending on developmen/production enviromewnt
+	Array.prototype.slice.call(document.querySelectorAll("nav.navbar")).forEach(function (el) {
+		el.classList.remove("bg-dark");
+		el.classList.add(g_IsDevelopment ? 'bg-dark-development' : 'bg-dark-production');
+	});
 
-//	//append version to footer
-//	if (g_Version && g_Version !== '')
-//		document.getElementById('spVersion').textContent = ", Version: " + g_Version;
-//})();
+	//append version to footer
+	if (g_Version && g_Version !== '')
+		document.getElementById('spVersion').textContent = ", Version: " + g_Version;
+})();*/
 
 function clientValidate(button) {
 	let tr = $(button).parent().parent();
@@ -94,12 +94,13 @@ $(function () {
 	/**
 	 * Registers service worker globally
 	 * @param {string} rootPath is a path of all pages after FQDN name (ex. https://foo-bar.com/rootPath) or '/' if no root path
+	 * @param {boolean} isDev indicates whether this is development (tru) or production (false) like environment
 	 */
-	function registerServiceWorker(rootPath) {
+	function registerServiceWorker(rootPath, isDev) {
 		if ('serviceWorker' in navigator
 			//&& (navigator.serviceWorker.controller === null || navigator.serviceWorker.controller.state !== "activated")
 		) {
-			const swUrl = rootPath + 'sw.min.js?domain=' + encodeURIComponent(rootPath);
+			const swUrl = rootPath + 'sw.min.js?domain=' + encodeURIComponent(rootPath) + '&isDev=' + encodeURIComponent(isDev);
 
 			navigator.serviceWorker
 				.register(swUrl, { scope: rootPath })
@@ -169,7 +170,7 @@ $(function () {
 		org_error.call(this, arguments);
 	};
 
-	registerServiceWorker(g_AppRootPath/*, g_Version*/);
+	registerServiceWorker(g_AppRootPath, g_IsDevelopment);
 
 	handleLogoutForm();
 

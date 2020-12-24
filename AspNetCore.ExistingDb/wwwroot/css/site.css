@@ -38,7 +38,7 @@ body {
 	background-color: darkred;
 }*/
 .bg-my-theme {
-  background-color: darkred;
+  background-color: darkslateblue;
   /*$themeColor is an injectted variable on gulp build pipeline by gulp-sass, gulp-header */ }
 
 .navbar-dark .navbar-nav .nav-link {
@@ -59,7 +59,7 @@ footer.container > noscript {
   color: red; }
 
 #spVersion::after {
-  content: ", Version: 1.0.11-inkball"; }
+  content: ""; }
 
 /***************VirtualScroll start***************/
 .bootstrap-table button.btn .fa-sync:after {
