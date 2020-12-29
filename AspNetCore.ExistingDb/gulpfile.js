@@ -249,10 +249,10 @@ const processInputArgs = function () {
 	let projectVersion = undefined;
 	const argv = process.argv;
 	//console.log('pure argv = ' + JSON.stringify(argv));
-	const interestingArgs = argv.length > 2 ? argv.splice(2).find(x => x.startsWith('--')) : undefined;
+	const interestingArgs = argv.length > 2 ? argv.splice(2).filter(x => x.startsWith('--')) : undefined;
 
 	if (interestingArgs !== undefined && interestingArgs.length > 0) {
-		const params = interestingArgs.split(' ').map(item => item.split('=', 2)).map(kv => {
+		const params = interestingArgs.map(item => item.split('=', 2)).map(kv => {
 			let xxx = {};
 			//console.log(kv[0], kv[1]);
 			xxx[kv[0].substring(2)] = kv[1];
@@ -263,23 +263,32 @@ const processInputArgs = function () {
 				//console.log('par = '+par);
 				if (par['version'] !== undefined && par['version'].length > 0)
 					projectVersion = par['version'];
-				//if (par['env'] !== undefined && par['env'].length > 0)
-				//	env = par['env'];
+				if (par['env'] !== undefined && par['env'].length > 0)
+					env = par['env'];
 			}
 		}
 		// eslint-disable-next-line no-console
 		console.log('Argv => ' + JSON.stringify(params));
 	}
 
-	if (projectVersion !== undefined && projectVersion.length > 0) {
-		env = 'production';
+	if (projectVersion !== undefined && projectVersion.length > 0)
 		projectVersion = ', Version: ' + projectVersion;
-		colorTheme = 'darkred';
-	}
-	else {
-		env = 'development';
+	else
 		projectVersion = '';
-		colorTheme = 'darkslateblue';
+
+	switch (env) {
+		case 'prod':
+		case 'production':
+			env = 'production';
+			colorTheme = 'darkred';
+			break;
+
+		case 'dev':
+		case 'development':
+		default:
+			env = 'development';
+			colorTheme = 'darkslateblue';
+			break;
 	}
 
 	return { env, colorTheme, projectVersion };

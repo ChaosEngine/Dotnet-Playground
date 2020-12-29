@@ -56,7 +56,7 @@
 
 	<Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
 		<Exec Command="npm install --unsafe-perm" />
-		<Exec Command="npx gulp default --version=$(Version) --env=production" />
+		<Exec Command="npm run gulp -- --version=$(Version) --env=production" />
 	</Target>
 
 	<ItemGroup>
