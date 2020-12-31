@@ -1,6 +1,5 @@
 ﻿using AspNetCore.ExistingDb;
 using IdentitySample.DefaultUI.Data;
-using InkBall.Module.Model;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
@@ -135,9 +134,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 				//modelBuilder.Entity<ThinHashes>().HasIndex(e => e.HashSHA256);
 
 				modelBuilder.Entity<ThinHashes>().ToTable("Hashes");
-
-				//if (IsMySql)//fixes column mapping for MySql
-				//	entity.Property(e => e.Key).HasColumnName("SourceKey");
 			});
 
 			modelBuilder.Entity<HashesInfo>(entity =>
@@ -165,6 +161,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 				entity.HasKey(e => e.Id);
 
 				entity.Property(e => e.Id).ValueGeneratedOnAdd();
+
+				entity.Property(e => e.FriendlyName).HasMaxLength(100);
 
 				entity.Property(e => e.Xml).HasMaxLength(4000);
 

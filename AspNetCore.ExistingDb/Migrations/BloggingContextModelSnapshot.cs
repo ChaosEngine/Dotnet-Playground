@@ -69,7 +69,7 @@ namespace AspNetCore.ExistingDb.Migrations
 #endif
 						.HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
 
-                    b.Property<string>("FriendlyName");
+                    b.Property<string>("FriendlyName").HasMaxLength(100);
 
                     b.Property<string>("Xml").HasMaxLength(4000);
 
