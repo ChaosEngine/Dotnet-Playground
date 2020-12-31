@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
-    <Version>1.0.13-inkball</Version>
+    <Version>1.0.14-inkball</Version>
 		<TargetFramework>net5.0</TargetFramework>
 		<LangVersion>latest</LangVersion>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
@@ -26,11 +26,11 @@
 		<None Update="wwwroot\**\*;Views\**\*">
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 		</None>
-		<Content Update="client_secrets.json">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
-	  <Compile Remove="Services\RoslynCompilationService.cs" />
-	</ItemGroup>
+		<Content Update="wwwroot\css\*.scss" CopyToPublishDirectory="Never" />
+	  <Content Update="wwwroot\images\*.xcf" CopyToPublishDirectory="Never" />
+	  <Content Update="package-lock.json" CopyToPublishDirectory="Never" />
+	  <Content Update="package.json" CopyToPublishDirectory="Never" />
+  </ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.1" />
