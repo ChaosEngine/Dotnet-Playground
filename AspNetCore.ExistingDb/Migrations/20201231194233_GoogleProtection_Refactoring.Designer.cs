@@ -4,6 +4,7 @@ using EFGetStarted.AspNetCore.ExistingDb.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 #if INCLUDE_ORACLE
@@ -13,9 +14,10 @@ using Oracle.EntityFrameworkCore.Metadata;
 namespace AspNetCore.ExistingDb.Migrations
 {
     [DbContext(typeof(BloggingContext))]
-    partial class BloggingContextModelSnapshot : ModelSnapshot
+    [Migration("20201231194233_GoogleProtection_Refactoring")]
+    partial class GoogleProtection_Refactoring
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -65,9 +67,9 @@ namespace AspNetCore.ExistingDb.Migrations
                     .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
 #if INCLUDE_ORACLE
-					.HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn)
+						.HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn)
 #endif
-                    .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
 
                 b.Property<string>("FriendlyName").HasMaxLength(100);
 
@@ -84,7 +86,8 @@ namespace AspNetCore.ExistingDb.Migrations
 
                 b.Property<string>("Environment").HasMaxLength(100);
 
-                b.Property<string>("Json");
+                b.Property<string>("Json")
+                    .HasColumnType(BloggingContext.JsonColumnTypeFromProvider(this.ActiveProvider));
 
                 b.HasKey("Id", "Environment");
 
@@ -191,7 +194,8 @@ namespace AspNetCore.ExistingDb.Migrations
                     .HasMaxLength(256);
 
                 b.Property<string>("UserSettingsJSON")
-                    .HasColumnName("UserSettings");
+                    .HasColumnName("UserSettings")
+                    .HasColumnType(BloggingContext.JsonColumnTypeFromProvider(this.ActiveProvider));
 
                 b.HasKey("Id");
 
@@ -322,7 +326,7 @@ namespace AspNetCore.ExistingDb.Migrations
                     .WithMany("Post")
                     .HasForeignKey("BlogId")
                     .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired();
+                        .IsRequired();
 
                 b.Navigation("Blog");
             });
@@ -362,7 +366,7 @@ namespace AspNetCore.ExistingDb.Migrations
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired();
 
-                b.HasOne("IdentitySample.DefaultUI.Data.ApplicationUser", null)
+                b.HasOne("IdentitySample.DefaultUI.Data.ApplicationUser")
                     .WithMany()
                     .HasForeignKey("UserId")
                     .OnDelete(DeleteBehavior.Cascade)
