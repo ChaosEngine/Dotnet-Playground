@@ -47,8 +47,8 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				throw new ArgumentNullException(nameof(loggerFactory));
 			}
 
-			_logger = loggerFactory.CreateLogger<EntityFrameworkCoreXmlRepository<TContext>>();
 			_services = services ?? throw new ArgumentNullException(nameof(services));
+			_logger = loggerFactory.CreateLogger<EntityFrameworkCoreXmlRepository<TContext>>();
 		}
 
 		/// <inheritdoc />
@@ -82,14 +82,14 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 				if (env == null)
 					throw new ArgumentNullException(nameof(IWebHostEnvironment));
 
-				if (!Enum.TryParse<EnvEnum>(env.EnvironmentName, true, out var env_enum))
-					throw new NotSupportedException("bad env parsing");
+				//if (!Enum.TryParse<EnvEnum>(env.EnvironmentName, true, out var env_enum))
+				//	throw new NotSupportedException("bad env parsing");
+				string environment = env.EnvironmentName;
 
 				var newKey = new DataProtectionKey()
 				{
-					FriendlyName = $"{env.EnvironmentName}_{friendlyName}",
+					FriendlyName = $"{environment}_{friendlyName}",
 					Xml = element.ToString(SaveOptions.DisableFormatting),
-					// Environment = env_enum,
 				};
 
 				context.DataProtectionKeys.Add(newKey);

@@ -174,7 +174,11 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 				entity.HasKey(e => new { e.Id, e.Environment });
 
 				entity.Property(e => e.Environment)
-					.HasConversion(new EnumToNumberConverter<EnvEnum, int>());
+					//.HasConversion(new EnumToNumberConverter<EnvEnum, int>())
+					.HasMaxLength(100);
+
+				entity.Property(e => e.Json)
+					.HasColumnType(JsonColumnTypeFromProvider(Database.ProviderName));
 
 				entity.ToTable("GoogleProtectionKeys");
 			});
@@ -183,10 +187,10 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 			{
 				// This Converter will perform the conversion to and from Json to the desired type
 				entity.Property(e => e.UserSettingsJSON)
-				// 	.HasConversion(
-				// 	v => JsonConvert.SerializeObject(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
-				// 	v => JsonConvert.DeserializeObject<ApplicationUserSettings>(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore })
-				// )
+					// 	.HasConversion(
+					// 	v => JsonConvert.SerializeObject(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
+					// 	v => JsonConvert.DeserializeObject<ApplicationUserSettings>(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore })
+					// )
 					.HasColumnName("UserSettings")
 					;
 			});

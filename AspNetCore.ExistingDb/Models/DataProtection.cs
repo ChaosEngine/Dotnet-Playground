@@ -1,13 +1,13 @@
 namespace EFGetStarted.AspNetCore.ExistingDb.Models
 {
-	/// <summary>
-	/// Environment enum
-	/// </summary>
-	public enum EnvEnum
-	{
-		DEVELOPMENT = 0,
-		PRODUCTION
-	}
+	///// <summary>
+	///// Environment enum
+	///// </summary>
+	//public enum EnvEnum
+	//{
+	//	DEVELOPMENT = 0,
+	//	PRODUCTION
+	//}
 
 	/// <summary>
 	/// Code first model used by <see cref="EntityFrameworkCoreXmlRepository{TContext}"/>.

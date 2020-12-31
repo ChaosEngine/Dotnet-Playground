@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -254,24 +254,25 @@ namespace AspNetCore.ExistingDb.Services
 		{
 			if (string.IsNullOrEmpty(key))
 				throw new ArgumentException("Key MUST have a value");
-			if (!Enum.TryParse<EnvEnum>(_environment.EnvironmentName, true, out var env_enum))
-				throw new NotSupportedException("bad env parsing");
+			//if (!Enum.TryParse<EnvEnum>(_environment.EnvironmentName, true, out var env_enum))
+			//	throw new NotSupportedException("bad env parsing");
+			string environment = _environment.EnvironmentName;
 
 			var serialized = Google.Apis.Json.NewtonsoftJsonSerializer.Instance.Serialize(value);
 
-			var found = await _context.GoogleProtectionKeys.FindAsync(new object[] { key, env_enum }, _cancellationToken);
+			var found = await _context.GoogleProtectionKeys.FindAsync(new object[] { key, environment }, _cancellationToken);
 			if (found == null)
 			{
 				await _context.GoogleProtectionKeys.AddAsync(new GoogleProtectionKey
 				{
 					Id = key,
-					Environment = env_enum,
-					Xml = serialized
+					Environment = environment,
+					Json = serialized
 				}, _cancellationToken);
 			}
 			else
 			{
-				found.Xml = serialized;
+				found.Json = serialized;
 			}
 			await _context.SaveChangesAsync(true, _cancellationToken);
 		}
@@ -280,10 +281,11 @@ namespace AspNetCore.ExistingDb.Services
 		{
 			if (string.IsNullOrEmpty(key))
 				throw new ArgumentException("Key MUST have a value");
-			if (!Enum.TryParse<EnvEnum>(_environment.EnvironmentName, true, out var env_enum))
-				throw new NotSupportedException("bad env parsing");
+			//if (!Enum.TryParse<EnvEnum>(_environment.EnvironmentName, true, out var env_enum))
+			//	throw new NotSupportedException("bad env parsing");
+			string environment = _environment.EnvironmentName;
 
-			var found = await _context.GoogleProtectionKeys.FindAsync(new object[] { key, env_enum }, _cancellationToken);
+			var found = await _context.GoogleProtectionKeys.FindAsync(new object[] { key, environment }, _cancellationToken);
 			if (found != null)
 			{
 				_context.Remove(found);
@@ -295,13 +297,14 @@ namespace AspNetCore.ExistingDb.Services
 		{
 			if (string.IsNullOrEmpty(key))
 				throw new ArgumentException("Key MUST have a value");
-			if (!Enum.TryParse<EnvEnum>(_environment.EnvironmentName, true, out var env_enum))
-				throw new NotSupportedException("bad env parsing");
+			//if (!Enum.TryParse<EnvEnum>(_environment.EnvironmentName, true, out var env_enum))
+			//	throw new NotSupportedException("bad env parsing");
+			string environment = _environment.EnvironmentName;
 
-			var found = await _context.GoogleProtectionKeys.FindAsync(new object[] { key, env_enum }, _cancellationToken);
+			var found = await _context.GoogleProtectionKeys.FindAsync(new object[] { key, environment }, _cancellationToken);
 			if (found != null)
 			{
-				var obj = Google.Apis.Json.NewtonsoftJsonSerializer.Instance.Deserialize<T>(found.Xml);
+				var obj = Google.Apis.Json.NewtonsoftJsonSerializer.Instance.Deserialize<T>(found.Json);
 				return await Task.FromResult<T>(obj);
 			}
 			else
@@ -312,10 +315,11 @@ namespace AspNetCore.ExistingDb.Services
 
 		public async Task ClearAsync()
 		{
-			if (!Enum.TryParse<EnvEnum>(_environment.EnvironmentName, true, out var env_enum))
-				throw new NotSupportedException("bad env parsing");
+			//if (!Enum.TryParse<EnvEnum>(_environment.EnvironmentName, true, out var env_enum))
+			//	throw new NotSupportedException("bad env parsing");
+			string environment = _environment.EnvironmentName;
 
-			_context.GoogleProtectionKeys.RemoveRange(_context.GoogleProtectionKeys.Where(w => w.Environment == env_enum));
+			_context.GoogleProtectionKeys.RemoveRange(_context.GoogleProtectionKeys.Where(w => w.Environment == environment));
 
 			await _context.SaveChangesAsync(true, _cancellationToken);
 		}

@@ -2,28 +2,28 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Models
 {
-	public class GoogleProtectionKey
+	public sealed class GoogleProtectionKey
 	{
 		/// <summary>
-		/// The entity identifier of the <see cref="DataProtectionKey"/>.
+		/// The entity identifier of the the protected key.
 		/// </summary>
 		public string Id { get; set; }
 
 		/// <summary>
-		/// The XML representation of the <see cref="DataProtectionKey"/>.
+		/// The JSON representation of the protected key.
 		/// </summary>
-		public string Xml { get; set; }
+		public string Json { get; set; }
 
 		/// <summary>
 		/// The environment
 		/// </summary>
-		public EnvEnum Environment { get; set; }
+		public string Environment { get; set; }
 	}
 
 	public interface IGoogleKeyContext
 	{
 		/// <summary>
-		/// A collection of <see cref="DataProtectionKey"/>
+		/// A collection of protected keys (usually only one).
 		/// </summary>
 		DbSet<GoogleProtectionKey> GoogleProtectionKeys { get; }
 	}
