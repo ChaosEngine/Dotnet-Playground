@@ -11,7 +11,7 @@ using Microsoft.Extensions.Configuration;
 namespace EFGetStarted.AspNetCore.ExistingDb.Models
 {
 	[Authorize(Roles = "Administrator")]
-	public class AnnualTimelapseModel : AnnualMovieGeneratorValidatorModel
+	public sealed class AnnualTimelapseModel : AnnualMovieListGeneratorModel
 	{
 		public sealed class SomeBag
 		{
@@ -22,16 +22,20 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 
 		public const string ASPX = "AnnualTimelapse";
 
-		public async Task<IActionResult> OnPostSecretAction([FromServices]IServiceProvider services, SomeBag bag)
+		public AnnualTimelapseModel(IConfiguration configuration) : base(configuration)
 		{
-			if (!base.EnableAnnualMovieGenerator)
+		}
+
+		public async Task<IActionResult> OnPostSecretAction([FromServices] IServiceProvider services, SomeBag bag)
+		{
+			if (!base.IsAnnualMovieListAvailable(checkFileExistance: true))
 				return await Task.FromResult<IActionResult>(base.Forbid());
 
 			if (services == null)
 				return await Task.FromResult<IActionResult>(new JsonResult(new SomeBag { Result = "Error0" }));
 
 
-			var operation = new YouTubePlaylistDumpOperation(DateTime.Now, "client_secrets.json");
+			var operation = new YouTubePlaylistDumpOperation();
 			await operation.DoWorkAsync(services, Request.HttpContext.RequestAborted);
 			var product = operation.Product;
 			// var product = new List<object[]>();

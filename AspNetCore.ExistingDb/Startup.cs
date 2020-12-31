@@ -155,14 +155,17 @@ namespace EFGetStarted.AspNetCore.ExistingDb
 					string found = Directory.EnumerateFiles(dirToWatch, filter, SearchOption.TopDirectoryOnly).FirstOrDefault();
 					if (found == null)
 						return (int)YouTubeUploadOperation.ErrorCodes.NO_VIDEO_FILE;
-					else if (!File.Exists("client_secrets.json"))
+					else if (string.IsNullOrEmpty(Configuration["YouTubeAPI:ClientSecretsFileName"]) ||
+						!File.Exists(Configuration["YouTubeAPI:ClientSecretsFileName"]))
+					{
 						return (int)YouTubeUploadOperation.ErrorCodes.CLIENT_SECRETS_NOT_EXISTING;
+					}
 					else if (!File.Exists(found))
 						return (int)YouTubeUploadOperation.ErrorCodes.VIDEO_FILE_NOT_EXISTING;
 					else
 					{
 						//btq.QueueBackgroundWorkItem(new BeepBackgroundOperation(500, 250));
-						btq.QueueBackgroundWorkItem(new YouTubeUploadOperation(found, "client_secrets.json"));
+						btq.QueueBackgroundWorkItem(new YouTubeUploadOperation(found));
 						return (int)YouTubeUploadOperation.ErrorCodes.OK;
 					}
 				},

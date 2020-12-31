@@ -199,10 +199,10 @@ window.onerror = function (msg, url, line, col, error) {
 ///////////////////WebCamGallery functions start/////////////////
 /**
  * WebCamGallery onload event
- * @param {boolean} enableAnnualMovieGenerator - whether to enable specific admin functionality
+ * @param {boolean} isAnnualMovieListAvailable - whether to enable specific admin functionality
  * @param {any} liveImageExpireTimeInSeconds - how often to allow refreshing of live image
  */
-function WebCamGalleryOnLoad(enableAnnualMovieGenerator, liveImageExpireTimeInSeconds) {
+function WebCamGalleryOnLoad(isAnnualMovieListAvailable, liveImageExpireTimeInSeconds) {
 	let last_refresh = new Date();
 
 	/**
@@ -608,8 +608,7 @@ function WebCamGalleryOnLoad(enableAnnualMovieGenerator, liveImageExpireTimeInSe
 		}
 	});
 
-	//const enableAnnualMovieGenerator = JSON.parse('@Model.EnableAnnualMovieGenerator'.toLowerCase());
-	if (enableAnnualMovieGenerator === true) {
+	if (isAnnualMovieListAvailable === true) {
 		$('#btnAnnualMovieGenerator').prop('disabled', false).on('click', function (event) {
 			if (event.target.attributes['aria-expanded'].value !== 'true') {
 				event.target.disabled = 'disabled';

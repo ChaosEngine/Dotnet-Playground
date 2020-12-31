@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -36,17 +36,14 @@ namespace AspNetCore.ExistingDb.Services
 		}
 
 		private readonly string _videoFileNameToUpload;
-		private readonly string _clientSecretsJsonFileName;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="YouTubeUploadOperation" /> class.
 		/// </summary>
 		/// <param name="videoFileNameToUpload">The video file name to upload.</param>
-		/// <param name="clientSecretsJsonFileName">YouTube client secrets json file.</param>
-		public YouTubeUploadOperation(string videoFileNameToUpload, string clientSecretsJsonFileName)
+		public YouTubeUploadOperation(string videoFileNameToUpload)
 		{
 			_videoFileNameToUpload = videoFileNameToUpload;
-			_clientSecretsJsonFileName = clientSecretsJsonFileName;
 		}
 
 		internal static string GetSharedKeysDir(IConfiguration conf)
@@ -76,24 +73,23 @@ namespace AspNetCore.ExistingDb.Services
 				var env = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
 
 
-				await ExecuteYouTubeDataApiV3(conf.GetSection("YouTubeAPI"), _clientSecretsJsonFileName,
-					YouTubeUploadOperation.GetSharedKeysDir(conf), logger, context, env, token);
+				await ExecuteYouTubeDataApiV3(conf.GetSection("YouTubeAPI"), GetSharedKeysDir(conf), logger, context, env, token);
 			}
 		}
 
-		private async Task<bool> ExecuteYouTubeDataApiV3(IConfiguration youTubeConf, string clientSecretsJson,
+		private async Task<bool> ExecuteYouTubeDataApiV3(IConfiguration youTubeConf,
 			string sharedSecretFolder, ILogger<YouTubeUploadOperation> logger, BloggingContext context,
 			IWebHostEnvironment environment, CancellationToken token)
 		{
 			UserCredential credential;
 
-			using (var stream = new FileStream(clientSecretsJson, FileMode.Open, FileAccess.Read))
+			using (var stream = new FileStream(youTubeConf["ClientSecretsFileName"], FileMode.Open, FileAccess.Read))
 			{
 				var store = new GoogleKeyContextStore(context, environment, token);
 
 				credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(
 					GoogleClientSecrets.Load(stream).Secrets,
-					// This OAuth 2.0 access scope allows for read-only access to the authenticated 
+					// This OAuth 2.0 access scope allows for read-write access to the authenticated 
 					// user's account, but not other types of account access.
 					new[] { YouTubeService.Scope.Youtube, YouTubeService.Scope.YoutubeUpload },
 					"user", token, store

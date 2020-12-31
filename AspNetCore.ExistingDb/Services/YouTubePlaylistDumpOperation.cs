@@ -26,20 +26,14 @@ namespace AspNetCore.ExistingDb.Services
 	/// <seealso cref="AspNetCore.ExistingDb.Services.BackgroundOperationBase" />
 	public class YouTubePlaylistDumpOperation : BackgroundOperationBase
 	{
-		private readonly DateTime _sinceWhen;
-		private readonly string _clientSecretsJsonFileName;
 
 		public IEnumerable<object[]> Product { get; private set; }
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="YouTubePlaylistDumpOperation" /> class.
 		/// </summary>
-		/// <param name="sinceWhen">Since when take videos.</param>
-		/// <param name="clientSecretsJsonFileName">YouTube client secrets json file.</param>
-		public YouTubePlaylistDumpOperation(DateTime sinceWhen, string clientSecretsJsonFileName)
+		public YouTubePlaylistDumpOperation()
 		{
-			_sinceWhen = sinceWhen;
-			_clientSecretsJsonFileName = clientSecretsJsonFileName;
 		}
 
 		/// <summary>
@@ -53,7 +47,6 @@ namespace AspNetCore.ExistingDb.Services
 			IConfiguration conf;
 			using (IServiceScope scope = services.CreateScope())
 			{
-				var logger = scope.ServiceProvider.GetRequiredService<ILogger<YouTubePlaylistDumpOperation>>();
 				conf = scope.ServiceProvider.GetRequiredService<IConfiguration>();
 				var context = scope.ServiceProvider.GetRequiredService<BloggingContext>();
 				var env = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
@@ -61,8 +54,7 @@ namespace AspNetCore.ExistingDb.Services
 
 				var year_ago_date = DateTime.Now.AddYears(-1);
 				var dest_dir = YouTubeUploadOperation.GetSharedKeysDir(conf);
-				var lst = await ExecuteYouTubeDataApiV3(conf.GetSection("YouTubeAPI"), _clientSecretsJsonFileName,
-					dest_dir, logger, context, env, token);
+				var lst = await ExecuteYouTubeDataApiV3(conf.GetSection("YouTubeAPI"), context, env, token);
 
 				var query = lst.OrderBy(o => o.Snippet.PublishedAt);
 				Product = query.Select(item => new object[] {
@@ -93,13 +85,12 @@ namespace AspNetCore.ExistingDb.Services
 			}
 		}
 
-		private async Task<IEnumerable<PlaylistItem>> ExecuteYouTubeDataApiV3(IConfiguration youTubeConf, string clientSecretsJson,
-			string sharedSecretFolder, ILogger<YouTubePlaylistDumpOperation> logger, BloggingContext context,
-			IWebHostEnvironment environment, CancellationToken token)
+		private async Task<IEnumerable<PlaylistItem>> ExecuteYouTubeDataApiV3(IConfiguration youTubeConf,
+			BloggingContext context, IWebHostEnvironment environment, CancellationToken token)
 		{
 			UserCredential credential;
 
-			using (var stream = new FileStream(clientSecretsJson, FileMode.Open, FileAccess.Read))
+			using (var stream = new FileStream(youTubeConf["ClientSecretsFileName"], FileMode.Open, FileAccess.Read))
 			{
 				var store = new GoogleKeyContextStore(context, environment, token);
 
@@ -108,6 +99,8 @@ namespace AspNetCore.ExistingDb.Services
 					// This OAuth 2.0 access scope allows for read-only access to the authenticated 
 					// user's account, but not other types of account access.
 					new[] { YouTubeService.Scope.YoutubeReadonly },
+					//Below scope is with higher access - use it here only for obtaining new/refresh token (browser access auth required)
+					//new[] { YouTubeService.Scope.Youtube, YouTubeService.Scope.YoutubeUpload },
 					"user", token, store
 					);
 			}

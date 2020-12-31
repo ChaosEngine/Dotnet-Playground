@@ -1,6 +1,5 @@
 ﻿@page
 @inject Lib.AspNetCore.ServerTiming.IServerTiming serverTiming
-@inject Microsoft.Extensions.Configuration.IConfiguration Conf
 @model WebCamGallery
 @{
 	Model.Watch.Restart();
@@ -141,7 +140,7 @@
     </environment>
     <script type="text/javascript">
 		$(document).ready(function () {
-			WebCamGalleryOnLoad(JSON.parse('@Model.EnableAnnualMovieGenerator'.toLowerCase()), @MjpgStreamerHttpClient.LiveImageExpireTimeInSeconds);
+			WebCamGalleryOnLoad(JSON.parse('@Model.IsAnnualMovieListAvailable()'.toLowerCase()), @MjpgStreamerHttpClient.LiveImageExpireTimeInSeconds);
 		});
 
     </script>

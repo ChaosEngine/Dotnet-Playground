@@ -14,19 +14,25 @@ using Microsoft.Net.Http.Headers;
 
 namespace EFGetStarted.AspNetCore.ExistingDb.Models
 {
-	public abstract class AnnualMovieGeneratorValidatorModel : PageModel
+	public abstract class AnnualMovieListGeneratorModel : PageModel
 	{
-		public bool EnableAnnualMovieGenerator
+		protected string ClientSecretsFileName { get; }
+
+		public bool IsAnnualMovieListAvailable(bool checkFileExistance = false)
 		{
-			get
-			{
-				return (base.User != null && base.User.IsInRole("Administrator"))
-					&& System.IO.File.Exists("client_secrets.json");
-			}
+			return base.User != null &&
+				!string.IsNullOrEmpty(ClientSecretsFileName) &&
+				base.User.IsInRole("Administrator") &&
+				(checkFileExistance == false || System.IO.File.Exists(ClientSecretsFileName));
+		}
+
+		public AnnualMovieListGeneratorModel(IConfiguration configuration)
+		{
+			ClientSecretsFileName = configuration["YouTubeAPI:ClientSecretsFileName"];
 		}
 	}
 
-	public class WebCamGallery : AnnualMovieGeneratorValidatorModel
+	public sealed class WebCamGallery : AnnualMovieListGeneratorModel
 	{
 		public const string ASPX = "WebCamGallery";
 		private readonly string _imageDirectory;
@@ -42,7 +48,7 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 
 		public Stopwatch Watch { get; }
 
-		public WebCamGallery(IConfiguration configuration, IServerTiming serverTiming)
+		public WebCamGallery(IConfiguration configuration, IServerTiming serverTiming) : base(configuration)
 		{
 			Watch = new Stopwatch();
 			Watch.Start();
