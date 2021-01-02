@@ -50,6 +50,9 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 					{
 						".webp" => "image/webp",
 						".avif" => "image/avif",
+						//".mp4" => "video/mp4",
+						//".webm" => "video/webm",
+						//".mkv" => "video/mp4",
 						".jpg" => MediaTypeNames.Image.Jpeg,
 						_ => throw new NotSupportedException("not supported content-type or extension"),
 					};
