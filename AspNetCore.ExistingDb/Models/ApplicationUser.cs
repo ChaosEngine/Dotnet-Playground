@@ -13,11 +13,11 @@ namespace IdentitySample.DefaultUI.Data
 		[ProtectedPersonalData]
 		public string Name { get; set; }
 
-		/// <summary>
-		/// TODO: Change this to birth DateTime.
-		/// </summary>
-		[PersonalData]
-		public int Age { get; set; }
+		///// <summary>
+		///// TODO: Change this to birth DateTime.
+		///// </summary>
+		//[PersonalData]
+		//public int Age { get; set; }
 
 		/// <summary>
 		/// TODO: make this a json string in DBase, optimize serialization (or drop it?)

@@ -59,10 +59,10 @@ namespace IdentitySample.DefaultUI
 			[Display(Name = "Full Name")]
 			public string Name { get; set; }
 
-			[Required]
-			[Range(0, 199, ErrorMessage = "Age must be between 0 and 199")]
-			[Display(Name = "Age")]
-			public int Age { get; set; }
+			//[Required]
+			//[Range(0, 199, ErrorMessage = "Age must be between 0 and 199")]
+			//[Display(Name = "Age")]
+			//public int Age { get; set; }
 
 			[Display(Name = "Allow desktop notifications")]
 			public bool DesktopNotifications { get; set; }
@@ -80,7 +80,7 @@ namespace IdentitySample.DefaultUI
 			Input = new InputModel
 			{
 				Name = user.Name,
-				Age = user.Age,
+				//Age = user.Age,
 				Email = user.Email,
 				PhoneNumber = user.PhoneNumber,
 				DesktopNotifications = (user.UserSettings?.DesktopNotifications).GetValueOrDefault(false)
@@ -103,8 +103,8 @@ namespace IdentitySample.DefaultUI
 			if (Input.Name != user.Name)
 				user.Name = Input.Name;
 
-			if (Input.Age != user.Age)
-				user.Age = Input.Age;
+			//if (Input.Age != user.Age)
+			//	user.Age = Input.Age;
 
 			if (user.UserSettings == null)
 				user.UserSettings = new ApplicationUserSettings();
