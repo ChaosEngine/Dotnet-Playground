@@ -11,7 +11,7 @@ using Microsoft.Extensions.Options;
 using System.Linq;
 using System.Text.Json;
 
-namespace EFGetStarted.AspNetCore.ExistingDb
+namespace AspNetCore.ExistingDb
 {
 	public static class ConfigurationExtensions
 	{

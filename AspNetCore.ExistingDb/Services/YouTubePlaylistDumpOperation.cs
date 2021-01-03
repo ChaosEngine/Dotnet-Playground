@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EFGetStarted.AspNetCore.ExistingDb.Models;
+using AspNetCore.ExistingDb.Models;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Google.Apis.Upload;

@@ -2,7 +2,7 @@ using AspNetCore.ExistingDb.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
+namespace AspNetCore.ExistingDb.Controllers
 {
 	public class VirtualScrollController : HashesDataTableController
 	{

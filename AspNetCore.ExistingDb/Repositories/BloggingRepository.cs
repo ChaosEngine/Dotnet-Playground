@@ -1,4 +1,4 @@
-﻿using EFGetStarted.AspNetCore.ExistingDb.Models;
+﻿using AspNetCore.ExistingDb.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;

@@ -1,6 +1,6 @@
 ﻿using AspNetCore.ExistingDb.Tests;
-using EFGetStarted.AspNetCore.ExistingDb;
-using EFGetStarted.AspNetCore.ExistingDb.Models;
+using AspNetCore.ExistingDb;
+using AspNetCore.ExistingDb.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

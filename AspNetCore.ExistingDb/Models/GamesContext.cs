@@ -2,7 +2,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace EFGetStarted.AspNetCore.ExistingDb.Models
+namespace AspNetCore.ExistingDb.Models
 {
 	public class GamesContextFactory : ContextFactory, IDesignTimeDbContextFactory<InkBall.Module.Model.GamesContext>
 	{

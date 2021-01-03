@@ -1,5 +1,5 @@
 ﻿using AspNetCore.ExistingDb.Repositories;
-using EFGetStarted.AspNetCore.ExistingDb.Models;
+using AspNetCore.ExistingDb.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
+namespace AspNetCore.ExistingDb.Controllers
 {
 	public interface IHashesDataTableController : IDisposable
 	{

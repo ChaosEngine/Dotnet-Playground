@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace EFGetStarted.AspNetCore.ExistingDb
+namespace AspNetCore.ExistingDb
 {
 	/*[HtmlTargetElement(_tag)]
 	[HtmlTargetElement(Attributes = _attribute)]

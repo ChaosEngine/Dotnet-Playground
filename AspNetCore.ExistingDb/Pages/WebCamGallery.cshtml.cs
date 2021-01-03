@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Net.Http.Headers;
 
-namespace EFGetStarted.AspNetCore.ExistingDb.Models
+namespace AspNetCore.ExistingDb.Models
 {
 	public abstract class AnnualMovieListGeneratorModel : PageModel
 	{

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace EFGetStarted.AspNetCore.ExistingDb.Models
+namespace AspNetCore.ExistingDb.Models
 {
 	public enum BlogActionEnum
 	{

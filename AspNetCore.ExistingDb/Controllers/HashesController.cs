@@ -1,6 +1,6 @@
 ﻿using AspNetCore.ExistingDb.Repositories;
 using AspNetCore.ExistingDb.Services;
-using EFGetStarted.AspNetCore.ExistingDb.Models;
+using AspNetCore.ExistingDb.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -9,7 +9,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
-namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
+namespace AspNetCore.ExistingDb.Controllers
 {
 	public interface IHashesController : IDisposable
 	{

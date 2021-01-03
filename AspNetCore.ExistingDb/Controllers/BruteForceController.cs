@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
+namespace AspNetCore.ExistingDb.Controllers
 {
 	public class BruteForceController : Controller
 	{

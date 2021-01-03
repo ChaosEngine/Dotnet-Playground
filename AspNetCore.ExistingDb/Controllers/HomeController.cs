@@ -11,7 +11,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
+namespace AspNetCore.ExistingDb.Controllers
 {
 	public class HomeController : Controller
 	{

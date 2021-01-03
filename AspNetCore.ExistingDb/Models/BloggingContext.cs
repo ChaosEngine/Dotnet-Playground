@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System;
 
-namespace EFGetStarted.AspNetCore.ExistingDb.Models
+namespace AspNetCore.ExistingDb.Models
 {
 	public class BloggingContextFactory : ContextFactory, IDesignTimeDbContextFactory<BloggingContext>
 	{

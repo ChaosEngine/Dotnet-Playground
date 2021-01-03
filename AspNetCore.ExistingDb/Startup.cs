@@ -4,7 +4,7 @@ using Abiosoft.DotNet.DevReload;
 using AspNetCore.ExistingDb.Helpers;
 using AspNetCore.ExistingDb.Repositories;
 using AspNetCore.ExistingDb.Services;
-using EFGetStarted.AspNetCore.ExistingDb.Models;
+using AspNetCore.ExistingDb.Models;
 using IdentityManager2.AspNetIdentity;
 using IdentityManager2.Configuration;
 using IdentitySample.DefaultUI.Data;
@@ -48,7 +48,7 @@ using MessagePack;
 
 //[assembly: UserSecretsId("aspnet-AspNetCore.ExistingDb-20161230022416")]
 
-namespace EFGetStarted.AspNetCore.ExistingDb
+namespace AspNetCore.ExistingDb
 {
 	public class Startup
 	{

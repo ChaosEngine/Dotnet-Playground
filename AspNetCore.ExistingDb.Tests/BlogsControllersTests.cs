@@ -1,7 +1,7 @@
 ﻿using AspNetCore.ExistingDb.Repositories;
 using AspNetCore.ExistingDb.Tests;
-using EFGetStarted.AspNetCore.ExistingDb.Controllers;
-using EFGetStarted.AspNetCore.ExistingDb.Models;
+using AspNetCore.ExistingDb.Controllers;
+using AspNetCore.ExistingDb.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;

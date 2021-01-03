@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
+namespace AspNetCore.ExistingDb.Controllers
 {
 	public class BaseController<T> : Controller where T : class
 	{

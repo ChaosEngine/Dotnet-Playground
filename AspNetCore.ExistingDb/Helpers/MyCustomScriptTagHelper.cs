@@ -17,7 +17,7 @@ using System.ComponentModel;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace EFGetStarted.AspNetCore.ExistingDb
+namespace AspNetCore.ExistingDb
 {	
 	/*/// <summary>
 	/// <see cref="ITagHelper"/> implementation targeting &lt;script&gt; elements that supports fallback src paths.

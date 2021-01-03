@@ -1,6 +1,6 @@
 using AspNetCore.ExistingDb.Repositories;
 using AspNetCore.ExistingDb.Tests;
-using EFGetStarted.AspNetCore.ExistingDb.Models;
+using AspNetCore.ExistingDb.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;

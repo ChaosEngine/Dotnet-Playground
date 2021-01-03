@@ -1,4 +1,4 @@
-﻿using EFGetStarted.AspNetCore.ExistingDb.Controllers;
+﻿using AspNetCore.ExistingDb.Controllers;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace EFGetStarted.AspNetCore.ExistingDb.Models
+namespace AspNetCore.ExistingDb.Models
 {
 	public class HashLengthAttribute : ValidationAttribute, IClientModelValidator
 	{

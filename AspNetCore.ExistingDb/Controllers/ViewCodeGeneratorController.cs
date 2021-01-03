@@ -4,7 +4,7 @@ using System.IO;
 using Microsoft.AspNetCore.Razor.Language;
 #endif
 
-namespace EFGetStarted.AspNetCore.ExistingDb.Controllers
+namespace AspNetCore.ExistingDb.Controllers
 {
 	[Route("[controller]")]
 	public sealed class ViewCodeGeneratorController : Controller

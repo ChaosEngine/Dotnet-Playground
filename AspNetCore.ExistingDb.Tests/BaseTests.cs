@@ -1,5 +1,5 @@
-﻿using EFGetStarted.AspNetCore.ExistingDb;
-using EFGetStarted.AspNetCore.ExistingDb.Models;
+﻿using AspNetCore.ExistingDb;
+using AspNetCore.ExistingDb.Models;
 using Lib.AspNetCore.ServerTiming;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Data.Sqlite;

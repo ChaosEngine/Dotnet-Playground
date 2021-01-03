@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
-using EFGetStarted.AspNetCore.ExistingDb.Models;
+using AspNetCore.ExistingDb.Models;
 #if INCLUDE_ORACLE
 using Oracle.EntityFrameworkCore.Metadata;
 #endif
@@ -23,7 +23,7 @@ namespace AspNetCore.ExistingDb.Migrations
 #endif
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-			modelBuilder.Entity("EFGetStarted.AspNetCore.ExistingDb.Models.Blog", b =>
+			modelBuilder.Entity("AspNetCore.ExistingDb.Models.Blog", b =>
                 {
 					b.Property<int>("BlogId")
 						.ValueGeneratedOnAdd()
@@ -40,7 +40,7 @@ namespace AspNetCore.ExistingDb.Migrations
                     b.ToTable("Blog");
                 });
 
-            modelBuilder.Entity("EFGetStarted.AspNetCore.ExistingDb.Models.Post", b =>
+            modelBuilder.Entity("AspNetCore.ExistingDb.Models.Post", b =>
                 {
 					b.Property<int>("PostId")
 						.ValueGeneratedOnAdd()
@@ -62,7 +62,7 @@ namespace AspNetCore.ExistingDb.Migrations
                     b.ToTable("Post");
                 });
 
-            modelBuilder.Entity("EFGetStarted.AspNetCore.ExistingDb.Models.ThinHashes", b =>
+            modelBuilder.Entity("AspNetCore.ExistingDb.Models.ThinHashes", b =>
                 {
                     b.Property<string>("Key")
                         .ValueGeneratedOnAdd()
@@ -83,9 +83,9 @@ namespace AspNetCore.ExistingDb.Migrations
                     b.ToTable("Hashes");
                 });
 
-            modelBuilder.Entity("EFGetStarted.AspNetCore.ExistingDb.Models.Post", b =>
+            modelBuilder.Entity("AspNetCore.ExistingDb.Models.Post", b =>
                 {
-                    b.HasOne("EFGetStarted.AspNetCore.ExistingDb.Models.Blog", "Blog")
+                    b.HasOne("AspNetCore.ExistingDb.Models.Blog", "Blog")
                         .WithMany("Post")
                         .HasForeignKey("BlogId")
                         .OnDelete(DeleteBehavior.Cascade);

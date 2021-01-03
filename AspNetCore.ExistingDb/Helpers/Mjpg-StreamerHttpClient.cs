@@ -10,7 +10,7 @@ using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace EFGetStarted.AspNetCore.ExistingDb
+namespace AspNetCore.ExistingDb
 {
 	public interface IMjpgStreamerHttpClient
 	{

@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace EFGetStarted.AspNetCore.ExistingDb.Models
+namespace AspNetCore.ExistingDb.Models
 {
 	public sealed class GoogleProtectionKey
 	{

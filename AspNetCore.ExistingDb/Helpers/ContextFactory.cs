@@ -10,7 +10,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 
-namespace EFGetStarted.AspNetCore.ExistingDb
+namespace AspNetCore.ExistingDb
 {
 	public class ContextFactory
 	{

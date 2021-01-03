@@ -1,4 +1,4 @@
-namespace EFGetStarted.AspNetCore.ExistingDb.Models
+namespace AspNetCore.ExistingDb.Models
 {
 	///// <summary>
 	///// Environment enum

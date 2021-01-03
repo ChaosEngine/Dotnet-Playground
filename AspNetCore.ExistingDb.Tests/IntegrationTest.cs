@@ -1,6 +1,6 @@
-﻿using EFGetStarted.AspNetCore.ExistingDb;
-using EFGetStarted.AspNetCore.ExistingDb.Controllers;
-using EFGetStarted.AspNetCore.ExistingDb.Models;
+﻿using AspNetCore.ExistingDb;
+using AspNetCore.ExistingDb.Controllers;
+using AspNetCore.ExistingDb.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.Extensions.Logging;

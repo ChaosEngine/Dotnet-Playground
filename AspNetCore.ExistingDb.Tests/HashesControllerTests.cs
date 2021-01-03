@@ -1,7 +1,7 @@
 ﻿using AspNetCore.ExistingDb.Repositories;
 using AspNetCore.ExistingDb.Services;
 using AspNetCore.ExistingDb.Tests;
-using EFGetStarted.AspNetCore.ExistingDb.Models;
+using AspNetCore.ExistingDb.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -18,7 +18,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using WebControllers=EFGetStarted.AspNetCore.ExistingDb.Controllers;
+using WebControllers=AspNetCore.ExistingDb.Controllers;
 
 namespace Controllers
 {

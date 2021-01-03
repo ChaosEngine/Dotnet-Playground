@@ -14,7 +14,7 @@ using System.Net.Http;
 using System.Net.Mime;
 using System.Threading.Tasks;
 
-namespace EFGetStarted.AspNetCore.ExistingDb.Models
+namespace AspNetCore.ExistingDb.Models
 {
 	public class WebCamImagesModel : PageModel
 	{
@@ -50,9 +50,6 @@ namespace EFGetStarted.AspNetCore.ExistingDb.Models
 					{
 						".webp" => "image/webp",
 						".avif" => "image/avif",
-						//".mp4" => "video/mp4",
-						//".webm" => "video/webm",
-						//".mkv" => "video/mp4",
 						".jpg" => MediaTypeNames.Image.Jpeg,
 						_ => throw new NotSupportedException("not supported content-type or extension"),
 					};

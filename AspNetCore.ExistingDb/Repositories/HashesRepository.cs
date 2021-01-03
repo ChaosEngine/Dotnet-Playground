@@ -1,6 +1,6 @@
 ﻿using AspNetCore.ExistingDb.Services;
-using EFGetStarted.AspNetCore.ExistingDb;
-using EFGetStarted.AspNetCore.ExistingDb.Models;
+using AspNetCore.ExistingDb;
+using AspNetCore.ExistingDb.Models;
 using Lib.AspNetCore.ServerTiming;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -49,7 +49,7 @@ namespace AspNetCore.ExistingDb.Repositories
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <seealso cref="AspNetCore.ExistingDb.Repositories.GenericRepository{EFGetStarted.AspNetCore.ExistingDb.Models.BloggingContext, EFGetStarted.AspNetCore.ExistingDb.Models.ThinHashes}" />
+	/// <seealso cref="AspNetCore.ExistingDb.Repositories.GenericRepository{AspNetCore.ExistingDb.Models.BloggingContext, AspNetCore.ExistingDb.Models.ThinHashes}" />
 	/// <seealso cref="AspNetCore.ExistingDb.Repositories.IHashesRepository" />
 	public class HashesRepository : GenericRepository<BloggingContext, ThinHashes>, IHashesRepository
 	{

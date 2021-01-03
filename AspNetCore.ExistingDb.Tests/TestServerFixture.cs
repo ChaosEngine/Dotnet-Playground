@@ -84,7 +84,7 @@ namespace Integration
 			DOTNET_RUNNING_IN_CONTAINER = !string.IsNullOrEmpty(temp) && temp.Equals(true.ToString(), StringComparison.InvariantCultureIgnoreCase);
 			//Console.WriteLine($"### temp = {temp}, DOTNET_RUNNING_IN_CONTAINER = {DOTNET_RUNNING_IN_CONTAINER}");
 
-			var db = _server.Host.Services.GetRequiredService<EFGetStarted.AspNetCore.ExistingDb.Models.BloggingContext>();
+			var db = _server.Host.Services.GetRequiredService<AspNetCore.ExistingDb.Models.BloggingContext>();
 			if (DBKind.Equals("sqlite",StringComparison.InvariantCultureIgnoreCase))
 				db.Database.Migrate();
 			else
@@ -234,7 +234,7 @@ namespace Integration
 					DOTNET_RUNNING_IN_CONTAINER = !string.IsNullOrEmpty(temp) && temp.Equals(true.ToString(), StringComparison.InvariantCultureIgnoreCase);
 					//Console.WriteLine($"### temp = {temp}, DOTNET_RUNNING_IN_CONTAINER = {DOTNET_RUNNING_IN_CONTAINER}");
 
-					var db = scopedServices.GetRequiredService<EFGetStarted.AspNetCore.ExistingDb.Models.BloggingContext>();
+					var db = scopedServices.GetRequiredService<AspNetCore.ExistingDb.Models.BloggingContext>();
 					if (DBKind.Equals("sqlite", StringComparison.InvariantCultureIgnoreCase))
 						db.Database.Migrate();
 					else
@@ -245,7 +245,7 @@ namespace Integration
 	}
 
 	[CollectionDefinition(nameof(TestServerCollection))]
-	public class TestServerCollection : ICollectionFixture<TestServerFixture<EFGetStarted.AspNetCore.ExistingDb.Startup>>
+	public class TestServerCollection : ICollectionFixture<TestServerFixture<AspNetCore.ExistingDb.Startup>>
 	{
 		// This class has no code, and is never created. Its purpose is simply
 		// to be the place to apply [CollectionDefinition] and all the
