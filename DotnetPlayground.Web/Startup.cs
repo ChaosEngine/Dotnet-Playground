@@ -7,8 +7,6 @@ using DotnetPlayground.Services;
 using DotnetPlayground.Models;
 using IdentityManager2.AspNetIdentity;
 using IdentityManager2.Configuration;
-using IdentitySample.DefaultUI.Data;
-using IdentitySample.Services;
 using InkBall.Module;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;

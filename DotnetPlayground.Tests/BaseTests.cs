@@ -1,5 +1,4 @@
-﻿using DotnetPlayground;
-using DotnetPlayground.Models;
+﻿using DotnetPlayground.Models;
 using Lib.AspNetCore.ServerTiming;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Data.Sqlite;

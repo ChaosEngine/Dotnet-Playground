@@ -1,9 +1,9 @@
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json;
 using InkBall.Module.Model;
 using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 
-namespace IdentitySample.DefaultUI.Data
+namespace DotnetPlayground.Models
 {
 	// Add profile data for application users by adding properties to the ApplicationUser class
 	public class ApplicationUser : IdentityUser, INamedAgedUser

@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace IdentitySample.Services
+namespace DotnetPlayground.Services
 {
 	public interface ISmsSender
 	{

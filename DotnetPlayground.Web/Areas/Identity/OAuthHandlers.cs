@@ -1,4 +1,4 @@
-﻿using IdentitySample.DefaultUI.Data;
+﻿using DotnetPlayground.Models;
 using InkBall.Module;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;

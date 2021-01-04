@@ -1,5 +1,5 @@
 ﻿using DotnetPlayground;
-using IdentitySample.DefaultUI.Data;
+using DotnetPlayground.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;

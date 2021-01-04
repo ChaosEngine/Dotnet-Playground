@@ -8,7 +8,7 @@ using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
 using DotnetPlayground.Helpers;
-using IdentitySample.DefaultUI.Data;
+using DotnetPlayground.Models;
 using InkBall.Module.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
