@@ -1,4 +1,7 @@
-﻿<h2>Contact.</h2>
+﻿@{
+    ViewData["Title"] = "Contact";
+}
+<h2>Contact.</h2>
 
 <h4>@Html.Raw(ViewData["Message"])</h4>
 
@@ -27,4 +30,4 @@
         email1.setAttribute('href', "mailto:" + email1.innerText);
     });
 </script>
-<script defer src="https://cdn.jsdelivr.net/npm/faker@5.1.0/dist/faker.min.js" integrity="sha256-kqF8thF0BqtR99143Ag0a11ToyrQJ6eIaeG6sOLFkmM=" crossorigin="anonymous"></script>
+<script async src="https://cdn.jsdelivr.net/npm/faker@5.1.0/dist/faker.min.js" integrity="sha256-kqF8thF0BqtR99143Ag0a11ToyrQJ6eIaeG6sOLFkmM=" crossorigin="anonymous"></script>
