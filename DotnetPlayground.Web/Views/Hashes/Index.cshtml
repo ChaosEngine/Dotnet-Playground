@@ -1,0 +1,223 @@
+﻿@model Hashes
+@inject Microsoft.Extensions.Configuration.IConfiguration Conf
+@using DotnetPlayground.Controllers
+@{
+	ViewBag.Title = "MyRainbow rainbow table";
+}
+<h2>Rainbow table trivial example</h2>
+@{
+	if (((HashesInfo)ViewBag.Info) != null && ((HashesInfo)ViewBag.Info).IsCalculating == false)
+	{
+		<cache expires-after="@(DotnetPlayground.Repositories.HashesRepository.HashesInfoExpirationInMinutes)">
+			<p>
+				Search for <strong>@(((HashesInfo)ViewBag.Info).KeyLength)</strong> character MD5 or SHA256 hash source string. Alphabet is '@(((HashesInfo)ViewBag.Info).Alphabet)'
+			</p>
+			<p>
+				Hashes count: <strong>@(((HashesInfo)ViewBag.Info).Count)</strong>
+				last updated @DateTime.Now.ToString()
+			</p>
+		</cache>
+	}
+	else
+	{
+		<p>Calculating...wait about 10 secs or so...and refresh the page</p>
+	}
+}
+
+<form action="~/@(nameof(HashesController.ASPX))/@(nameof(HashesController.Search))" method="post" id="theForm" class="form-horizontal">
+	<div asp-validation-summary="All" class="text-danger"></div>
+	<div class="form-group">
+		@Html.AntiForgeryToken()
+		@Html.Hidden("ajax", false)
+		<div class="col-md-10">
+			@foreach (KindEnum knd in Enum.GetValues(typeof(KindEnum)))
+			{
+				<label class="radio-inline"><input asp-for="Kind" type="radio" id="@("knd" + (int)knd)" name="Kind" value="@knd" />@knd</label>
+				<span asp-validation-for="Kind" class="text-danger"></span>
+			}
+
+			<input asp-for="Search" id="txtSearch" placeholder="hash to decode; >4 chars autocomplete" class="form-control" style="max-width:none" />
+			<span asp-validation-for="Search" class="text-danger"></span>
+		</div>
+	</div>
+	<div class="form-group">
+		<div class="col-md-10">
+			<button type="submit" id="btnSearch" class="btn btn-lg btn-warning">Search</button>
+		</div>
+	</div>
+	<div class="form-group">
+		<div id="divResult" class="col-md-10">@(Model != null && Model.Key.StartsWith("error") ? Model.Key : "")</div>
+	</div>
+</form>
+<table id="result_tab" class="table table-striped table-sm" style='@(Model != null && !Model.Key.StartsWith("error") ? "" : "display:none")'>
+	<thead><tr><th>Key</th><th>MD5</th><th>SHA256</th>
+		<th><button class="btn btn-success font-weight-bold" title="ValidateAll" value="ValidateAll" onclick="clientValidateAll()">&nbsp;ALL ⇩ &nbsp;</button></th>
+	</tr></thead>
+	<tbody>
+		<tr id="trFirstResult">
+			<td id="res_cel_key">@Model?.Key</td>
+			<td id="res_cel_md5">@Model?.HashMD5</td>
+			<td id="res_cel_sha256">@Model?.HashSHA256</td>
+			<td id="res_cel_clientValidate">
+				<button class="btn btn-success btn-sm" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>
+			</td>
+		</tr>
+	</tbody>
+</table>
+@section scripts
+{
+	@await Html.PartialAsync("_CryptoJSScriptsPartial")
+
+	<script type="text/javascript">
+		let g_LastTimeOfRun = new Date().getTime();
+		$(function () {
+			$.validator.addMethod('hashlength',
+				function (value, element, params) {
+					const kind = $(params).val();
+
+					if ((kind == "MD5" && value.length != 32) || (kind == "SHA256" && value.length != 64))
+						return false;
+
+					return true;
+				});
+
+			//$('#theForm').validate({
+			$.validator.setDefaults({
+				debug: true,
+				submitHandler: function (form) {
+					AjaxifySearch(form); return false;
+					//alert('submitted'); return false;
+				},
+				rules: {
+					Search: {
+						hashlength: '.radio-inline input:radio:checked'
+					},
+				},
+				messages: {
+					Search: {
+						hashlength: $('#txtSearch').data("val-hashlength")
+					}
+				}
+			});
+
+			$("#txtSearch").on("input", function (e) {
+				//check if input was really changed from last time
+				if ($(this).data("lastval") != $(this).val()) {
+					$(this).data("lastval", $(this).val());
+
+					//change action
+					const value = $(this).val();
+					const time_of_run = new Date().getTime();
+					
+					//dont flood ajax reuqests, wait 1 sec in between
+					if (value.length > 4 && ((time_of_run - g_LastTimeOfRun) > 1000)) {
+						g_LastTimeOfRun = new Date().getTime();
+
+						const button = $('#btnSearch');//simulate button click-like behaviour: disable
+						button.prop('disabled', true);
+                        button.html("<span class='spinner-border spinner-border-sm align-middle' role='status' aria-hidden='true'></span> Loading...");
+
+						const hedrs = { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() }
+
+						$.ajax({
+							method: "POST", url: '@(nameof(HashesController.Autocomplete))',
+							headers: hedrs,
+							data: { "text": value, "ajax": true },
+						}).done(function (found) {
+							$('#result_tab').show();
+							$('#trFirstResult').hide();
+
+							button.prop('disabled', false);//simulate button click-like behaviour: enable
+							button.text("Search");
+
+							let t = $('#result_tab tbody');
+							t.find('tr:visible').not('#trFirstResult').remove();
+
+							$.each(found, function (i, item) {
+								const $tr = $('<tr>').append(
+									$('<td>').text(item.key),
+									$('<td>').text(item.hashMD5),
+									$('<td>').text(item.hashSHA256),
+									$('<td>').html((item.hashMD5 == null || item.hashSHA256 == null) ? ''
+										: '<button class="btn btn-success btn-sm" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>')
+								).appendTo('#result_tab');
+								//console.log($tr.wrap('<p>').html());
+							});
+						});
+					}
+				};
+			});
+		});
+
+		function AjaxifySearch(e) {
+			const divResult = $('#divResult');
+			const search = $('#txtSearch').val();
+			if (search == null || search == '') {
+				divResult.text('no hash to decode');
+				return;
+			}
+
+			const sha_kind = $('.radio-inline input:radio:checked').val();
+			switch (sha_kind) {
+				case 'MD5':
+					if (search.length < 32) {
+						divResult.text('search.length < 32 characters, too short');
+						return;
+					}
+					break;
+				case 'SHA256':
+					if (search.length < 64) {
+						divResult.text('search.length < 64 characters, too short');
+						return;
+					}
+					break;
+				default:
+					divResult.text('no hash method selected');
+					return;
+			}
+
+			const button = $('#btnSearch');
+			button.prop('disabled', true);
+            button.html("<span class='spinner-border spinner-border-sm align-middle' role='status' aria-hidden='true'></span> Loading...");
+			divResult.text('');
+			$('#result_tab').hide();
+
+			const hedrs = { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() }
+
+			$.ajax({
+				method: "POST", url: '@(nameof(HashesController.Search))',
+				headers: hedrs,
+				data: {
+					"Search": search, "Kind": sha_kind, "ajax": true
+				},
+			}).done(function (found) {
+				button.prop('disabled', false);
+				button.text("Search");
+
+				if (/^error.*/.test(found)) {
+					divResult.text(found);
+					return;
+				}
+				$('#result_tab').show();
+
+				let t = $('#result_tab tbody');
+				t.find('tr:visible').not('#trFirstResult').remove();
+				$('#trFirstResult').show();
+
+				$('#res_cel_key').text(found.key);
+				$('#res_cel_md5').text(found.hashMD5);
+				$('#res_cel_sha256').text(found.hashSHA256);
+				$('#res_cel_clientValidate').html((found.hashMD5 == null || found.hashSHA256 == null) ? ''
+					: '<button class="btn btn-success btn-sm" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>');
+			});
+		}
+
+		function clientValidateAll() {
+			$("button[value='Validate']").each(function (index, item) {
+				clientValidate(item);				
+			});
+		}
+
+	</script>
+	@await Html.PartialAsync("_ValidationScriptsPartial")
+}
