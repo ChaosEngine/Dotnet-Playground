@@ -68,9 +68,9 @@ namespace DotnetPlayground.Controllers
 			ViewData["Message"] = $"Name: '{name}'<br />Membership years: '{yearsMember}'<br />time: '{time}'<br />"
 				+ $"BigBlob: '{big_blob}'";
 
-			Bogus.Faker f = new Bogus.Faker();
+			//Bogus.Faker f = new Bogus.Faker();
 			
-			return await Task.FromResult(View(f));
+			return await Task.FromResult(View(/*f*/));
 		}
 
 		[HttpGet]

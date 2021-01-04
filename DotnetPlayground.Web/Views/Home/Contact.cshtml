@@ -1,18 +1,30 @@
-﻿@model Bogus.Faker
-<h2>Contact.</h2>
+﻿<h2>Contact.</h2>
 
 <h4>@Html.Raw(ViewData["Message"])</h4>
 
 <address>
-	@Model.Address.StreetName()<br />
-	@Model.Address.City(), @Model.Address.StateAbbr() @Model.Address.ZipCode()<br />
-	<abbr title="Phone">P:</abbr>
-	@Model.Phone.PhoneNumber()
+    <span id="spStreetName">Model.Address.StreetName()</span><br />
+    <span id="spCity">Model.Address.City()</span>, <span id="spState">Model.Address.StateAbbr()</span> <span id="spZipCode">Model.Address.ZipCode()</span><br />
+    <abbr title="Phone">P:</abbr>
+    <span id="spPhone">Model.Phone.PhoneNumber()</span>
 </address>
 <address>
-@{ 
-	string email0 = Model.Internet.ExampleEmail(), email1 = Model.Internet.ExampleEmail();
-}
-	<strong>Support:</strong> <a href="mailto:@email0">@email0</a><br />
-	<strong>Marketing:</strong> <a href="mailto:@email1">@email1</a>
+    <strong>Support:</strong> <a id="aEmail0" href="#">email0</a><br />
+    <strong>Marketing:</strong> <a id="aEmail1" href="#">email1</a>
 </address>
+<script type="text/javascript">
+    window.addEventListener('load', function () {
+        document.getElementById('spStreetName').innerText = faker.address.streetName();
+        document.getElementById('spCity').innerText = faker.address.city();
+        document.getElementById('spState').innerText = faker.address.stateAbbr();
+        document.getElementById('spZipCode').innerText = faker.address.zipCode();
+        document.getElementById('spPhone').innerText = faker.phone.phoneNumber();
+        const email0 = document.getElementById('aEmail0');
+        email0.innerText = faker.internet.exampleEmail();
+        email0.setAttribute('href', "mailto:" + email0.innerText);
+        const email1 = document.getElementById('aEmail1');
+        email1.innerText = faker.internet.exampleEmail();
+        email1.setAttribute('href', "mailto:" + email1.innerText);
+    });
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/faker@5.1.0/dist/faker.min.js" integrity="sha256-kqF8thF0BqtR99143Ag0a11ToyrQJ6eIaeG6sOLFkmM=" crossorigin="anonymous"></script>

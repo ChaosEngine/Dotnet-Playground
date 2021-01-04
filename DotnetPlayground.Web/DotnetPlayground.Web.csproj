@@ -37,7 +37,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.1" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="5.0.1" />
-		<PackageReference Include="Bogus" Version="32.0.2" />
+		<!--<PackageReference Include="Bogus" Version="32.0.2" />-->
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.1" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.1" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="5.0.0-alpha.2" />
