@@ -12,7 +12,7 @@ namespace DotnetPlayground.Controllers
 		private string GetCompiledViewCode()
 		{
 #if DEBUG
-			string view = @"Pages\WebCamGallery.cshtml";
+			string view = @"..\InkBall\src\InkBall.Module\Areas\InkBall\Pages\Game.cshtml";
 			if (System.IO.File.Exists(Path.Combine(Directory.GetCurrentDirectory(), view)))
 			{
 				var projectEngine = RazorProjectEngine.Create(

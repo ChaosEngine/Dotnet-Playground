@@ -1,25 +1,9 @@
-﻿@inject Microsoft.Extensions.Configuration.IConfiguration Conf
-@{
+﻿@{
+    ViewData["Title"] = "View code generator";
+
     string strongVal = "<strong>blah</strong>";
 }
-@section headElements
-{
-    <style type="text/css" media="screen">
-        .ace_editor {
-            border: 1px solid lightgray;
-            margin: auto;
-            height: 200px;
-            width: 100%;
-        }
-
-        .scrollmargin {
-            height: 80px;
-            text-align: center;
-        }
-    </style>
-}
-
-<h2>Testing code generator</h2>
+<h2>Testing view code generator</h2>
 <p>value = @Html.Raw(strongVal)</p>
 
 <pre id="editor">
@@ -29,14 +13,14 @@
 @section Scripts
 {
     <environment include="Development">
-        <script src="~/lib/ace-builds/ace.js" type="text/javascript" charset="utf-8"></script>
-        <script src="~/lib/ace-builds/mode-csharp.js" type="text/javascript" charset="utf-8"></script>
+        <script defer src="~/lib/ace-builds/ace.js" type="text/javascript" charset="utf-8"></script>
+        <script defer src="~/lib/ace-builds/mode-csharp.js" type="text/javascript" charset="utf-8"></script>
     </environment>
     <environment exclude="Development">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js" integrity="sha512-GZ1RIgZaSc8rnco/8CXfRdCpDxRCphenIiZ2ztLy3XQfCbQUSCuk8IudvNHxkRA3oUg6q0qejgN/qqyG1duv5Q==" crossorigin="anonymous"
+        <script defer src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js" integrity="sha512-GZ1RIgZaSc8rnco/8CXfRdCpDxRCphenIiZ2ztLy3XQfCbQUSCuk8IudvNHxkRA3oUg6q0qejgN/qqyG1duv5Q==" crossorigin="anonymous"
                 asp-fallback-src="~/lib/ace-builds/ace.js"
                 asp-fallback-test="window.ace"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/mode-csharp.min.js" integrity="sha512-cL0i7GkFrPc0HWnVglGkXqQ2gLB4YWtkik0VTGdInhetWpLck/Qlx6bBz4PB67Z4Iszj7VJSeM0AmP3teXg4Vg==" crossorigin="anonymous"
+        <script defer src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/mode-csharp.min.js" integrity="sha512-cL0i7GkFrPc0HWnVglGkXqQ2gLB4YWtkik0VTGdInhetWpLck/Qlx6bBz4PB67Z4Iszj7VJSeM0AmP3teXg4Vg==" crossorigin="anonymous"
                 asp-fallback-src="~/lib/ace-builds/mode-csharp.js"
                 asp-fallback-test="(window.ace && window.ace.require('ace/mode/csharp') !== undefined)"></script>
     </environment>
