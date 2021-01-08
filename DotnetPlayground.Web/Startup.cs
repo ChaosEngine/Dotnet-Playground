@@ -146,7 +146,7 @@ namespace DotnetPlayground
 			//inside image directory
 			btq.QueueBackgroundWorkItem(new FileWatcherBackgroundOperation(
 				directoryToWatch: Configuration["ImageDirectory"],
-				filterGlobing: "*.webm",
+				filterGlobing: "video.webm",
 				initialDelay: TimeSpan.FromSeconds(3),
 				onChangeFunction: (counter, dirToWatch, filter) =>
 				{
