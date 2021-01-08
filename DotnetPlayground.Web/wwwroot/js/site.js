@@ -84,7 +84,7 @@ $(function () {
 
 		links2disable.forEach(function (id) {
 			const el = document.getElementById(id);
-			el.removeAttribute("href");
+			//el.removeAttribute("href");
 			el.setAttribute("tabindex", "-1");
 			el.setAttribute("aria-disabled", "true");
 			el.classList.add("disabled");
