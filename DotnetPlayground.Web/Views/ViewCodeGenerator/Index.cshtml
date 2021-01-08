@@ -17,10 +17,10 @@
         <script defer src="~/lib/ace-builds/mode-csharp.js" type="text/javascript" charset="utf-8"></script>
     </environment>
     <environment exclude="Development">
-        <script defer src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js" integrity="sha512-GZ1RIgZaSc8rnco/8CXfRdCpDxRCphenIiZ2ztLy3XQfCbQUSCuk8IudvNHxkRA3oUg6q0qejgN/qqyG1duv5Q==" crossorigin="anonymous"
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js" integrity="sha512-GZ1RIgZaSc8rnco/8CXfRdCpDxRCphenIiZ2ztLy3XQfCbQUSCuk8IudvNHxkRA3oUg6q0qejgN/qqyG1duv5Q==" crossorigin="anonymous"
                 asp-fallback-src="~/lib/ace-builds/ace.js"
                 asp-fallback-test="window.ace"></script>
-        <script defer src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/mode-csharp.min.js" integrity="sha512-cL0i7GkFrPc0HWnVglGkXqQ2gLB4YWtkik0VTGdInhetWpLck/Qlx6bBz4PB67Z4Iszj7VJSeM0AmP3teXg4Vg==" crossorigin="anonymous"
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/mode-csharp.min.js" integrity="sha512-cL0i7GkFrPc0HWnVglGkXqQ2gLB4YWtkik0VTGdInhetWpLck/Qlx6bBz4PB67Z4Iszj7VJSeM0AmP3teXg4Vg==" crossorigin="anonymous"
                 asp-fallback-src="~/lib/ace-builds/mode-csharp.js"
                 asp-fallback-test="(window.ace && window.ace.require('ace/mode/csharp') !== undefined)"></script>
     </environment>
@@ -42,7 +42,7 @@
             }
         }
 
-        $(document).ready(function () {
+        window.addEventListener('load', function () {
             if (window.ace && ace) {
                 const editor = ace.edit("editor", {
                     maxLines: 30,

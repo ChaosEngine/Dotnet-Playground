@@ -58,7 +58,7 @@
 		sessionStorage.setItem("ApplicationUserSettings", to_store);
 	}
 
-	$(document).ready(function () {
+	window.addEventListener('load', function () {
 
 		$("#profile-form").submit(function(event) {
 			//event.preventDefault();

@@ -28,8 +28,8 @@
 
 @section scripts
 {
-	<script type="text/javascript">
-		$(function () {
+    <script type="text/javascript">
+        window.addEventListener('load', function () {
 			//$('.table form').validate({
 			$.validator.setDefaults({
 				debug: false,
@@ -77,6 +77,6 @@
 				alert("error: " + textStatus + " " + errorThrown);
 			});
 		}
-	</script>
+    </script>
 	@await Html.PartialAsync("_ValidationScriptsPartial")
 }

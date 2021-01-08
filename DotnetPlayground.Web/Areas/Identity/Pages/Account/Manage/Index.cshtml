@@ -65,7 +65,7 @@
 		sessionStorage.setItem("ApplicationUserSettings", to_store);
 	}
 
-	$(document).ready(function () {
+	window.addEventListener('load', function () {
 
 		if (sessionStorage.getItem("ApplicationUserSettings") === null) {
 			StoreApplicationUserSettings();

@@ -36,14 +36,14 @@
 	@await Html.PartialAsync("_CryptoJSScriptsPartial")
 
 	<environment names="Development">
-		<script src="~/js/workers/shared.js"></script>
-		<script src="~/js/workers/BruteForce.js"></script>
+		<script async src="~/js/workers/shared.js"></script>
+		<script async src="~/js/workers/BruteForce.js"></script>
 	</environment>
 
 	<script type="text/javascript">
 		let instance = null;
 
-		$(document).ready(function () {
+        window.addEventListener('load', function () {
 
 			$("#btnCrack").on("click", function (e) {
 				if(instance != null) {

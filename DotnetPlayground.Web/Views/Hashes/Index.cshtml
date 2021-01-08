@@ -70,7 +70,7 @@
 
 	<script type="text/javascript">
 		let g_LastTimeOfRun = new Date().getTime();
-		$(function () {
+        window.addEventListener('load', function () {
 			$.validator.addMethod('hashlength',
 				function (value, element, params) {
 					const kind = $(params).val();
