@@ -2,6 +2,7 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate|WebCamGalleryOnLoad" }]*/
 /*global forge, videojs, blueimp*/
 "use strict";
+//This code is not babel-trasnpilled to suport legacy browser; must be compatible with ALL
 
 var g_AppRootPath = location.pathname.match(/\/([^/]+)\//)[0],
 	g_LogPath = g_AppRootPath + "Home/ClientsideLog",
@@ -529,20 +530,23 @@ function WebCamGalleryOnLoad(isAnnualMovieListAvailable, liveImageExpireTimeInSe
 			tab.tab('show');
 
 		if (name === '#gallery-tab') {
-			$('#btnReplAllImg').prop('disabled', false);
+			$('#btnReplAllImg').show();
 			LoadFirstGallerImages();
 		}
 		else if (name === '#live-tab') {
 			$('#live').attr('src', liveImgAddr);
+			$('#btnReplAllImg').hide();
 		}
 		else if (name === '#youtube-tab') {
 			LoadYouTubeIFrame();
+			$('#btnReplAllImg').hide();
 		}
 		else if (name === '#video-tab') {
 			LoadVideoJS();
+			$('#btnReplAllImg').hide();
 		}
 		else
-			$('#btnReplAllImg').prop('disabled', true);
+			$('#btnReplAllImg').hide();
 	};
 	if (location.hash !== undefined && location.hash.length > 0) {
 		const name = location.hash;
@@ -551,25 +555,27 @@ function WebCamGalleryOnLoad(isAnnualMovieListAvailable, liveImageExpireTimeInSe
 			tab.tab('show');
 
 		if (name === '#gallery-tab') {
-			$('#btnReplAllImg').prop('disabled', false);
+			$('#btnReplAllImg').show();
 			LoadFirstGallerImages();
 		}
 		else if (name === '#video-tab') {
 			LoadVideoJS();
+			$('#btnReplAllImg').hide();
 		}
 		else if (name === '#youtube-tab') {
 			LoadYouTubeIFrame();
+			$('#btnReplAllImg').hide();
 		}
 		else
-			$('#btnReplAllImg').prop('disabled', true);
+			$('#btnReplAllImg').hide();
 	}
 	else
-		$('#btnReplAllImg').prop('disabled', true);
+		$('#btnReplAllImg').hide();
 
 	if ($("#myTab a.active").length <= 0)
 		$("#myTab a").first().tab('show');
 	if ($("#myTab a[href='#gallery-tab']").hasClass('active')) {
-		$('#btnReplAllImg').prop('disabled', false);
+		$('#btnReplAllImg').show();
 		LoadFirstGallerImages();
 	}
 	else if ($("#myTab a[href='#video-tab']").hasClass('active')) {
@@ -584,21 +590,23 @@ function WebCamGalleryOnLoad(isAnnualMovieListAvailable, liveImageExpireTimeInSe
 	$("#myTab a").on('click', function (e) {
 		if (e.target.hash !== undefined) {
 			if (e.target.hash.indexOf('gallery-tab') !== -1) {
-				$('#btnReplAllImg').prop('disabled', false);
+				$('#btnReplAllImg').show();
 				LoadFirstGallerImages();
 			}
 			else if (e.target.hash.indexOf('live-tab') !== -1) {
 				$('#live').attr('src', liveImgAddr);
-				$('#btnReplAllImg').prop('disabled', true);
+				$('#btnReplAllImg').hide();
 			}
 			else if (e.target.hash.indexOf('video-tab') !== -1) {
 				LoadVideoJS();
+				$('#btnReplAllImg').hide();
 			}
 			else if (e.target.hash.indexOf('youtube-tab') !== -1) {
 				LoadYouTubeIFrame();
+				$('#btnReplAllImg').hide();
 			}
 			else
-				$('#btnReplAllImg').prop('disabled', true);
+				$('#btnReplAllImg').hide();
 
 			const addr = e.target.hash;
 			let stateObj = {
