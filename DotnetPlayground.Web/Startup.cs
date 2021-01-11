@@ -146,11 +146,12 @@ namespace DotnetPlayground
 			//inside image directory
 			btq.QueueBackgroundWorkItem(new FileWatcherBackgroundOperation(
 				directoryToWatch: Configuration["ImageDirectory"],
-				filterGlobing: "video.webm",
+				filterGlobing: "*.webm",
 				initialDelay: TimeSpan.FromSeconds(3),
 				onChangeFunction: (counter, dirToWatch, filter) =>
 				{
-					string found = Directory.EnumerateFiles(dirToWatch, filter, SearchOption.TopDirectoryOnly).FirstOrDefault();
+					string found = Directory.EnumerateFiles(dirToWatch, filter, SearchOption.TopDirectoryOnly)
+						.FirstOrDefault(f => Path.GetFileName(f) == "video.webm");
 					if (found == null)
 						return (int)YouTubeUploadOperation.ErrorCodes.NO_VIDEO_FILE;
 					else if (string.IsNullOrEmpty(Configuration["YouTubeAPI:ClientSecretsFileName"]) ||
@@ -162,6 +163,7 @@ namespace DotnetPlayground
 						return (int)YouTubeUploadOperation.ErrorCodes.VIDEO_FILE_NOT_EXISTING;
 					else
 					{
+						//Console.Out.WriteLine($"found = {found}");
 						//btq.QueueBackgroundWorkItem(new BeepBackgroundOperation(500, 250));
 						btq.QueueBackgroundWorkItem(new YouTubeUploadOperation(found));
 						return (int)YouTubeUploadOperation.ErrorCodes.OK;
