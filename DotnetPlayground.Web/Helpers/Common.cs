@@ -158,9 +158,9 @@ namespace DotnetPlayground
 </script>";
 			TemplateActivationJSFragment = @"$('#reload').show().toast('show');";
             UseSignalR = true;
-            SignalRClientSide = @$"<script src='{appRootPath}lib/signalr/dist/browser/signalr.min.js'></script>";
-                //<script src='{appRootPath}lib/msgpack5/dist/msgpack5.min.js'></script>
-                //<script src='{appRootPath}lib/signalr-protocol-msgpack/dist/browser/signalr-protocol-msgpack.min.js'></script>";
+            SignalRClientSide = @$"<script src='{appRootPath}lib/signalr/browser/signalr.min.js'></script>";
+                //<script src='{appRootPath}lib/msgpack5/msgpack5.min.js'></script>
+                //<script src='{appRootPath}lib/signalr-protocol-msgpack/browser/signalr-protocol-msgpack.min.js'></script>";
             SignalRHubPath = appRootPath + "DevReloadSignalR";
         }
     }
