@@ -104,7 +104,7 @@
 				var thumbnail = img.Name;
 
 				@*<a href="~/WebCamImages/@(outo).jpg" title="@img.LastWriteTime.ToString("u")"><img alt='no img' class='inactive' /></a>*@
-				<a href="~/WebCamImages/@thumbnail" title="@img.LastWriteTime.ToString("u")">
+				<a href="WebCamImages/@thumbnail" title="@img.LastWriteTime.ToString("u")">
                     <picture>
                         <img alt='no img' class='inactive' />
                     </picture>
@@ -129,14 +129,14 @@
 {
 	<environment include="Development">
 		<script type="text/javascript" src="~/lib/blueimp-gallery/js/blueimp-gallery.min.js"></script>
-		<script type="text/javascript" src="~/lib/video.js/video.min.js"></script>
+		<script type="text/javascript" src="~/lib/video.js/alt/video.core.novtt.min.js"></script>
 	</environment>
     <environment exclude="Development">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.3.0/js/blueimp-gallery.min.js" integrity="sha512-ou+HAocCH7k3ASCmn1jxK14HyDl7Ff0jci4skAEWcGKoLx32MPNOnLWaLh08XodPcaG59N9YsDyYN5+qPrR7Ag==" crossorigin="anonymous"
                 asp-fallback-src="~/lib/blueimp-gallery/js/blueimp-gallery.min.js"
                 asp-fallback-test="window.jQuery && window.blueimp"></script>
-        <script src="https://cdn.jsdelivr.net/npm/video.js@7.10.2/dist/video.min.js" integrity="sha256-r9wMnTM1NXY6qb09/Yd0zl6R4l1/iPlO0E288Vo3Qio=" crossorigin="anonymous"
-                asp-fallback-src="~/lib/video.js/video.min.js"
+        <script src="https://cdn.jsdelivr.net/npm/video.js@7.10.2/dist/alt/video.core.novtt.min.js" integrity="sha256-JdAmoCu8Cz6kTx6tmxVzCsnRIKr7kUCFleSsd/+x4lo=" crossorigin="anonymous"
+                asp-fallback-src="~/lib/video.js/alt/video.core.novtt.min.js"
                 asp-fallback-test="window.jQuery && videojs.options"></script>
     </environment>
     <script type="text/javascript">

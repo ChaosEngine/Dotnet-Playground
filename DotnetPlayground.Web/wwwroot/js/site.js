@@ -205,7 +205,7 @@ window.onerror = function (msg, url, line, col, error) {
  */
 function WebCamGalleryOnLoad(isAnnualMovieListAvailable, liveImageExpireTimeInSeconds) {
 	let last_refresh = new Date();
-
+	const btnReplAllImg = $('#btnReplAllImg');
 	/**
 	 * on live img refresh click
 	 */
@@ -494,7 +494,7 @@ function WebCamGalleryOnLoad(isAnnualMovieListAvailable, liveImageExpireTimeInSe
 	//bluimp-gallery handling
 	$('#links').click(LoadBlueImpGallery);
 
-	$('#btnReplAllImg').click(ReplAllImg);
+	btnReplAllImg.click(ReplAllImg);
 
 	$("img.inactive").each(function (index, value) {
 		if (index < 7) {
@@ -530,23 +530,23 @@ function WebCamGalleryOnLoad(isAnnualMovieListAvailable, liveImageExpireTimeInSe
 			tab.tab('show');
 
 		if (name === '#gallery-tab') {
-			$('#btnReplAllImg').show();
+			btnReplAllImg.show();
 			LoadFirstGallerImages();
 		}
 		else if (name === '#live-tab') {
 			$('#live').attr('src', liveImgAddr);
-			$('#btnReplAllImg').hide();
+			btnReplAllImg.hide();
 		}
 		else if (name === '#youtube-tab') {
 			LoadYouTubeIFrame();
-			$('#btnReplAllImg').hide();
+			btnReplAllImg.hide();
 		}
 		else if (name === '#video-tab') {
 			LoadVideoJS();
-			$('#btnReplAllImg').hide();
+			btnReplAllImg.hide();
 		}
 		else
-			$('#btnReplAllImg').hide();
+			btnReplAllImg.hide();
 	};
 	if (location.hash !== undefined && location.hash.length > 0) {
 		const name = location.hash;
@@ -555,27 +555,27 @@ function WebCamGalleryOnLoad(isAnnualMovieListAvailable, liveImageExpireTimeInSe
 			tab.tab('show');
 
 		if (name === '#gallery-tab') {
-			$('#btnReplAllImg').show();
+			btnReplAllImg.show();
 			LoadFirstGallerImages();
 		}
 		else if (name === '#video-tab') {
 			LoadVideoJS();
-			$('#btnReplAllImg').hide();
+			btnReplAllImg.hide();
 		}
 		else if (name === '#youtube-tab') {
 			LoadYouTubeIFrame();
-			$('#btnReplAllImg').hide();
+			btnReplAllImg.hide();
 		}
 		else
-			$('#btnReplAllImg').hide();
+			btnReplAllImg.hide();
 	}
 	else
-		$('#btnReplAllImg').hide();
+		btnReplAllImg.hide();
 
 	if ($("#myTab a.active").length <= 0)
 		$("#myTab a").first().tab('show');
 	if ($("#myTab a[href='#gallery-tab']").hasClass('active')) {
-		$('#btnReplAllImg').show();
+		btnReplAllImg.show();
 		LoadFirstGallerImages();
 	}
 	else if ($("#myTab a[href='#video-tab']").hasClass('active')) {
@@ -590,23 +590,23 @@ function WebCamGalleryOnLoad(isAnnualMovieListAvailable, liveImageExpireTimeInSe
 	$("#myTab a").on('click', function (e) {
 		if (e.target.hash !== undefined) {
 			if (e.target.hash.indexOf('gallery-tab') !== -1) {
-				$('#btnReplAllImg').show();
+				btnReplAllImg.show();
 				LoadFirstGallerImages();
 			}
 			else if (e.target.hash.indexOf('live-tab') !== -1) {
 				$('#live').attr('src', liveImgAddr);
-				$('#btnReplAllImg').hide();
+				btnReplAllImg.hide();
 			}
 			else if (e.target.hash.indexOf('video-tab') !== -1) {
 				LoadVideoJS();
-				$('#btnReplAllImg').hide();
+				btnReplAllImg.hide();
 			}
 			else if (e.target.hash.indexOf('youtube-tab') !== -1) {
 				LoadYouTubeIFrame();
-				$('#btnReplAllImg').hide();
+				btnReplAllImg.hide();
 			}
 			else
-				$('#btnReplAllImg').hide();
+				btnReplAllImg.hide();
 
 			const addr = e.target.hash;
 			let stateObj = {
