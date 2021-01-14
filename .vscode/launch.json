@@ -10,9 +10,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/AspNetCore.ExistingDb/bin/Debug/net5.0/AspNetCore.ExistingDb.dll",
+            "program": "${workspaceFolder}/DotnetPlayground.Web/bin/Debug/net5.0/DotnetPlayground.Web.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/AspNetCore.ExistingDb",
+            "cwd": "${workspaceFolder}/DotnetPlayground.Web",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart",
             "launchBrowser": {

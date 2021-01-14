@@ -204,9 +204,8 @@ FakesAssemblies/
 # Visual Studio 6 workspace options file
 *.opt
 
-AspNetCore.ExistingDb/**/wwwroot/lib/
-/AspNetCore.ExistingDb/wwwroot/css/site.min.css
-/AspNetCore.ExistingDb/wwwroot/js/site.min.js
+DotnetPlayground.Web/**/wwwroot/lib/
+DotnetPlayground.Web/wwwroot/css/site.min.css
+DotnetPlayground.Web/wwwroot/js/site.min.js
 docker-*.env
-/AspNetCore.ExistingDb/package-lock.json
-/AspNetCore.ExistingDb/client_secrets.json
+DotnetPlayground.Web/package-lock.json

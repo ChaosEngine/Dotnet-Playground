@@ -1,6 +1,6 @@
 {
 	"eslint.enable": true,
-	"eslint.nodePath": "AspNetCore.ExistingDb/node_modules",
-	"eslint.options": { "configFile": "AspNetCore.ExistingDb/package.json" },
+	"eslint.nodePath": "DotnetPlayground.Web/node_modules",
+	"eslint.options": { "configFile": "DotnetPlayground.Web/package.json" },
 	"eslint.validate": [ "javascript" ]
 }

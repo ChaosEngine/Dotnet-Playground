@@ -23,7 +23,7 @@
             "type": "process",
             "args": [
                 "test",
-                "${workspaceFolder}/AspNetCore.ExistingDb.Tests/AspNetCore.ExistingDb.Tests.csproj"
+                "${workspaceFolder}/DotnetPlayground.Tests/DotnetPlayground.Tests.csproj"
             ],
             "group": {
                 "kind": "test",
@@ -37,10 +37,10 @@
         {
             "label": "publish",
             "windows": {
-                "command": "dotnet publish -c Release -r win-x64 -p:ShowLinkerSizeComparison=true -p:CrossGenDuringPublish=false AspNetCore.ExistingDb"
+                "command": "dotnet publish -c Release -r win-x64 -p:ShowLinkerSizeComparison=true -p:CrossGenDuringPublish=false DotnetPlayground.Web"
             },
             "linux": {
-                "command": "dotnet publish -c Release -r linux-x64 -p:ShowLinkerSizeComparison=true -p:CrossGenDuringPublish=false AspNetCore.ExistingDb"
+                "command": "dotnet publish -c Release -r linux-x64 -p:ShowLinkerSizeComparison=true -p:CrossGenDuringPublish=false DotnetPlayground.Web"
             },            
             "type": "shell",
             "presentation": {
@@ -54,7 +54,7 @@
             "type": "process",
             "args": [
                 "clean",
-                "${workspaceFolder}/AspNetCore.ExistingDb/AspNetCore.ExistingDb.csproj"
+                "${workspaceFolder}/DotnetPlayground.Web/DotnetPlayground.Web.csproj"
             ],
             "presentation": {
                 "reveal": "always"

@@ -3,5 +3,5 @@
 		"version": "5.0.101",
 		"rollForward": "latestMajor"
 	},
-	"projects": [ "AspNetCore.ExistingDb", "AspNetCore.ExistingDb.Tests", "Caching-MySQL", "InkBall", "IdentityManager2" ]
+	"projects": [ "DotnetPlayground.Web", "DotnetPlayground.Tests", "Caching-MySQL", "InkBall", "IdentityManager2" ]
 }

@@ -1,0 +1,151 @@
+﻿@page
+@inject Lib.AspNetCore.ServerTiming.IServerTiming serverTiming
+@model WebCamGallery
+@{
+	Model.Watch.Restart();
+	Layout = @"..\Views\Shared\_Layout.cshtml";
+	ViewData["Title"] = "WebCam Gallery";
+}
+@section headElements
+{
+	<environment include="Development">
+		<link rel="stylesheet" href="~/lib/blueimp-gallery/css/blueimp-gallery.min.css" />
+		<link rel="stylesheet" href="~/lib/video.js/video-js.min.css" />
+	</environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.3.0/css/blueimp-gallery.min.css" integrity="sha512-ZpixWcgC4iZJV/pBJcyuoyD9sUsW0jRVBBTDge61Fj99r1XQNv0LtVIrCwHcy61iVTM+/1cXXtak8ywIbyvOdw==" crossorigin="anonymous"
+              asp-fallback-href="~/lib/blueimp-gallery/css/blueimp-gallery.min.css"
+              asp-fallback-test-class="blueimp-gallery" asp-fallback-test-property="position" asp-fallback-test-value="fixed" />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/video.js@7.10.2/dist/video-js.min.css" integrity="sha256-/fXfq3QrnWyMYmF0zX6ImdI1DTraNCAq1vPofa2rs2w=" crossorigin="anonymous"
+              asp-fallback-href="~/lib/video.js/video-js.min.css"
+              asp-fallback-test-class="video-js" asp-fallback-test-property="position" asp-fallback-test-value="relative" />
+    </environment>
+}
+
+<p id="secretAction" style="display: none">
+	<button id="btnAnnualMovieGenerator" type="button" class="btn btn-primary" value="Generate"
+		data-toggle="collapse" data-target="#divAnnualMovieGenerator" aria-expanded="false" aria-controls="divAnnualMovieGenerator"
+  		title="Show all annual movie clips" disabled>Annual movie clips</button>
+</p>
+<div class="collapse card card-body" id="divAnnualMovieGenerator">
+    <table id="tbAnnualMovieGenerator" class="table table-sm table-striped table-borderless table-hover"></table>
+</div>
+
+<!-- Nav tabs -->
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+	@{
+		if (!string.IsNullOrEmpty(Model.LiveWebCamURL))
+		{
+			<li class="nav-item">
+				<a class="nav-link active" data-toggle="tab" href="#live-tab" role="tab" aria-controls="live-tab" aria-selected="true">Live</a>
+			</li>
+		}
+		if (!string.IsNullOrEmpty(Model.BaseWebCamURL))
+		{
+			<li class="nav-item">
+				<a class="nav-link" data-toggle="tab" href="#video-tab" role="tab" aria-controls="video-tab" aria-selected="false">Daily video</a>
+			</li>
+		}
+		if (!string.IsNullOrEmpty(Model.YouTubePlaylistId))
+		{
+			<li class="nav-item">
+				<a class="nav-link" data-toggle="tab" href="#youtube-tab" role="tab" aria-controls="youtube-tab" aria-selected="false">Youtube videos</a>
+			</li>
+		}
+		if (Model.ThumbnailJpgs != null)
+		{
+			<li class="nav-item" style="display:inherit">
+				<a class="nav-link" data-toggle="tab" href="#gallery-tab" role="tab" aria-controls="gallery-tab" aria-selected="false">Gallery</a>
+				<button id="btnReplAllImg" type="button" class="btn btn-secondary btn-sm" style="align-self:center;display:none" value="strng" title="Load all images">Load all</button>
+			</li>
+		}
+	}
+</ul>
+
+<div class="tab-content">
+@{
+	if (!string.IsNullOrEmpty(Model.LiveWebCamURL))
+	{
+  		<div class="tab-pane active" id="live-tab" role="tabpanel" aria-labelledby="live-tab">
+			<a id='aLive' title='live' style="width:1280px;height:960px">
+				<img id='live' alt='live' width="1280" height="960" class="img-fluid" data-last-modified="" src="~/images/no_img.svg" />
+			</a>
+		</div>
+	}
+	if (!string.IsNullOrEmpty(Model.BaseWebCamURL))
+	{
+  		<div class="tab-pane" id="video-tab" role="tabpanel" aria-labelledby="video-tab">
+			<!-- Begin VideoJS -->
+			<div class="video-js-box">
+				<video id="my-player" width="1280" height="960" class="video-js vjs-default-skin vjs-4-3 vjs-fluid vjs-big-play-centered"
+					controls preload="none" poster="@Model.BaseWebCamURL/poster.jpeg">
+					<source src="@Model.BaseWebCamURL/video.av1.webm" type="video/webm; codecs=av01.0.05M.08" />
+					<source src="@Model.BaseWebCamURL/video.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"' />
+					<source src="@Model.BaseWebCamURL/video.webm" type='video/webm; codecs="vp8, vorbis"' />
+				</video>
+			</div>
+			<!-- End VideoJS -->
+		</div>
+    }
+    if (!string.IsNullOrEmpty(Model.YouTubePlaylistId))
+    {
+		<div class="tab-pane embed-responsive embed-responsive-4by3" id="youtube-tab" role="tabpanel" aria-labelledby="youtube-tab">
+			<iframe width="1280" height="960" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
+				data-src="https://www.youtube.com/embed?listType=playlist&list=@(Model.YouTubePlaylistId)&autoplay=0" style="display:none"
+				allowfullscreen loading="lazy"></iframe>
+		</div>
+    }
+	if (Model.ThumbnailJpgs != null)
+	{
+		@:<div class="tab-pane" id="gallery-tab" role="tabpanel" aria-labelledby="gallery-tab">
+			@:<div id="links">
+			foreach (var img in Model.ThumbnailJpgs)
+			{
+				var thumbnail = img.Name;
+
+				@*<a href="~/WebCamImages/@(outo).jpg" title="@img.LastWriteTime.ToString("u")"><img alt='no img' class='inactive' /></a>*@
+				<a href="WebCamImages/@thumbnail" title="@img.LastWriteTime.ToString("u")">
+                    <picture>
+                        <img alt='no img' class='inactive' />
+                    </picture>
+				</a>
+			}
+			@:</div>
+			<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">
+				<div class="slides"></div>
+				<h3 class="title"></h3>
+				<a class="prev"></a>
+				<a class="next"></a>
+				<a class="close"></a>
+				<a class="play-pause"></a>
+				<ol class="indicator"></ol>
+			</div>
+		@:</div>
+	}
+}
+</div>
+
+@section Scripts
+{
+	<environment include="Development">
+		<script type="text/javascript" src="~/lib/blueimp-gallery/js/blueimp-gallery.min.js"></script>
+		<script type="text/javascript" src="~/lib/video.js/alt/video.core.novtt.min.js"></script>
+	</environment>
+    <environment exclude="Development">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.3.0/js/blueimp-gallery.min.js" integrity="sha512-ou+HAocCH7k3ASCmn1jxK14HyDl7Ff0jci4skAEWcGKoLx32MPNOnLWaLh08XodPcaG59N9YsDyYN5+qPrR7Ag==" crossorigin="anonymous"
+                asp-fallback-src="~/lib/blueimp-gallery/js/blueimp-gallery.min.js"
+                asp-fallback-test="window.jQuery && window.blueimp"></script>
+        <script src="https://cdn.jsdelivr.net/npm/video.js@7.10.2/dist/alt/video.core.novtt.min.js" integrity="sha256-JdAmoCu8Cz6kTx6tmxVzCsnRIKr7kUCFleSsd/+x4lo=" crossorigin="anonymous"
+                asp-fallback-src="~/lib/video.js/alt/video.core.novtt.min.js"
+                asp-fallback-test="window.jQuery && videojs.options"></script>
+    </environment>
+    <script type="text/javascript">
+        window.addEventListener('load', function () {
+			WebCamGalleryOnLoad(JSON.parse('@Model.IsAnnualMovieListAvailable()'.toLowerCase()), @MjpgStreamerHttpClient.LiveImageExpireTimeInSeconds);
+		});
+
+    </script>
+}
+@{ 
+	serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("view", Model.Watch.ElapsedMilliseconds, "after view is generated"));
+}
