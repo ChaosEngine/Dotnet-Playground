@@ -2,12 +2,12 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate|WebCamGalleryOnLoad" }]*/
 /*global forge, videojs, blueimp*/
 "use strict";
-//This code is not babel-trasnpilled to suport legacy browser; must be compatible with ALL
+//This code is not babel-transpiled to suport legacy browser; must be compatible with ALL
 
 var g_AppRootPath = location.pathname.match(/\/([^/]+)\//)[0],
 	g_LogPath = g_AppRootPath + "Home/ClientsideLog",
 	g_IsDevelopment = window.location.host.match(/:\d+/) !== null;
-	//g_Version = 'PROJECT_VERSION';
+//g_Version = 'PROJECT_VERSION';
 
 //executed immediatelly function
 /*(function () {
@@ -101,7 +101,7 @@ $(function () {
 		if ('serviceWorker' in navigator
 			//&& (navigator.serviceWorker.controller === null || navigator.serviceWorker.controller.state !== "activated")
 		) {
-			const swUrl = rootPath + 'sw.min.js?domain=' + encodeURIComponent(rootPath) + '&isDev=' + encodeURIComponent(isDev);
+			const swUrl = rootPath + 'sw' + (isDev === true ? '' : '.min') + '.js?domain=' + encodeURIComponent(rootPath) + '&isDev=' + encodeURIComponent(isDev);
 
 			navigator.serviceWorker
 				.register(swUrl, { scope: rootPath })
