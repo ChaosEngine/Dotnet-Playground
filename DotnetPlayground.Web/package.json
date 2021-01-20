@@ -49,13 +49,13 @@
 	},
 	"devDependencies": {
 		"@babel/core": "7.12.10",
-		"core-js": "3.8.2",
+		"core-js": "3.8.3",
 		"@babel/plugin-transform-runtime": "7.12.10",
 		"@babel/preset-env": "7.12.11",
 		"@babel/polyfill": "7.12.1",
 		"babel-loader": "8.2.2",
 		"eslint": "7.18.0",
-		"fs-extra": "9.0.1",
+		"fs-extra": "9.1.0",
 		"gulp": "4.0.2",
 		"gulp-babel": "8.0.0",
 		"gulp-terser": "2.0.1",
@@ -72,7 +72,7 @@
 		"worker-plugin": "5.0.0"
 	},
 	"dependencies": {
-		"bootstrap": "4.5.3",
+		"bootstrap": "4.6.0",
 		"bootstrap-table": "1.18.1",
 		"node-forge": "0.10.0",
 		"jquery": "3.5.1",
