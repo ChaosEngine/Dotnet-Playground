@@ -24,7 +24,7 @@
 	}
 }
 
-<form action="~/@(nameof(HashesController.ASPX))/@(nameof(HashesController.Search))" method="post" id="theForm" class="form-horizontal">
+<form action="~/@(HashesController.ASPX)/@(nameof(HashesController.Search))" method="post" id="theForm" class="form-horizontal">
 	<div asp-validation-summary="All" class="text-danger"></div>
 	<div class="form-group">
 		@Html.AntiForgeryToken()
