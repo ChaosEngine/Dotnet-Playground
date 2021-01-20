@@ -8,6 +8,7 @@
 }
 @section headElements
 {
+    <link rel="preload" href="images/no_img.svg" as="image">
 	<environment include="Development">
 		<link rel="stylesheet" href="~/lib/blueimp-gallery/css/blueimp-gallery.min.css" />
 		<link rel="stylesheet" href="~/lib/video.js/video-js.min.css" />
@@ -68,7 +69,7 @@
 	{
   		<div class="tab-pane active" id="live-tab" role="tabpanel" aria-labelledby="live-tab">
 			<a id='aLive' title='live' style="width:1280px;height:960px">
-				<img id='live' alt='live' width="1280" height="960" class="img-fluid" data-last-modified="" src="~/images/no_img.svg" />
+				<img id='live' alt='live' width="1280" height="960" class="img-fluid" data-last-modified="" src="images/no_img.svg" />
 			</a>
 		</div>
 	}
