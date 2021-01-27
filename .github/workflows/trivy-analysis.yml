@@ -15,7 +15,7 @@ jobs:
 
       - name: Build an image from Dockerfile
         run: |
-          DOCKER_BUILDKIT=1 docker build -t docker.io/chaosengine/dotnetplayground:${{ github.sha }} .
+          DOCKER_BUILDKIT=1 docker build -t docker.io/chaosengine/dotnetplayground:${{ github.sha }} -f Dockerfile.alpine .
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
