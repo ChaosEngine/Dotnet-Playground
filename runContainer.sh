@@ -11,4 +11,4 @@
 #		docker run -it --rm -p 8080:5000 --name dotnetplayground --env-file docker-env.txt -v /home/container/Dotnet-Playground/sockets:/sockets -v /home/container/Dotnet-Playground/shared:/shared -v /var/www/localhost/htdocs/webcamgallery:/webcamgallery chaosengine/dotnetplayground
 #		docker run -it --rm -p 8080:5000 --name dotnetplayground --env-file docker-env.txt -v /home/container/Dotnet-Playground/sockets:/sockets -v /home/container/Dotnet-Playground/shared:/shared -v /var/www/localhost/htdocs/webcamgallery:/webcamgallery chaosengine/dotnetplayground:alpine
 #
-docker run -d --rm -p 8080:5000 --name dotnetplayground --env-file docker-prod.env -v /run/mysqld:/sockets -v /home/container/Dotnet-Playground/shared:/shared -v /var/www/localhost/htdocs/webcamgallery:/webcamgallery:ro chaosengine/dotnetplayground:alpine5.0
+docker run -d --rm -p 8080:5000 --name dotnetplayground --env-file docker-prod.env -v /run/mysqld:/sockets -v $(pwd)/shared:/shared -v /var/www/localhost/htdocs/webcamgallery:/webcamgallery:ro chaosengine/dotnetplayground:alpine5.0
