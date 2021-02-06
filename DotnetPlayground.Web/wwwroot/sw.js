@@ -69,13 +69,13 @@ self.addEventListener('install', function (event) {
 		//cdn resources
 		RESOURCES = RESOURCES.concat([
 			'https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.3.0/css/blueimp-gallery.min.css',
-			'https://cdn.jsdelivr.net/npm/video.js@7.10.2/dist/video-js.min.css',
+			'https://cdn.jsdelivr.net/npm/video.js@7.11.4/dist/video-js.min.css',
 			'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.18.2/bootstrap-table.min.css',
 			'https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css',
 			'https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.3.0/js/blueimp-gallery.min.js',
-			'https://cdn.jsdelivr.net/npm/video.js@7.10.2/dist/alt/video.core.novtt.min.js',
+			'https://cdn.jsdelivr.net/npm/video.js@7.11.4/dist/alt/video.core.novtt.min.js',
 			'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.18.2/bootstrap-table.min.js',
-			//'https://cdn.jsdelivr.net/npm/faker@5.2.0/dist/faker.min.js',//questionable, big script ?
+			//'https://cdn.jsdelivr.net/npm/faker@5.3.1/dist/faker.min.js',//questionable, big script ?
 			'https://cdn.jsdelivr.net/npm/node-forge@0.10.0/dist/forge.min.js',
 			'https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js',
 			'https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js',
