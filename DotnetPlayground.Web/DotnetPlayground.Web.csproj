@@ -18,8 +18,8 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <!--<DefineConstants>TRACE;INCLUDE_ORACLE;INCLUDE_COSMOSDB</DefineConstants>-->
-    <DefineConstants>TRACE;INCLUDE_COSMOSDB</DefineConstants>
+    <DefineConstants>TRACE;INCLUDE_ORACLE;INCLUDE_COSMOSDB</DefineConstants>
+    <!--<DefineConstants>TRACE;INCLUDE_COSMOSDB</DefineConstants>-->
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -41,7 +41,7 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.3" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.2" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="5.0.0-alpha.2" />
-    <PackageReference Include="Oracle.EntityFrameworkCore" Version="3.19.80" Condition="$(DefineConstants.Contains('INCLUDE_ORACLE'))" />
+    <PackageReference Include="Oracle.EntityFrameworkCore" Version="5.21.1" Condition="$(DefineConstants.Contains('INCLUDE_ORACLE'))" />
 		<PackageReference Include="IdentityManager2.AspNetIdentity" Version="1.0.0" />
 		<PackageReference Include="Lib.AspNetCore.ServerTiming" Version="4.0.0" />
 		<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.13.1" Condition="$(DefineConstants.Contains('INCLUDE_COSMOSDB'))" />
