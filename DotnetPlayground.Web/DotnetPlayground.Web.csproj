@@ -45,7 +45,7 @@
 		<PackageReference Include="IdentityManager2.AspNetIdentity" Version="1.0.0" />
 		<PackageReference Include="Lib.AspNetCore.ServerTiming" Version="4.0.0" />
 		<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.13.1" Condition="$(DefineConstants.Contains('INCLUDE_COSMOSDB'))" />
-		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.50.0.2232" />
+		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.50.0.2238" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="5.0.3" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="5.0.3" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="5.0.3" />
