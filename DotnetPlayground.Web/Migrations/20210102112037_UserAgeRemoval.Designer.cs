@@ -65,7 +65,9 @@ namespace DotnetPlayground.Migrations
                     .ValueGeneratedOnAdd()
                     .HasAnnotation("Sqlite:Autoincrement", true)
                     .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
+#if INCLUDE_SQLSERVER
                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
+#endif
 #if INCLUDE_ORACLE
 					.HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn)
 #endif
