@@ -13,26 +13,19 @@ namespace DotnetPlayground.Models
 	[Authorize(Roles = "Administrator")]
 	public sealed class AnnualTimelapseModel : AnnualMovieListGeneratorModel
 	{
-		public sealed class SomeBag
-		{
-			public string Result { get; set; }
-
-			public IEnumerable<object[]> Product { get; set; }
-		}
-
 		public const string ASPX = "AnnualTimelapse";
 
 		public AnnualTimelapseModel(IConfiguration configuration) : base(configuration)
 		{
 		}
 
-		public async Task<IActionResult> OnPostSecretAction([FromServices] IServiceProvider services, SomeBag bag)
+		public async Task<IActionResult> OnPostSecretAction([FromServices] IServiceProvider services, AnnualTimelapseBag bag)
 		{
 			if (!base.IsAnnualMovieListAvailable(checkFileExistance: true))
 				return await Task.FromResult<IActionResult>(base.Forbid());
 
 			if (services == null)
-				return await Task.FromResult<IActionResult>(new JsonResult(new SomeBag { Result = "Error0" }));
+				return await Task.FromResult<IActionResult>(new JsonResult(new AnnualTimelapseBag { Result = "Error0" }));
 
 
 			var operation = new YouTubePlaylistDumpOperation();
@@ -41,7 +34,7 @@ namespace DotnetPlayground.Models
 			// var product = new List<object[]>();
 			// product.Add(new object[]{"aaa","bbbb","ccccc","dddd"});
 
-			var result = new SomeBag { Result = "Ok", Product = product };
+			var result = new AnnualTimelapseBag { Result = "Ok", Product = product };
 
 			return await Task.FromResult<IActionResult>(new JsonResult(result));
 		}
