@@ -18,8 +18,8 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <!--<DefineConstants>TRACE;INCLUDE_ORACLE;INCLUDE_COSMOSDB</DefineConstants>-->
-    <DefineConstants>TRACE;INCLUDE_COSMOSDB</DefineConstants>
+    <!--<DefineConstants>TRACE;INCLUDE_ORACLE;INCLUDE_COSMOSDB;INCLUDE_SQLSERVER</DefineConstants>-->
+    <DefineConstants>TRACE</DefineConstants>
 	</PropertyGroup>
 
 	<ItemGroup>
