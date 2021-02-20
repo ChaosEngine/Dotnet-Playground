@@ -61,7 +61,7 @@ namespace DotnetPlayground.Services
 						item.Snippet.Position,
 						item.Snippet.Title,
 						item.Snippet.ResourceId.VideoId,
-						DateTime.Parse(item.Snippet.PublishedAt)
+						item.Snippet.PublishedAt.GetValueOrDefault()
 					})
 					.Where(tab => (DateTime)tab[3] >= year_ago_date);
 
@@ -71,7 +71,7 @@ namespace DotnetPlayground.Services
 					{
 						foreach (var item in query)
 						{
-							var date = DateTime.Parse(item.Snippet.PublishedAt);
+							var date = item.Snippet.PublishedAt.GetValueOrDefault();
 							bool is_to_be_deleted = date < year_ago_date;
 							if (!is_to_be_deleted)
 								await writer.WriteLineAsync($"youtube {item.Snippet.ResourceId.VideoId}");

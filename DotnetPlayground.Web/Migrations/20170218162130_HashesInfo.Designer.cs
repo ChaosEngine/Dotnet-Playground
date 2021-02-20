@@ -21,7 +21,10 @@ namespace DotnetPlayground.Migrations
 #if INCLUDE_ORACLE
 				.HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn)
 #endif
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+#if INCLUDE_SQLSERVER
+                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
+#endif
+                ;
 
             modelBuilder.Entity("DotnetPlayground.Models.Blog", b =>
                 {
@@ -30,7 +33,10 @@ namespace DotnetPlayground.Migrations
 #if INCLUDE_ORACLE
 						.HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn)
 #endif
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+#if INCLUDE_SQLSERVER
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
+#endif
+                        ;
 
                     b.Property<string>("Url")
                         .IsRequired();
@@ -65,7 +71,10 @@ namespace DotnetPlayground.Migrations
 #if INCLUDE_ORACLE
 						.HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn)
 #endif
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+#if INCLUDE_SQLSERVER
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
+#endif
+                        ;
 
                     b.Property<int>("BlogId");
 

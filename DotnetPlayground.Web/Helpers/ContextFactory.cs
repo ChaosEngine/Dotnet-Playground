@@ -48,6 +48,7 @@ namespace DotnetPlayground
 					}
 					break;
 
+#if INCLUDE_SQLSERVER
 				case "sqlserver":
 				case "mssql":
 					conn_str = configuration.GetConnectionString("SqlServer");
@@ -64,6 +65,7 @@ namespace DotnetPlayground
 						});
 					}
 					break;
+#endif
 
 				case "sqlite":
 					conn_str = configuration.GetConnectionString("Sqlite");

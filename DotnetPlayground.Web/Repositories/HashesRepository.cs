@@ -219,6 +219,7 @@ namespace DotnetPlayground.Repositories
 			return sb.ToString();
 		}
 
+#if INCLUDE_SQLSERVER
 		/// <summary>
 		/// Searches the SQL server asynchronous.
 		/// </summary>
@@ -339,6 +340,7 @@ FETCH NEXT @limit ROWS ONLY
 				conn.Close();
 			}
 		}
+#endif
 
 		/// <summary>
 		/// Searches my SQL asynchronous.
@@ -846,8 +848,10 @@ OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 					{
 						case "mysqlconnection":
 							return await PagedSearchMySqlAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
+#if INCLUDE_SQLSERVER
 						case "sqlconnection":
 							return await PagedSearchSqlServerAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
+#endif
 						case "sqliteconnection":
 							return await PagedSearchSqliteAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
 						case "npsqlconnection":
