@@ -420,10 +420,12 @@ namespace DotnetPlayground
 
 			services.AddGraphQLServer()
 				.AddQueryType<Query>()
+				.AddMutationType<Mutation>()
 				.AddDataLoader<BlogByIdDataLoader>()
 				.AddFiltering()
 				.AddSorting()
-				.AddProjections();
+				.AddProjections()
+				;
 
 			services.AddSignalR(options =>
 			{
