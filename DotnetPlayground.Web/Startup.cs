@@ -52,6 +52,9 @@ using Microsoft.AspNetCore.StaticFiles;
 #if INCLUDE_MONGODB
 using DotnetPlayground.Repositories.Mongo;
 #endif
+using DotnetPlayground.GraphQL;
+using DotnetPlayground.Web.GraphQL.DataLoader;
+
 //[assembly: UserSecretsId("aspnet-DotnetPlayground-20161230022416")]
 
 namespace DotnetPlayground
@@ -403,13 +406,21 @@ namespace DotnetPlayground
             ConfigureDependencyInjection(services, env);
 
             services.AddDbContextPool<BloggingContext>(options =>
-            {
-                ContextFactory.ConfigureDBKind(options, Configuration);
-            });
-            services.AddDbContextPool<InkBall.Module.Model.GamesContext>(options =>
-            {
-                ContextFactory.ConfigureDBKind(options, Configuration);
-            });
+			{
+				ContextFactory.ConfigureDBKind(options, Configuration);
+			});
+			services.AddDbContextFactory<BloggingContext>(options =>
+			{
+				ContextFactory.ConfigureDBKind(options, Configuration);
+			});
+			services.AddDbContextPool<InkBall.Module.Model.GamesContext>(options =>
+			{
+				ContextFactory.ConfigureDBKind(options, Configuration);
+			});
+			services.AddDbContextFactory<InkBall.Module.Model.GamesContext>(options =>
+			{
+				ContextFactory.ConfigureDBKind(options, Configuration);
+			});
 
             ConfigureAuthenticationAuthorizationHelper(services, env);
 
@@ -461,6 +472,12 @@ namespace DotnetPlayground
             if (!string.IsNullOrEmpty(Configuration["DataProtection:CertFile"]))
                 protection_builder.ProtectKeysWithCertificate(X509CertificateLoader.LoadPkcs12FromFile(Configuration["DataProtection:CertFile"], Configuration["DataProtection:CertPassword"]));
 
+			services.AddGraphQLServer()
+				.AddQueryType<Query>()
+				.AddDataLoader<BlogByIdDataLoader>()
+				.AddFiltering()
+				.AddSorting()
+				.AddProjections();
 
             services.AddSignalR(options =>
             {
@@ -553,6 +570,7 @@ namespace DotnetPlayground
                     });
                     endpoints.PrepareSignalRForInkBall("/");
                     endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+					endpoints.MapGraphQL();
                     endpoints.MapRazorPages()
                         .WithStaticAssets();
                 });
