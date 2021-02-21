@@ -43,6 +43,8 @@ using IdentityManager2.Api.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MessagePack;
+using DotnetPlayground.GraphQL;
+using DotnetPlayground.Web.GraphQL.DataLoader;
 
 //[assembly: UserSecretsId("aspnet-DotnetPlayground-20161230022416")]
 
@@ -376,7 +378,15 @@ namespace DotnetPlayground
 			{
 				ContextFactory.ConfigureDBKind(options, Configuration);
 			});
+			services.AddDbContextFactory<BloggingContext>(options =>
+			{
+				ContextFactory.ConfigureDBKind(options, Configuration);
+			});
 			services.AddDbContextPool<InkBall.Module.Model.GamesContext>(options =>
+			{
+				ContextFactory.ConfigureDBKind(options, Configuration);
+			});
+			services.AddDbContextFactory<InkBall.Module.Model.GamesContext>(options =>
 			{
 				ContextFactory.ConfigureDBKind(options, Configuration);
 			});
@@ -408,6 +418,12 @@ namespace DotnetPlayground
 			if (!string.IsNullOrEmpty(Configuration["DataProtection:CertFile"]))
 				protection_builder.ProtectKeysWithCertificate(new X509Certificate2(Configuration["DataProtection:CertFile"], Configuration["DataProtection:CertPassword"]));
 
+			services.AddGraphQLServer()
+				.AddQueryType<Query>()
+				.AddDataLoader<BlogByIdDataLoader>()
+				.AddFiltering()
+				.AddSorting()
+				.AddProjections();
 
 			services.AddSignalR(options =>
 			{
@@ -475,6 +491,7 @@ namespace DotnetPlayground
 						endpoints.MapHub<DevReloadHub>("/DevReloadSignalR");
 #endif
 					endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+					endpoints.MapGraphQL();
 					endpoints.MapRazorPages();
 				});
 
