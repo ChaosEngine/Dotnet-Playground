@@ -35,6 +35,9 @@
   </ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="HotChocolate.Data.EntityFramework" Version="12.15.2" />
+		<PackageReference Include="HotChocolate.Types.Selections" Version="10.5.5" />
+		<PackageReference Include="HotChocolate.AspNetCore" Version="12.15.2" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.11" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.11">
 			<ExcludeAssets>buildTransitive</ExcludeAssets>
