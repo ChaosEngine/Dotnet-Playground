@@ -82,7 +82,7 @@
 				<li><a href="~/ViewCodeGenerator/" data-i18n="home.links.viewCodeGen">View-Code Generator</a></li>
 			</environment>
 			<li><a href="~/WebCamGallery" data-i18n="home.links.webCam">WebCam Gallery</a></li>
-			<li><a href="~/graphql">GraphQL</a></li>
+			<li><a href="~/graphql" data-i18n="home.links.graphql">GraphQL endpoint</a></li>
 			@if ((await AuthorizationService.AuthorizeAsync(User, null, IdentityManager2.IdentityManagerConstants.IdMgrAuthPolicy)).Succeeded)
 			{
 				<li><a href="~/idm/" data-i18n="home.links.identManager">Identity Manager</a></li>
