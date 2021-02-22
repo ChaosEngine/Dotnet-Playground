@@ -183,7 +183,8 @@
 			"unintError": "Unintentional Error",
 			"viewCodeGen": "View-Code Generator",
 			"webCam": "WebCam Gallery",
-			"identManager": "Identity Manager"
+			"identManager": "Identity Manager",
+			"graphql": "GraphQL endpoint"
 		}
 	},
 	"webCam": {

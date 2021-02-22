@@ -182,7 +182,8 @@
 			"unintError": "Niewymuszony błąd",
 			"viewCodeGen": "Generator kodu widoku",
 			"webCam": "Kamerka",
-			"identManager": "Zarządzanie tożsamością"
+			"identManager": "Zarządzanie tożsamością",
+			"graphql": "Endpoint GraphQL"
 		}
 	},
 	"webCam": {
