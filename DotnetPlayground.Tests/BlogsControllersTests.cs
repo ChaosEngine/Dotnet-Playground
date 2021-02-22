@@ -42,6 +42,11 @@ namespace Controllers
 				return Task.FromResult(lst.ToList());
 			});
 
+			mock.Setup(r => r.GetAllAsync(Moq.It.IsAny<string>())).Returns<string>((s) =>
+			{
+				return Task.FromResult(lst.ToList());
+			});
+
 			mock.Setup(r => r.AddAsync(Moq.It.IsAny<Blog>())).Returns<Blog>((s) =>
 			{
 				to_add = s;
@@ -83,6 +88,23 @@ namespace Controllers
 				{
 					lst.Remove(found);
 				}
+			});
+
+			mock.Setup(r => r.DeletePostAsync(Moq.It.IsAny<int>(), Moq.It.IsAny<int>())).Returns<int, int>((blogId, postId) =>
+			{
+				var post = lst.FirstOrDefault(b => b.BlogId == blogId && b.Post.Any(p => p.PostId == postId));
+				if (post != null)
+				{
+					lst.Remove(post);
+					return Task.FromResult(true);
+				}
+				return Task.FromResult(false);
+			});
+
+			mock.Setup(r => r.GetBlogWithPostsAsync(Moq.It.IsAny<int>())).Returns<int>((blogId) =>
+			{
+				var blog = lst.FirstOrDefault(p => p.BlogId == blogId);
+				return Task.FromResult(blog);
 			});
 
 			return mock;
@@ -214,7 +236,7 @@ namespace Controllers
 				};
 
 				// Act
-				var result = await controller.ItemAction(model, true, BlogActionEnum.Edit);
+				var result = await controller.BlogAction(model, true, BlogActionEnum.Edit);
 
 				// Assert
 				Assert.IsType<JsonResult>(result);
@@ -254,7 +276,7 @@ namespace Controllers
 				// Act
 				((Controller)controller).ModelState.AddModelError(nameof(Blog.Url), "bad id");
 
-				var result = await controller.ItemAction(model, true, BlogActionEnum.Edit);
+				var result = await controller.BlogAction(model, true, BlogActionEnum.Edit);
 
 				// Assert
 				Assert.IsType<JsonResult>(result);
@@ -291,7 +313,7 @@ namespace Controllers
 				};
 
 				// Act
-				var result = await controller.ItemAction(model, true, BlogActionEnum.Delete);
+				var result = await controller.BlogAction(model, true, BlogActionEnum.Delete);
 
 				// Assert
 				Assert.IsType<JsonResult>(result);
@@ -328,7 +350,7 @@ namespace Controllers
 				};
 
 				// Act
-				var result = await controller.ItemAction(model, true, BlogActionEnum.Delete);
+				var result = await controller.BlogAction(model, true, BlogActionEnum.Delete);
 
 				// Assert
 				Assert.IsType<NotFoundResult>(result);

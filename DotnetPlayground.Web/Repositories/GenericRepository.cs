@@ -27,6 +27,7 @@ namespace DotnetPlayground.Repositories
 		Task<Ent> GetSingleAsync(params object[] keyValues);
 		IQueryable<Ent> GetAll();
 		Task<List<Ent>> GetAllAsync();
+		Task<List<Ent>> GetAllAsync(string include);
 		int Save();
 		Task<int> SaveAsync();
 	}
@@ -64,6 +65,12 @@ namespace DotnetPlayground.Repositories
 		public virtual async Task<List<Ent>> GetAllAsync()
 		{
 			var tsk = _entities.Set<Ent>().ToListAsync();
+			return await tsk;
+		}
+
+		public virtual async Task<List<Ent>> GetAllAsync(string include)
+		{
+			var tsk = _entities.Set<Ent>().Include(include).ToListAsync();
 			return await tsk;
 		}
 

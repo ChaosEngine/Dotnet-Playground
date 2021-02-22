@@ -488,7 +488,7 @@ namespace Integration
 
 				var responseString = await response.Content.ReadAsStringAsync();
 				Assert.Contains("<title>Blogs - Dotnet Core Playground</title>", responseString);
-				Assert.Contains("function FormSubmit(form)", responseString);
+				Assert.Contains("function BlogFormSubmit(form)", responseString);
 			}
 		}
 
@@ -529,7 +529,7 @@ namespace Integration
 				data = new Blog
 				{
 					BlogId = 0,
-					Post = new[] { new Post { Content = $"aaaa {now.ToString()}", Title = "titla" } },
+					Post = new[] { new Post { Content = $"aaaa {now}", Title = "titla" } },
 					Url = $"http://www.inernetAt-{now.Year}-{now.Month}-{now.Day}.com/Content{now.Hour}-{now.Minute}-{now.Second}"
 				}.ToDictionary().ToList();
 				data.Add(new KeyValuePair<string, string>("__RequestVerificationToken", antiforgery_token));
@@ -553,7 +553,7 @@ namespace Integration
 				using (var index_response = await _client.GetAsync($"{_fixture.AppRootPath}{BlogsController.ASPX}/", HttpCompletionOption.ResponseContentRead))
 				{
 					var responseString = await index_response.Content.ReadAsStringAsync();
-					MatchCollection matches = Regex.Matches(responseString, @"\<form method=""post"" data-id=""([0-9].*)""\>");
+					MatchCollection matches = Regex.Matches(responseString, @"\<form method=""post"" class=""blogForm"" data-id=""([0-9].*)""\>");
 					Assert.NotEmpty(matches);
 					var ids = new List<int>(matches.Count);
 					foreach (Match m in matches)

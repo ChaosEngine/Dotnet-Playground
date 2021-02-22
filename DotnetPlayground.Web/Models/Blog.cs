@@ -12,6 +12,13 @@ namespace DotnetPlayground.Models
 		Edit = 0,
 		Delete = 1
 	}
+	public enum PostActionEnum
+	{
+		Unknown = -1,
+		EditPost = 0,
+		DeletePost = 1,
+		AddPost = 2
+	}
 
 	public partial class Post
 	{
@@ -22,8 +29,10 @@ namespace DotnetPlayground.Models
 		[Required]
 		public int BlogId { get; set; }
 
+		[Required]
 		public string Content { get; set; }
 
+		[Required]
 		public string Title { get; set; }
 
 		public virtual Blog Blog { get; set; }
@@ -49,10 +58,12 @@ namespace DotnetPlayground.Models
 
 		public Blog(Blog parent)
 		{
-			Post = new HashSet<Post>();
-
 			BlogId = parent.BlogId;
 			Url = parent.Url;
+
+			Post = parent.Post;
+			if (Post == null)
+				Post = new HashSet<Post>();
 		}
 	}
 
@@ -61,7 +72,7 @@ namespace DotnetPlayground.Models
 		[ProtectionValidation("Protected ID field is invalid")]
 		public string ProtectedID { get; set; }
 
-		public DecoratedBlog():base()
+		public DecoratedBlog() : base()
 		{
 		}
 
