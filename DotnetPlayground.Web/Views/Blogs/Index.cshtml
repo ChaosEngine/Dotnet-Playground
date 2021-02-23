@@ -138,19 +138,19 @@
 			}
 
 			resultArr.forEach(function (p) {
-				const heading = collapsible.querySelector("#heading_" + p.PostId);
+                const heading = collapsible.querySelector("#heading_" + blogId + '_' + p.PostId);
 				if (!heading) {
 					const card = document.createElement('div');
 					card.classList.add("card");
 					const str =
-	'<div class="card-header" id="heading_' + p.PostId + '">' +
+	'<div class="card-header" id="heading_' + blogId + '_' + p.PostId + '">' +
 		'<h2 class="mb-0 row">' +
-			'<button class="btn btn-link text-left align-content-start" type="button" data-toggle="collapse" data-target="#collapse_' + p.PostId + '" aria-expanded="false" aria-controls="collapse_' + p.PostId + '">' +
+			'<button class="btn btn-link text-left align-content-start" type="button" data-toggle="collapse" data-target="#collapse_' + blogId + '_' + p.PostId + '" aria-expanded="false" aria-controls="collapse_' + blogId + '_' + p.PostId + '">' +
 			p.Title +
 			'</button>' +
 		'</h2>' +
 	'</div>' +
-	'<div id="collapse_' + p.PostId + '" class="collapse" aria-labelledby="heading_' + p.PostId + '" data-parent="#accordion_' + blogId + '">' +
+	'<div id="collapse_' + blogId + '_' + p.PostId + '" class="collapse" aria-labelledby="heading_' + blogId + '_' + p.PostId + '" data-parent="#accordion_' + blogId + '">' +
 		'<div class="card-body">' +
 			'<form method="post" data-id="' + blogId + '" class="postForm">' +
 				'<div class="text-danger validation-summary-valid" data-valmsg-summary="true">' +
@@ -179,7 +179,7 @@
 					card.innerHTML = str;
                     acc.appendChild(card);
 
-					$("#collapse_" + p.PostId + " > div > form").validate({
+                    $("#collapse_" + blogId + '_' + p.PostId + " > div > form").validate({
 						debug: false,
 						submitHandler: function (form, event) {
 							if (form.classList.contains("postForm") === false)
@@ -191,7 +191,7 @@
 					});
 				}
 				else {
-                    heading.querySelector("#heading_" + p.PostId + " > h2 > button").innerText = p.Title;
+                    heading.querySelector("#heading_" + blogId + '_' + p.PostId + " > h2 > button").innerText = p.Title;
 				}
 
 				$("#addPost_" + blogId).collapse("hide");
@@ -223,7 +223,7 @@
 					return;
 				}
 				else if (result === "deleted post") {
-                    const card = document.querySelector("#heading_" + post_id).parentElement;
+                    const card = document.querySelector("#heading_" + blog_id + "_" + post_id).parentElement;
 					card.parentElement.removeChild(card);
 					return;
 				}
