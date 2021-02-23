@@ -108,7 +108,7 @@
 
 					$.ajax({
 						method: 'POST',
-						url: 'Blogs/GetPosts/' + blog_id,
+						url: '@(BlogsController.ASPX)/@(PostActionEnum.GetPosts)/' + blog_id,
 						dataType: 'json',
 						headers: hedrs
 					}).done(function (result, textStatus, jqXHR) {
@@ -117,13 +117,13 @@
 							return;
 						}
 						if (result && result.length > 0) {
-                            CreateAccordionPostContent(blog_id, collapsible, result);
+							CreateAccordionPostContent(blog_id, collapsible, result);
 						}
 
 					}).fail(function (jqXHR, textStatus, errorThrown) {
 						alert("error: " + textStatus + " " + errorThrown);
 					});
-				})
+				});
 			});
 		}
 
@@ -179,7 +179,7 @@
 					card.innerHTML = str;
                     acc.appendChild(card);
 
-                    $("#collapse_" + blogId + '_' + p.PostId + " > div > form").validate({
+                    $("#collapse_" + blogId + "_" + p.PostId + " > div > form").validate({
 						debug: false,
 						submitHandler: function (form, event) {
 							if (form.classList.contains("postForm") === false)
@@ -191,7 +191,7 @@
 					});
 				}
 				else {
-                    heading.querySelector("#heading_" + blogId + '_' + p.PostId + " > h2 > button").innerText = p.Title;
+                    heading.querySelector("#heading_" + blogId + "_" + p.PostId + " > h2 > button").innerText = p.Title;
 				}
 
 				$("#addPost_" + blogId).collapse("hide");
@@ -213,7 +213,7 @@
 
 			$.ajax({
                 method: operation === delete_operation ? 'DELETE' : 'POST',
-                url: 'Blogs/' + operation + '/' + blog_id + '/true',
+                url: '@(BlogsController.ASPX)/' + operation + '/' + blog_id + '/true',
 				dataType: 'json',
 				data: serialized_form,
 				headers: hedrs
@@ -252,7 +252,7 @@
 
 			$.ajax({
 				method: operation === delete_operation ? 'DELETE' : 'POST',
-				url: 'Blogs/' + operation + '/' + id + '/true',
+				url: '@(BlogsController.ASPX)/' + operation + '/' + id + '/true',
 				dataType: 'json',
 				data: serialized_form,
 				headers: operation === delete_operation ? hedrs : null
