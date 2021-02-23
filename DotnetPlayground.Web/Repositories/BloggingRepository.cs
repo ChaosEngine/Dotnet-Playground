@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
+using System.Linq;
 
 namespace DotnetPlayground.Repositories
 {
@@ -10,7 +11,7 @@ namespace DotnetPlayground.Repositories
 	{
 		Task<bool> DeletePostAsync(int blogId, int postId);
 
-		Task<Blog> GetBlogWithPostsAsync(int blogId);
+		Task<List<Post>> GetPostsFromBlogAsync(int blogId);
 	}
 
 	public class BloggingRepository : GenericRepository<BloggingContext, Blog>, IBloggingRepository
@@ -30,10 +31,10 @@ namespace DotnetPlayground.Repositories
 			return false;
 		}
 
-		public async Task<Blog> GetBlogWithPostsAsync(int blogId)
+		public async Task<List<Post>> GetPostsFromBlogAsync(int blogId)
 		{
-			var blog = await _entities.Blogs.Include(b => b.Post).FirstOrDefaultAsync(p => p.BlogId == blogId);
-			return blog;
+			var posts = await _entities.Posts.Where(p => p.BlogId == blogId).ToListAsync();
+			return posts;
 		}
 	}
 }

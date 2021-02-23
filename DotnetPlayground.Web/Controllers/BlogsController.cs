@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace DotnetPlayground.Controllers
 {
@@ -103,6 +105,15 @@ namespace DotnetPlayground.Controllers
 			}
 		}
 
+		[Route(@"{operation:regex(^(" + nameof(PostActionEnum.GetPosts) + ")$)}/{" + nameof(DecoratedBlog.BlogId) + "}")]
+		//[ValidateAntiForgeryToken]
+		public async Task<ActionResult> GetPosts(int blogId)
+		{
+			var lst = await _repo.GetPostsFromBlogAsync(blogId);
+
+			return Json(lst, new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault });
+		}
+
 		[Route(@"{operation:regex(^(" +
 			nameof(PostActionEnum.DeletePost) + "|" +
 			nameof(PostActionEnum.EditPost) + "|" +
@@ -154,7 +165,7 @@ namespace DotnetPlayground.Controllers
 			}
 		}
 
-		private async Task<ActionResult> AddPost(int blogId, Post post, bool ajax)
+		protected async Task<ActionResult> AddPost(int blogId, Post post, bool ajax)
 		{
 			var logger_tsk = Task.Run(() =>
 			{
@@ -175,13 +186,13 @@ namespace DotnetPlayground.Controllers
 					BlogId = post.BlogId,
 					Title = post.Title,
 					Content = post.Content
-				});
+				}, new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault });
 			}
 
 			return NotFound();
 		}
 
-		private async Task<ActionResult> DeletePost(int blogId, int postId, bool ajax)
+		protected async Task<ActionResult> DeletePost(int blogId, int postId, bool ajax)
 		{
 			var logger_tsk = Task.Run(() =>
 			{
@@ -201,7 +212,7 @@ namespace DotnetPlayground.Controllers
 				return NotFound();
 		}
 
-		private async Task<ActionResult> EditPost(int blogId, Post post, bool ajax)
+		protected async Task<ActionResult> EditPost(int blogId, Post post, bool ajax)
 		{
 			var logger_tsk = Task.Run(() =>
 			{
@@ -210,9 +221,9 @@ namespace DotnetPlayground.Controllers
 
 			if (blogId <= 0 || string.IsNullOrEmpty(post.Title) || string.IsNullOrEmpty(post.Content)) return BadRequest(ModelState);
 
-			Blog blog = await _repo.GetBlogWithPostsAsync(blogId);
-			Post db_post = blog.Post.FirstOrDefault(x => x.PostId == post.PostId);
-			if (blog != null && db_post != null)
+			var posts = await _repo.GetPostsFromBlogAsync(blogId);
+			Post db_post = posts.FirstOrDefault(x => x.PostId == post.PostId);
+			if (db_post != null)
 			{
 				db_post.Title = post.Title;
 				db_post.Content = post.Content;
@@ -224,7 +235,7 @@ namespace DotnetPlayground.Controllers
 					BlogId = post.BlogId,
 					Title = post.Title,
 					Content = post.Content
-				});
+				}, new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault });
 			}
 
 			return NotFound();

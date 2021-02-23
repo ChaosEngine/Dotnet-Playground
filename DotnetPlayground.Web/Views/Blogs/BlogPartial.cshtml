@@ -3,11 +3,10 @@
 @inject Microsoft.Extensions.Configuration.IConfiguration Conf
 
 <form method="post" class="blogForm" data-id="@Model.BlogId">
-    <label for="inp_@Model.BlogId" class='displaying text-break'>@Html.DisplayFor(modelItem => Model.Url)</label>
+    <label for="inp_@Model.BlogId" class='displaying text-break user-select-all'>@Html.DisplayFor(modelItem => Model.Url)</label>
     <div asp-validation-summary="All" class="text-danger"></div>
 
     <div class="form-group-sm form-inline">
-        @Html.AntiForgeryToken()
         <input type="hidden" id="ProtectedID_@Model.BlogId" name="ProtectedID" value="@Model.ProtectedID" />
         <input asp-for="Url" value="@Model.Url" id="inp_@Model.BlogId" placeholder="Url"
                class="edit form-control col-sm-12 col-md-12 col-lg-8" />
@@ -18,76 +17,81 @@
         <input name="operation" type="submit" value="@(BlogActionEnum.Delete)"
                formaction="~/@(BlogsController.ASPX)/@(BlogActionEnum.Delete)/@Model.BlogId/false"
                class="delete-case form-control col-sm-12 col-md-2 col-lg-1 mx-sm-1 mx-md-1 mx-lg-1 btn btn-danger" formnovalidate="formnovalidate" />
-        <a class="form-control col-sm-12 col-md-2 col-lg-1 mx-sm-1 mx-md-1 mx-lg-1 btn btn-outline-success" data-toggle="collapse" href="#collapse_@Model.BlogId" role="button" aria-expanded="false" aria-controls="collapse_@Model.BlogId">
+        @*<a class="form-control col-sm-12 col-md-2 col-lg-1 mx-sm-1 mx-md-1 mx-lg-1 btn btn-outline-success"
+           data-toggle="collapse" href="#collapse_@Model.BlogId" role="button" aria-expanded="false" aria-controls="collapse_@Model.BlogId">
             Posts
-        </a>
+        </a>*@
     </div>
 </form>
 
-@{
-    <div class="collapse mt-2" id="collapse_@Model.BlogId">
-        <a class="btn btn-outline-primary" data-toggle="collapse" href="#addPost_@Model.BlogId" role="button" aria-expanded="false" aria-controls="addPost_@Model.BlogId">
-            Add post form
-        </a>
-        <div class="collapse mt-2" id="addPost_@Model.BlogId">
-            <form method="post" action="~/@(BlogsController.ASPX)/@(PostActionEnum.AddPost)/@Model.BlogId/false" class="postForm" data-id="@Model.BlogId">
-                @Html.AntiForgeryToken()
-                <div asp-validation-summary="All" class="text-danger"></div>
-                <input type="hidden" name="BlogId" value="@Model.BlogId" />
-                <div class="form-group">
-                    <label for="addForm1_@Model.BlogId">Title</label>
-                    <input type="text" name="Title" class="form-control" id="addForm1_@Model.BlogId" placeholder="title"
-                           data-val="true" required data-val-required="The Title field is required.">
-                </div>
-                <div class="form-group">
-                    <label for="addForm2_@Model.BlogId">Content</label>
-                    <textarea name="Content" class="form-control" id="addForm2_@Model.BlogId" rows="3"
-                              data-val="true" required data-val-required="The Content field is required."></textarea>
-                </div>
-                <input name="operation" type="submit" value="AddPost" class="add-case form-control btn btn-primary" />
-            </form>
-        </div>
-            @if (Model.Post.Count > 0)
+@*<div class="collapse mt-2" id="collapse_@Model.BlogId">
+    <a class="btn btn-outline-primary" data-toggle="collapse" href="#addPost_@Model.BlogId" role="button" aria-expanded="false" aria-controls="addPost_@Model.BlogId">
+        New Post
+    </a>
+    <div class="collapse mt-2 card-body" id="addPost_@Model.BlogId">
+        <form method="post" action="~/@(BlogsController.ASPX)/@(PostActionEnum.AddPost)/@Model.BlogId/false" class="postForm" data-id="@Model.BlogId">
+            <div class="text-danger validation-summary-valid" data-valmsg-summary="true">
+                <ul>
+                    <li style="display:none"></li>
+                </ul>
+            </div>
+            <input type="hidden" name="BlogId" value="@Model.BlogId" />
+            <div class="form-group">
+                <label for="addForm1_@Model.BlogId">Title</label>
+                <input type="text" name="Title" class="form-control" id="addForm1_@Model.BlogId" placeholder="title"
+                        data-val="true" required data-val-required="The Title field is required.">
+            </div>
+            <div class="form-group">
+                <label for="addForm2_@Model.BlogId">Content</label>
+                <textarea name="Content" class="form-control" id="addForm2_@Model.BlogId" rows="3"
+                            data-val="true" required data-val-required="The Content field is required."></textarea>
+            </div>
+            <input name="operation" type="submit" value="AddPost" class="add-case form-control col-sm-12 col-md-4 col-lg-4 btn btn-primary" />
+        </form>
+    </div>
+    @if (Model.Post.Count > 0)
+    {
+        <div class="accordion my-2" id="accordion_@Model.BlogId">
+            @foreach (var p in Model.Post)
             {
-                <div class="accordion my-2" id="accordion_@Model.BlogId">
-                    @foreach (var p in Model.Post)
-                    {
-                        <div class="card">
-                            <div class="card-header" id="heading_@p.PostId">
-                                <h2 class="mb-0 row">
-                                    <button class="btn btn-link text-left align-content-start" type="button" data-toggle="collapse" data-target="#collapse_@p.PostId" aria-expanded="false" aria-controls="collapse_@p.PostId">
-                                        @p.Title
-                                    </button>
-                                </h2>
-                            </div>
-                            <div id="collapse_@p.PostId" class="collapse" aria-labelledby="heading_@p.PostId" data-parent="#accordion_@Model.BlogId">
-                                <div class="card-body">
-                                    <form method="post" data-id="@Model.BlogId" class="postForm">
-                                        @Html.AntiForgeryToken()
-                                        <div asp-validation-summary="All" class="text-danger"></div>
-                                        <input type="hidden" name="PostId" value="@p.PostId" data-val="true" required data-val-required="The PostID field is required." />
-                                        <div class="form-group">
-                                            <label for="editForm1_@Model.BlogId">Title</label>
-                                            <input type="text" name="Title" class="form-control" value="@p.Title" id="editForm1_@Model.BlogId" placeholder="title"
-                                                   data-val="true" required data-val-required="The Title field is required.">
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="editForm2_@Model.BlogId">Content</label>
-                                            <textarea name="Content" class="form-control" id="editForm2_@Model.BlogId" rows="3"
-                                                      data-val="true" required data-val-required="The Content field is required.">@p.Content</textarea>
-                                        </div>
-                                        <input name="operation" type="submit" value="@(PostActionEnum.EditPost)"
-                                               formaction="~/@(BlogsController.ASPX)/@(PostActionEnum.EditPost)/@Model.BlogId/false"
-                                               class="update-case form-control btn btn-secondary" />
-                                        <input name="operation" type="submit" value="@(PostActionEnum.DeletePost)"
-                                               formaction="~/@(BlogsController.ASPX)/@(PostActionEnum.DeletePost)/@Model.BlogId/false"
-                                               class="delete-case form-control btn btn-danger" formnovalidate="formnovalidate" />
-                                    </form>
+                <div class="card">
+                    <div class="card-header" id="heading_@p.PostId">
+                        <h2 class="mb-0 row">
+                            <button class="btn btn-link text-left align-content-start" type="button" data-toggle="collapse" data-target="#collapse_@p.PostId" aria-expanded="false" aria-controls="collapse_@p.PostId">
+                                @p.Title
+                            </button>
+                        </h2>
+                    </div>
+                    <div id="collapse_@p.PostId" class="collapse" aria-labelledby="heading_@p.PostId" data-parent="#accordion_@Model.BlogId">
+                        <div class="card-body">
+                            <form method="post" data-id="@Model.BlogId" class="postForm">
+                                <div class="text-danger validation-summary-valid" data-valmsg-summary="true">
+                                    <ul>
+                                        <li style="display:none"></li>
+                                    </ul>
                                 </div>
-                            </div>
+                                <input type="hidden" name="PostId" value="@p.PostId" data-val="true" required data-val-required="The PostID field is required." />
+                                <div class="form-group">
+                                    <label for="editForm1_@Model.BlogId">Title</label>
+                                    <input type="text" name="Title" class="form-control" value="@p.Title" id="editForm1_@Model.BlogId" placeholder="title"
+                                            data-val="true" required data-val-required="The Title field is required.">
+                                </div>
+                                <div class="form-group">
+                                    <label for="editForm2_@Model.BlogId">Content</label>
+                                    <textarea name="Content" class="form-control" id="editForm2_@Model.BlogId" rows="3"
+                                                data-val="true" required data-val-required="The Content field is required.">@p.Content</textarea>
+                                </div>
+                                <input name="operation" type="submit" value="@(PostActionEnum.EditPost)"
+                                        formaction="~/@(BlogsController.ASPX)/@(PostActionEnum.EditPost)/@Model.BlogId/false"
+                                        class="update-case form-control col-sm-12 col-md-4 col-lg-4 btn btn-secondary" />
+                                <input name="operation" type="submit" value="@(PostActionEnum.DeletePost)"
+                                        formaction="~/@(BlogsController.ASPX)/@(PostActionEnum.DeletePost)/@Model.BlogId/false"
+                                        class="delete-case form-control col-sm-12 col-md-4 col-lg-4 btn btn-danger" formnovalidate="formnovalidate" />
+                            </form>
                         </div>
-                    }
+                    </div>
                 </div>
             }
         </div>
-        }
+    }
+</div>*@

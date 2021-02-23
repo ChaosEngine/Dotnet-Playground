@@ -101,10 +101,10 @@ namespace Controllers
 				return Task.FromResult(false);
 			});
 
-			mock.Setup(r => r.GetBlogWithPostsAsync(Moq.It.IsAny<int>())).Returns<int>((blogId) =>
+			mock.Setup(r => r.GetPostsFromBlogAsync(Moq.It.IsAny<int>())).Returns<int>((blogId) =>
 			{
-				var blog = lst.FirstOrDefault(p => p.BlogId == blogId);
-				return Task.FromResult(blog);
+				var posts = lst.FirstOrDefault(p => p.BlogId == blogId).Post.ToList();
+				return Task.FromResult(posts);
 			});
 
 			return mock;

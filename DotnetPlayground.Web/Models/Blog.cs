@@ -17,7 +17,8 @@ namespace DotnetPlayground.Models
 		Unknown = -1,
 		EditPost = 0,
 		DeletePost = 1,
-		AddPost = 2
+		AddPost = 2,
+		GetPosts = 3
 	}
 
 	public partial class Post
