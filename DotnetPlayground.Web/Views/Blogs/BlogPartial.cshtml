@@ -3,7 +3,7 @@
 @inject Microsoft.Extensions.Configuration.IConfiguration Conf
 
 <form method="post" class="blogForm" data-id="@Model.BlogId">
-    <label for="inp_@Model.BlogId" class='displaying text-break user-select-all'>@Html.DisplayFor(modelItem => Model.Url)</label>
+    <label for="inp_@Model.BlogId" class='displaying text-break'>@Html.DisplayFor(modelItem => Model.Url)</label>
     <div asp-validation-summary="All" class="text-danger"></div>
 
     <div class="form-group-sm form-inline">

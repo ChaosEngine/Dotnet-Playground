@@ -16,9 +16,7 @@
     @foreach (var item in Model)
     {
         <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.BlogId)
-            </td>
+            <td>@Html.DisplayFor(modelItem => item.BlogId)</td>
             <td>
                 @await Html.PartialAsync("BlogPartial", item)
             </td>
@@ -51,7 +49,15 @@
 				const form_group = form.querySelector('div.form-group-sm');
 
 				let el = document.createElement('a');
-				el.classList.add("form-control", "col-sm-12", "col-md-2", "col-lg-1", "mx-sm-1", "mx-md-1", "mx-lg-1", "btn", "btn-outline-success");
+				el.classList.add("form-control");
+				el.classList.add("col-sm-12");
+				el.classList.add("col-md-2");
+				el.classList.add("col-lg-1");
+				el.classList.add("mx-sm-1");
+				el.classList.add("mx-md-1");
+				el.classList.add("mx-lg-1");
+				el.classList.add("btn");
+				el.classList.add("btn-outline-success");
 				el.setAttribute("data-toggle", "collapse");
 				el.setAttribute("href", '#collapse_' + blog_id);
 				el.setAttribute("role", "button");
@@ -62,7 +68,9 @@
 
 				el = document.createElement('div');
 				el.id = "collapse_" + blog_id;
-				el.classList.add("collapse", "mt-2", "unloaded");
+				el.classList.add("collapse");
+				el.classList.add("mt-2");
+				el.classList.add("unloaded");
 				el.innerHTML =
 '<a class="btn btn-outline-primary" data-toggle="collapse" href="#addPost_' + blog_id + '" role="button" aria-expanded="false" aria-controls="addPost_' + blog_id + '">' +
 	'New Post' +
@@ -80,7 +88,7 @@
 		'<div class="form-group">' +
 			'<label for="addForm2_' + blog_id + '">Content</label>' +
 			'<textarea name="Content" class="form-control" id="addForm2_' + blog_id + '" rows="3" placeholder="content"' +
-				' data-val="true" required data-val-required="The Content field is required.">' + '</textarea>' +
+				' data-val="true" required data-val-required="The Content field is required."></textarea>' +
 		'</div>' +
 		'<input name="operation" type="submit" value="AddPost" class="add-case form-control col-sm-12 col-md-4 col-lg-4 btn btn-primary" />' +
 	'</form>' +
@@ -96,10 +104,13 @@
 						return;
 
 					// Action to execute once the collapsible area is expanded
+					const hedrs = { 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value };
+
 					$.ajax({
-						method: 'GET',
+						method: 'POST',
 						url: 'Blogs/GetPosts/' + blog_id,
-						dataType: 'json'
+						dataType: 'json',
+						headers: hedrs
 					}).done(function (result, textStatus, jqXHR) {
 						if (result === "error") {
 							alert("error");
@@ -117,16 +128,17 @@
 		}
 
 		function CreateAccordionPostContent(blogId, collapsible, resultArr) {
-            let accordion = collapsible.querySelector("#accordion_" + blogId);
-			if (!accordion) {
-                accordion = document.createElement('div');
-                accordion.id = "accordion_" + blogId;
-                accordion.classList.add("accordion", "my-2");
-				collapsible.appendChild(accordion);
+            let acc = collapsible.querySelector("#accordion_" + blogId);
+            if (!acc) {
+                acc= document.createElement('div');
+                acc.id = "accordion_" + blogId;
+                acc.classList.add("accordion");
+                acc.classList.add("my-2");
+                collapsible.appendChild(acc);
 			}
 
-			for (const p of resultArr) {
-                const heading = collapsible.querySelector("#heading_" + p.PostId);
+			resultArr.forEach(function (p) {
+				const heading = collapsible.querySelector("#heading_" + p.PostId);
 				if (!heading) {
 					const card = document.createElement('div');
 					card.classList.add("card");
@@ -165,7 +177,7 @@
 		'</div>' +
 	'</div>';
 					card.innerHTML = str;
-					accordion.appendChild(card);
+                    acc.appendChild(card);
 
 					$("#collapse_" + p.PostId + " > div > form").validate({
 						debug: false,
@@ -180,15 +192,21 @@
 				}
 				else {
                     heading.querySelector("#heading_" + p.PostId + " > h2 > button").innerText = p.Title;
-                }
-			}
+				}
+
+				$("#addPost_" + blogId).collapse("hide");
+                $("#collapse_" + p.PostId).collapse("hide");
+				collapsible.querySelector("#addPost_" + blogId + " > form input[name='Title']").value = '';
+				collapsible.querySelector("#addPost_" + blogId + " > form textarea").value = '';
+            });
 		}
 
         function PostFormSubmit(form) {
 			const blog_id = $(form).data('id');
 			const serialized_form = $(form).serialize();
             const post_id = $(form).find("input[name='PostId']").val();
-			const operation = serialized_form.split('operation')[1].substr(1).trim();
+			//const operation = serialized_form.split('operation')[1].substr(1).trim();
+            const operation = document.activeElement.value;
 			const delete_operation = '@(PostActionEnum.DeletePost)';
 
             const hedrs = { 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value }
@@ -223,8 +241,8 @@
 			const id = $(form).data('id');
 			const url = $(form).find('#inp_' + id).val();
 			const serialized_form = $(form).serialize();
-			//const operation = $(form).find("input[type=submit]:focus").val();
-			const operation = serialized_form.split('operation')[1].substr(1).trim();
+			//const operation = serialized_form.split('operation')[1].substr(1).trim();
+			const operation = document.activeElement.value;
 			const delete_operation = '@(BlogActionEnum.Delete)';
 
 			if (operation != delete_operation && (url === '' || url === tr.find('label.displaying').text()))

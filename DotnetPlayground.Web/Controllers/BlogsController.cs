@@ -106,7 +106,7 @@ namespace DotnetPlayground.Controllers
 		}
 
 		[Route(@"{operation:regex(^(" + nameof(PostActionEnum.GetPosts) + ")$)}/{" + nameof(DecoratedBlog.BlogId) + "}")]
-		//[ValidateAntiForgeryToken]
+		[ValidateAntiForgeryToken]
 		public async Task<ActionResult> GetPosts(int blogId)
 		{
 			var lst = await _repo.GetPostsFromBlogAsync(blogId);
