@@ -19,7 +19,7 @@ var webroot = "./wwwroot/";
 
 var paths = {
 	js: webroot + "js/**/*.js",
-	minJs: webroot + "js/**/*{.min,Worker*}.js",
+	minJs: webroot + "js/**/*.min.js",
 	css: webroot + "css/**/*.css",
 	scss: webroot + "css/**/*.scss",
 	minCss: webroot + "css/**/*.min.css",
@@ -204,11 +204,11 @@ gulp.task("clean:inkball", function (cb) {
 });
 ////////////// [/Inkball Section] //////////////////
 
-gulp.task("clean:js", gulp.series("clean:inkball", function cleanConcatJsDest(cb) {
-	rimraf(paths.concatJsDest, cb);
+gulp.task("clean:js", gulp.series("clean:inkball", function cleanMinJs(cb) {
+	rimraf(paths.minJs, cb);
 	rimraf(paths.SWJsDest, cb);
-	rimraf(paths.BruteForceWorkerJsDest, cb);
-	rimraf(paths.SharedJsDest, cb);
+	//rimraf(paths.BruteForceWorkerJsDest, cb);
+	//rimraf(paths.SharedJsDest, cb);
 }));
 
 gulp.task("clean:css", function (cb) {
@@ -222,19 +222,20 @@ gulp.task("minSWJs:js", function () {
 	return fileMinifyJSFunction(paths.SWJs, paths.SWJsDest);
 });
 
-gulp.task("minBruteForceWorker:js", function () {
+/*gulp.task("minBruteForceWorker:js", function () {
 	return fileMinifyJSFunction(paths.BruteForceWorkerJs, paths.BruteForceWorkerJsDest);
 });
 
 gulp.task("Shared:js", function () {
 	return fileMinifyJSFunction(paths.SharedJs, paths.SharedJsDest);
-});
+});*/
 
-gulp.task("min:js", gulp.series("minSWJs:js", "minBruteForceWorker:js", "Shared:js",
+gulp.task("min:js", gulp.series("minSWJs:js",// "minBruteForceWorker:js", "Shared:js",
 	function concatJsDest() {
 		return gulp.src([paths.js, "!" + paths.minJs], { base: "." })
-			.pipe(concat(paths.concatJsDest))
+			//.pipe(concat(paths.concatJsDest))
 			.pipe(terser())
+			.pipe(rename({ suffix: '.min' }))
 			.pipe(gulp.dest("."));
 	}
 ));

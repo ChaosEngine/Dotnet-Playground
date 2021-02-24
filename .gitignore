@@ -205,7 +205,7 @@ FakesAssemblies/
 *.opt
 
 DotnetPlayground.Web/**/wwwroot/lib/
-DotnetPlayground.Web/wwwroot/css/site.min.css
-DotnetPlayground.Web/wwwroot/js/site.min.js
+DotnetPlayground.Web/wwwroot/**/*.min.css
+DotnetPlayground.Web/wwwroot/**/*.min.js
 docker-*.env
 DotnetPlayground.Web/package-lock.json

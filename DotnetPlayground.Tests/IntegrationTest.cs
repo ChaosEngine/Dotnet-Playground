@@ -488,7 +488,7 @@ namespace Integration
 
 				var responseString = await response.Content.ReadAsStringAsync();
 				Assert.Contains("<title>Blogs - Dotnet Core Playground</title>", responseString);
-				Assert.Contains("function BlogFormSubmit(form)", responseString);
+				Assert.Contains("js/Blogs.", responseString);//test loading main js script
 			}
 		}
 
@@ -638,6 +638,7 @@ namespace Integration
 
 				var responseString = await response.Content.ReadAsStringAsync();
 				Assert.Contains("<title>WebCam Gallery - Dotnet Core Playground</title>", responseString);
+				Assert.Contains("/js/WebCamGallery.", responseString);//test loading main js script
 				Assert.Contains("WebCamGalleryOnLoad", responseString);
 
 				if (!string.IsNullOrEmpty(_fixture.ImageDirectory))
