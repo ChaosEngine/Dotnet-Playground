@@ -2,6 +2,7 @@ using DotnetPlayground;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -90,8 +91,35 @@ namespace DotnetPlayground
 #if INCLUDE_ORACLE
 				case "oracle":
 					conn_str = configuration.GetConnectionString("Oracle");
+
 					if (dbContextOpts != null)
+					{
+						if (string.IsNullOrEmpty(OracleConfiguration.TnsAdmin))
+						{
+							//WALLET_LOCATION=(SOURCE=(METHOD=file)(METHOD_DATA=(DIRECTORY=c:\\Users\\user\\.blablabla\\wallet)))
+							string[] tab = conn_str
+								.Replace("\r", string.Empty)
+								.Replace("\n", string.Empty)
+								.Replace(")", string.Empty)
+								.Replace(" =", "=")
+								.Split("WALLET_LOCATION=", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+							if (tab.Length > 0)
+							{
+								tab = tab[1].Split("DIRECTORY=", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+								if (tab.Length > 0)
+								{
+									string directory = tab[1];
+									if (!string.IsNullOrEmpty(directory))
+									{
+										OracleConfiguration.TnsAdmin = directory;
+										OracleConfiguration.WalletLocation = OracleConfiguration.TnsAdmin;
+									}
+								}
+							}
+						}
+
 						dbContextOpts.UseOracle(conn_str);
+					}
 					break;
 #endif
 

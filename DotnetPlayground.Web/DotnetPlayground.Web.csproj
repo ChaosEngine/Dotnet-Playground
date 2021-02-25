@@ -19,8 +19,11 @@
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <!--<DefineConstants>TRACE;INCLUDE_ORACLE;INCLUDE_COSMOSDB;INCLUDE_SQLSERVER</DefineConstants>-->
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;INCLUDE_ORACLE</DefineConstants>
 	</PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>INCLUDE_ORACLE</DefineConstants>
+  </PropertyGroup>
 
 	<ItemGroup>
 		<None Update="wwwroot\**\*;Views\**\*">
