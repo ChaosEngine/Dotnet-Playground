@@ -1,7 +1,8 @@
 ﻿/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "BlogsOnLoad" }]*/
 "use strict";
+
 function BlogsOnLoad() {
-	////////////functions/////////////
+	////////////functions start/////////////
 	function CreateAccordionPostContent(blogId, collapsible, resultArr) {
 		let acc = collapsible.querySelector("#accordion_" + blogId);
 		if (!acc) {
@@ -13,34 +14,35 @@ function BlogsOnLoad() {
 		}
 
 		resultArr.forEach(function (p) {
-			const heading = collapsible.querySelector("#heading_" + blogId + '_' + p.PostId);
+			const postId = p.PostId, title = p.Title, content = p.Content;
+			const heading = collapsible.querySelector("#heading_" + blogId + '_' + postId);
 			if (!heading) {
 				const card = document.createElement('div');
 				card.classList.add("card");
 				const str =
-					'<div class="card-header" id="heading_' + blogId + '_' + p.PostId + '">' +
+					'<div class="card-header" id="heading_' + blogId + '_' + postId + '">' +
 					'<h2 class="mb-0 row">' +
-					'<button class="btn btn-link text-left align-content-start" type="button" data-toggle="collapse" data-target="#collapse_' + blogId + '_' + p.PostId + '" aria-expanded="false" aria-controls="collapse_' + blogId + '_' + p.PostId + '">' +
-					p.Title +
+					'<button class="btn btn-link text-left align-content-start" type="button" data-toggle="collapse" data-target="#collapse_' + blogId + '_' + postId + '" aria-expanded="false" aria-controls="collapse_' + blogId + '_' + postId + '">' +
+					title +
 					'</button>' +
 					'</h2>' +
 					'</div>' +
-					'<div id="collapse_' + blogId + '_' + p.PostId + '" class="collapse" aria-labelledby="heading_' + blogId + '_' + p.PostId + '" data-parent="#accordion_' + blogId + '">' +
+					'<div id="collapse_' + blogId + '_' + postId + '" class="collapse" aria-labelledby="heading_' + blogId + '_' + postId + '" data-parent="#accordion_' + blogId + '">' +
 					'<div class="card-body">' +
 					'<form method="post" data-id="' + blogId + '" class="postForm">' +
 					'<div class="text-danger validation-summary-valid" data-valmsg-summary="true">' +
 					'<ul><li style="display:none"></li></ul>' +
 					'</div>' +
-					'<input type="hidden" name="PostId" value="' + p.PostId + '" data-val="true" required data-val-required="The PostID field is required." />' +
+					'<input type="hidden" name="PostId" value="' + postId + '" data-val="true" required data-val-required="The PostID field is required." />' +
 					'<div class="form-group">' +
-					'<label for="editForm1_' + p.PostId + '">Title</label>' +
-					'<input type="text" name="Title" class="form-control" value="' + p.Title + '" id="editForm1_' + p.PostId + '" placeholder="title"' +
+					'<label for="editForm1_' + postId + '">Title</label>' +
+					'<input type="text" name="Title" class="form-control" value="' + title + '" id="editForm1_' + postId + '" placeholder="title"' +
 					' data-val="true" required data-val-required="The Title field is required.">' +
 					'</div>' +
 					'<div class="form-group">' +
-					'<label for="editForm2_' + p.PostId + '">Content</label>' +
-					'<textarea name="Content" class="form-control" id="editForm2_' + p.PostId + '" rows="3" placeholder="content"' +
-					' data-val="true" required data-val-required="The Content field is required.">' + p.Content + '</textarea>' +
+					'<label for="editForm2_' + postId + '">Content</label>' +
+					'<textarea name="Content" class="form-control" id="editForm2_' + postId + '" rows="3" placeholder="content"' +
+					' data-val="true" required data-val-required="The Content field is required.">' + content + '</textarea>' +
 					'</div>' +
 					'<input name="operation" type="submit" value="EditPost"' +
 					' formaction="Blogs/EditPost/' + blogId + '/true"' +
@@ -55,7 +57,7 @@ function BlogsOnLoad() {
 				acc.appendChild(card);
 
 				//////////Enable validators for newly created forms////////////
-				$("#collapse_" + blogId + "_" + p.PostId + " > div > form").validate({
+				$("#collapse_" + blogId + "_" + postId + " > div > form").validate({
 					debug: false,
 					submitHandler: function (form) {
 						if (form.classList.contains("postForm") === false)
@@ -67,11 +69,11 @@ function BlogsOnLoad() {
 				});
 			}
 			else {
-				heading.querySelector("#heading_" + blogId + "_" + p.PostId + " > h2 > button").innerText = p.Title;
+				heading.querySelector("#heading_" + blogId + "_" + postId + " > h2 > button").innerText = title;
 			}
 
 			$("#addPost_" + blogId).collapse("hide");
-			$("#collapse_" + p.PostId).collapse("hide");
+			$("#collapse_" + postId).collapse("hide");
 			collapsible.querySelector("#addPost_" + blogId + " > form input[name='Title']").value = '';
 			collapsible.querySelector("#addPost_" + blogId + " > form textarea").value = '';
 		});
