@@ -45,44 +45,8 @@
 	</environment>
 
 	<script type="text/javascript">
-		let instance = null;
-
         window.addEventListener('load', function () {
-
-			$("#btnCrack").on("click", function (e) {
-				if(instance != null) {
-					instance.clear();
-					instance = null;
-					$("#btnCrack").text('Crack');
-					return;
-				}
-
-				const passToHash = $('#txtHash').val();
-				const alphabet = $('#txtAlphabet').val();
-				
-				if (passToHash == null || passToHash == '' || alphabet == null || alphabet == '') {
-					$('.global-message').text('nothing to decode');
-					return;
-				}
-				$("#btnCrack").text('Cancel');
-
-				const workerCount = $('#ddlWorkerCount').val();
-				const updateRate = $('#ddlUpdateRate').val();
-
-				const hashToCrack = hashExp(passToHash);
-				instance = new BruteForce(document,
-					workerCount,//worker count
-					updateRate,
-					alphabet,//alphabet from which to start crunching hashes
-					hashToCrack,//hashToCrack
-					passToHash.length,//pass characters length
-					function(foundPass) {
-						$("#btnCrack").text('Reset');
-					}
-				);
-				instance.clear();
-				instance.run();
-			});
+			BruteForceOnLoad();
 		});
 	</script>
 }
