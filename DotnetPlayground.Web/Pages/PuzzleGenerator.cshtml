@@ -1,0 +1,31 @@
+﻿@page
+@model DotnetPlayground.Pages.PuzzleGeneratorModel
+@{
+    Layout = @"..\Views\Shared\_Layout.cshtml";
+    ViewData["Title"] = "Puzzle Generator";
+}
+<h1>Puzzle Generator</h1>
+
+<h2>Combine PNG/JPG/AVIF image with SVG puzzle pattern. Aply scaling, rotation, transform design to fit your needs.</h2>
+
+<p>
+    <img src="~/images/puzzles/fond-puzzle.svg" class="img-fluid" alt="fond puzzle" />
+    <img src="~/images/puzzles/Jigsaw-Puzzle-Pieces.svg" class="img-fluid" alt="Jigsaw Puzzle Pieces" />
+    <img src="~/images/puzzles/jigsaw10x14.svg" class="img-fluid" alt="10x14" />
+    <img src="~/images/puzzles/puzzle.svg" class="img-fluid" alt="puzzle" />
+</p>
+
+@section scripts
+{
+    <environment include="Development">
+        <script type="text/javascript" src="~/js/Puzzles.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script type="text/javascript" src="~/js/Puzzles.min.js"></script>
+    </environment>
+    <script type="text/javascript">
+        window.addEventListener('load', function () {
+            PuzzlesOnLoad();
+        });
+    </script>
+}
