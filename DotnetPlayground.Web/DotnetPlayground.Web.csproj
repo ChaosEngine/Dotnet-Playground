@@ -15,13 +15,14 @@
 		<PublishTrimmed>true</PublishTrimmed>
 		<TrimMode>link</TrimMode>
 		<SuppressTrimAnalysisWarnings>false</SuppressTrimAnalysisWarnings>
+		<Configurations>Debug;Release;Oracle</Configurations>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <!--<DefineConstants>TRACE;INCLUDE_ORACLE;INCLUDE_COSMOSDB;INCLUDE_SQLSERVER;INCLUDE_POSTGRES</DefineConstants>-->
     <DefineConstants>TRACE;INCLUDE_ORACLE</DefineConstants>
 	</PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Oracle|AnyCPU'">
     <DefineConstants>INCLUDE_ORACLE</DefineConstants>
   </PropertyGroup>
 
