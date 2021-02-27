@@ -1,0 +1,61 @@
+# syntax = docker/dockerfile:experimental
+FROM mcr.microsoft.com/dotnet/sdk:5.0-alpine3.12 AS build
+RUN --mount=type=cache,target=/root/.nuget --mount=type=cache,target=/root/.local/share/NuGet --mount=type=cache,target=/root/.npm/ --mount=type=cache,target=./DotnetPlayground.Web/node_modules
+RUN apk add --update nodejs-current nodejs-npm
+WORKDIR /build
+
+ENV DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/net5.0/Blogging.db"
+ARG SOURCE_COMMIT
+ARG SOURCE_BRANCH
+
+COPY ./InkBall/src/InkBall.Module/InkBall.Module.csproj ./InkBall/src/InkBall.Module/InkBall.Module.csproj
+COPY ./InkBall/test/InkBall.Tests/InkBall.Tests.csproj ./InkBall/test/InkBall.Tests/InkBall.Tests.csproj
+COPY ./DotnetPlayground.Tests/DotnetPlayground.Tests.csproj ./DotnetPlayground.Tests/DotnetPlayground.Tests.csproj
+COPY ./Caching-MySQL/src/Pomelo.Extensions.Caching.MySqlConfig.Tools/Pomelo.Extensions.Caching.MySqlConfig.Tools.csproj ./Caching-MySQL/src/Pomelo.Extensions.Caching.MySqlConfig.Tools/Pomelo.Extensions.Caching.MySqlConfig.Tools.csproj
+COPY ./Caching-MySQL/src/Pomelo.Extensions.Caching.MySql/Pomelo.Extensions.Caching.MySql.csproj ./Caching-MySQL/src/Pomelo.Extensions.Caching.MySql/Pomelo.Extensions.Caching.MySql.csproj
+COPY ./Caching-MySQL/test/Pomelo.Extensions.Caching.MySql.Tests/Pomelo.Extensions.Caching.MySql.Tests.csproj ./Caching-MySQL/test/Pomelo.Extensions.Caching.MySql.Tests/Pomelo.Extensions.Caching.MySql.Tests.csproj
+COPY ./IdentityManager2/src/IdentityManager2/IdentityManager2.csproj ./IdentityManager2/src/IdentityManager2/IdentityManager2.csproj
+COPY ./IdentityManager2/src/IdentityManager2/Assets/ ./IdentityManager2/src/IdentityManager2/Assets/
+COPY ./DevReload/DevReload.csproj ./DevReload/DevReload.csproj
+COPY ./DotnetPlayground.Web/DotnetPlayground.Web.csproj ./DotnetPlayground.Web/DotnetPlayground.Web.csproj
+COPY ./*.sln ./NuGet.config ./
+RUN dotnet restore -r alpine-x64
+
+COPY . .
+RUN sed -i -e "s/GIT_HASH/$SOURCE_COMMIT/g" -e "s/GIT_BRANCH/$SOURCE_BRANCH/g" DotnetPlayground.Web/Views/Home/About.cshtml
+RUN dotnet test -v m
+RUN dotnet publish -c Oracle -r alpine-x64 \
+    #-p:PublishWithAspNetCoreTargetManifest=false #remove this after prerelease patch publish \
+	/p:ShowLinkerSizeComparison=true /p:CrossGenDuringPublish=false \
+    DotnetPlayground.Web
+
+
+
+
+
+FROM mcr.microsoft.com/dotnet/runtime-deps:5.0-alpine3.12
+RUN apk add tzdata
+WORKDIR /app
+ENV USER=nobody TZ=Europe/Warsaw ASPNETCORE_URLS=http://+:5000
+COPY --from=build --chown="$USER":"$USER" /build/DotnetPlayground.Web/bin/Oracle/net5.0/alpine-x64/publish/ /build/startApp.sh ./
+
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+#fix https://github.com/oracle/dotnet-db-samples/issues/148
+sed -i '1s/^/openssl_conf = default_conf\n/' /etc/ssl/openssl.cnf
+cat <<EOT >> /etc/ssl/openssl.cnf
+[default_conf]
+ssl_conf = ssl_sect
+[ssl_sect]
+system_default = system_default_sect
+[system_default_sect]
+MinProtocol = TLSv1.2
+CipherString = DEFAULT:@SECLEVEL=2
+EOT
+
+USER "$USER"
+
+VOLUME /shared
+EXPOSE 5000
+
+ENTRYPOINT ["./DotnetPlayground.Web"]
