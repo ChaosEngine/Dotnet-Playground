@@ -2,7 +2,9 @@ using DotnetPlayground;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+#if INCLUDE_ORACLE
 using Oracle.ManagedDataAccess.Client;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
