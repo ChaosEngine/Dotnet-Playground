@@ -8,8 +8,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
+#if INCLUDE_POSTGRES
 using Npgsql;
 using NpgsqlTypes;
+#endif
 #if INCLUDE_ORACLE
 using Oracle.ManagedDataAccess.Client;
 #endif
@@ -578,6 +580,7 @@ LIMIT @limit OFFSET @offset
 			}
 		}
 
+#if INCLUDE_POSTGRES
 		/// <summary>
 		/// Searches the postgres asynchronous.
 		/// </summary>
@@ -694,6 +697,7 @@ LIMIT @limit OFFSET @offset
 				return (found, count);
 			}//end using
 		}
+#endif
 
 #if INCLUDE_ORACLE
 		/// <summary>
@@ -854,8 +858,11 @@ OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 #endif
 						case "sqliteconnection":
 							return await PagedSearchSqliteAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
+#if INCLUDE_POSTGRES
 						case "npsqlconnection":
 							return await PagedSearchPostgresAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
+#endif
+
 #if INCLUDE_ORACLE
 						case "oracleconnection":
 							return await PagedSearchOracleAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
@@ -1037,6 +1044,7 @@ OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 					found = found ?? new ThinHashes { Key = _NOTHING_FOUND_TEXT };
 					break;
 
+#if INCLUDE_POSTGRES
 				case "npsqlconnection":
 					var search = new NpgsqlParameter("search", NpgsqlDbType.Char)
 					{
@@ -1057,6 +1065,7 @@ OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 							?? new ThinHashes { Key = _NOTHING_FOUND_TEXT };
 					}
 					break;
+#endif
 
 				default:
 					throw new NotSupportedException($"Bad {nameof(BloggingContext.ConnectionTypeName)} name");

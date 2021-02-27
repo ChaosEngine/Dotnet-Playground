@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Metadata;
+#if INCLUDE_POSTGRES
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+#endif
 #if INCLUDE_ORACLE
 using Oracle.EntityFrameworkCore.Metadata;
 #endif
@@ -25,8 +27,10 @@ namespace DotnetPlayground.Migrations
 #if INCLUDE_ORACLE
 						.Annotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn)
 #endif
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
-					Url = table.Column<string>(nullable: false)
+#if INCLUDE_POSTGRES
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
+#endif
+					, Url = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {

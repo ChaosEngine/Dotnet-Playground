@@ -1,7 +1,9 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
+#if INCLUDE_POSTGRES
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+#endif
 #if INCLUDE_ORACLE
 using Oracle.EntityFrameworkCore.Metadata;
 #endif
@@ -87,8 +89,10 @@ namespace DotnetPlayground.Migrations
 #if INCLUDE_ORACLE
 						.Annotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn)
 #endif
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
-                    UserId = table.Column<string>(nullable: false),
+#if INCLUDE_POSTGRES
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
+#endif
+                    , UserId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
                 },

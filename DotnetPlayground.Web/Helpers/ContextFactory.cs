@@ -74,6 +74,7 @@ namespace DotnetPlayground
 						dbContextOpts.UseSqlite(conn_str);
 					break;
 
+#if INCLUDE_POSTGRES
 				case "psql":
 				case "npsql":
 				case "postgres":
@@ -87,6 +88,7 @@ namespace DotnetPlayground
 						dbContextOpts.UseNpgsql(conn);
 					}
 					break;
+#endif
 
 #if INCLUDE_ORACLE
 				case "oracle":
@@ -103,7 +105,7 @@ namespace DotnetPlayground
 								.Replace(")", string.Empty)
 								.Replace(" =", "=")
 								.Split("WALLET_LOCATION=", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-							if (tab.Length > 0)
+							if (tab.Length > 1)
 							{
 								tab = tab[1].Split("DIRECTORY=", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 								if (tab.Length > 0)

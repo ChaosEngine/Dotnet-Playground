@@ -18,7 +18,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <!--<DefineConstants>TRACE;INCLUDE_ORACLE;INCLUDE_COSMOSDB;INCLUDE_SQLSERVER</DefineConstants>-->
+    <!--<DefineConstants>TRACE;INCLUDE_ORACLE;INCLUDE_COSMOSDB;INCLUDE_SQLSERVER;INCLUDE_POSTGRES</DefineConstants>-->
     <DefineConstants>TRACE;INCLUDE_ORACLE</DefineConstants>
 	</PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -41,7 +41,7 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.3" Condition="$(DefineConstants.Contains('INCLUDE_SQLSERVER'))" />
     <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="5.0.1" Condition="$(DefineConstants.Contains('INCLUDE_SQLSERVER'))" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.3" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.2" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.2" Condition="$(DefineConstants.Contains('INCLUDE_POSTGRES'))" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="5.0.0-alpha.2" />
     <PackageReference Include="Oracle.EntityFrameworkCore" Version="5.21.1" Condition="$(DefineConstants.Contains('INCLUDE_ORACLE'))" />
 		<PackageReference Include="IdentityManager2.AspNetIdentity" Version="1.0.0" />

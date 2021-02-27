@@ -6,7 +6,9 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+#if INCLUDE_POSTGRES
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+#endif
 #if INCLUDE_ORACLE
 using Oracle.EntityFrameworkCore.Metadata;
 #endif
@@ -71,7 +73,10 @@ namespace DotnetPlayground.Migrations
 #if INCLUDE_ORACLE
 						.HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn)
 #endif
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
+#if INCLUDE_POSTGRES
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
+#endif
+                        ;
 
                     b.Property<string>("FriendlyName").HasMaxLength(100);
 
