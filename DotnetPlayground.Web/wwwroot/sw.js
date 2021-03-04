@@ -24,6 +24,7 @@ self.addEventListener('install', function (event) {
 		'VirtualScroll/Load?search=&offset=0&limit=50&ExtraParam=cached',
 		'Hashes/',
 		'BruteForce/',
+		'PuzzleGenerator',
 		'InkBall/Home',
 		'InkBall/Rules',
 
@@ -33,6 +34,10 @@ self.addEventListener('install', function (event) {
 		'images/banner3.svg',
 		'images/banner4.svg',
 		'images/no_img.svg',
+		'images/puzzles/fond-puzzle.svg',
+		'images/puzzles/Jigsaw-Puzzle-Pieces.svg',
+		'images/puzzles/jigsaw10x14.svg',
+		'images/puzzles/puzzle.svg',
 		'img/homescreen.webp',
 		'img/homescreen.jpg',
 		'https://haos.hopto.org/webcamgallery/poster.jpeg',
@@ -43,7 +48,8 @@ self.addEventListener('install', function (event) {
 		`css/site${suffix}.css`,
 		`js/site${suffix}.js`,
 		`js/Blogs${suffix}.js`,
-		`js/WebCamGallery${suffix}.js`
+		`js/WebCamGallery${suffix}.js`,
+		`js/Puzzles${suffix}.js`
 	];
 
 	if (isDev) {
@@ -150,6 +156,7 @@ self.addEventListener('fetch', event => {
 			});
 			return response;
 		}).catch(() => {
+			//console.error(e, ' url: ' + event.request.url);
 			return cached_response;
 		});
 
