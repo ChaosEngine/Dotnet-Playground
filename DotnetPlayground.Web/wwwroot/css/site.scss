@@ -150,23 +150,25 @@ footer.container > noscript {
 	}
 }
 /***************Puzzles start*************/
+// taken from https://codepen.io/cihaneken/pen/oMQVgv
+
 // hide radios dots
 // .puzzles .input-hidden {
 // 	position: absolute;
 // 	left: -9999px;
 // }
 	
-.puzzles input[type=radio]:checked + label>img {
+.puzzles input[type=radio]:checked + label > img {
 	border: 1px solid #fff;
 	box-shadow: 0 0 3px 3px #090;
 }
 
 /* Stuff after this is only to make things more pretty */
-.puzzles input[type=radio] + label>img {
+.puzzles input[type=radio] + label > img {
 	border: 1px dashed #444;
 	transition: 500ms all;
 }
 
-.puzzles input[type=radio]:checked + label>img {
-	transform: rotateZ(-10deg) rotateX(10deg);
+.puzzles input[type=radio]:checked + label > img {
+	transform: rotateZ(-10deg);
 }

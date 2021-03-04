@@ -125,4 +125,4 @@ footer.container > noscript {
   transition: 500ms all; }
 
 .puzzles input[type=radio]:checked + label > img {
-  transform: rotateZ(-10deg) rotateX(10deg); }
+  transform: rotateZ(-10deg); }
