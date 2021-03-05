@@ -83,7 +83,7 @@
 		"qrcodejs": "1.0.0",
 		"@microsoft/signalr": "5.0.3",
 		"@microsoft/signalr-protocol-msgpack": "5.0.3",
-		"msgpack5": "5.1.0",
+		"msgpack5": "5.2.1",
 		"ace-builds": "1.4.12",
 		"faker": "5.4.0"
 	},
