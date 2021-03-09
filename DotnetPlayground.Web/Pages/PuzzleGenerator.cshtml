@@ -14,25 +14,25 @@
     <form method="post">
         <div class="form-group row">
             <div class="custom-control custom-radio custom-control-inline col">
-                <input class="custom-control-input input-hidden" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                <input class="custom-control-input input-hidden" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1" checked />
                 <label class="custom-control-label w-100" for="inlineRadio1">fond puzzle
                     <img src="~/images/puzzles/fond-puzzle.svg" alt="fond puzzle" class="img-fluid mt-2" />
                 </label>
             </div>
             <div class="custom-control custom-radio custom-control-inline col">
-                <input class="custom-control-input input-hidden" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                <input class="custom-control-input input-hidden" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2" />
                 <label class="custom-control-label w-100" for="inlineRadio2">Jigsaw Puzzle Pieces
                     <img src="~/images/puzzles/Jigsaw-Puzzle-Pieces.svg" alt="Jigsaw Puzzle Pieces" class="img-fluid mt-2" />
                 </label>
             </div>
             <div class="custom-control custom-radio custom-control-inline col">
-                <input class="custom-control-input input-hidden" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option3">
+                <input class="custom-control-input input-hidden" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option3" />
                 <label class="custom-control-label w-100" for="inlineRadio3">10x14
                     <img src="~/images/puzzles/jigsaw10x14.svg" alt="10x14" class="img-fluid mt-2" />
                 </label>
             </div>
             <div class="custom-control custom-radio custom-control-inline col">
-                <input class="custom-control-input input-hidden" type="radio" name="inlineRadioOptions" id="inlineRadio4" value="option4">
+                <input class="custom-control-input input-hidden" type="radio" name="inlineRadioOptions" id="inlineRadio4" value="option4" />
                 <label class="custom-control-label w-100" for="inlineRadio4">puzzle
                     <img src="~/images/puzzles/puzzle.svg" alt="puzzle" class="img-fluid mt-2" />
                 </label>
@@ -46,13 +46,20 @@
             </div>
         </div>
 
+        <div class="form-group">
+            <label for="rangeSize">Size 200</label>
+            <input type="range" class="custom-range" id="rangeSize" min="0" max="420" step="20" value="200" />
+            <label for="rotation">Rotation 180</label>
+            <input type="range" class="custom-range" id="rotation" min="0" max="360" step="10" value="180" />
+        </div>
+
         <div class="form-group row">
             <input type="submit" value="Submit" class="btn btn-primary" />
         </div>
     </form>
 
-    <div id="target" class="w-100" style="background-color: rgba(190,150,150,128)">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Incidunt, quos, distinctio mollitia quasi qui voluptas vitae quisquam a perferendis eaque nobis quam doloribus consectetur, deleniti iusto debitis rem enim cupiditate harum maiores. Quisquam quaerat molestias, eos saepe molestiae praesentium totam rerum ullam vel tenetur consectetur consequuntur. Praesentium pariatur ab, voluptatum perspiciatis velit reiciendis voluptas laudantium. Ipsa laudantium laboriosam at, cumque mollitia rem? Debitis corrupti architecto neque pariatur et, tempora illum amet placeat repellat laboriosam assumenda at, quas, tempore vitae maxime.
+    <div class="target w-100">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ipsum nunc aliquet bibendum enim. Ultrices gravida dictum fusce ut placerat orci nulla pellentesque. Tincidunt nunc pulvinar sapien et ligula ullamcorper malesuada. Mollis nunc sed id semper risus in hendrerit gravida rutrum. Adipiscing vitae proin sagittis nisl. Viverra nam libero justo laoreet sit amet cursus sit. Sodales ut eu sem integer.
     </div>
 </div>
 

@@ -172,3 +172,41 @@ footer.container > noscript {
 .puzzles input[type=radio]:checked + label > img {
 	transform: rotateZ(-10deg);
 }
+
+
+
+//https://www.sitepoint.com/css3-transform-background-image/
+//https://christianheilmann.com/2021/02/08/sharing-data-between-css-and-javascript-using-custom-properties/
+:root {
+	--bimg: url('/dotnet/images/puzzles/fond-puzzle.svg');
+	--rot: rotate(0deg);
+	--size: 200%;
+}
+.puzzles .target
+{
+	position: relative;
+	overflow: hidden;
+	/* 
+	height: 20em;
+	width: 100%;
+	text-align: center;
+	line-height: 5em;
+	margin: 3em auto;
+	*/
+	font-size: 2em;
+	border: 4px solid rgb(55, 230, 192);
+	border-radius: 7px;
+}
+.puzzles .target:before
+{
+	content: "";
+	position: absolute;
+	width: var(--size);
+	height: var(--size);
+	top: -50%;
+	left: -50%;
+	z-index: -1;
+
+	background: var(--bimg) 0 0 repeat;
+	transform: var(--rot);
+}
