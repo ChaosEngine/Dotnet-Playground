@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
-    <Version>1.0.17-content</Version>
+    <Version>1.0.18-puzzles</Version>
 		<TargetFramework>net5.0</TargetFramework>
 		<LangVersion>latest</LangVersion>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
