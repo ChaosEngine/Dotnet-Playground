@@ -11,14 +11,12 @@ function PuzzlesOnLoad() {
 	$("input[type='radio'].custom-control-input").change(function () {
 		const img = $(this).next('label').find('img');
 		const size = $('#rangeSize')[0].value;
-		// const one = Math.min(width, height);
-		// console.log('width ' + width + ' ' + height);
+
 		const img_path = img.attr('src');
-		//$('.target').css("background-image", "url(" + img_path + ")");
-		document.documentElement.style.setProperty("--bimg", "url(" + img_path + ")");
-		//$('.target').css("background-size", size + "px " + size + "px");
-		document.documentElement.style.setProperty("--size", size + "%");
-		//$('.target').css("background-repeat", "repeat");
+		$(".target").css("--bimg", "url(" + img_path + ")");
+
+		const rotation = $("#rotation")[0];
+		$(".target").css("--trans", "scale(" + size * 0.01 + ") rotateZ(" + rotation.value + "deg)");
 	})[0].focus();
 
 	$("#rangeSize, #rotation").change(function () {
@@ -31,9 +29,11 @@ function PuzzlesOnLoad() {
 		lbl = $("#rotation").prev('label');
 		lbl.text('Rotation ' + rotation.value);
 
-		//$('.target').css("background-size", size + "px " + size + "px");
-		document.documentElement.style.setProperty("--size", size + "%");
-		//$('.target').css("transform", "rotate(" + rotation.value + "deg)");
-		document.documentElement.style.setProperty("--rot", "rotate(" + rotation.value + "deg)");
+		$(".target").css("--trans", "scale(" + size * 0.01 + ") rotateZ(" + rotation.value + "deg)");
+	});
+
+	$(".puzzles form").on("submit", function (event) {
+		event.preventDefault();
+		console.log('submitados!');
 	});
 }
