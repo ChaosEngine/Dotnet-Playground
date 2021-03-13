@@ -114,10 +114,10 @@ namespace Integration
 		/// </param>
 		/// <param name="startupAssembly">The target project's assembly.</param>
 		/// <returns>The full path to the target project.</returns>
-		private static string GetProjectPath(string projectRelativePath, Assembly startupAssembly)
+		internal static string GetProjectPath(string projectRelativePath = null)
 		{
 			// Get name of the target project which we want to test
-			var projectName = startupAssembly.GetName().Name;
+			var projectName = typeof(TStartup).GetTypeInfo().Assembly.GetName().Name;
 
 			projectRelativePath = projectRelativePath ?? projectName;
 
@@ -126,6 +126,7 @@ namespace Integration
 
 			// Find the path to the target project
 			var directoryInfo = new DirectoryInfo(applicationBasePath);
+			int max_dir_deep_cnter = 10;
 			do
 			{
 				directoryInfo = directoryInfo.Parent;
@@ -140,7 +141,7 @@ namespace Integration
 					}
 				}
 			}
-			while (directoryInfo.Parent != null);
+			while (directoryInfo.Parent != null && max_dir_deep_cnter-- > 0);
 
 			throw new Exception($"Project root could not be located using the application root {applicationBasePath}.");
 		}
@@ -185,9 +186,7 @@ namespace Integration
 
 		protected override void ConfigureWebHost(IWebHostBuilder builder)
 		{
-			string relativeTargetProjectParentDir = null;
-			var startupAssembly = typeof(TStartup).GetTypeInfo().Assembly;
-			var contentRoot = GetProjectPath(relativeTargetProjectParentDir, startupAssembly);
+			var contentRoot = GetProjectPath();
 
 			Directory.SetCurrentDirectory(contentRoot);
 

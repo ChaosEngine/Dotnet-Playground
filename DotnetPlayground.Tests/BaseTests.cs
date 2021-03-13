@@ -142,19 +142,23 @@ namespace DotnetPlayground.Tests
 
 	public class BaseControllerTest
 	{
-		static string AssemblyDirectory
-		{
-			get
-			{
-				//string codeBase = Assembly.GetExecutingAssembly().CodeBase;
-				//UriBuilder uri = new UriBuilder(codeBase);
-				//string path = Uri.UnescapeDataString(uri.Path);
-				//return Path.GetDirectoryName(path);
+		#region Old code
 
-				string codeBase = Assembly.GetExecutingAssembly().Location;
-				return Path.GetDirectoryName(codeBase);
-			}
-		}
+		// static string AssemblyDirectory
+		// {
+		// 	get
+		// 	{
+		// 		//string codeBase = Assembly.GetExecutingAssembly().CodeBase;
+		// 		//UriBuilder uri = new UriBuilder(codeBase);
+		// 		//string path = Uri.UnescapeDataString(uri.Path);
+		// 		//return Path.GetDirectoryName(path);
+
+		// 		string codeBase = Assembly.GetExecutingAssembly().Location;
+		// 		return Path.GetDirectoryName(codeBase);
+		// 	}
+		// }
+
+		#endregion Old code
 
 		protected ILoggerFactory LoggerFactory { get; private set; }
 
@@ -166,7 +170,7 @@ namespace DotnetPlayground.Tests
 
 		protected IConfiguration CreateConfiguration()
 		{
-			ContentRoot = Path.Combine(AssemblyDirectory, string.Format("..{0}..{0}..{0}..{0}DotnetPlayground.Web", Path.DirectorySeparatorChar.ToString()));
+			ContentRoot = Integration.TestServerFixture<DotnetPlayground.Startup>.GetProjectPath();
 
 			var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 			var builder = new ConfigurationBuilder()
