@@ -2,7 +2,6 @@
 
 DOCKER=/usr/bin/docker
 #DOCKER=echo
-pushd /home/container/Dotnet-Playground
 image=''
 dockerfile_name=''
 dockerfile_suffix=''
@@ -40,11 +39,9 @@ esac
 $DOCKER tag "chaosengine/dotnetplayground:${image}${dockerfile_suffix}" "chaosengine/dotnetplayground:${image}${dockerfile_suffix}_last"
 
 DOCKER_BUILDKIT=1 $DOCKER build \
-	--build-arg SOURCE_BRANCH=$(git rev-parse --abbrev-ref HEAD) \
-	--build-arg SOURCE_COMMIT=$(git rev-parse HEAD) $dockerfile_args \
+	--build-arg SOURCE_BRANCH="$(git rev-parse --abbrev-ref HEAD)" \
+	--build-arg SOURCE_COMMIT="$(git rev-parse HEAD)" $dockerfile_args \
 	--progress=auto \
 	-f "${dockerfile_name}" \
 	-t "chaosengine/dotnetplayground:${image}${dockerfile_suffix}" .
-
-popd
 
