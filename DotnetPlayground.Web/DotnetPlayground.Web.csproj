@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
-    <Version>1.0.17-content</Version>
+    <Version>1.0.18-puzzles</Version>
 		<TargetFramework>net5.0</TargetFramework>
 		<LangVersion>latest</LangVersion>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
@@ -19,8 +19,8 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <!--<DefineConstants>TRACE;INCLUDE_ORACLE;INCLUDE_COSMOSDB;INCLUDE_SQLSERVER;INCLUDE_POSTGRES</DefineConstants>-->
-    <DefineConstants>TRACE;INCLUDE_ORACLE</DefineConstants>
+    <DefineConstants>TRACE;INCLUDE_ORACLE;INCLUDE_COSMOSDB;INCLUDE_SQLSERVER;INCLUDE_POSTGRES</DefineConstants>
+    <!--<DefineConstants>TRACE;INCLUDE_ORACLE</DefineConstants>-->
 	</PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Oracle|AnyCPU'">
     <DefineConstants>INCLUDE_ORACLE</DefineConstants>
@@ -37,22 +37,22 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.4" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.4" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.3" Condition="$(DefineConstants.Contains('INCLUDE_SQLSERVER'))" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.5" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.5" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.5" Condition="$(DefineConstants.Contains('INCLUDE_SQLSERVER'))" />
     <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="5.0.1" Condition="$(DefineConstants.Contains('INCLUDE_SQLSERVER'))" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.4" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.5" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.2" Condition="$(DefineConstants.Contains('INCLUDE_POSTGRES'))" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="5.0.0-alpha.2" />
     <PackageReference Include="Oracle.EntityFrameworkCore" Version="5.21.1" Condition="$(DefineConstants.Contains('INCLUDE_ORACLE'))" />
 		<PackageReference Include="IdentityManager2.AspNetIdentity" Version="1.0.0" />
 		<PackageReference Include="Lib.AspNetCore.ServerTiming" Version="4.0.0" />
 		<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.13.1" Condition="$(DefineConstants.Contains('INCLUDE_COSMOSDB'))" />
-		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.50.0.2238" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="5.0.4" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="5.0.4" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="5.0.4" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="5.0.4" />
+		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.51.0.2238" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="5.0.5" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="5.0.5" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="5.0.5" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="5.0.5" />
     <PackageReference Include="MessagePack" Version="2.2.85" />
 		<!--<PackageReference Include="RedHat.AspNetCore.Server.Kestrel.Transport.Linux" Version="3.0.0-*" />-->
 	</ItemGroup>
@@ -75,9 +75,9 @@
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(Configuration)'=='Debug'">
-		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="5.0.4" />
-		<PackageReference Include="Microsoft.AspNetCore.Razor.Language" Version="5.0.4" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.4">
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="5.0.5" />
+		<PackageReference Include="Microsoft.AspNetCore.Razor.Language" Version="5.0.5" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.5">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
