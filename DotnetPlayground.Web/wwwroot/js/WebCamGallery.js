@@ -98,6 +98,10 @@ function WebCamGalleryOnLoad(isAnnualMovieListAvailable, liveImageExpireTimeInSe
 	}
 
 	function LoadVideoJS() {
+		const my_player = document.getElementById('my-player');
+		const poster = my_player.dataset.poster;
+		my_player.setAttribute('poster', poster);
+		delete my_player.dataset.poster;
 		videojs('my-player');
 	}
 
