@@ -1,0 +1,21 @@
+version: 2
+updates:
+- package-ecosystem: nuget
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "04:00"
+  open-pull-requests-limit: 10
+  target-branch: dev
+  ignore:
+  - dependency-name: Pomelo.EntityFrameworkCore.MySql
+    versions:
+    - 5.0.0
+  - dependency-name: Google.Apis.YouTube.v3
+    versions:
+    - 1.49.0.2225
+    - 1.50.0.2232
+    - 1.51.0.2287
+  - dependency-name: Oracle.EntityFrameworkCore
+    versions:
+    - 5.21.1
