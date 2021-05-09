@@ -36,4 +36,23 @@ function PuzzlesOnLoad() {
 		event.preventDefault();
 		console.log('submitados!');
 	});
+
+	$('input[type="file"]').on('change', function () {
+		if (this.files && this.files[0]) {
+			const img = document.createElement('img');
+			const blob = URL.createObjectURL(this.files[0]);
+			img.src = blob;
+
+			img.onload = function () {
+				const w = img.width;
+				const h = img.height;
+
+				const target = $(".target");
+				target.css("--uploadedImg", "url(" + blob + ")");
+				target.css("width", w);
+				target.css("height", h);
+				//URL.revokeObjectURL(this.src);
+			};
+		}
+	});
 }
