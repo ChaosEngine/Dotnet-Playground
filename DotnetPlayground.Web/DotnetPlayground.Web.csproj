@@ -39,7 +39,7 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.5" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.5" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.5" Condition="$(DefineConstants.Contains('INCLUDE_SQLSERVER'))" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.6" Condition="$(DefineConstants.Contains('INCLUDE_SQLSERVER'))" />
     <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="5.0.1" Condition="$(DefineConstants.Contains('INCLUDE_SQLSERVER'))" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.5" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.5.1" Condition="$(DefineConstants.Contains('INCLUDE_POSTGRES'))" />
