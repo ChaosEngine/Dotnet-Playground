@@ -50,7 +50,7 @@
 		<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.15.0" Condition="$(DefineConstants.Contains('INCLUDE_COSMOSDB'))" />
 		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.52.0.2366" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="5.0.7" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="5.0.7" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="5.0.8" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="5.0.7" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="5.0.7" />
     <PackageReference Include="MessagePack" Version="2.2.85" />
