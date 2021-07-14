@@ -37,22 +37,22 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.7" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.7" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.7" Condition="$(DefineConstants.Contains('INCLUDE_SQLSERVER'))" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.8" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.8" Condition="$(DefineConstants.Contains('INCLUDE_SQLSERVER'))" />
     <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="5.0.1" Condition="$(DefineConstants.Contains('INCLUDE_SQLSERVER'))" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.7" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.8" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.7" Condition="$(DefineConstants.Contains('INCLUDE_POSTGRES'))" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="5.0.1" />
     <PackageReference Include="Oracle.EntityFrameworkCore" Version="5.21.1" Condition="$(DefineConstants.Contains('INCLUDE_ORACLE'))" />
 		<PackageReference Include="IdentityManager2.AspNetIdentity" Version="1.0.0" />
 		<PackageReference Include="Lib.AspNetCore.ServerTiming" Version="4.1.0" />
 		<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.15.0" Condition="$(DefineConstants.Contains('INCLUDE_COSMOSDB'))" />
-		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.52.0.2366" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="5.0.7" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="5.0.7" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="5.0.7" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="5.0.7" />
+		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.52.0.2378" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="5.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="5.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="5.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="5.0.8" />
     <PackageReference Include="MessagePack" Version="2.2.85" />
 		<!--<PackageReference Include="RedHat.AspNetCore.Server.Kestrel.Transport.Linux" Version="3.0.0-*" />-->
 	</ItemGroup>
@@ -75,9 +75,9 @@
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(Configuration)'=='Debug'">
-		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="5.0.7" />
-		<PackageReference Include="Microsoft.AspNetCore.Razor.Language" Version="5.0.7" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.7">
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="5.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.Razor.Language" Version="5.0.8" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.8">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
