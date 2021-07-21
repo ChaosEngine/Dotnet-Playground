@@ -326,7 +326,7 @@ namespace Integration
 		class TypedResult
 		{
 			public int total { get; set; }
-			public string[][] rows { get; set; }
+			public ThinHashes[] rows { get; set; }
 		};
 
 		private readonly TestServerFixture<Startup> _fixture;
@@ -393,20 +393,20 @@ namespace Integration
 					var typed_result = new TypedResult
 					{
 						total = 1,
-						rows = new string[][] { }
+						rows = new ThinHashes[] { }
 					};
 
 					// Deserialize JSON String into concrete class
-					var data = JsonSerializer.Deserialize<TypedResult>(jsonString);
+					var data = JsonSerializer.Deserialize<TypedResult>(jsonString, new JsonSerializerOptions{ PropertyNameCaseInsensitive = true });
 					Assert.IsType(typed_result.GetType(), data);
-					Assert.IsAssignableFrom<IEnumerable<string[]>>(data.rows);
+					Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(data.rows);
 
 					Assert.True(data.rows.Length == 5 || data.rows.Length == 0);
 					Assert.True(data.total >= 0);
 
 					if (data.rows.Length > 0)
 					{
-						Assert.StartsWith(search, data.rows[0][0]);
+						Assert.StartsWith(search, data.rows[0].Key);
 
 						if (query_input.TryGetValue("ExtraParam", out string value) && value == "cached")
 						{

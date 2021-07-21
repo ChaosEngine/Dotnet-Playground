@@ -97,7 +97,7 @@ namespace DotnetPlayground.Controllers
 				//string separator = string.Empty;
 				foreach (var item in found.Itemz)
 				{
-					sb.AppendFormat("{{ \"arr\": [\"{0}\",\"{1}\",\"{2}\"] }}", item[0], item[1], item[2]/*, separator*/);
+					sb.AppendFormat("{{ \"arr\": [Key:\"{0}\",HashMD5:\"{1}\",HashSHA256:\"{2}\"] }}", item.Key, item.HashMD5, item.HashSHA256/*, separator*/);
 					//separator = ";";
 				}
 				string result = sb.ToString();

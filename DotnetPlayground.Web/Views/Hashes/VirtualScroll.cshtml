@@ -102,7 +102,7 @@
 		function responseHandler(response) {
 			//debugger;
 			const mapped = response.rows.map(function(tab) {
-				return { Key: tab[0], HashMD5: tab[1], HashSHA256: tab[2] };
+				return { Key: tab.key, HashMD5: tab.hashMD5, HashSHA256: tab.hashSHA256 };
 			});
 			response.rows = mapped;
 			return response;

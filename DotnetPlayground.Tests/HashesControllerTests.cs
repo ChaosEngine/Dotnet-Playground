@@ -125,8 +125,8 @@ namespace Controllers
 
 					(IEnumerable<ThinHashes> Itemz, int Count) orgtuple =
 						WebControllers.BaseController<ThinHashes>.ItemsToJson(items, sort, order, limit, offset);
-					(IEnumerable<string[]> Itemz, int Count) tuple =
-						(orgtuple.Itemz.Select(tab => new string[] { tab.Key, tab.HashMD5, tab.HashSHA256 }), orgtuple.Count);
+					(IEnumerable<ThinHashes> Itemz, int Count) tuple =
+						(orgtuple.Itemz, orgtuple.Count);
 
 					return Task.FromResult(tuple);
 				});
@@ -653,9 +653,9 @@ namespace Controllers
 				//fetching anonymous object from JsonResult is weird; use reflection
 				Assert.IsType<int>(((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value));
 				Assert.Equal(1, (int)((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value));
-				Assert.IsAssignableFrom<IEnumerable<string[]>>(((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value));
-				Assert.Single((IEnumerable<string[]>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value));
-				Assert.Equal("ilfad", ((IEnumerable<string[]>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value)).ElementAt(0)[0]);
+				Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value));
+				Assert.Single((IEnumerable<ThinHashes>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value));
+				Assert.Equal("ilfad", ((IEnumerable<ThinHashes>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value)).ElementAt(0).Key);
 
 				// Act - search by Hash256 dont mind ordering
 				result = await controller.Load(new HashesDataTableLoadInput(null, null, "b3a7dc", 0, 0, "blah"));
@@ -664,9 +664,9 @@ namespace Controllers
 				Assert.IsType<JsonResult>(result);
 				Assert.IsType<int>(((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value));
 				Assert.Equal(1, (int)((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value));
-				Assert.IsAssignableFrom<IEnumerable<string[]>>(((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value));
-				Assert.Single((IEnumerable<string[]>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value));
-				Assert.Equal("aaaac", ((IEnumerable<string[]>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value)).ElementAt(0)[0]);
+				Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value));
+				Assert.Single((IEnumerable<ThinHashes>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value));
+				Assert.Equal("aaaac", ((IEnumerable<ThinHashes>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value)).ElementAt(0).Key);
 
 				// Act - search by Hash256 but not from start - should not find anything
 				result = await controller.Load(new HashesDataTableLoadInput(null, null, "e7fc0c5", 0, 0, "blah"));
@@ -675,8 +675,8 @@ namespace Controllers
 				Assert.IsType<JsonResult>(result);
 				Assert.IsType<int>(((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value));
 				Assert.Equal(0, (int)((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value));
-				Assert.IsAssignableFrom<IEnumerable<string[]>>(((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value));
-				Assert.Empty((IEnumerable<string[]>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value));
+				Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value));
+				Assert.Empty((IEnumerable<ThinHashes>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value));
 
 
 				// Act - ensure order by Key desc
@@ -684,9 +684,9 @@ namespace Controllers
 
 				Assert.IsType<int>(((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value));
 				Assert.True((int)((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value) > 0);
-				Assert.IsAssignableFrom<IEnumerable<string[]>>(((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value));
-				Assert.NotEmpty((IEnumerable<string[]>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value));
-				Assert.Equal("aaaaa", ((IEnumerable<string[]>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value)).Last()[0]);
+				Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value));
+				Assert.NotEmpty((IEnumerable<ThinHashes>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value));
+				Assert.Equal("aaaaa", ((IEnumerable<ThinHashes>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value)).Last().Key);
 
 
 				// Act - ensure order by HashSHA256 asc
@@ -694,9 +694,9 @@ namespace Controllers
 
 				Assert.IsType<int>(((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value));
 				Assert.True((int)((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value) > 0);
-				Assert.IsAssignableFrom<IEnumerable<string[]>>(((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value));
-				Assert.Equal(3, ((IEnumerable<string[]>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value)).Count());
-				Assert.Equal("aaaab", ((IEnumerable<string[]>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value)).First()[0]);
+				Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value));
+				Assert.Equal(3, ((IEnumerable<ThinHashes>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value)).Count());
+				Assert.Equal("aaaab", ((IEnumerable<ThinHashes>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value)).First().Key);
 
 
 				// Act - search unexisting, empty result
@@ -704,8 +704,8 @@ namespace Controllers
 
 				Assert.IsType<int>(((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value));
 				Assert.Equal(0, (int)((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value));
-				Assert.IsAssignableFrom<IEnumerable<string[]>>(((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value));
-				Assert.Empty(((IEnumerable<string[]>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value)));
+				Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value));
+				Assert.Empty(((IEnumerable<ThinHashes>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value)));
 
 				// Act - order by bad column - should raise an exception
 				var exception = Assert.ThrowsAnyAsync<Exception>(async () =>
@@ -721,8 +721,8 @@ namespace Controllers
 				Assert.IsType<JsonResult>(result);
 				Assert.IsType<int>(((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value));
 				Assert.Equal(12, (int)((JsonResult)result).Value.GetType().GetProperty("total").GetValue(((JsonResult)result).Value));
-				Assert.IsAssignableFrom<IEnumerable<string[]>>(((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value));
-				Assert.True(12 == ((IEnumerable<string[]>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value)).Count());
+				Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value));
+				Assert.True(12 == ((IEnumerable<ThinHashes>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value)).Count());
 			}
 		}
 
