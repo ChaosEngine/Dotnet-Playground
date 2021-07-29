@@ -93,9 +93,10 @@ namespace DotnetPlayground.Services
 			using (var stream = new FileStream(youTubeConf["ClientSecretsFileName"], FileMode.Open, FileAccess.Read))
 			{
 				var store = new GoogleKeyContextStore(context, environment, token);
+				var googl_secrets = await GoogleClientSecrets.FromStreamAsync(stream, token);
 
 				credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(
-					GoogleClientSecrets.Load(stream).Secrets,
+					googl_secrets.Secrets,
 					// This OAuth 2.0 access scope allows for read-only access to the authenticated 
 					// user's account, but not other types of account access.
 					new[] { YouTubeService.Scope.YoutubeReadonly },

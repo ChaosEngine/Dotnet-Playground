@@ -17,7 +17,7 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.3.0/css/blueimp-gallery.min.css" integrity="sha512-ZpixWcgC4iZJV/pBJcyuoyD9sUsW0jRVBBTDge61Fj99r1XQNv0LtVIrCwHcy61iVTM+/1cXXtak8ywIbyvOdw==" crossorigin="anonymous"
               asp-fallback-href="~/lib/blueimp-gallery/css/blueimp-gallery.min.css"
               asp-fallback-test-class="blueimp-gallery" asp-fallback-test-property="position" asp-fallback-test-value="fixed" />
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/video.js@7.11.4/dist/video-js.min.css" integrity="sha256-XaM3Dqgb+f7BbQ7cBEZj+RnoZiwHwdnh40bBOfPjqg0=" crossorigin="anonymous"
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.14.3/video-js.min.css" integrity="sha512-YpOfEnhp8mxDuwRli4+8i8PCMG8gpeqfINgjUIfczBZ1bZBESDUnguzgeYzk3BouoCYjOEr7CuybEjWgpjnoJQ==" crossorigin="anonymous"
               asp-fallback-href="~/lib/video.js/video-js.min.css"
               asp-fallback-test-class="video-js" asp-fallback-test-property="position" asp-fallback-test-value="relative" />
     </environment>
@@ -79,7 +79,7 @@
 			<!-- Begin VideoJS -->
 			<div class="video-js-box">
 				<video id="my-player" width="1280" height="960" class="video-js vjs-default-skin vjs-4-3 vjs-fluid vjs-big-play-centered"
-					controls preload="none" poster="@Model.BaseWebCamURL/poster.jpeg">
+					controls preload="none" data-poster="@Model.BaseWebCamURL/poster.jpeg">
 					<source src="@Model.BaseWebCamURL/video.av1.webm" type="video/webm; codecs=av01.0.05M.08" />
 					<source src="@Model.BaseWebCamURL/video.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"' />
 					<source src="@Model.BaseWebCamURL/video.webm" type='video/webm; codecs="vp8, vorbis"' />
@@ -137,7 +137,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.3.0/js/blueimp-gallery.min.js" integrity="sha512-ou+HAocCH7k3ASCmn1jxK14HyDl7Ff0jci4skAEWcGKoLx32MPNOnLWaLh08XodPcaG59N9YsDyYN5+qPrR7Ag==" crossorigin="anonymous"
                 asp-fallback-src="~/lib/blueimp-gallery/js/blueimp-gallery.min.js"
                 asp-fallback-test="window.jQuery && window.blueimp"></script>
-        <script src="https://cdn.jsdelivr.net/npm/video.js@7.11.4/dist/alt/video.core.novtt.min.js" integrity="sha256-xArJLnOQpnOirsK3tcvaoUStzJ7ABJO9I6AURxYuak0=" crossorigin="anonymous"
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.14.3/alt/video.core.novtt.min.js" integrity="sha512-eI9/J/1kZbi3xNo6dSlmFV/44TWA0BWVdXzYQ8wn75yTyDjIFJQNqCcRqscjYGHBqRmNi/HftdicKMoTVRryCQ==" crossorigin="anonymous"
                 asp-fallback-src="~/lib/video.js/alt/video.core.novtt.min.js"
                 asp-fallback-test="window.jQuery && videojs.options"></script>
 		<script type="text/javascript" src="~/js/WebCamGallery.min.js"></script>
