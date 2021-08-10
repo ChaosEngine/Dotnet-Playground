@@ -1,4 +1,4 @@
-﻿/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate|WebCamGalleryOnLoad" }]*/
+/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate|WebCamGalleryOnLoad" }]*/
 /*global g_AppRootPath, videojs, blueimp*/
 "use strict";
 ///////////////////WebCamGallery functions start/////////////////
@@ -297,12 +297,12 @@ function WebCamGalleryOnLoad(isAnnualMovieListAvailable, liveImageExpireTimeInSe
 	}
 
 	//live image anchor tag refresh
-	$('#aLive').click(RefreshLiveImage);
+	$('#aLive').on('click', RefreshLiveImage);
 
 	//bluimp-gallery handling
-	$('#links').click(LoadBlueImpGallery);
+	$('#links').on('click', LoadBlueImpGallery);
 
-	btnReplAllImg.click(ReplAllImg);
+	btnReplAllImg.on('click', ReplAllImg);
 
 	$("img.inactive").each(function (index, value) {
 		if (index < 7) {
