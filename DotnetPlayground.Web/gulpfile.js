@@ -104,10 +104,7 @@ const inkballAIWorker = function (doPollyfill) {
 	return gulp.src(paths.inkBallJsRelative + "AIWorker.js")
 		.pipe(webpack({
 			resolve: {
-				modules: ['node_modules', `../../../../../${path.basename(__dirname)}/node_modules`],
-				alias: {
-					'tinyqueue': 'tinyqueue/tinyqueue.js' //https://github.com/mapbox/concaveman/issues/18
-				}
+				modules: ['node_modules', `../../../../../${path.basename(__dirname)}/node_modules`]
 			},
 			entry: {
 				'AIWorker': doPollyfill === true ? [
