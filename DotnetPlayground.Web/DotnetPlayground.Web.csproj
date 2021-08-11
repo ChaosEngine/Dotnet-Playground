@@ -52,7 +52,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="5.0.8" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="5.0.8" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="5.0.8" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="5.0.8" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="5.0.9" />
     <PackageReference Include="MessagePack" Version="2.3.75" />
 		<!--<PackageReference Include="RedHat.AspNetCore.Server.Kestrel.Transport.Linux" Version="3.0.0-*" />-->
 	</ItemGroup>
