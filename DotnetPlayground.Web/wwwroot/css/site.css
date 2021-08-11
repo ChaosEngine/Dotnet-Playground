@@ -20,8 +20,8 @@ body {
   line-height: 1.4;
 }
 
-/* Make .svg files in the carousel display properly in older browsers */
-.carousel-inner .item img[src$=".svg"] {
+/* Make .svg files in the carousel display properly in older browsers: https://getbootstrap.com/docs/4.6/content/images/#responsive-images */
+.carousel-inner .carousel-item img[src$=".svg"] {
   width: 100%;
 }
 
