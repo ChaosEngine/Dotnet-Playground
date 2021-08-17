@@ -922,7 +922,7 @@ OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 				{
 					if (_entities.ConnectionTypeName == "mysqlconnection")
 					{
-						trans.Commit();
+						await trans.CommitAsync(token);
 						trans.Dispose();
 					}
 				}
@@ -990,12 +990,12 @@ OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 						db.Update(hi);
 						await db.SaveChangesAsync(true, token);
 
-						trans.Commit();
+						await trans.CommitAsync(token);
 						logger.LogInformation(0, $"###Calculation of initial Hash parameters ended");
 					}
 					catch (Exception ex)
 					{
-						trans.Rollback();
+						await trans.RollbackAsync(token);
 						logger.LogError(ex, nameof(CalculateHashesInfo));
 						hi = null;
 					}
