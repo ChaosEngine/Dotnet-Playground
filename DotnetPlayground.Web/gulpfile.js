@@ -13,7 +13,8 @@ const gulp = require("gulp"),
 	path = require('path'),
 	webpack = require('webpack-stream'),
 	//esmWebpackPlugin = require("@purtuga/esm-webpack-plugin"),
-	workerPlugin = require('worker-plugin');
+	workerPlugin = require('worker-plugin'),
+	TerserPlugin = require('terser-webpack-plugin');
 
 var webroot = "./wwwroot/";
 
@@ -88,7 +89,12 @@ const inkballEntryPoint = function (min) {
 			}]
 		},
 		optimization: {
-			minimize: min
+			minimize: min,
+			minimizer: [
+				new TerserPlugin({
+					extractComments: false
+				})
+			]
 		},
 		performance: {
 			hints: process.env.NODE_ENV === 'production' ? "warning" : false
@@ -114,7 +120,7 @@ const inkballAIWorker = function (doPollyfill) {
 						paths.inkBallJsRelative + 'AIWorker.js'
 					]
 			},
-			target: "webworker",
+			// target: "webworker",
 			output: {
 				filename: doPollyfill === true ? '[name].PolyfillBundle.js' : '[name].Bundle.js'
 			},
@@ -141,7 +147,12 @@ const inkballAIWorker = function (doPollyfill) {
 				}]
 			} : {},
 			optimization: {
-				minimize: true
+				minimize: true,
+				minimizer: [
+					new TerserPlugin({
+						extractComments: false
+					})
+				]
 			},
 			performance: {
 				hints: process.env.NODE_ENV === 'production' ? "warning" : false

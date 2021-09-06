@@ -47,6 +47,9 @@
 			]
 		}
 	},
+	"browserslist": [
+		"defaults"
+	],
 	"devDependencies": {
 		"@babel/core": "7.15.5",
 		"core-js": "3.17.2",
@@ -67,8 +70,8 @@
 		"gulp-header": "2.0.9",
 		"rimraf": "3.0.2",
 		"concaveman": "1.2.1",
-		"webpack-stream": "6.1.2",
-		"@purtuga/esm-webpack-plugin": "1.5.0",
+		"webpack": "5.52.0",
+		"webpack-stream": "7.0.0",
 		"poly-decomp": "0.3.0",
 		"worker-plugin": "5.0.1"
 	},
