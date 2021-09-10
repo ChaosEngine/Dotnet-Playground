@@ -10,14 +10,14 @@
 {
     <link rel="preload" href="images/no_img.svg" as="image">
 	<environment include="Development">
-		<link rel="stylesheet" href="~/lib/blueimp-gallery/css/blueimp-gallery.min.css" />
-		<link rel="stylesheet" href="~/lib/video.js/video-js.min.css" />
+		<link rel="stylesheet" href="~/lib/blueimp-gallery/css/blueimp-gallery.min.css" media="print" onload="media='all'" />
+		<link rel="stylesheet" href="~/lib/video.js/video-js.min.css" media="print" onload="media='all'" />
 	</environment>
     <environment exclude="Development">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.3.0/css/blueimp-gallery.min.css" integrity="sha512-ZpixWcgC4iZJV/pBJcyuoyD9sUsW0jRVBBTDge61Fj99r1XQNv0LtVIrCwHcy61iVTM+/1cXXtak8ywIbyvOdw==" crossorigin="anonymous"
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.3.0/css/blueimp-gallery.min.css" integrity="sha512-ZpixWcgC4iZJV/pBJcyuoyD9sUsW0jRVBBTDge61Fj99r1XQNv0LtVIrCwHcy61iVTM+/1cXXtak8ywIbyvOdw==" crossorigin="anonymous" media="print" onload="media='all'"
               asp-fallback-href="~/lib/blueimp-gallery/css/blueimp-gallery.min.css"
               asp-fallback-test-class="blueimp-gallery" asp-fallback-test-property="position" asp-fallback-test-value="fixed" />
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.14.3/video-js.min.css" integrity="sha512-YpOfEnhp8mxDuwRli4+8i8PCMG8gpeqfINgjUIfczBZ1bZBESDUnguzgeYzk3BouoCYjOEr7CuybEjWgpjnoJQ==" crossorigin="anonymous"
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.14.3/video-js.min.css" integrity="sha512-YpOfEnhp8mxDuwRli4+8i8PCMG8gpeqfINgjUIfczBZ1bZBESDUnguzgeYzk3BouoCYjOEr7CuybEjWgpjnoJQ==" crossorigin="anonymous" media="print" onload="media='all'"
               asp-fallback-href="~/lib/video.js/video-js.min.css"
               asp-fallback-test-class="video-js" asp-fallback-test-property="position" asp-fallback-test-value="relative" />
     </environment>
@@ -129,9 +129,9 @@
 @section Scripts
 {
 	<environment include="Development">
-		<script type="text/javascript" src="~/lib/blueimp-gallery/js/blueimp-gallery.min.js"></script>
-		<script type="text/javascript" src="~/lib/video.js/alt/video.core.novtt.min.js"></script>
-		<script type="text/javascript" src="~/js/WebCamGallery.js"></script>
+		<script type="text/javascript" defer src="~/lib/blueimp-gallery/js/blueimp-gallery.min.js"></script>
+		<script type="text/javascript" defer src="~/lib/video.js/alt/video.core.novtt.min.js"></script>
+		<script type="text/javascript" defer src="~/js/WebCamGallery.js"></script>
 	</environment>
     <environment exclude="Development">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.3.0/js/blueimp-gallery.min.js" integrity="sha512-ou+HAocCH7k3ASCmn1jxK14HyDl7Ff0jci4skAEWcGKoLx32MPNOnLWaLh08XodPcaG59N9YsDyYN5+qPrR7Ag==" crossorigin="anonymous"
