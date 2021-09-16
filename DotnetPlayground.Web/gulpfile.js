@@ -173,10 +173,12 @@ gulp.task("webpack", gulp.parallel(function inkballWebWorkerEntryPoint(cb) {
 	return cb();
 }));
 
-const fileMinifyJSFunction = function (src, result) {
+const fileMinifyJSFunction = function (src, result, toplevel = false) {
 	return gulp.src([src, "!" + result], { base: "." })
 		.pipe(concat(result))
-		.pipe(terser())
+		.pipe(terser({
+			toplevel: toplevel
+		}))
 		.pipe(gulp.dest("."));
 };
 
@@ -189,11 +191,11 @@ const fileMinifySCSSFunction = function (src, result) {
 
 gulp.task("min:inkball", gulp.parallel(function inkballJsAndCSS() {
 	return fileMinifyJSFunction(paths.inkBallJsRelative + "inkball.js",
-		paths.inkBallJsRelative + "inkball.min.js");
+		paths.inkBallJsRelative + "inkball.min.js", true);
 },
 	function inkballSharedJs() {
 		return fileMinifyJSFunction(paths.inkBallJsRelative + "shared.js",
-			paths.inkBallJsRelative + "shared.min.js");
+			paths.inkBallJsRelative + "shared.min.js", true);
 	},
 	gulp.series(function scssToCSS() {
 		return fileMinifySCSSFunction(paths.inkBallCssRelative + "inkball.scss", paths.inkBallCssRelative + "inkball.css");
@@ -215,8 +217,6 @@ gulp.task("clean:inkball", function (cb) {
 gulp.task("clean:js", gulp.series("clean:inkball", function cleanMinJs(cb) {
 	rimraf(paths.minJs, cb);
 	rimraf(paths.SWJsDest, cb);
-	//rimraf(paths.BruteForceWorkerJsDest, cb);
-	//rimraf(paths.SharedJsDest, cb);
 }));
 
 gulp.task("clean:css", function (cb) {
@@ -230,15 +230,7 @@ gulp.task("minSWJs:js", function () {
 	return fileMinifyJSFunction(paths.SWJs, paths.SWJsDest);
 });
 
-/*gulp.task("minBruteForceWorker:js", function () {
-	return fileMinifyJSFunction(paths.BruteForceWorkerJs, paths.BruteForceWorkerJsDest);
-});
-
-gulp.task("Shared:js", function () {
-	return fileMinifyJSFunction(paths.SharedJs, paths.SharedJsDest);
-});*/
-
-gulp.task("min:js", gulp.series("minSWJs:js",// "minBruteForceWorker:js", "Shared:js",
+gulp.task("min:js", gulp.series("minSWJs:js",
 	function concatJsDest() {
 		return gulp.src([paths.js, "!" + paths.minJs], { base: "." })
 			//.pipe(concat(paths.concatJsDest))
