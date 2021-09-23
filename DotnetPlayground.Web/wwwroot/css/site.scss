@@ -13,6 +13,34 @@ body {
 	padding-top: 4.5rem;
 }
 
+/* overriding Bootstrap-5 underlined links and others */
+a {
+	text-decoration: none;
+}
+a[href] {
+	&:hover {
+		&:not([role="button"]) {
+			&:not([role="tab"]) {
+				&:not(.btn) {
+					&:not(.dropdown-item) {
+						&:not(.page-link) {
+							text-decoration: underline;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+.btn {
+	&:hover {
+		text-decoration: none;
+	}
+}
+.validation-summary-valid {
+	display: none;
+}
+
 /* Carousel */
 .carousel-caption p {
 	font-size: 20px;

@@ -76,7 +76,7 @@
 		"worker-plugin": "5.0.1"
 	},
 	"dependencies": {
-		"bootstrap": "4.6.0",
+		"bootstrap": "5.1.1",
 		"bootstrap-table": "1.18.3",
 		"node-forge": "0.10.0",
 		"jquery": "3.6.0",

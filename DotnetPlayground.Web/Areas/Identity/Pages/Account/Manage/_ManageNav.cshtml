@@ -8,12 +8,12 @@
 	ViewData["ManageNav.HasExternalLogins"] = hasExternalLogins;
 }
 <ul class="nav nav-pills flex-column">
-	<li class="nav-item"><a class="nav-link @ManageNavPages.IndexNavClass(ViewContext)" id="profile" href="Index">Profile</a></li>
-	<li class="nav-item"><a class="nav-link @ManageNavPages.ChangePasswordNavClass(ViewContext)" id="change-password" href="ChangePassword">Password</a></li>
+	<li class="nav-item"><a class="nav-link @ManageNavPages.IndexNavClass(ViewContext)" role="button" id="profile" href="Index">Profile</a></li>
+	<li class="nav-item"><a class="nav-link @ManageNavPages.ChangePasswordNavClass(ViewContext)" role="button" id="change-password" href="ChangePassword">Password</a></li>
 	@if ((bool)ViewData["ManageNav.HasExternalLogins"])
 	{
-		<li id="external-logins" class="nav-item"><a id="external-login" class="nav-link @ManageNavPages.ExternalLoginsNavClass(ViewContext)" href="ExternalLogins">External logins</a></li>
+		<li id="external-logins" class="nav-item"><a id="external-login" class="nav-link @ManageNavPages.ExternalLoginsNavClass(ViewContext)" role="button" href="ExternalLogins">External logins</a></li>
 	}
-	<li class="nav-item"><a class="nav-link @ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext)" id="two-factor" href="TwoFactorAuthentication">Two-factor authentication</a></li>
-	<li class="nav-item"><a class="nav-link @ManageNavPages.PersonalDataNavClass(ViewContext)" id="personal-data" href="PersonalData">Personal data</a></li>
+	<li class="nav-item"><a class="nav-link @ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext)" role="button" id="two-factor" href="TwoFactorAuthentication">Two-factor authentication</a></li>
+	<li class="nav-item"><a class="nav-link @ManageNavPages.PersonalDataNavClass(ViewContext)" role="button" id="personal-data" href="PersonalData">Personal data</a></li>
 </ul>
