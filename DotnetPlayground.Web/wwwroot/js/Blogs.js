@@ -22,12 +22,12 @@ function BlogsOnLoad() {
 				const str =
 					'<div class="card-header" id="heading_' + blogId + '_' + postId + '">' +
 					'<h2 class="mb-0 row">' +
-					'<button class="btn btn-link text-left align-content-start" type="button" data-toggle="collapse" data-target="#collapse_' + blogId + '_' + postId + '" aria-expanded="false" aria-controls="collapse_' + blogId + '_' + postId + '">' +
+					'<button class="btn btn-link text-left align-content-start" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_' + blogId + '_' + postId + '" aria-expanded="false" aria-controls="collapse_' + blogId + '_' + postId + '">' +
 					title +
 					'</button>' +
 					'</h2>' +
 					'</div>' +
-					'<div id="collapse_' + blogId + '_' + postId + '" class="collapse" aria-labelledby="heading_' + blogId + '_' + postId + '" data-parent="#accordion_' + blogId + '">' +
+					'<div id="collapse_' + blogId + '_' + postId + '" class="collapse" aria-labelledby="heading_' + blogId + '_' + postId + '" data-bs-parent="#accordion_' + blogId + '">' +
 					'<div class="card-body">' +
 					'<form method="post" data-id="' + blogId + '" class="postForm">' +
 					'<div class="text-danger validation-summary-valid" data-valmsg-summary="true">' +
@@ -156,25 +156,21 @@ function BlogsOnLoad() {
 
 	Array.prototype.slice.call(document.querySelectorAll("form.blogForm")).forEach(function (form) {
 		const blog_id = form.dataset["id"];
-		const form_group = form.querySelector('div.form-group-sm');
-
-		let el = document.createElement('a');
-		el.classList.add("form-control");
+		let el = document.createElement('div');
 		el.classList.add("col-sm-12");
-		el.classList.add("col-md-2");
+		el.classList.add("col-md-3");
 		el.classList.add("col-lg-1");
 		el.classList.add("mx-sm-1");
-		el.classList.add("mx-md-1");
-		el.classList.add("mx-lg-1");
-		el.classList.add("btn");
-		el.classList.add("btn-outline-success");
-		el.setAttribute("data-toggle", "collapse");
-		el.setAttribute("href", '#collapse_' + blog_id);
-		el.setAttribute("role", "button");
-		el.setAttribute("aria-expanded", "false");
-		el.setAttribute("aria-controls", "collapse_" + blog_id);
-		el.innerText = 'Posts';
-		form_group.appendChild(el);
+		// el.classList.add("mx-md-1");
+		// el.classList.add("mx-lg-1");
+		el.classList.add("px-0");
+		el.classList.add("unloaded");
+		el.innerHTML =
+			'<a role="button" class="form-control btn btn-outline-success" ' +
+			'data-bs-toggle="collapse" href="#collapse_' + blog_id + '" aria-expanded="false" ' +
+			'aria-controls="collapse_' + blog_id + '">Posts</a>';
+		form.appendChild(el);
+
 
 		el = document.createElement('div');
 		el.id = "collapse_" + blog_id;
@@ -182,7 +178,7 @@ function BlogsOnLoad() {
 		el.classList.add("mt-2");
 		el.classList.add("unloaded");
 		el.innerHTML =
-			'<a class="btn btn-outline-primary" data-toggle="collapse" href="#addPost_' + blog_id + '" role="button" aria-expanded="false" aria-controls="addPost_' + blog_id + '">' +
+			'<a role="button" class="btn btn-outline-primary" data-bs-toggle="collapse" href="#addPost_' + blog_id + '" aria-expanded="false" aria-controls="addPost_' + blog_id + '">' +
 			'New Post' +
 			'</a>' +
 			'<div class="collapse mt-2 card-body border" id="addPost_' + blog_id + '">' +
@@ -190,12 +186,12 @@ function BlogsOnLoad() {
 			'<div class="text-danger validation-summary-valid" data-valmsg-summary="true">' +
 			'<ul><li style="display:none"></li></ul>' +
 			'</div>' +
-			'<div class="form-group">' +
+			'<div class="col-12">' +
 			'<label for="addForm1_' + blog_id + '">Title</label>' +
 			'<input type="text" name="Title" class="form-control" id="addForm1_' + blog_id + '" placeholder="title"' +
 			' data-val="true" required data-val-required="The Title field is required.">' +
 			'</div>' +
-			'<div class="form-group">' +
+			'<div class="col-12">' +
 			'<label for="addForm2_' + blog_id + '">Content</label>' +
 			'<textarea name="Content" class="form-control" id="addForm2_' + blog_id + '" rows="3" placeholder="content"' +
 			' data-val="true" required data-val-required="The Content field is required."></textarea>' +
