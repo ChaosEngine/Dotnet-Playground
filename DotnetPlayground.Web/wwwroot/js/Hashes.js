@@ -86,6 +86,7 @@ function HashesOnLoad() {
 		}, $('#txtSearch').data("val-hashlength")
 	);
 
+	$("#theForm").validate();
 	$("#theForm").data("validator").settings.submitHandler = function (form) {
 		AjaxifySearch(form); return false;
 		//alert('submitted'); return false;
