@@ -27,7 +27,7 @@ function BlogsOnLoad() {
 					'</h2>' +
 					'<div id="collapse_' + blogId + '_' + postId + '" class="accordion-collapse collapse" aria-labelledby="heading_' + blogId + '_' + postId + '" data-bs-parent="#accordion_' + blogId + '">' +
 					'<div class="accordion-body">' +
-					'<form method="post" data-id="' + blogId + '" class="postForm">' +
+					'<form method="post" data-id="' + blogId + '" class="postForm row g-2">' +
 					'<div class="text-danger validation-summary-valid" data-valmsg-summary="true">' +
 					'<ul><li style="display:none"></li></ul>' +
 					'</div>' +
@@ -42,12 +42,16 @@ function BlogsOnLoad() {
 					'<textarea name="Content" class="form-control" id="editForm2_' + postId + '" rows="3" placeholder="content"' +
 					' data-val="true" required data-val-required="The Content field is required.">' + content + '</textarea>' +
 					'</div>' +
+					'<div class="col-sm-12 col-md-4 col-lg-4">' +
 					'<input name="operation" type="submit" value="EditPost"' +
 					' formaction="Blogs/EditPost/' + blogId + '/true"' +
-					' class="update-case form-control col-sm-12 col-md-4 col-lg-4 btn btn-secondary" />' +
+					' class="update-case form-control btn btn-secondary" />' +
+					'</div>' +
+					'<div class="mx-sm-0 col-sm-12 col-md-4 col-lg-4">' +
 					'<input name="operation" type="submit" value="DeletePost"' +
 					' formaction="Blogs/DeletePost/' + blogId + '/true"' +
-					' class="delete-case form-control mx-md-2 mx-lg-2 col-sm-12 col-md-4 col-lg-4 btn btn-danger" formnovalidate="formnovalidate" />' +
+					' class="delete-case form-control btn btn-danger" formnovalidate="formnovalidate" />' +
+					'</div>' +
 					'</form>' +
 					'</div>' +
 					'</div>';
@@ -67,7 +71,7 @@ function BlogsOnLoad() {
 				});
 			}
 			else {
-				heading.querySelector("#heading_" + blogId + "_" + postId + " > h2 > button").innerText = title;
+				heading.querySelector("#heading_" + blogId + "_" + postId + " > button").innerText = title;
 			}
 
 			$("#addPost_" + blogId).collapse("hide");
@@ -180,7 +184,7 @@ function BlogsOnLoad() {
 			'New Post' +
 			'</a>' +
 			'<div class="collapse mt-2 card-body border" id="addPost_' + blog_id + '">' +
-			'<form method="post" action="Blogs/AddPost/' + blog_id + '/false" class="postForm" data-id="' + blog_id + '">' +
+			'<form method="post" action="Blogs/AddPost/' + blog_id + '/false" class="postForm row g-2" data-id="' + blog_id + '">' +
 			'<div class="text-danger validation-summary-valid" data-valmsg-summary="true">' +
 			'<ul><li style="display:none"></li></ul>' +
 			'</div>' +
@@ -194,7 +198,9 @@ function BlogsOnLoad() {
 			'<textarea name="Content" class="form-control" id="addForm2_' + blog_id + '" rows="3" placeholder="content"' +
 			' data-val="true" required data-val-required="The Content field is required."></textarea>' +
 			'</div>' +
-			'<input name="operation" type="submit" value="AddPost" class="add-case form-control col-sm-12 col-md-4 col-lg-4 btn btn-primary" />' +
+			'<div class="col-sm-12 col-md-4 col-lg-4">' +
+			'<input name="operation" type="submit" value="AddPost" class="add-case form-control btn btn-primary" />' +
+			'</div>' +
 			'</form>' +
 			'</div>';
 		form.parentNode.insertBefore(el, form.nextSibling);
