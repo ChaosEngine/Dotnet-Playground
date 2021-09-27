@@ -18,17 +18,15 @@ function BlogsOnLoad() {
 			const heading = collapsible.querySelector("#heading_" + blogId + '_' + postId);
 			if (!heading) {
 				const card = document.createElement('div');
-				card.classList.add("card");
+				card.classList.add("accordion-item");
 				const str =
-					'<div class="card-header" id="heading_' + blogId + '_' + postId + '">' +
-					'<h2 class="mb-0 row">' +
-					'<button class="btn btn-link text-left align-content-start" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_' + blogId + '_' + postId + '" aria-expanded="false" aria-controls="collapse_' + blogId + '_' + postId + '">' +
+					'<h2 class="accordion-header" id="heading_' + blogId + '_' + postId + '">' +
+					'<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_' + blogId + '_' + postId + '" aria-expanded="false" aria-controls="collapse_' + blogId + '_' + postId + '">' +
 					title +
 					'</button>' +
 					'</h2>' +
-					'</div>' +
-					'<div id="collapse_' + blogId + '_' + postId + '" class="collapse" aria-labelledby="heading_' + blogId + '_' + postId + '" data-bs-parent="#accordion_' + blogId + '">' +
-					'<div class="card-body">' +
+					'<div id="collapse_' + blogId + '_' + postId + '" class="accordion-collapse collapse" aria-labelledby="heading_' + blogId + '_' + postId + '" data-bs-parent="#accordion_' + blogId + '">' +
+					'<div class="accordion-body">' +
 					'<form method="post" data-id="' + blogId + '" class="postForm">' +
 					'<div class="text-danger validation-summary-valid" data-valmsg-summary="true">' +
 					'<ul><li style="display:none"></li></ul>' +
