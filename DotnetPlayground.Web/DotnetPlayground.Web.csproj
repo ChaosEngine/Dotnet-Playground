@@ -47,7 +47,7 @@
     <PackageReference Include="Oracle.EntityFrameworkCore" Version="5.21.3" Condition="$(DefineConstants.Contains('INCLUDE_ORACLE'))" />
 		<PackageReference Include="IdentityManager2.AspNetIdentity" Version="1.0.0" />
 		<PackageReference Include="Lib.AspNetCore.ServerTiming" Version="4.2.0" />
-		<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.16.0" Condition="$(DefineConstants.Contains('INCLUDE_COSMOSDB'))" />
+		<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.16.1" Condition="$(DefineConstants.Contains('INCLUDE_COSMOSDB'))" />
 		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.55.0.2449" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="5.0.10" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="5.0.10" />
