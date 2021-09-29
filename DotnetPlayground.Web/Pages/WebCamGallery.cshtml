@@ -25,7 +25,7 @@
 
 <p id="secretAction" style="display: none">
 	<button id="btnAnnualMovieGenerator" type="button" class="btn btn-primary" value="Generate"
-		data-toggle="collapse" data-target="#divAnnualMovieGenerator" aria-expanded="false" aria-controls="divAnnualMovieGenerator"
+		data-bs-toggle="collapse" data-bs-target="#divAnnualMovieGenerator" aria-expanded="false" aria-controls="divAnnualMovieGenerator"
   		title="Show all annual movie clips" disabled>Annual movie clips</button>
 </p>
 <div class="collapse card card-body" id="divAnnualMovieGenerator">
@@ -38,25 +38,25 @@
 		if (!string.IsNullOrEmpty(Model.LiveWebCamURL))
 		{
 			<li class="nav-item">
-				<a class="nav-link active" data-toggle="tab" href="#live-tab" role="tab" aria-controls="live-tab" aria-selected="true">Live</a>
+				<a class="nav-link active" data-bs-toggle="tab" href="#live-tab" role="tab" aria-controls="live-tab" aria-selected="true">Live</a>
 			</li>
 		}
 		if (!string.IsNullOrEmpty(Model.BaseWebCamURL))
 		{
 			<li class="nav-item">
-				<a class="nav-link" data-toggle="tab" href="#video-tab" role="tab" aria-controls="video-tab" aria-selected="false">Daily video</a>
+				<a class="nav-link" data-bs-toggle="tab" href="#video-tab" role="tab" aria-controls="video-tab" aria-selected="false">Daily video</a>
 			</li>
 		}
 		if (!string.IsNullOrEmpty(Model.YouTubePlaylistId))
 		{
 			<li class="nav-item">
-				<a class="nav-link" data-toggle="tab" href="#youtube-tab" role="tab" aria-controls="youtube-tab" aria-selected="false">Youtube videos</a>
+				<a class="nav-link" data-bs-toggle="tab" href="#youtube-tab" role="tab" aria-controls="youtube-tab" aria-selected="false">Youtube videos</a>
 			</li>
 		}
 		if (Model.ThumbnailJpgs != null)
 		{
 			<li class="nav-item" style="display:inherit">
-				<a class="nav-link" data-toggle="tab" href="#gallery-tab" role="tab" aria-controls="gallery-tab" aria-selected="false">Gallery</a>
+				<a class="nav-link" data-bs-toggle="tab" href="#gallery-tab" role="tab" aria-controls="gallery-tab" aria-selected="false">Gallery</a>
 				<button id="btnReplAllImg" type="button" class="btn btn-secondary btn-sm" style="align-self:center;display:none" value="strng" title="Load all images">Load all</button>
 			</li>
 		}
