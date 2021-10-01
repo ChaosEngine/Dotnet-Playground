@@ -425,12 +425,9 @@ function WebCamGalleryOnLoad(isAnnualMovieListAvailable, liveImageExpireTimeInSe
 	});
 
 	if (isAnnualMovieListAvailable === true) {
-		$('#btnAnnualMovieGenerator').prop('disabled', false).on('click', function (event) {
-			if (event.target.attributes['aria-expanded'].value !== 'true') {
-				event.target.disabled = 'disabled';
-				GenerateAnnualMovie(event);
-			}
-			$('#divAnnualMovieGenerator').collapse('toggle');
+		$('#btnAnnualMovieGenerator').prop('disabled', false);
+		$('#divAnnualMovieGenerator').on('show.bs.collapse', function (event) {
+			GenerateAnnualMovie(event);
 		});
 		$('#secretAction').show();
 	}
