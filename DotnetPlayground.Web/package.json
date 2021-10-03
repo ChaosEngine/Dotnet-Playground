@@ -70,7 +70,7 @@
 		"gulp-header": "2.0.9",
 		"rimraf": "3.0.2",
 		"concaveman": "1.2.1",
-		"webpack": "5.55.1",
+		"webpack": "5.56.0",
 		"webpack-stream": "7.0.0",
 		"poly-decomp": "0.3.0",
 		"worker-plugin": "5.0.1"
