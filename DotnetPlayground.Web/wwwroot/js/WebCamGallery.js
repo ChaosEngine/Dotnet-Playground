@@ -4,10 +4,9 @@
 ///////////////////WebCamGallery functions start/////////////////
 /**
  * WebCamGallery onload event
- * @param {boolean} isAnnualMovieListAvailable - whether to enable specific admin functionality
  * @param {any} liveImageExpireTimeInSeconds - how often to allow refreshing of live image
  */
-function WebCamGalleryOnLoad(isAnnualMovieListAvailable, liveImageExpireTimeInSeconds) {
+function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 	let last_refresh = new Date();
 	const btnReplAllImg = $('#btnReplAllImg');
 	/**
@@ -424,15 +423,12 @@ function WebCamGalleryOnLoad(isAnnualMovieListAvailable, liveImageExpireTimeInSe
 		}
 	});
 
-	if (isAnnualMovieListAvailable === true) {
+	
+	if ($('#secretAction').is(":visible") === true) {
 		$('#btnAnnualMovieGenerator').prop('disabled', false);
 		$('#divAnnualMovieGenerator').on('show.bs.collapse', function (event) {
 			GenerateAnnualMovie(event);
 		});
-		$('#secretAction').show();
-	}
-	else {
-		$('#secretAction').hide();
 	}
 }
 ///////////////////WebCamGallery functions end///////////////////
