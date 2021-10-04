@@ -14,7 +14,7 @@
 			</p>
 			<p>
 				Hashes count: <strong>@(((HashesInfo)ViewBag.Info).Count)</strong>
-				last updated @DateTime.Now.ToString("R")
+				last updated <span id="spLastDate">@DateTime.Now.ToString("O")</span>
 			</p>
 		</cache>
 	}

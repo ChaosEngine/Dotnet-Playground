@@ -74,7 +74,7 @@ function HashesOnLoad() {
 				: '<button class="btn btn-success btn-sm" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>');
 		});
 	}
-	
+
 	$.validator.addMethod('hashlength',
 		function (value) {
 			const kind = $('.hash-kind input[type="radio"]:checked').val();
@@ -139,4 +139,11 @@ function HashesOnLoad() {
 			}
 		}
 	});
+
+	const spLastDate = $("#spLastDate");
+	if (spLastDate.length > 0) {
+		//https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toLocaleString
+		//https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat
+		spLastDate.text(new Date(spLastDate.text()).toLocaleString([], { dateStyle: 'medium', timeStyle: 'long' }));
+	}
 }
