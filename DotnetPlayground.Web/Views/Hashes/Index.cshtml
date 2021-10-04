@@ -80,9 +80,7 @@
 		<script type="text/javascript" src="~/js/Hashes.min.js"></script>
 	</environment>
 	<script type="text/javascript">
-		window.addEventListener('load', function () {
-			HashesOnLoad();
-		});
+		window.addEventListener('load', HashesOnLoad);
 	</script>
 
 	@await Html.PartialAsync("_ValidationScriptsPartial")

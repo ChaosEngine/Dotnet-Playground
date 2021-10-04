@@ -6,55 +6,53 @@
 }
 
 <div class="puzzles">
-
-
 	<h1>Puzzle Generator</h1>
 	<h3>Combine PNG/JPG/AVIF image with SVG puzzle pattern. Apply scaling, rotation, transform design to fit your needs.</h3>
 
 	<form method="post">
-		<div class="form-group row">
-			<div class="custom-control custom-radio custom-control-inline col">
-				<input class="custom-control-input input-hidden" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1" checked />
-				<label class="custom-control-label w-100" for="inlineRadio1">fond puzzle
+		<div class="row">
+			<div class="form-check form-check-inline col">
+				<input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1" checked />
+				<label class="form-check-label w-100" for="inlineRadio1">fond puzzle
 					<img src="~/images/puzzles/fond-puzzle.svg" alt="fond puzzle" width="183px" height="90px" class="img-fluid mt-2" />
 				</label>
 			</div>
-			<div class="custom-control custom-radio custom-control-inline col">
-				<input class="custom-control-input input-hidden" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2" />
-				<label class="custom-control-label w-100" for="inlineRadio2">Jigsaw Puzzle Pieces
+			<div class="form-check form-check-inline col">
+				<input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2" />
+				<label class="form-check-label w-100" for="inlineRadio2">Jigsaw Puzzle Pieces
 					<img src="~/images/puzzles/Jigsaw-Puzzle-Pieces.svg" alt="Jigsaw Puzzle Pieces" width="183px" height="183px" class="img-fluid mt-2" />
 				</label>
 			</div>
-			<div class="custom-control custom-radio custom-control-inline col">
-				<input class="custom-control-input input-hidden" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option3" />
-				<label class="custom-control-label w-100" for="inlineRadio3">10x14
+			<div class="form-check form-check-inline col">
+				<input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option3" />
+				<label class="form-check-label w-100" for="inlineRadio3">10x14
 					<img src="~/images/puzzles/jigsaw10x14.svg" alt="10x14" width="183px" height="259px" class="img-fluid mt-2" />
 				</label>
 			</div>
-			<div class="custom-control custom-radio custom-control-inline col">
-				<input class="custom-control-input input-hidden" type="radio" name="inlineRadioOptions" id="inlineRadio4" value="option4" />
-				<label class="custom-control-label w-100" for="inlineRadio4">puzzle
+			<div class="form-check form-check-inline col">
+				<input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio4" value="option4" />
+				<label class="form-check-label w-100" for="inlineRadio4">puzzle
 					<img src="~/images/puzzles/puzzle.svg" alt="puzzle" width="183px" height="183px" class="img-fluid mt-2" />
 				</label>
 			</div>
 		</div>
 
-		<div class="form-group row">
-			<div class="custom-file">
-				<input type="file" name="file" class="custom-file-input" id="customFile" />
-				<label class="custom-file-label" for="customFile">Choose file</label>
+		<div class="row">
+			<div class="mb-3">
+				<label class="form-label" for="customFile">Choose file</label>
+				<input type="file" name="file" class="form-control" id="customFile" />
 			</div>
 		</div>
 
-		<div class="form-group">
-			<label for="rangeSize">Size 200</label>
-			<input type="range" class="custom-range" id="rangeSize" min="10" max="420" step="10" value="200" />
-			<label for="rotation">Rotation 180</label>
-			<input type="range" class="custom-range" id="rotation" min="0" max="360" step="10" value="180" />
+		<div>
+			<label for="rangeSize" class="form-label">Size 200</label>
+			<input type="range" class="form-range" id="rangeSize" min="10" max="420" step="10" value="200" />
+			<label for="rotation" class="form-label">Rotation 180</label>
+			<input type="range" class="form-range" id="rotation" min="0" max="360" step="10" value="180" />
 		</div>
 
-		<div class="form-group row">
-			<input type="submit" value="Submit" class="btn btn-primary" />
+		<div class="mb-2">
+			<input type="submit" value="Submit" class="btn btn-primary col-auto" />
 		</div>
 	</form>
 
@@ -71,8 +69,6 @@
 		<script type="text/javascript" src="~/js/Puzzles.min.js"></script>
 	</environment>
 	<script type="text/javascript">
-		window.addEventListener('load', function () {
-			PuzzlesOnLoad();
-		});
+		window.addEventListener('load', PuzzlesOnLoad);
 	</script>
 }

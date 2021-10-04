@@ -8,7 +8,7 @@ function PuzzlesOnLoad() {
 		$(this).next('label').text(file);
 	});
 
-	$("input[type='radio'].custom-control-input").on('change', function () {
+	$("input[type='radio'].form-check-input").on('change', function () {
 		const img = $(this).next('label').find('img');
 		const size = $('#rangeSize')[0].value;
 
