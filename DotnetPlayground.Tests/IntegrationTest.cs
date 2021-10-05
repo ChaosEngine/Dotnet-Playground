@@ -349,7 +349,7 @@ namespace Integration
 				response.EnsureSuccessStatusCode();
 
 				var responseString = await response.Content.ReadAsStringAsync();
-				Assert.Contains("<button id=\"btninfo\" class=\"btn btn-secondary\" type=\"button\" data-toggle=\"modal\" data-target=\"#exampleModal\">&#9432;&nbsp;Row info</button>",
+				Assert.Contains("<button id=\"btninfo\" class=\"btn btn-secondary\" type=\"button\" data-bs-toggle=\"modal\" data-bs-target=\"#exampleModal\">&#9432;&nbsp;Row info</button>",
 					responseString);
 				Assert.Contains("data-page-list=\"[50,500,2000,10000]\"", responseString);
 			}
@@ -504,7 +504,7 @@ namespace Integration
 
 				var responseString = await response.Content.ReadAsStringAsync();
 				Assert.Contains("<title>New Blog - Dotnet Core Playground</title>", responseString);
-				Assert.Contains("<label for=\"Url\">Url</label>", responseString);
+				Assert.Contains("<label class=\"form-label\" for=\"Url\">Url</label>", responseString);
 			}
 		}
 
@@ -553,7 +553,7 @@ namespace Integration
 				using (var index_response = await _client.GetAsync($"{_fixture.AppRootPath}{BlogsController.ASPX}/", HttpCompletionOption.ResponseContentRead))
 				{
 					var responseString = await index_response.Content.ReadAsStringAsync();
-					MatchCollection matches = Regex.Matches(responseString, @"\<form method=""post"" class=""blogForm"" data-id=""([0-9].*)""\>");
+					MatchCollection matches = Regex.Matches(responseString, @"\<form method=""post"" class=""blogForm row g-3"" data-id=""([0-9].*)""\>");
 					Assert.NotEmpty(matches);
 					var ids = new List<int>(matches.Count);
 					foreach (Match m in matches)
