@@ -32,20 +32,20 @@ a[href] {
 		}
 	}
 }
-.btn {
-	&:hover {
-		text-decoration: none;
-	}
-}
+// .btn {
+// 	&:hover {
+// 		text-decoration: none;
+// 	}
+// }
 .validation-summary-valid {
 	display: none;
 }
 
-/* Carousel */
-.carousel-caption p {
-	font-size: 20px;
-	line-height: 1.4;
-}
+// /* Carousel */
+// .carousel-caption p {
+// 	font-size: 20px;
+// 	line-height: 1.4;
+// }
 
 /* Make .svg files in the carousel display properly in older browsers: https://getbootstrap.com/docs/4.6/content/images/#responsive-images */
 .carousel-inner .carousel-item img[src$=".svg"] {
@@ -57,13 +57,13 @@ a[href] {
 	margin: 15px;
 }
 
-/* Hide/rearrange for smaller screens */
-@media screen and (max-width: 767px) {
-	/* Hide captions */
-	.carousel-caption {
-		display: none;
-	}
-}
+// /* Hide/rearrange for smaller screens */
+// @media screen and (max-width: 767px) {
+// 	// Hide captions
+// 	.carousel-caption {
+// 		display: none;
+// 	}
+// }
 
 /*My custom styling*/
 /*.bg-dark-development {
