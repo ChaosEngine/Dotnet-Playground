@@ -275,7 +275,7 @@ const processInputArgs = function () {
 	if (projectVersion !== undefined && projectVersion.length > 0)
 		projectVersion = ', Version: ' + projectVersion;
 	else
-		projectVersion = '';
+		projectVersion = ', Debug: xx.yy.zz-ssss';
 
 	switch (env) {
 		case 'prod':

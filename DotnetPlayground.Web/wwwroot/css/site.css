@@ -70,7 +70,7 @@ footer.container > noscript {
 }
 
 #spVersion::after {
-  content: "";
+  content: ", Debug: xx.yy.zz-ssss";
 }
 
 /***************VirtualScroll start***************/
