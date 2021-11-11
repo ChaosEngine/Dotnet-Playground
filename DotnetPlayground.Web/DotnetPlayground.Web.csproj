@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
-    <Version>1.0.19-bootstrap5</Version>
+    <Version>1.0.20-dotnet6</Version>
 		<TargetFramework>net5.0</TargetFramework>
 		<LangVersion>latest</LangVersion>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
