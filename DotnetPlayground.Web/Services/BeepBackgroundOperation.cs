@@ -54,7 +54,7 @@ namespace DotnetPlayground.Services
 		/// </summary>
 		private async Task Play(ILogger logger, CancellationToken token)
 		{
-			double speed_factor = 0.75;
+			const double speed_factor = 0.75;
 
 			if (!OperatingSystem.IsWindows()) // standard guard examples
 			{

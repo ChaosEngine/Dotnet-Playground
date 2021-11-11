@@ -74,7 +74,7 @@ footer.container > noscript {
 }
 
 /***************VirtualScroll start***************/
-.bootstrap-table button.btn .fa-sync:after {
+.bootstrap-table button.btn .bi-arrow-clockwise:after {
   content: "↻";
   display: block;
   font-style: normal;
