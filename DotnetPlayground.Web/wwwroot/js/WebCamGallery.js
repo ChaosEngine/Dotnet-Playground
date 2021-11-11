@@ -1,13 +1,12 @@
-﻿/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate|WebCamGalleryOnLoad" }]*/
+/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate|WebCamGalleryOnLoad" }]*/
 /*global g_AppRootPath, videojs, blueimp*/
 "use strict";
 ///////////////////WebCamGallery functions start/////////////////
 /**
  * WebCamGallery onload event
- * @param {boolean} isAnnualMovieListAvailable - whether to enable specific admin functionality
  * @param {any} liveImageExpireTimeInSeconds - how often to allow refreshing of live image
  */
-function WebCamGalleryOnLoad(isAnnualMovieListAvailable, liveImageExpireTimeInSeconds) {
+function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 	let last_refresh = new Date();
 	const btnReplAllImg = $('#btnReplAllImg');
 	/**
@@ -297,12 +296,12 @@ function WebCamGalleryOnLoad(isAnnualMovieListAvailable, liveImageExpireTimeInSe
 	}
 
 	//live image anchor tag refresh
-	$('#aLive').click(RefreshLiveImage);
+	$('#aLive').on('click', RefreshLiveImage);
 
 	//bluimp-gallery handling
-	$('#links').click(LoadBlueImpGallery);
+	$('#links').on('click', LoadBlueImpGallery);
 
-	btnReplAllImg.click(ReplAllImg);
+	btnReplAllImg.on('click', ReplAllImg);
 
 	$("img.inactive").each(function (index, value) {
 		if (index < 7) {
@@ -424,18 +423,12 @@ function WebCamGalleryOnLoad(isAnnualMovieListAvailable, liveImageExpireTimeInSe
 		}
 	});
 
-	if (isAnnualMovieListAvailable === true) {
-		$('#btnAnnualMovieGenerator').prop('disabled', false).on('click', function (event) {
-			if (event.target.attributes['aria-expanded'].value !== 'true') {
-				event.target.disabled = 'disabled';
-				GenerateAnnualMovie(event);
-			}
-			$('#divAnnualMovieGenerator').collapse('toggle');
+	
+	if ($('#secretAction').is(":visible") === true) {
+		$('#btnAnnualMovieGenerator').prop('disabled', false);
+		$('#divAnnualMovieGenerator').on('show.bs.collapse', function (event) {
+			GenerateAnnualMovie(event);
 		});
-		$('#secretAction').show();
-	}
-	else {
-		$('#secretAction').hide();
 	}
 }
 ///////////////////WebCamGallery functions end///////////////////

@@ -5,13 +5,13 @@
 @inject MySignInManager SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
-<ul class="navbar-nav ml-auto">
+<ul class="navbar-nav ms-auto">
     <li class="nav-item dropdown">
         @if (SignInManager.IsSignedIn(User))
         {
             var user = await UserManager.GetUserAsync(User);
 
-            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Hello @user.Name!</a>
+            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Hello @user.Name!</a>
             <div class="dropdown-menu">
                 <a class="dropdown-item" href="~/Identity/Account/Manage/Index" title="Manage">Manage profile</a>
                 <form action="~/Identity/Account/Logout" method="post" id="logoutForm">
@@ -21,7 +21,7 @@
         }
         else
         {
-            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Profile</a>
+            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Profile</a>
             <div class="dropdown-menu">
                 <a class="dropdown-item" href="~/Identity/Account/Register">Register</a>
                 <a class="dropdown-item" href="~/Identity/Account/Login">Login</a>

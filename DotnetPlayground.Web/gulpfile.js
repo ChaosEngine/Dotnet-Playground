@@ -13,7 +13,8 @@ const gulp = require("gulp"),
 	path = require('path'),
 	webpack = require('webpack-stream'),
 	//esmWebpackPlugin = require("@purtuga/esm-webpack-plugin"),
-	workerPlugin = require('worker-plugin');
+	workerPlugin = require('worker-plugin'),
+	TerserPlugin = require('terser-webpack-plugin');
 
 var webroot = "./wwwroot/";
 
@@ -88,7 +89,12 @@ const inkballEntryPoint = function (min) {
 			}]
 		},
 		optimization: {
-			minimize: min
+			minimize: min,
+			minimizer: [
+				new TerserPlugin({
+					extractComments: false
+				})
+			]
 		},
 		performance: {
 			hints: process.env.NODE_ENV === 'production' ? "warning" : false
@@ -104,10 +110,7 @@ const inkballAIWorker = function (doPollyfill) {
 	return gulp.src(paths.inkBallJsRelative + "AIWorker.js")
 		.pipe(webpack({
 			resolve: {
-				modules: ['node_modules', `../../../../../${path.basename(__dirname)}/node_modules`],
-				alias: {
-					'tinyqueue': 'tinyqueue/tinyqueue.js' //https://github.com/mapbox/concaveman/issues/18
-				}
+				modules: ['node_modules', `../../../../../${path.basename(__dirname)}/node_modules`]
 			},
 			entry: {
 				'AIWorker': doPollyfill === true ? [
@@ -117,7 +120,7 @@ const inkballAIWorker = function (doPollyfill) {
 						paths.inkBallJsRelative + 'AIWorker.js'
 					]
 			},
-			target: "webworker",
+			// target: "webworker",
 			output: {
 				filename: doPollyfill === true ? '[name].PolyfillBundle.js' : '[name].Bundle.js'
 			},
@@ -144,7 +147,12 @@ const inkballAIWorker = function (doPollyfill) {
 				}]
 			} : {},
 			optimization: {
-				minimize: true
+				minimize: true,
+				minimizer: [
+					new TerserPlugin({
+						extractComments: false
+					})
+				]
 			},
 			performance: {
 				hints: process.env.NODE_ENV === 'production' ? "warning" : false
@@ -165,10 +173,12 @@ gulp.task("webpack", gulp.parallel(function inkballWebWorkerEntryPoint(cb) {
 	return cb();
 }));
 
-const fileMinifyJSFunction = function (src, result) {
+const fileMinifyJSFunction = function (src, result, toplevel = false) {
 	return gulp.src([src, "!" + result], { base: "." })
 		.pipe(concat(result))
-		.pipe(terser())
+		.pipe(terser({
+			toplevel: toplevel
+		}))
 		.pipe(gulp.dest("."));
 };
 
@@ -181,11 +191,11 @@ const fileMinifySCSSFunction = function (src, result) {
 
 gulp.task("min:inkball", gulp.parallel(function inkballJsAndCSS() {
 	return fileMinifyJSFunction(paths.inkBallJsRelative + "inkball.js",
-		paths.inkBallJsRelative + "inkball.min.js");
+		paths.inkBallJsRelative + "inkball.min.js", true);
 },
 	function inkballSharedJs() {
 		return fileMinifyJSFunction(paths.inkBallJsRelative + "shared.js",
-			paths.inkBallJsRelative + "shared.min.js");
+			paths.inkBallJsRelative + "shared.min.js", true);
 	},
 	gulp.series(function scssToCSS() {
 		return fileMinifySCSSFunction(paths.inkBallCssRelative + "inkball.scss", paths.inkBallCssRelative + "inkball.css");
@@ -207,8 +217,6 @@ gulp.task("clean:inkball", function (cb) {
 gulp.task("clean:js", gulp.series("clean:inkball", function cleanMinJs(cb) {
 	rimraf(paths.minJs, cb);
 	rimraf(paths.SWJsDest, cb);
-	//rimraf(paths.BruteForceWorkerJsDest, cb);
-	//rimraf(paths.SharedJsDest, cb);
 }));
 
 gulp.task("clean:css", function (cb) {
@@ -222,15 +230,7 @@ gulp.task("minSWJs:js", function () {
 	return fileMinifyJSFunction(paths.SWJs, paths.SWJsDest);
 });
 
-/*gulp.task("minBruteForceWorker:js", function () {
-	return fileMinifyJSFunction(paths.BruteForceWorkerJs, paths.BruteForceWorkerJsDest);
-});
-
-gulp.task("Shared:js", function () {
-	return fileMinifyJSFunction(paths.SharedJs, paths.SharedJsDest);
-});*/
-
-gulp.task("min:js", gulp.series("minSWJs:js",// "minBruteForceWorker:js", "Shared:js",
+gulp.task("min:js", gulp.series("minSWJs:js",
 	function concatJsDest() {
 		return gulp.src([paths.js, "!" + paths.minJs], { base: "." })
 			//.pipe(concat(paths.concatJsDest))
@@ -275,7 +275,7 @@ const processInputArgs = function () {
 	if (projectVersion !== undefined && projectVersion.length > 0)
 		projectVersion = ', Version: ' + projectVersion;
 	else
-		projectVersion = '';
+		projectVersion = ', Debug: xx.yy.zz-ssss';
 
 	switch (env) {
 		case 'prod':

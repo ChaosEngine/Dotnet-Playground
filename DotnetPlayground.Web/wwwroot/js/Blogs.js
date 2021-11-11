@@ -18,18 +18,16 @@ function BlogsOnLoad() {
 			const heading = collapsible.querySelector("#heading_" + blogId + '_' + postId);
 			if (!heading) {
 				const card = document.createElement('div');
-				card.classList.add("card");
+				card.classList.add("accordion-item");
 				const str =
-					'<div class="card-header" id="heading_' + blogId + '_' + postId + '">' +
-					'<h2 class="mb-0 row">' +
-					'<button class="btn btn-link text-left align-content-start" type="button" data-toggle="collapse" data-target="#collapse_' + blogId + '_' + postId + '" aria-expanded="false" aria-controls="collapse_' + blogId + '_' + postId + '">' +
+					'<h2 class="accordion-header" id="heading_' + blogId + '_' + postId + '">' +
+					'<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_' + blogId + '_' + postId + '" aria-expanded="false" aria-controls="collapse_' + blogId + '_' + postId + '">' +
 					title +
 					'</button>' +
 					'</h2>' +
-					'</div>' +
-					'<div id="collapse_' + blogId + '_' + postId + '" class="collapse" aria-labelledby="heading_' + blogId + '_' + postId + '" data-parent="#accordion_' + blogId + '">' +
-					'<div class="card-body">' +
-					'<form method="post" data-id="' + blogId + '" class="postForm">' +
+					'<div id="collapse_' + blogId + '_' + postId + '" class="accordion-collapse collapse" aria-labelledby="heading_' + blogId + '_' + postId + '" data-bs-parent="#accordion_' + blogId + '">' +
+					'<div class="accordion-body">' +
+					'<form method="post" data-id="' + blogId + '" class="postForm row g-2">' +
 					'<div class="text-danger validation-summary-valid" data-valmsg-summary="true">' +
 					'<ul><li style="display:none"></li></ul>' +
 					'</div>' +
@@ -44,12 +42,16 @@ function BlogsOnLoad() {
 					'<textarea name="Content" class="form-control" id="editForm2_' + postId + '" rows="3" placeholder="content"' +
 					' data-val="true" required data-val-required="The Content field is required.">' + content + '</textarea>' +
 					'</div>' +
+					'<div class="col-sm-12 col-md-4 col-lg-4">' +
 					'<input name="operation" type="submit" value="EditPost"' +
 					' formaction="Blogs/EditPost/' + blogId + '/true"' +
-					' class="update-case form-control col-sm-12 col-md-4 col-lg-4 btn btn-secondary" />' +
+					' class="update-case form-control btn btn-secondary" />' +
+					'</div>' +
+					'<div class="mx-sm-0 col-sm-12 col-md-4 col-lg-4">' +
 					'<input name="operation" type="submit" value="DeletePost"' +
 					' formaction="Blogs/DeletePost/' + blogId + '/true"' +
-					' class="delete-case form-control mx-md-2 mx-lg-2 col-sm-12 col-md-4 col-lg-4 btn btn-danger" formnovalidate="formnovalidate" />' +
+					' class="delete-case form-control btn btn-danger" formnovalidate="formnovalidate" />' +
+					'</div>' +
 					'</form>' +
 					'</div>' +
 					'</div>';
@@ -69,7 +71,7 @@ function BlogsOnLoad() {
 				});
 			}
 			else {
-				heading.querySelector("#heading_" + blogId + "_" + postId + " > h2 > button").innerText = title;
+				heading.querySelector("#heading_" + blogId + "_" + postId + " > button").innerText = title;
 			}
 
 			$("#addPost_" + blogId).collapse("hide");
@@ -156,25 +158,21 @@ function BlogsOnLoad() {
 
 	Array.prototype.slice.call(document.querySelectorAll("form.blogForm")).forEach(function (form) {
 		const blog_id = form.dataset["id"];
-		const form_group = form.querySelector('div.form-group-sm');
-
-		let el = document.createElement('a');
-		el.classList.add("form-control");
+		let el = document.createElement('div');
 		el.classList.add("col-sm-12");
-		el.classList.add("col-md-2");
+		el.classList.add("col-md-3");
 		el.classList.add("col-lg-1");
 		el.classList.add("mx-sm-1");
-		el.classList.add("mx-md-1");
-		el.classList.add("mx-lg-1");
-		el.classList.add("btn");
-		el.classList.add("btn-outline-success");
-		el.setAttribute("data-toggle", "collapse");
-		el.setAttribute("href", '#collapse_' + blog_id);
-		el.setAttribute("role", "button");
-		el.setAttribute("aria-expanded", "false");
-		el.setAttribute("aria-controls", "collapse_" + blog_id);
-		el.innerText = 'Posts';
-		form_group.appendChild(el);
+		// el.classList.add("mx-md-1");
+		// el.classList.add("mx-lg-1");
+		el.classList.add("px-0");
+		el.classList.add("unloaded");
+		el.innerHTML =
+			'<a role="button" class="form-control btn btn-outline-success" ' +
+			'data-bs-toggle="collapse" href="#collapse_' + blog_id + '" aria-expanded="false" ' +
+			'aria-controls="collapse_' + blog_id + '">Posts</a>';
+		form.appendChild(el);
+
 
 		el = document.createElement('div');
 		el.id = "collapse_" + blog_id;
@@ -182,25 +180,27 @@ function BlogsOnLoad() {
 		el.classList.add("mt-2");
 		el.classList.add("unloaded");
 		el.innerHTML =
-			'<a class="btn btn-outline-primary" data-toggle="collapse" href="#addPost_' + blog_id + '" role="button" aria-expanded="false" aria-controls="addPost_' + blog_id + '">' +
+			'<a role="button" class="btn btn-outline-primary" data-bs-toggle="collapse" href="#addPost_' + blog_id + '" aria-expanded="false" aria-controls="addPost_' + blog_id + '">' +
 			'New Post' +
 			'</a>' +
 			'<div class="collapse mt-2 card-body border" id="addPost_' + blog_id + '">' +
-			'<form method="post" action="Blogs/AddPost/' + blog_id + '/false" class="postForm" data-id="' + blog_id + '">' +
+			'<form method="post" action="Blogs/AddPost/' + blog_id + '/false" class="postForm row g-2" data-id="' + blog_id + '">' +
 			'<div class="text-danger validation-summary-valid" data-valmsg-summary="true">' +
 			'<ul><li style="display:none"></li></ul>' +
 			'</div>' +
-			'<div class="form-group">' +
+			'<div class="col-12">' +
 			'<label for="addForm1_' + blog_id + '">Title</label>' +
 			'<input type="text" name="Title" class="form-control" id="addForm1_' + blog_id + '" placeholder="title"' +
 			' data-val="true" required data-val-required="The Title field is required.">' +
 			'</div>' +
-			'<div class="form-group">' +
+			'<div class="col-12">' +
 			'<label for="addForm2_' + blog_id + '">Content</label>' +
 			'<textarea name="Content" class="form-control" id="addForm2_' + blog_id + '" rows="3" placeholder="content"' +
 			' data-val="true" required data-val-required="The Content field is required."></textarea>' +
 			'</div>' +
-			'<input name="operation" type="submit" value="AddPost" class="add-case form-control col-sm-12 col-md-4 col-lg-4 btn btn-primary" />' +
+			'<div class="col-sm-12 col-md-4 col-lg-4">' +
+			'<input name="operation" type="submit" value="AddPost" class="add-case form-control btn btn-primary" />' +
+			'</div>' +
 			'</form>' +
 			'</div>';
 		form.parentNode.insertBefore(el, form.nextSibling);

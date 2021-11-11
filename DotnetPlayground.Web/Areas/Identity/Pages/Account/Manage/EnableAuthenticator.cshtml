@@ -32,19 +32,17 @@
                 Once you have scanned the QR code or input the key above, your two factor authentication app will provide you
                 with a unique code. Enter the code in the confirmation box below.
             </p>
-            <div class="row">
-                <div class="col-md-6">
-                    <form id="send-code" method="post">
-                        <div class="form-group">
-                            <label asp-for="Input.Code" class="control-label">Verification Code</label>
-                            <input asp-for="Input.Code" class="form-control" autocomplete="off" />
-                            <span asp-validation-for="Input.Code" class="text-danger"></span>
-                        </div>
-                        <button type="submit" class="btn btn-secondary">Verify</button>
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    </form>
+            <form id="send-code" method="post" class="col-md-6 row g-3">
+                <div class="col-12">
+                    <label asp-for="Input.Code" class="form-label">Verification Code</label>
+                    <input asp-for="Input.Code" class="form-control" autocomplete="off" />
+                    <span asp-validation-for="Input.Code" class="text-danger"></span>
                 </div>
-            </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-secondary">Verify</button>
+                </div>
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            </form>
         </li>
     </ol>
 </div>

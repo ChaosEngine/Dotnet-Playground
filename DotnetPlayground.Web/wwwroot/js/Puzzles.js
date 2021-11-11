@@ -3,12 +3,12 @@
 "use strict";
 
 function PuzzlesOnLoad() {
-	$('#customFile').change(function () {
+	$('#customFile').on('change', function () {
 		const file = $(this)[0].files[0].name;
 		$(this).next('label').text(file);
 	});
 
-	$("input[type='radio'].custom-control-input").change(function () {
+	$("input[type='radio'].form-check-input").on('change', function () {
 		const img = $(this).next('label').find('img');
 		const size = $('#rangeSize')[0].value;
 
@@ -19,7 +19,7 @@ function PuzzlesOnLoad() {
 		$(".target").css("--trans", "scale(" + size * 0.01 + ") rotateZ(" + rotation.value + "deg)");
 	})[0].focus();
 
-	$("#rangeSize, #rotation").change(function () {
+	$("#rangeSize, #rotation").on('change', function () {
 		const range = $("#rangeSize")[0];
 		const size = range.value;
 		let lbl = $("#rangeSize").prev('label');

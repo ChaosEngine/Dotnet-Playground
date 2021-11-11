@@ -13,14 +13,42 @@ body {
 	padding-top: 4.5rem;
 }
 
-/* Carousel */
-.carousel-caption p {
-	font-size: 20px;
-	line-height: 1.4;
+/* overriding Bootstrap-5 underlined links and others */
+a {
+	text-decoration: none;
+}
+a[href] {
+	&:hover {
+		&:not([role="button"]) {
+			&:not([role="tab"]) {
+				&:not(.btn) {
+					&:not(.dropdown-item) {
+						&:not(.page-link) {
+							text-decoration: underline;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+// .btn {
+// 	&:hover {
+// 		text-decoration: none;
+// 	}
+// }
+.validation-summary-valid {
+	display: none;
 }
 
-/* Make .svg files in the carousel display properly in older browsers */
-.carousel-inner .item img[src$=".svg"] {
+// /* Carousel */
+// .carousel-caption p {
+// 	font-size: 20px;
+// 	line-height: 1.4;
+// }
+
+/* Make .svg files in the carousel display properly in older browsers: https://getbootstrap.com/docs/4.6/content/images/#responsive-images */
+.carousel-inner .carousel-item img[src$=".svg"] {
 	width: 100%;
 }
 
@@ -29,13 +57,13 @@ body {
 	margin: 15px;
 }
 
-/* Hide/rearrange for smaller screens */
-@media screen and (max-width: 767px) {
-	/* Hide captions */
-	.carousel-caption {
-		display: none;
-	}
-}
+// /* Hide/rearrange for smaller screens */
+// @media screen and (max-width: 767px) {
+// 	// Hide captions
+// 	.carousel-caption {
+// 		display: none;
+// 	}
+// }
 
 /*My custom styling*/
 /*.bg-dark-development {
@@ -75,7 +103,7 @@ footer.container > noscript {
 
 /***************VirtualScroll start***************/
 .bootstrap-table {
-	button.btn .fa-sync:after {
+	button.btn .bi-arrow-clockwise:after {
 		content: '↻';
 		display: block;
 		font-style: normal;

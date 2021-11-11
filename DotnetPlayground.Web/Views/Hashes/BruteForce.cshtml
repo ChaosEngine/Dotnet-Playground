@@ -4,29 +4,33 @@
 <h1>Brute forcing hashes to plain text (with trivial strings)</h1>
 <p id="pParagraph">Based on <a target="_blank" href="http://embed.plnkr.co/mnlQ6P">http://embed.plnkr.co/mnlQ6P</a></p>
 
-<div class="form-row">
-	<div class="form-group col-md-6">
-		<label>Pass to be hashed and cracked - simulation</label>
+<div class="row g-3">
+	<div class="col-md-6">
+		<label for="txtHash" class="form-label">Pass to be hashed and cracked - simulation</label>
 		<input id="txtHash" type="text" placeholder="hash to crack" class="form-control" />
 	</div>
 	
-	<div class="form-group col-md-6">
-		<label>Alphabet</label>
+	<div class="col-md-6">
+		<label for="txtAlphabet" class="form-label">Alphabet</label>
 		<input id="txtAlphabet" class="form-control" style="margin-bottom: 5px" value="abcdefghijklmnopqrstuvwxyz0123456789" />
 	</div>
 
-	<div class="form-group col-md-6">
-		<label>Worker count&nbsp;</label>
-		<select id="ddlWorkerCount" class="custom-select col-md-3">
+	<div class="col-md-6 col-lg-4">
+		<label for="ddlWorkerCount" class="form-label">Worker count&nbsp;</label>
+		<select id="ddlWorkerCount" class="form-select col-md-3">
 			<option>1</option><option>2</option><option>4</option><option>8</option>
 		</select>
-		<label>Update rate (millisec)</label>
-		<select id="ddlUpdateRate" class="custom-select col-md-3">
+	</div>
+	<div class="col-md-6 col-lg-4">
+		<label for="ddlUpdateRate" class="form-label">Update rate (millisec)</label>
+		<select id="ddlUpdateRate" class="form-select col-md-3">
 			<option>20</option><option>100</option><option>200</option><option>500</option>
 		</select>
 	</div>
+	<div class="col-12">
+		<button type="button" id="btnCrack" class="btn btn-warning">Crack</button>
+	</div>
 </div>
-<button type="button" id="btnCrack" class="btn btn-warning">Crack</button>
 
 <div class="global-message" style="margin-top:1rem;margin-bottom:1rem"></div>
 <div class="workers row"></div>

@@ -1,0 +1,21 @@
+﻿@page
+@model DotnetPlayground.Pages.BeepExperimentModel
+@{
+	Layout = @"..\Views\Shared\_Layout.cshtml";
+	ViewData["Title"] = "Beep Experiment";
+}
+
+<h3>
+Oh Mario!
+</h3>
+
+<form method="post">
+	@if(Model.IsPlaying)
+	{
+	<input type="submit" value="Stop playing" class="btn btn-primary col-auto" />
+	}
+	else
+	{
+	<input type="submit" value="Beep Me" class="btn btn-primary col-auto" />
+	}
+</form>

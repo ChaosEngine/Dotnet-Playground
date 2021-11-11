@@ -1,296 +1,294 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1140 360">
-	<style>
-		circle.cred {
-			fill:red; stroke:red;
-		}
-		circle.cblue {
-			fill:blue; stroke:blue;
-		}
-		circle.ownd {
-			fill:#DC143C; stroke:#DC143C;
-		}
+<style>
+	circle.r {
+		fill:red; stroke:red;
+	}
+	circle.b {
+		fill:blue; stroke:blue;
+	}
+	circle.o {
+		fill:#DC143C; stroke:#DC143C;
+	}
 
-		polyline {
-			stroke-width:3;
-			stroke:red;
-			fill:red; fill-opacity:0.1;
-			stroke-linecap:round;
-			stroke-linejoin:round;
-		}
-	</style>
-	<defs>
-		<!--grid-->
-		<pattern id='grid' width='16' height='16' patternUnits='userSpaceOnUse'>
-			<path d='M 16 0 L 0 0 0 16' fill='none' stroke='gray' stroke-width='2'/>
-		</pattern>
-	</defs>
+	polyline {
+		stroke-width:3;
+		stroke:red;
+		fill:red; fill-opacity:0.1;
+		stroke-linecap:round;
+		stroke-linejoin:round;
+	}
+</style>
+<defs>
+	<!--grid-->
+	<pattern id='grid' width='16' height='16' patternUnits='userSpaceOnUse'>
+		<path d='M 16 0 L 0 0 0 16' fill='none' stroke='gray' stroke-width='2'/>
+	</pattern>
+</defs>
 
-	<path fill="#7fba00" d="M0 0h1140v360h-1140v-360z" />
+<path fill="#7fba00" d="M0 0h1140v360h-1140v-360z" />
 
-	<!-- white background -->
-	<rect fill="#fff" stroke="#000"
-			width='326' height='420'
-			transform="translate(705 25) scale(0.65) rotate(90)" />
+<!-- background -->
+<rect fill="#fff" stroke="#000"
+		width='326' height='420'
+		transform="translate(705 25) scale(0.65) rotate(90)" />
 
-	<rect fill='url(#grid)'
-				width='320' height='414'
-				transform="translate(700 30) scale(0.65) rotate(90)" />
+<!--board with circle and polys-->
+<g transform="translate(700 30) scale(0.65) rotate(90)">
+	<rect fill='url(#grid)' width='320' height='414'/>
 
-	<!--board with circle and polys-->
-	<g transform="translate(700 30) scale(0.65) rotate(90)">
-		<circle r="4" cx="256" cy="64" class="cred"/>
-		<circle r="4" cx="32" cy="80" class="cblue"/>
-		<circle r="4" cx="208" cy="144" class="cred"/>
-		<circle r="4" cx="160" cy="256" class="cblue"/>
-		<circle r="4" cx="112" cy="128" class="cred"/>
-		<circle r="4" cx="192" cy="96" class="ownd" />
-		<circle r="4" cx="192" cy="112" class="cred"/>
-		<circle r="4" cx="16" cy="64" class="cblue"/>
-		<circle r="4" cx="192" cy="80" class="cred"/>
-		<circle r="4" cx="128" cy="304" class="cblue"/>
-		<circle r="4" cx="176" cy="96" class="cred"/>
-		<circle r="4" cx="32" cy="112" class="cblue"/>
-		<circle r="4" cx="208" cy="96" class="cred"/>
-		<circle r="4" cx="64" cy="272" class="cblue"/>
-		<circle r="4" cx="256" cy="128" class="ownd" />
-		<circle r="4" cx="272" cy="96" class="cred"/>
-		<circle r="4" cx="240" cy="128" class="ownd" />
-		<circle r="4" cx="256" cy="208" class="cred"/>
-		<circle r="4" cx="80" cy="80" class="ownd" />
-		<circle r="4" cx="240" cy="112" class="cred"/>
-		<circle r="4" cx="160" cy="240" class="cblue"/>
-		<circle r="4" cx="256" cy="112" class="cred"/>
-		<circle r="4" cx="160" cy="176" class="cblue"/>
-		<circle r="4" cx="272" cy="128" class="cred"/>
-		<circle r="4" cx="224" cy="336" class="cblue"/>
-		<circle r="4" cx="224" cy="128" class="cred"/>
-		<circle r="4" cx="144" cy="192" class="ownd" />
-		<circle r="4" cx="224" cy="144" class="cred"/>
-		<circle r="4" cx="256" cy="32" class="cblue"/>
-		<circle r="4" cx="240" cy="144" class="cred"/>
-		<circle r="4" cx="32" cy="64" class="cblue"/>
-		<circle r="4" cx="256" cy="144" class="cred"/>
-		<circle r="4" cx="16" cy="176" class="cblue"/>
-		<circle r="4" cx="176" cy="0" class="cblue"/>
-		<circle r="4" cx="160" cy="192" class="cred"/>
-		<circle r="4" cx="32" cy="240" class="cblue"/>
-		<circle r="4" cx="144" cy="176" class="cred"/>
-		<circle r="4" cx="16" cy="320" class="cblue"/>
-		<circle r="4" cx="128" cy="192" class="cred"/>
-		<circle r="4" cx="128" cy="80" class="ownd" />
-		<circle r="4" cx="144" cy="208" class="cred"/>
-		<circle r="4" cx="32" cy="304" class="cblue"/>
-		<circle r="4" cx="64" cy="0" class="cblue"/>
-		<circle r="4" cx="208" cy="192" class="cred"/>
-		<circle r="4" cx="192" cy="192" class="cblue"/>
-		<circle r="4" cx="160" cy="208" class="cred"/>
-		<circle r="4" cx="144" cy="224" class="cblue"/>
-		<circle r="4" cx="80" cy="208" class="cred"/>
-		<circle r="4" cx="304" cy="64" class="cblue"/>
-		<circle r="4" cx="64" cy="176" class="cred"/>
-		<circle r="4" cx="272" cy="368" class="cblue"/>
-		<circle r="4" cx="64" cy="240" class="cred"/>
-		<circle r="4" cx="208" cy="208" class="cblue"/>
-		<circle r="4" cx="32" cy="256" class="cred"/>
-		<circle r="4" cx="304" cy="80" class="cblue"/>
-		<circle r="4" cx="32" cy="288" class="cred"/>
-		<circle r="4" cx="256" cy="256" class="cblue"/>
-		<circle r="4" cx="64" cy="304" class="cred"/>
-		<circle r="4" cx="272" cy="176" class="cblue"/>
-		<circle r="4" cx="80" cy="288" class="cred"/>
-		<circle r="4" cx="144" cy="304" class="cblue"/>
-		<circle r="4" cx="112" cy="256" class="cred"/>
-		<circle r="4" cx="32" cy="224" class="cblue"/>
-		<circle r="4" cx="144" cy="288" class="cred"/>
-		<circle r="4" cx="256" cy="272" class="cblue"/>
-		<circle r="4" cx="208" cy="304" class="cred"/>
-		<circle r="4" cx="96" cy="0" class="cblue"/>
-		<circle r="4" cx="272" cy="256" class="cred"/>
-		<circle r="4" cx="192" cy="48" class="cblue"/>
-		<circle r="4" cx="176" cy="144" class="cred"/>
-		<circle r="4" cx="240" cy="320" class="cblue"/>
-		<circle r="4" cx="176" cy="192" class="cred"/>
-		<circle r="4" cx="96" cy="128" class="ownd" />
-		<circle r="4" cx="128" cy="128" class="cred"/>
-		<circle r="4" cx="304" cy="0" class="cblue"/>
-		<circle r="4" cx="96" cy="144" class="cred"/>
-		<circle r="4" cx="288" cy="368" class="cblue"/>
-		<circle r="4" cx="80" cy="192" class="cred"/>
-		<circle r="4" cx="224" cy="256" class="cblue"/>
-		<circle r="4" cx="224" cy="208" class="cred"/>
-		<circle r="4" cx="304" cy="304" class="cblue"/>
-		<circle r="4" cx="128" cy="288" class="cred"/>
-		<circle r="4" cx="272" cy="240" class="cblue"/>
-		<circle r="4" cx="144" cy="320" class="cred"/>
-		<circle r="4" cx="272" cy="160" class="cblue"/>
-		<circle r="4" cx="224" cy="80" class="cred"/>
-		<circle r="4" cx="224" cy="384" class="cblue"/>
-		<circle r="4" cx="144" cy="64" class="cred"/>
-		<circle r="4" cx="96" cy="160" class="cblue"/>
-		<circle r="4" cx="64" cy="112" class="cred"/>
-		<circle r="4" cx="128" cy="272" class="cblue"/>
-		<circle r="4" cx="48" cy="128" class="cred"/>
-		<circle r="4" cx="0" cy="400" class="cblue"/>
-		<circle r="4" cx="64" cy="160" class="cred"/>
-		<circle r="4" cx="48" cy="208" class="cblue"/>
-		<circle r="4" cx="128" cy="144" class="cred"/>
-		<circle r="4" cx="288" cy="96" class="cblue"/>
-		<circle r="4" cx="144" cy="112" class="cred"/>
-		<circle r="4" cx="112" cy="144" class="cblue"/>
-		<circle r="4" cx="208" cy="256" class="cred"/>
-		<circle r="4" cx="96" cy="224" class="cblue"/>
-		<circle r="4" cx="256" cy="320" class="cred"/>
-		<circle r="4" cx="192" cy="256" class="cblue"/>
-		<circle r="4" cx="288" cy="336" class="cred"/>
-		<circle r="4" cx="176" cy="112" class="ownd" />
-		<circle r="4" cx="160" cy="320" class="cred"/>
-		<circle r="4" cx="112" cy="192" class="cblue"/>
-		<circle r="4" cx="224" cy="288" class="cred"/>
-		<circle r="4" cx="0" cy="224" class="cblue"/>
-		<circle r="4" cx="112" cy="272" class="cred"/>
-		<circle r="4" cx="48" cy="400" class="cblue"/>
-		<circle r="4" cx="208" cy="176" class="cred"/>
-		<circle r="4" cx="16" cy="384" class="cblue"/>
-		<circle r="4" cx="272" cy="320" class="cred"/>
-		<circle r="4" cx="144" cy="384" class="cblue"/>
-		<circle r="4" cx="288" cy="224" class="cred"/>
-		<circle r="4" cx="224" cy="240" class="cblue"/>
-		<circle r="4" cx="288" cy="144" class="cred"/>
-		<circle r="4" cx="128" cy="352" class="cblue"/>
-		<circle r="4" cx="256" cy="96" class="cred"/>
-		<circle r="4" cx="272" cy="112" class="cblue"/>
-		<circle r="4" cx="176" cy="208" class="cred"/>
-		<circle r="4" cx="304" cy="288" class="cblue"/>
-		<circle r="4" cx="160" cy="224" class="cred"/>
-		<circle r="4" cx="288" cy="352" class="cblue"/>
-		<circle r="4" cx="112" cy="64" class="cred"/>
-		<circle r="4" cx="176" cy="240" class="cblue"/>
-		<circle r="4" cx="96" cy="48" class="cred"/>
-		<circle r="4" cx="304" cy="112" class="cblue"/>
-		<circle r="4" cx="80" cy="64" class="cred"/>
-		<circle r="4" cx="208" cy="0" class="cblue"/>
-		<circle r="4" cx="160" cy="64" class="cred"/>
-		<circle r="4" cx="144" cy="368" class="cblue"/>
-		<circle r="4" cx="208" cy="48" class="cred"/>
-		<circle r="4" cx="224" cy="192" class="cblue"/>
-		<circle r="4" cx="112" cy="288" class="cred"/>
-		<circle r="4" cx="288" cy="320" class="cblue"/>
-		<circle r="4" cx="160" cy="352" class="cred"/>
-		<circle r="4" cx="64" cy="288" class="cblue"/>
-		<circle r="4" cx="208" cy="368" class="cred"/>
-		<circle r="4" cx="48" cy="0" class="cblue"/>
-		<circle r="4" cx="96" cy="384" class="cred"/>
-		<circle r="4" cx="176" cy="48" class="cblue"/>
-		<circle r="4" cx="48" cy="352" class="cred"/>
-		<circle r="4" cx="80" cy="128" class="ownd" />
-		<circle r="4" cx="112" cy="368" class="cred"/>
-		<circle r="4" cx="176" cy="400" class="cblue"/>
-		<circle r="4" cx="192" cy="176" class="cred"/>
-		<circle r="4" cx="112" cy="320" class="cblue"/>
-		<circle r="4" cx="176" cy="128" class="cred"/>
-		<circle r="4" cx="288" cy="192" class="cblue"/>
-		<circle r="4" cx="128" cy="160" class="cred"/>
-		<circle r="4" cx="208" cy="272" class="cblue"/>
-		<circle r="4" cx="80" cy="144" class="cred"/>
-		<circle r="4" cx="32" cy="368" class="cblue"/>
-		<circle r="4" cx="64" cy="128" class="cred"/>
-		<circle r="4" cx="48" cy="320" class="cblue"/>
-		<circle r="4" cx="64" cy="80" class="cred"/>
-		<circle r="4" cx="304" cy="224" class="cblue"/>
-		<circle r="4" cx="64" cy="96" class="cred"/>
-		<circle r="4" cx="48" cy="336" class="cblue"/>
-		<circle r="4" cx="96" cy="80" class="cred"/>
-		<circle r="4" cx="144" cy="240" class="cblue"/>
-		<circle r="4" cx="112" cy="80" class="cred"/>
-		<circle r="4" cx="96" cy="400" class="cblue"/>
-		<circle r="4" cx="176" cy="80" class="cred"/>
-		<circle r="4" cx="160" cy="96" class="ownd" />
-		<circle r="4" cx="160" cy="112" class="cred"/>
-		<circle r="4" cx="0" cy="368" class="cblue"/>
-		<circle r="4" cx="128" cy="64" class="cred"/>
-		<circle r="4" cx="240" cy="304" class="cblue"/>
-		<circle r="4" cx="160" cy="144" class="cblue"/>
-		<circle r="4" cx="224" cy="224" class="cred"/>
-		<circle r="4" cx="0" cy="0" class="cblue"/>
-		<circle r="4" cx="144" cy="272" class="cred"/>
-		<circle r="4" cx="96" cy="288" class="cblue"/>
-		<circle r="4" cx="176" cy="336" class="cred"/>
-		<circle r="4" cx="0" cy="336" class="cblue"/>
-		<circle r="4" cx="176" cy="304" class="cred"/>
-		<circle r="4" cx="96" cy="192" class="cblue"/>
-		<circle r="4" cx="208" cy="320" class="cred"/>
-		<circle r="4" cx="16" cy="0" class="cblue"/>
-		<circle r="4" cx="192" cy="336" class="cred"/>
-		<circle r="4" cx="112" cy="208" class="cblue"/>
-		<circle r="4" cx="240" cy="352" class="cred"/>
-		<circle r="4" cx="288" cy="304" class="cblue"/>
-		<circle r="4" cx="176" cy="352" class="cred"/>
-		<circle r="4" cx="48" cy="32" class="cblue"/>
-		<circle r="4" cx="64" cy="224" class="cred"/>
-		<circle r="4" cx="192" cy="224" class="cblue"/>
-		<circle r="4" cx="48" cy="160" class="cred"/>
-		<circle r="4" cx="0" cy="304" class="cblue"/>
-		<circle r="4" cx="32" cy="144" class="cred"/>
-		<circle r="4" cx="0" cy="192" class="cblue"/>
-		<circle r="4" cx="48" cy="64" class="cred"/>
-		<circle r="4" cx="240" cy="64" class="cblue"/>
-		<circle r="4" cx="96" cy="32" class="cred"/>
-		<circle r="4" cx="272" cy="0" class="cblue"/>
-		<circle r="4" cx="144" cy="16" class="cred"/>
-		<circle r="4" cx="0" cy="320" class="cblue"/>
-		<circle r="4" cx="288" cy="128" class="cred"/>
-		<circle r="4" cx="80" cy="256" class="cblue"/>
-		<circle r="4" cx="288" cy="160" class="cred"/>
-		<circle r="4" cx="96" cy="16" class="cblue"/>
-		<circle r="4" cx="208" cy="160" class="cred"/>
-		<circle r="4" cx="128" cy="224" class="cblue"/>
-		<circle r="4" cx="224" cy="176" class="cred"/>
-		<circle r="4" cx="224" cy="0" class="cblue"/>
-		<circle r="4" cx="240" cy="192" class="cred"/>
-		<circle r="4" cx="32" cy="336" class="cblue"/>
-		<circle r="4" cx="272" cy="272" class="cred"/>
-		<circle r="4" cx="16" cy="160" class="cblue"/>
-		<circle r="4" cx="256" cy="304" class="cred"/>
-		<circle r="4" cx="48" cy="288" class="cblue"/>
-		<circle r="4" cx="208" cy="352" class="cred"/>
-		<circle r="4" cx="0" cy="384" class="cblue"/>
-		<circle r="4" cx="128" cy="48" class="cred"/>
-		<circle r="4" cx="256" cy="336" class="cblue"/>
-		<circle r="4" cx="144" cy="48" class="cred"/>
-		<circle r="4" cx="128" cy="176" class="cblue"/>
-		<circle r="4" cx="176" cy="32" class="cred"/>
-		<circle r="4" cx="112" cy="176" class="cblue"/>
-		<circle r="4" cx="208" cy="32" class="cred"/>
-		<circle r="4" cx="256" cy="48" class="cblue"/>
-		<circle r="4" cx="240" cy="176" class="cred"/>
-		<circle r="4" cx="272" cy="304" class="cblue"/>
-		<circle r="4" cx="240" cy="240" class="cred"/>
-		<circle r="4" cx="0" cy="144" class="cblue"/>
-		<circle r="4" cx="80" cy="240" class="cred"/>
-		<circle r="4" cx="16" cy="80" class="cblue"/>
-		<circle r="4" cx="48" cy="240" class="cred"/>
-		<circle r="4" cx="304" cy="16" class="cblue"/>
-		<circle r="4" cx="80" cy="368" class="cred"/>
-		<circle r="4" cx="256" cy="384" class="cblue"/>
-		<circle r="4" cx="128" cy="384" class="cred"/>
-		<circle r="4" cx="192" cy="32" class="cblue"/>
-		<circle r="4" cx="224" cy="400" class="cred"/>
-		<circle r="4" cx="208" cy="336" class="cblue"/>
-		<circle r="4" cx="256" cy="400" class="cred"/>
-		<circle r="4" cx="32" cy="96" class="cblue"/>
-		<circle r="4" cx="272" cy="400" class="cred"/>
-		<circle r="4" cx="64" cy="64" class="cblue"/>
-		<circle r="4" cx="256" cy="368" class="cred"/>
-		<circle r="4" cx="144" cy="256" class="cblue"/>
-		<circle r="4" cx="240" cy="368" class="cred"/>
-		<circle r="4" cx="256" cy="192" class="cblue"/>
-		<circle r="4" cx="80" cy="272" class="cred"/>
-		<circle r="4" cx="272" cy="288" class="cblue"/>
-		<circle r="4" cx="112" cy="240" class="cred"/>
-		<circle r="4" cx="144" cy="336" class="cblue"/>
-		<polyline points="192,80 208,96 192,112 176,96 192,80" />
-		<polyline points="256,112 272,128 256,144 240,144 224,144 208,144 224,128 240,112 256,112" />
-		<polyline points="160,192 144,176 128,192 144,208 160,192" />
-		<polyline points="144,64 128,64 112,64 96,48 80,64 64,80 64,96 64,112 64,128 80,144 96,144 112,128 128,144 128,128 144,112 160,112 176,128 192,112 176,96 192,80 176,80 160,64 144,64" />
-	</g>
+	<circle r="4" cx="256" cy="64" class="r"/>
+	<circle r="4" cx="32" cy="80" class="b"/>
+	<circle r="4" cx="208" cy="144" class="r"/>
+	<circle r="4" cx="160" cy="256" class="b"/>
+	<circle r="4" cx="112" cy="128" class="r"/>
+	<circle r="4" cx="192" cy="96" class="o" />
+	<circle r="4" cx="192" cy="112" class="r"/>
+	<circle r="4" cx="16" cy="64" class="b"/>
+	<circle r="4" cx="192" cy="80" class="r"/>
+	<circle r="4" cx="128" cy="304" class="b"/>
+	<circle r="4" cx="176" cy="96" class="r"/>
+	<circle r="4" cx="32" cy="112" class="b"/>
+	<circle r="4" cx="208" cy="96" class="r"/>
+	<circle r="4" cx="64" cy="272" class="b"/>
+	<circle r="4" cx="256" cy="128" class="o" />
+	<circle r="4" cx="272" cy="96" class="r"/>
+	<circle r="4" cx="240" cy="128" class="o" />
+	<circle r="4" cx="256" cy="208" class="r"/>
+	<circle r="4" cx="80" cy="80" class="o" />
+	<circle r="4" cx="240" cy="112" class="r"/>
+	<circle r="4" cx="160" cy="240" class="b"/>
+	<circle r="4" cx="256" cy="112" class="r"/>
+	<circle r="4" cx="160" cy="176" class="b"/>
+	<circle r="4" cx="272" cy="128" class="r"/>
+	<circle r="4" cx="224" cy="336" class="b"/>
+	<circle r="4" cx="224" cy="128" class="r"/>
+	<circle r="4" cx="144" cy="192" class="o" />
+	<circle r="4" cx="224" cy="144" class="r"/>
+	<circle r="4" cx="256" cy="32" class="b"/>
+	<circle r="4" cx="240" cy="144" class="r"/>
+	<circle r="4" cx="32" cy="64" class="b"/>
+	<circle r="4" cx="256" cy="144" class="r"/>
+	<circle r="4" cx="16" cy="176" class="b"/>
+	<circle r="4" cx="176" cy="0" class="b"/>
+	<circle r="4" cx="160" cy="192" class="r"/>
+	<circle r="4" cx="32" cy="240" class="b"/>
+	<circle r="4" cx="144" cy="176" class="r"/>
+	<circle r="4" cx="16" cy="320" class="b"/>
+	<circle r="4" cx="128" cy="192" class="r"/>
+	<circle r="4" cx="128" cy="80" class="o" />
+	<circle r="4" cx="144" cy="208" class="r"/>
+	<circle r="4" cx="32" cy="304" class="b"/>
+	<circle r="4" cx="64" cy="0" class="b"/>
+	<circle r="4" cx="208" cy="192" class="r"/>
+	<circle r="4" cx="192" cy="192" class="b"/>
+	<circle r="4" cx="160" cy="208" class="r"/>
+	<circle r="4" cx="144" cy="224" class="b"/>
+	<circle r="4" cx="80" cy="208" class="r"/>
+	<circle r="4" cx="304" cy="64" class="b"/>
+	<circle r="4" cx="64" cy="176" class="r"/>
+	<circle r="4" cx="272" cy="368" class="b"/>
+	<circle r="4" cx="64" cy="240" class="r"/>
+	<circle r="4" cx="208" cy="208" class="b"/>
+	<circle r="4" cx="32" cy="256" class="r"/>
+	<circle r="4" cx="304" cy="80" class="b"/>
+	<circle r="4" cx="32" cy="288" class="r"/>
+	<circle r="4" cx="256" cy="256" class="b"/>
+	<circle r="4" cx="64" cy="304" class="r"/>
+	<circle r="4" cx="272" cy="176" class="b"/>
+	<circle r="4" cx="80" cy="288" class="r"/>
+	<circle r="4" cx="144" cy="304" class="b"/>
+	<circle r="4" cx="112" cy="256" class="r"/>
+	<circle r="4" cx="32" cy="224" class="b"/>
+	<circle r="4" cx="144" cy="288" class="r"/>
+	<circle r="4" cx="256" cy="272" class="b"/>
+	<circle r="4" cx="208" cy="304" class="r"/>
+	<circle r="4" cx="96" cy="0" class="b"/>
+	<circle r="4" cx="272" cy="256" class="r"/>
+	<circle r="4" cx="192" cy="48" class="b"/>
+	<circle r="4" cx="176" cy="144" class="r"/>
+	<circle r="4" cx="240" cy="320" class="b"/>
+	<circle r="4" cx="176" cy="192" class="r"/>
+	<circle r="4" cx="96" cy="128" class="o" />
+	<circle r="4" cx="128" cy="128" class="r"/>
+	<circle r="4" cx="304" cy="0" class="b"/>
+	<circle r="4" cx="96" cy="144" class="r"/>
+	<circle r="4" cx="288" cy="368" class="b"/>
+	<circle r="4" cx="80" cy="192" class="r"/>
+	<circle r="4" cx="224" cy="256" class="b"/>
+	<circle r="4" cx="224" cy="208" class="r"/>
+	<circle r="4" cx="304" cy="304" class="b"/>
+	<circle r="4" cx="128" cy="288" class="r"/>
+	<circle r="4" cx="272" cy="240" class="b"/>
+	<circle r="4" cx="144" cy="320" class="r"/>
+	<circle r="4" cx="272" cy="160" class="b"/>
+	<circle r="4" cx="224" cy="80" class="r"/>
+	<circle r="4" cx="224" cy="384" class="b"/>
+	<circle r="4" cx="144" cy="64" class="r"/>
+	<circle r="4" cx="96" cy="160" class="b"/>
+	<circle r="4" cx="64" cy="112" class="r"/>
+	<circle r="4" cx="128" cy="272" class="b"/>
+	<circle r="4" cx="48" cy="128" class="r"/>
+	<circle r="4" cx="0" cy="400" class="b"/>
+	<circle r="4" cx="64" cy="160" class="r"/>
+	<circle r="4" cx="48" cy="208" class="b"/>
+	<circle r="4" cx="128" cy="144" class="r"/>
+	<circle r="4" cx="288" cy="96" class="b"/>
+	<circle r="4" cx="144" cy="112" class="r"/>
+	<circle r="4" cx="112" cy="144" class="b"/>
+	<circle r="4" cx="208" cy="256" class="r"/>
+	<circle r="4" cx="96" cy="224" class="b"/>
+	<circle r="4" cx="256" cy="320" class="r"/>
+	<circle r="4" cx="192" cy="256" class="b"/>
+	<circle r="4" cx="288" cy="336" class="r"/>
+	<circle r="4" cx="176" cy="112" class="o" />
+	<circle r="4" cx="160" cy="320" class="r"/>
+	<circle r="4" cx="112" cy="192" class="b"/>
+	<circle r="4" cx="224" cy="288" class="r"/>
+	<circle r="4" cx="0" cy="224" class="b"/>
+	<circle r="4" cx="112" cy="272" class="r"/>
+	<circle r="4" cx="48" cy="400" class="b"/>
+	<circle r="4" cx="208" cy="176" class="r"/>
+	<circle r="4" cx="16" cy="384" class="b"/>
+	<circle r="4" cx="272" cy="320" class="r"/>
+	<circle r="4" cx="144" cy="384" class="b"/>
+	<circle r="4" cx="288" cy="224" class="r"/>
+	<circle r="4" cx="224" cy="240" class="b"/>
+	<circle r="4" cx="288" cy="144" class="r"/>
+	<circle r="4" cx="128" cy="352" class="b"/>
+	<circle r="4" cx="256" cy="96" class="r"/>
+	<circle r="4" cx="272" cy="112" class="b"/>
+	<circle r="4" cx="176" cy="208" class="r"/>
+	<circle r="4" cx="304" cy="288" class="b"/>
+	<circle r="4" cx="160" cy="224" class="r"/>
+	<circle r="4" cx="288" cy="352" class="b"/>
+	<circle r="4" cx="112" cy="64" class="r"/>
+	<circle r="4" cx="176" cy="240" class="b"/>
+	<circle r="4" cx="96" cy="48" class="r"/>
+	<circle r="4" cx="304" cy="112" class="b"/>
+	<circle r="4" cx="80" cy="64" class="r"/>
+	<circle r="4" cx="208" cy="0" class="b"/>
+	<circle r="4" cx="160" cy="64" class="r"/>
+	<circle r="4" cx="144" cy="368" class="b"/>
+	<circle r="4" cx="208" cy="48" class="r"/>
+	<circle r="4" cx="224" cy="192" class="b"/>
+	<circle r="4" cx="112" cy="288" class="r"/>
+	<circle r="4" cx="288" cy="320" class="b"/>
+	<circle r="4" cx="160" cy="352" class="r"/>
+	<circle r="4" cx="64" cy="288" class="b"/>
+	<circle r="4" cx="208" cy="368" class="r"/>
+	<circle r="4" cx="48" cy="0" class="b"/>
+	<circle r="4" cx="96" cy="384" class="r"/>
+	<circle r="4" cx="176" cy="48" class="b"/>
+	<circle r="4" cx="48" cy="352" class="r"/>
+	<circle r="4" cx="80" cy="128" class="o" />
+	<circle r="4" cx="112" cy="368" class="r"/>
+	<circle r="4" cx="176" cy="400" class="b"/>
+	<circle r="4" cx="192" cy="176" class="r"/>
+	<circle r="4" cx="112" cy="320" class="b"/>
+	<circle r="4" cx="176" cy="128" class="r"/>
+	<circle r="4" cx="288" cy="192" class="b"/>
+	<circle r="4" cx="128" cy="160" class="r"/>
+	<circle r="4" cx="208" cy="272" class="b"/>
+	<circle r="4" cx="80" cy="144" class="r"/>
+	<circle r="4" cx="32" cy="368" class="b"/>
+	<circle r="4" cx="64" cy="128" class="r"/>
+	<circle r="4" cx="48" cy="320" class="b"/>
+	<circle r="4" cx="64" cy="80" class="r"/>
+	<circle r="4" cx="304" cy="224" class="b"/>
+	<circle r="4" cx="64" cy="96" class="r"/>
+	<circle r="4" cx="48" cy="336" class="b"/>
+	<circle r="4" cx="96" cy="80" class="r"/>
+	<circle r="4" cx="144" cy="240" class="b"/>
+	<circle r="4" cx="112" cy="80" class="r"/>
+	<circle r="4" cx="96" cy="400" class="b"/>
+	<circle r="4" cx="176" cy="80" class="r"/>
+	<circle r="4" cx="160" cy="96" class="o" />
+	<circle r="4" cx="160" cy="112" class="r"/>
+	<circle r="4" cx="0" cy="368" class="b"/>
+	<circle r="4" cx="128" cy="64" class="r"/>
+	<circle r="4" cx="240" cy="304" class="b"/>
+	<circle r="4" cx="160" cy="144" class="b"/>
+	<circle r="4" cx="224" cy="224" class="r"/>
+	<circle r="4" cx="0" cy="0" class="b"/>
+	<circle r="4" cx="144" cy="272" class="r"/>
+	<circle r="4" cx="96" cy="288" class="b"/>
+	<circle r="4" cx="176" cy="336" class="r"/>
+	<circle r="4" cx="0" cy="336" class="b"/>
+	<circle r="4" cx="176" cy="304" class="r"/>
+	<circle r="4" cx="96" cy="192" class="b"/>
+	<circle r="4" cx="208" cy="320" class="r"/>
+	<circle r="4" cx="16" cy="0" class="b"/>
+	<circle r="4" cx="192" cy="336" class="r"/>
+	<circle r="4" cx="112" cy="208" class="b"/>
+	<circle r="4" cx="240" cy="352" class="r"/>
+	<circle r="4" cx="288" cy="304" class="b"/>
+	<circle r="4" cx="176" cy="352" class="r"/>
+	<circle r="4" cx="48" cy="32" class="b"/>
+	<circle r="4" cx="64" cy="224" class="r"/>
+	<circle r="4" cx="192" cy="224" class="b"/>
+	<circle r="4" cx="48" cy="160" class="r"/>
+	<circle r="4" cx="0" cy="304" class="b"/>
+	<circle r="4" cx="32" cy="144" class="r"/>
+	<circle r="4" cx="0" cy="192" class="b"/>
+	<circle r="4" cx="48" cy="64" class="r"/>
+	<circle r="4" cx="240" cy="64" class="b"/>
+	<circle r="4" cx="96" cy="32" class="r"/>
+	<circle r="4" cx="272" cy="0" class="b"/>
+	<circle r="4" cx="144" cy="16" class="r"/>
+	<circle r="4" cx="0" cy="320" class="b"/>
+	<circle r="4" cx="288" cy="128" class="r"/>
+	<circle r="4" cx="80" cy="256" class="b"/>
+	<circle r="4" cx="288" cy="160" class="r"/>
+	<circle r="4" cx="96" cy="16" class="b"/>
+	<circle r="4" cx="208" cy="160" class="r"/>
+	<circle r="4" cx="128" cy="224" class="b"/>
+	<circle r="4" cx="224" cy="176" class="r"/>
+	<circle r="4" cx="224" cy="0" class="b"/>
+	<circle r="4" cx="240" cy="192" class="r"/>
+	<circle r="4" cx="32" cy="336" class="b"/>
+	<circle r="4" cx="272" cy="272" class="r"/>
+	<circle r="4" cx="16" cy="160" class="b"/>
+	<circle r="4" cx="256" cy="304" class="r"/>
+	<circle r="4" cx="48" cy="288" class="b"/>
+	<circle r="4" cx="208" cy="352" class="r"/>
+	<circle r="4" cx="0" cy="384" class="b"/>
+	<circle r="4" cx="128" cy="48" class="r"/>
+	<circle r="4" cx="256" cy="336" class="b"/>
+	<circle r="4" cx="144" cy="48" class="r"/>
+	<circle r="4" cx="128" cy="176" class="b"/>
+	<circle r="4" cx="176" cy="32" class="r"/>
+	<circle r="4" cx="112" cy="176" class="b"/>
+	<circle r="4" cx="208" cy="32" class="r"/>
+	<circle r="4" cx="256" cy="48" class="b"/>
+	<circle r="4" cx="240" cy="176" class="r"/>
+	<circle r="4" cx="272" cy="304" class="b"/>
+	<circle r="4" cx="240" cy="240" class="r"/>
+	<circle r="4" cx="0" cy="144" class="b"/>
+	<circle r="4" cx="80" cy="240" class="r"/>
+	<circle r="4" cx="16" cy="80" class="b"/>
+	<circle r="4" cx="48" cy="240" class="r"/>
+	<circle r="4" cx="304" cy="16" class="b"/>
+	<circle r="4" cx="80" cy="368" class="r"/>
+	<circle r="4" cx="256" cy="384" class="b"/>
+	<circle r="4" cx="128" cy="384" class="r"/>
+	<circle r="4" cx="192" cy="32" class="b"/>
+	<circle r="4" cx="224" cy="400" class="r"/>
+	<circle r="4" cx="208" cy="336" class="b"/>
+	<circle r="4" cx="256" cy="400" class="r"/>
+	<circle r="4" cx="32" cy="96" class="b"/>
+	<circle r="4" cx="272" cy="400" class="r"/>
+	<circle r="4" cx="64" cy="64" class="b"/>
+	<circle r="4" cx="256" cy="368" class="r"/>
+	<circle r="4" cx="144" cy="256" class="b"/>
+	<circle r="4" cx="240" cy="368" class="r"/>
+	<circle r="4" cx="256" cy="192" class="b"/>
+	<circle r="4" cx="80" cy="272" class="r"/>
+	<circle r="4" cx="272" cy="288" class="b"/>
+	<circle r="4" cx="112" cy="240" class="r"/>
+	<circle r="4" cx="144" cy="336" class="b"/>
+	<polyline points="192,80 208,96 192,112 176,96 192,80" />
+	<polyline points="256,112 272,128 256,144 240,144 224,144 208,144 224,128 240,112 256,112" />
+	<polyline points="160,192 144,176 128,192 144,208 160,192" />
+	<polyline points="144,64 128,64 112,64 96,48 80,64 64,80 64,96 64,112 64,128 80,144 96,144 112,128 128,144 128,128 144,112 160,112 176,128 192,112 176,96 192,80 176,80 160,64 144,64" />
+</g>
 </svg>

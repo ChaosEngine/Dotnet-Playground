@@ -49,7 +49,8 @@ self.addEventListener('install', function (event) {
 		`js/site${suffix}.js`,
 		`js/Blogs${suffix}.js`,
 		`js/WebCamGallery${suffix}.js`,
-		`js/Puzzles${suffix}.js`
+		`js/Puzzles${suffix}.js`,
+		`js/Hashes${suffix}.js`
 	];
 
 	if (isDev) {
@@ -77,24 +78,24 @@ self.addEventListener('install', function (event) {
 	else {
 		//cdn resources
 		RESOURCES = RESOURCES.concat([
-			'https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.3.0/css/blueimp-gallery.min.css',
-			'https://cdnjs.cloudflare.com/ajax/libs/video.js/7.14.3/video-js.min.css',
-			'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.18.2/bootstrap-table.min.css',
-			'https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css',
-			'https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.3.0/js/blueimp-gallery.min.js',
-			'https://cdnjs.cloudflare.com/ajax/libs/video.js/7.14.3/alt/video.core.novtt.min.js',
-			'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.18.2/bootstrap-table.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.4.0/css/blueimp-gallery.min.css',
+			'https://cdnjs.cloudflare.com/ajax/libs/video.js/7.15.4/video-js.min.css',
+			'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.19.0/bootstrap-table.min.css',
+			'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css',
+			'https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.4.0/js/blueimp-gallery.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/video.js/7.15.4/alt/video.core.novtt.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.19.0/bootstrap-table.min.js',
 			//'https://cdn.jsdelivr.net/npm/faker@5.5.3/dist/faker.min.js',//questionable, big script ?
 			'https://cdn.jsdelivr.net/npm/node-forge@0.10.0/dist/forge.min.js',
 			'https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js',
-			'https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js',
+			'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js',
 			'https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.2/jquery.validate.min.js',
 			'https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@3.2.12/dist/jquery.validate.unobtrusive.min.js'
 			//'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js',//questionable, only dev ?
 			//'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/mode-csharp.min.js',//questionable, only dev ?
-			//'https://cdn.jsdelivr.net/npm/@microsoft/signalr@5.0.8/dist/browser/signalr.min.js',//questionable, inkball ?
+			//'https://cdn.jsdelivr.net/npm/@microsoft/signalr@5.0.11/dist/browser/signalr.min.js',//questionable, inkball ?
 			//'https://cdn.jsdelivr.net/npm/msgpack5@5.3.2/dist/msgpack5.min.js',//questionable, inkball ?
-			//'https://cdn.jsdelivr.net/npm/@microsoft/signalr-protocol-msgpack@5.0.8/dist/browser/signalr-protocol-msgpack.min.js'//questionable, inkball ?
+			//'https://cdn.jsdelivr.net/npm/@microsoft/signalr-protocol-msgpack@5.0.11/dist/browser/signalr-protocol-msgpack.min.js'//questionable, inkball ?
 		]);
 	}
 
