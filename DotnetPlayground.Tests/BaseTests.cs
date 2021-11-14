@@ -179,7 +179,7 @@ namespace DotnetPlayground.Tests
 				//.AddJsonFile($@"appsettings.{env.EnvironmentName}.json", optional: true)
 				.AddEnvironmentVariables();
 			if (string.IsNullOrEmpty(env) || env == "Development")
-				builder.AddUserSecrets<Startup>();
+				builder.AddUserSecrets<Startup>(optional: true);
 			return builder.Build();
 		}
 

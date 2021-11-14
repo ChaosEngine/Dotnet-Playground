@@ -25,7 +25,7 @@ RUN dotnet restore -r linux-x64
 COPY . .
 RUN sed -i -e "s/GIT_HASH/$SOURCE_COMMIT/g" -e "s/GIT_BRANCH/$SOURCE_BRANCH/g" DotnetPlayground.Web/Views/Home/About.cshtml
 RUN dotnet test -v m
-RUN dotnet publish -c $BUILD_CONFIG -r linux-x64 \
+RUN dotnet publish -c $BUILD_CONFIG --self-contained -r linux-x64 \
     #-p:PublishWithAspNetCoreTargetManifest=false #remove this after prerelease patch publish \
 	/p:ShowLinkerSizeComparison=true /p:CrossGenDuringPublish=false \
     DotnetPlayground.Web
