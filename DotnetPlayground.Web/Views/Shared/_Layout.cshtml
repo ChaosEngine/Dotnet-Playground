@@ -1,7 +1,6 @@
 ﻿@using Microsoft.Extensions.Options
 @inject Microsoft.Extensions.Configuration.IConfiguration Conf
 @*@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet*@
-@addTagHelper *, Abiosoft.DotNet.DevReload
 @inject IOptions<DBConfigShower> DBConfigShowerOptions
 @{
 	string dbs_config = DBConfigShowerOptions.Value.DBConfig;

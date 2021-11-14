@@ -4,7 +4,6 @@
     <Version>1.0.20-dotnet6</Version>
 		<TargetFramework>net6.0</TargetFramework>
 		<LangVersion>latest</LangVersion>
-		<PreserveCompilationContext>true</PreserveCompilationContext>
 		<AssemblyName>DotnetPlayground.Web</AssemblyName>
 		<OutputType>Exe</OutputType>
 		<PackageId>DotnetPlayground.Web</PackageId>
