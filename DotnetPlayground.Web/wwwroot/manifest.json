@@ -6,6 +6,7 @@
   "display": "minimal-ui",
   "Scope": "/dotnet/",
   "start_url": "/dotnet/",
+  "id": "/dotnet/",
   "icons": [
     {
       "src": "/dotnet/images/sandbox-icon-512.png",
