@@ -53,8 +53,8 @@
 	"devDependencies": {
 		"@babel/core": "7.16.0",
 		"core-js": "3.19.1",
-		"@babel/plugin-transform-runtime": "7.16.0",
-		"@babel/preset-env": "7.16.0",
+		"@babel/plugin-transform-runtime": "7.16.4",
+		"@babel/preset-env": "7.16.4",
 		"@babel/polyfill": "7.12.1",
 		"babel-loader": "8.2.3",
 		"eslint": "7.32.0",
@@ -70,7 +70,7 @@
 		"gulp-header": "2.0.9",
 		"rimraf": "3.0.2",
 		"concaveman": "1.2.1",
-		"webpack": "5.64.0",
+		"webpack": "5.64.1",
 		"webpack-stream": "7.0.0",
 		"poly-decomp": "0.3.0",
 		"worker-plugin": "5.0.1"
@@ -83,10 +83,10 @@
 		"jquery-validation": "1.19.3",
 		"jquery-validation-unobtrusive": "3.2.12",
 		"blueimp-gallery": "3.4.0",
-		"video.js": "7.15.4",
+		"video.js": "7.17.0",
 		"qrcodejs": "1.0.0",
-		"@microsoft/signalr": "5.0.11",
-		"@microsoft/signalr-protocol-msgpack": "5.0.11",
+		"@microsoft/signalr": "5.0.12",
+		"@microsoft/signalr-protocol-msgpack": "5.0.12",
 		"msgpack5": "5.3.2",
 		"ace-builds": "1.4.13",
 		"faker": "5.5.3"
