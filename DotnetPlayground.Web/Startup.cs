@@ -43,6 +43,8 @@ using IdentityManager2.Api.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MessagePack;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 
 //[assembly: UserSecretsId("aspnet-DotnetPlayground-20161230022416")]
 
@@ -175,6 +177,9 @@ namespace DotnetPlayground
 			return btq;
 		}
 
+		[UnconditionalSuppressMessage("Trimming", 
+			"IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code",
+			Justification = "Types are referenced further in code")]
 		void ConfigureDependencyInjection(IServiceCollection services, IWebHostEnvironment env)
 		{
 			services.AddLogging(loggingBuilder =>

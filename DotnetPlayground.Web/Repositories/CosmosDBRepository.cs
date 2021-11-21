@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -35,6 +36,9 @@ namespace DotnetPlayground.Repositories
 		Task<IEnumerable<DocumentDBHash>> GetItemsAsync(Expression<Func<DocumentDBHash, bool>> predicate, int itemsCount = -1);
 	}
 
+	[UnconditionalSuppressMessage("Trimming",
+		"IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code",
+		Justification = "Old dead code use for testing purposes")]
 	internal class ThinHashesDocumentDBRepository : DocumentDBRepository<DocumentDBHash>, IThinHashesDocumentDBRepository, IDisposable
 	{
 		private const string _NOTHING_FOUND_TEXT = "nothing found";
