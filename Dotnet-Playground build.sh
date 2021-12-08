@@ -14,7 +14,7 @@ case $1 in
 				echo "image would be $image";
 			;;
     "" | "alpine")
-				image="alpine6.0";
+				image="alpine";
 				dockerfile_name="Dockerfile.alpine";
 				echo "image would be $image";
 			;;
@@ -22,7 +22,7 @@ esac
 
 case $2 in
     "oracle")
-				dockerfile_suffix=".oracle6.0"
+				dockerfile_suffix=".oracle"
 				dockerfile_args="--build-arg BUILD_CONFIG=Oracle"
 				echo "subimage would be $dockerfile_suffix"
 			;;
