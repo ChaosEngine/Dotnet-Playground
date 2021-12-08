@@ -18,8 +18,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>TRACE;INCLUDE_COSMOSDB;INCLUDE_SQLSERVER;INCLUDE_POSTGRES</DefineConstants>
-    <!--<DefineConstants>TRACE;INCLUDE_ORACLE</DefineConstants>-->
+    <DefineConstants>TRACE;INCLUDE_ORACLE;INCLUDE_COSMOSDB;INCLUDE_SQLSERVER;INCLUDE_POSTGRES</DefineConstants>
 	</PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Oracle|AnyCPU'">
     <DefineConstants>INCLUDE_ORACLE</DefineConstants>
@@ -42,9 +41,9 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.0" Condition="$(DefineConstants.Contains('INCLUDE_SQLSERVER'))" />
 		<PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="6.0.0" Condition="$(DefineConstants.Contains('INCLUDE_SQLSERVER'))" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.0" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.0" Condition="$(DefineConstants.Contains('INCLUDE_POSTGRES'))" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.1" Condition="$(DefineConstants.Contains('INCLUDE_POSTGRES'))" />
 		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="6.0.0" />
-		<PackageReference Include="Oracle.EntityFrameworkCore" Version="5.21.4" Condition="$(DefineConstants.Contains('INCLUDE_ORACLE'))" />
+		<PackageReference Include="Oracle.EntityFrameworkCore" Version="6.21.4" Condition="$(DefineConstants.Contains('INCLUDE_ORACLE'))" />
 		<PackageReference Include="IdentityManager2.AspNetIdentity" Version="1.0.0" />
 		<PackageReference Include="Lib.AspNetCore.ServerTiming" Version="4.2.0" />
 		<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.16.2" Condition="$(DefineConstants.Contains('INCLUDE_COSMOSDB'))" />

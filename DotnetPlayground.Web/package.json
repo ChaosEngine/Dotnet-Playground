@@ -52,7 +52,7 @@
 	],
 	"devDependencies": {
 		"@babel/core": "7.16.0",
-		"core-js": "3.19.2",
+		"core-js": "3.19.3",
 		"@babel/plugin-transform-runtime": "7.16.4",
 		"@babel/preset-env": "7.16.4",
 		"@babel/polyfill": "7.12.1",
@@ -66,11 +66,11 @@
 		"gulp-clean-css": "4.3.0",
 		"gulp-rename": "2.0.0",
 		"gulp-sass": "5.0.0",
-		"sass": "1.43.5",
+		"sass": "1.44.0",
 		"gulp-header": "2.0.9",
 		"rimraf": "3.0.2",
 		"concaveman": "1.2.1",
-		"webpack": "5.64.4",
+		"webpack": "5.65.0",
 		"webpack-stream": "7.0.0",
 		"poly-decomp": "0.3.0",
 		"worker-plugin": "5.0.1"
