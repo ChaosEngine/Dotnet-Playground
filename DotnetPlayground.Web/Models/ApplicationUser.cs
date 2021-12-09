@@ -20,17 +20,17 @@ namespace DotnetPlayground.Models
 		/// </summary>
 		[PersonalData]
 		[NotMapped]
-		public IApplicationUserSettings UserSettings
+		public ApplicationUserSettings UserSettings
 		{
 			get
 			{
 				return JsonSerializer.Deserialize(UserSettingsJSON ?? "{}",
-					IApplicationUserSettingsContext.Default.IApplicationUserSettings);
+					ApplicationUserSettingsContext.Default.ApplicationUserSettings);
 			}
 			set
 			{
 				UserSettingsJSON = JsonSerializer.Serialize(value,
-					IApplicationUserSettingsContext.Default.IApplicationUserSettings);
+					ApplicationUserSettingsContext.Default.ApplicationUserSettings);
 			}
 		}
 
