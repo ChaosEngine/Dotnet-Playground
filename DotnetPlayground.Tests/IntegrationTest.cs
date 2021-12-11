@@ -1,8 +1,8 @@
 ﻿using DotnetPlayground;
 using DotnetPlayground.Controllers;
 using DotnetPlayground.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using DotnetPlayground.Tests;
+using InkBall.IntegrationTests;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using System;
@@ -13,6 +13,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Mime;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -33,92 +34,6 @@ namespace Integration
 						.Select(fi => new { fi.Name, Value = fi.GetValue(myObj)?.ToString() })
 				)
 				.ToDictionary(ks => ks.Name, vs => vs.Value);
-		}
-	}
-
-	/// <summary>
-	/// http://geeklearning.io/asp-net-core-mvc-testing-and-the-synchronizer-token-pattern/
-	/// http://www.stefanhendriks.com/2016/05/11/integration-testing-your-asp-net-core-app-dealing-with-anti-request-forgery-csrf-formdata-and-cookies/
-	/// </summary>
-	static class PostRequestHelper
-	{
-		public static string ExtractAntiForgeryToken(string htmlResponseText)
-		{
-			if (htmlResponseText == null) throw new ArgumentNullException("htmlResponseText");
-
-			Match match = Regex.Match(htmlResponseText, @"\<input name=""__RequestVerificationToken"" type=""hidden"" value=""([^""]+)"" \/\>");
-			return match.Success ? match.Groups[1].Captures[0].Value : null;
-		}
-
-		public static async Task<string> ExtractAntiForgeryToken(HttpResponseMessage response)
-		{
-			string responseAsString = await response.Content.ReadAsStringAsync();
-			return await Task.FromResult(ExtractAntiForgeryToken(responseAsString));
-		}
-
-		/// <summary>
-		/// Inspired from:
-		/// https://github.com/aspnet/Mvc/blob/538cd9c19121f8d3171cbfddd5d842cbb756df3e/test/Microsoft.AspNet.Mvc.FunctionalTests/TempDataTest.cs#L201-L202
-		/// </summary>
-		/// <param name="response"></param>
-		/// <returns></returns>
-		public static IEnumerable<KeyValuePair<string, string>> ExtractCookiesFromResponse(HttpResponseMessage response)
-		{
-			if (response.Headers.TryGetValues("Set-Cookie", out IEnumerable<string> values))
-			{
-				var result = new KeyValuePair<string, string>[values.Count()];
-				var cookie_jar = SetCookieHeaderValue.ParseList(values.ToList());
-				int i = 0;
-				foreach (var cookie in cookie_jar)
-				{
-					result[i] = new KeyValuePair<string, string>(cookie.Name.Value, cookie.Value.Value);
-					i++;
-				}
-				return result;
-			}
-			else
-				return new KeyValuePair<string, string>[0];
-		}
-
-		public static HttpRequestMessage PutCookiesOnRequest(HttpRequestMessage newHttpRequestMessage, IEnumerable<KeyValuePair<string, string>> cookies)
-		{
-			foreach (var kvp in cookies)
-			{
-				newHttpRequestMessage.Headers.Add("Cookie", new Microsoft.Net.Http.Headers.CookieHeaderValue(kvp.Key, kvp.Value).ToString());
-			}
-
-			return newHttpRequestMessage;
-		}
-
-		public static HttpRequestMessage CopyCookiesFromResponse(HttpRequestMessage newHttpRequestMessage, HttpResponseMessage getResponse)
-		{
-			return PutCookiesOnRequest(newHttpRequestMessage, ExtractCookiesFromResponse(getResponse));
-		}
-
-		public static HttpRequestMessage Create(string routePath, IEnumerable<KeyValuePair<string, string>> formPostBodyData)
-		{
-			var newHttpRequestMessage = new HttpRequestMessage(HttpMethod.Post, routePath)
-			{
-				Content = new FormUrlEncodedContent(formPostBodyData)
-			};
-			return newHttpRequestMessage;
-		}
-
-		public static HttpRequestMessage CreateHttpRequestMessageWithCookiesFromResponse(string routePath,
-			IEnumerable<KeyValuePair<string, string>> formPostBodyData, HttpResponseMessage getResponse)
-		{
-			var newHttpRequestMessage = Create(routePath, formPostBodyData);
-			return CopyCookiesFromResponse(newHttpRequestMessage, getResponse);
-		}
-
-		public static void CreateFormUrlEncodedContentWithCookiesFromResponse(HttpHeaders headers, HttpResponseMessage getResponse)
-		{
-			var cookies = ExtractCookiesFromResponse(getResponse);
-
-			foreach (var kvp in cookies)
-			{
-				headers.Add("Cookie", new Microsoft.Net.Http.Headers.CookieHeaderValue(kvp.Key, kvp.Value).ToString());
-			}
 		}
 	}
 
@@ -154,11 +69,11 @@ namespace Integration
 		public async Task ErrorHandlerTest()
 		{
 			// Arrange
-			var data = new Dictionary<string, string>
+			var payload = new Dictionary<string, string>
 			{
 				{ "action", "exception" }
 			};
-			using (var content = new FormUrlEncodedContent(data))
+			using (var content = new FormUrlEncodedContent(payload))
 			{
 				// Act
 				using (var response = await _client.PostAsync("/DeesNotExist/FooBar", content))
@@ -175,11 +90,11 @@ namespace Integration
 		public async Task UnintentionalErr()
 		{
 			// Arrange
-			var data = new Dictionary<string, string>
+			var payload = new Dictionary<string, string>
 			{
 				{ "action", "exception" }
 			};
-			using (var content = new FormUrlEncodedContent(data))
+			using (var content = new FormUrlEncodedContent(payload))
 			{
 				// Act
 				using (var response = await _client.PostAsync($"{_fixture.AppRootPath}Home/{nameof(HomeController.UnintentionalErr)}", content))
@@ -198,7 +113,7 @@ namespace Integration
 		public async Task ClientsideLog()
 		{
 			// Arrange
-			var data = new Dictionary<string, string>
+			var payload = new Dictionary<string, string>
 			{
 				{ "level", LogLevel.Warning.ToString() },
 				{ "message", "some message" },
@@ -211,7 +126,7 @@ namespace Integration
 			//var stringPayload = JsonConvert.SerializeObject(payload);
 			//// Wrap our JSON inside a StringContent which then can be used by the HttpClient class
 			//var content = new StringContent(stringPayload, Encoding.UTF8, "application/json");
-			using (var content = new FormUrlEncodedContent(data))
+			using (var content = new FormUrlEncodedContent(payload))
 			{
 				// Act
 				using (var response = await _client.PostAsync($"{_fixture.AppRootPath}Home/{nameof(HomeController.ClientsideLog)}", content))
@@ -397,7 +312,7 @@ namespace Integration
 					};
 
 					// Deserialize JSON String into concrete class
-					var data = JsonSerializer.Deserialize<TypedResult>(jsonString, new JsonSerializerOptions{ PropertyNameCaseInsensitive = true });
+					var data = JsonSerializer.Deserialize<TypedResult>(jsonString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 					Assert.IsType(typed_result.GetType(), data);
 					Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(data.rows);
 
@@ -812,6 +727,145 @@ namespace Integration
 				Assert.Contains("IdentityManager2", responseString);
 				Assert.Contains("PathBase", responseString);
 			}
+		}
+	}
+
+	[Collection(nameof(AuthorizedTestingServerCollection))]
+	public class AccountAndProfileManagement
+	{
+		private readonly AuthorizedTestServerFixture _fixture;
+		private readonly HttpClient _anonClient;
+
+		public AccountAndProfileManagement(AuthorizedTestServerFixture fixture)
+		{
+			_fixture = fixture;
+			_anonClient = _fixture.AnonymousClient;
+		}
+
+		[Theory]
+		[InlineData("Identity/Account/Manage/Index")]
+		[InlineData("Identity/Account/Manage/ChangePassword")]
+		[InlineData("Identity/Account/Manage/ExternalLogins")]
+		[InlineData("Identity/Account/Manage/TwoFactorAuthentication")]
+		[InlineData("Identity/Account/Manage/PersonalData")]
+		public async Task Page_NonAuthenticated_Open(string page)
+		{
+			// Arrange
+			// Act
+			using (var response = await _anonClient.GetAsync($"{_anonClient.BaseAddress}{page}"))
+			{
+				// Assert
+				//Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+				Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+				Assert.Equal($"{_anonClient.BaseAddress}Identity/Account/Login?ReturnUrl=%2F{UrlEncoder.Default.Encode(page)}",
+					response.Headers.Location.ToString());
+			}
+		}
+
+		[Theory]
+		[InlineData("Identity/Account/Manage/Index", "Phone number")]
+		[InlineData("Identity/Account/Manage/ChangePassword", "Confirm new password")]
+		[InlineData("Identity/Account/Manage/TwoFactorAuthentication", "Two-factor authentication")]
+		[InlineData("Identity/Account/Manage/PersonalData", "Deleting this data will permanently remove your account")]
+		public async Task Pages_Authenticated_Open(string page, string contentToCheck)
+		{
+			// Arrange
+			using var client = await _fixture.CreateAuthenticatedClientAsync();
+
+			using (var request = new HttpRequestMessage(HttpMethod.Get, $"{client.BaseAddress}{page}"))
+			{
+				// Act
+				using (var response = await client.SendAsync(request))
+				{
+					// Assert
+					Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+					var responseString = await response.Content.ReadAsStringAsync();
+					Assert.Contains(contentToCheck, responseString, StringComparison.InvariantCultureIgnoreCase);
+				}
+			}
+		}
+
+		[Fact]
+		public async Task Page_Authenticated_ChangeProfile()
+		{
+			//logging-in
+			// Arrange
+			using var client = await _fixture.CreateAuthenticatedClientAsync();
+
+			using (var request = new HttpRequestMessage(HttpMethod.Get, $"{client.BaseAddress}Identity/Account/Manage"))
+			{
+				// Act
+				using (var get_response = await client.SendAsync(request, HttpCompletionOption.ResponseContentRead))
+				{
+					// Assert
+					get_response.EnsureSuccessStatusCode();
+					var antiforgery_token = await PostRequestHelper.ExtractAntiForgeryToken(get_response);
+
+					// Arrange
+					var payload = new Dictionary<string, string> {
+						{ "__RequestVerificationToken", antiforgery_token },
+						{ "Input.PhoneNumber", "555438852" },
+					};
+
+					using (var formPostBodyData = new FormUrlEncodedContent(payload))
+					{
+						PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, get_response);
+						// Act
+						using (var response = await client.PostAsync($"{client.BaseAddress}Identity/Account/Manage", formPostBodyData))
+						{
+							// Assert
+							Assert.NotNull(response);
+							response.EnsureSuccessStatusCode();
+
+							var responseString = await response.Content.ReadAsStringAsync();
+							Assert.Contains("Your profile has been updated", responseString);
+							Assert.Contains("555438852", responseString);
+						}
+					}
+				}//end using (var get_response
+			}//end using request
+		}
+
+		[Fact]
+		public async Task Page_Authenticated_ChangePassword()
+		{
+			//logging-in
+			// Arrange
+			using var client = await _fixture.CreateAuthenticatedClientAsync();
+
+			using (var request = new HttpRequestMessage(HttpMethod.Get, $"{client.BaseAddress}Identity/Account/Manage/ChangePassword"))
+			{
+				// Act
+				using (var get_response = await client.SendAsync(request, HttpCompletionOption.ResponseContentRead))
+				{
+					// Assert
+					get_response.EnsureSuccessStatusCode();
+					var antiforgery_token = await PostRequestHelper.ExtractAntiForgeryToken(get_response);
+
+					// Arrange
+					var payload = new Dictionary<string, string> {
+						{ "__RequestVerificationToken", antiforgery_token },
+						{ "Input.OldPassword", "#SecurePassword123" },
+						{ "Input.NewPassword", "444changePassword&^%$" },
+						{ "Input.ConfirmPassword", "444changePassword&^%$" }
+					};
+
+					using (var formPostBodyData = new FormUrlEncodedContent(payload))
+					{
+						PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, get_response);
+						// Act
+						using (var response = await client.PostAsync($"{client.BaseAddress}Identity/Account/Manage/ChangePassword", formPostBodyData))
+						{
+							// Assert
+							Assert.NotNull(response);
+							response.EnsureSuccessStatusCode();
+
+							var responseString = await response.Content.ReadAsStringAsync();
+							Assert.Contains("Your password has been changed.", responseString);
+						}
+					}
+				}//end using (var get_response
+			}//end using request
 		}
 	}
 }

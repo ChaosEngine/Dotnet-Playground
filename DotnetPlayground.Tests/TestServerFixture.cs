@@ -49,48 +49,6 @@ namespace Integration
 
 		internal bool DOTNET_RUNNING_IN_CONTAINER { get; private set; }
 
-		/*public TestServerFixture() : this(//"DotnetPlayground"
-			null)
-		{
-		}
-
-		protected TestServerFixture(string relativeTargetProjectParentDir)
-		{
-			var startupAssembly = typeof(TStartup).GetTypeInfo().Assembly;
-			var contentRoot = GetProjectPath(relativeTargetProjectParentDir, startupAssembly);
-
-			Directory.SetCurrentDirectory(contentRoot);
-
-			var builder = new WebHostBuilder()
-				.UseContentRoot(contentRoot)
-				.ConfigureServices(InitializeServices)
-				.UseEnvironment("Development")
-				.UseStartup(typeof(TStartup))
-				//.UseApplicationInsights()
-				;
-
-			_server = new TestServer(builder);
-
-			Client = _server.CreateClient();
-			Client.BaseAddress = new Uri("http://localhost");
-
-			var configuration = _server.Host.Services.GetService(typeof(IConfiguration)) as IConfiguration;
-			AppRootPath = configuration?["AppRootPath"];
-			DBKind = configuration?["DBKind"];
-			ImageDirectory = configuration?["ImageDirectory"];
-			LiveWebCamURL = configuration?["LiveWebCamURL"];
-
-			string temp = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER");
-			DOTNET_RUNNING_IN_CONTAINER = !string.IsNullOrEmpty(temp) && temp.Equals(true.ToString(), StringComparison.InvariantCultureIgnoreCase);
-			//Console.WriteLine($"### temp = {temp}, DOTNET_RUNNING_IN_CONTAINER = {DOTNET_RUNNING_IN_CONTAINER}");
-
-			var db = _server.Host.Services.GetRequiredService<DotnetPlayground.Models.BloggingContext>();
-			if (DBKind.Equals("sqlite",StringComparison.InvariantCultureIgnoreCase))
-				db.Database.Migrate();
-			else
-				db.Database.EnsureCreated();
-		}*/
-
 		protected virtual void InitializeServices(IServiceCollection services)
 		{
 			var startupAssembly = typeof(TStartup).GetTypeInfo().Assembly;
@@ -145,44 +103,6 @@ namespace Integration
 
 			throw new Exception($"Project root could not be located using the application root {applicationBasePath}.");
 		}
-
-		/*#region IDisposable Support
-		private bool disposedValue = false; // To detect redundant calls
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (!disposedValue)
-			{
-				if (disposing)
-				{
-					// TODO: dispose managed state (managed objects).
-					Client.Dispose();
-					_server.Dispose();
-				}
-
-				// TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-				// TODO: set large fields to null.
-
-				disposedValue = true;
-			}
-		}
-
-		// TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-		// ~TestFixture() {
-		//   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-		//   Dispose(false);
-		// }
-
-		// This code added to correctly implement the disposable pattern.
-		public void Dispose()
-		{
-			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-			Dispose(true);
-			// TODO: uncomment the following line if the finalizer is overridden above.
-			// GC.SuppressFinalize(this);
-		}
-		#endregion IDisposable Support*/
-
 
 		protected override void ConfigureWebHost(IWebHostBuilder builder)
 		{

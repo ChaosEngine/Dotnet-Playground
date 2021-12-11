@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DotnetPlayground.Web\DotnetPlayground.Web.csproj" />
+    <ProjectReference Include="..\InkBall\test\InkBall.Tests\InkBall.Tests.csproj" />
   </ItemGroup>
 	
 </Project>
