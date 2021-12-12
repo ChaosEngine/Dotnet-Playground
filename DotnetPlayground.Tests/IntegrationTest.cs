@@ -54,7 +54,7 @@ namespace Integration
 		{
 			// Arrange
 			// Act
-			using (HttpResponseMessage response = await _client.GetAsync(_fixture.AppRootPath))
+			using (HttpResponseMessage response = await _client.GetAsync(_client.BaseAddress))
 			{
 				// Assert
 				response.EnsureSuccessStatusCode();
@@ -97,7 +97,7 @@ namespace Integration
 			using (var content = new FormUrlEncodedContent(payload))
 			{
 				// Act
-				using (var response = await _client.PostAsync($"{_fixture.AppRootPath}Home/{nameof(HomeController.UnintentionalErr)}", content))
+				using (var response = await _client.PostAsync($"{_client.BaseAddress}Home/{nameof(HomeController.UnintentionalErr)}", content))
 				{
 					// Assert
 					Assert.NotNull(response);
@@ -129,7 +129,7 @@ namespace Integration
 			using (var content = new FormUrlEncodedContent(payload))
 			{
 				// Act
-				using (var response = await _client.PostAsync($"{_fixture.AppRootPath}Home/{nameof(HomeController.ClientsideLog)}", content))
+				using (var response = await _client.PostAsync($"{_client.BaseAddress}Home/{nameof(HomeController.ClientsideLog)}", content))
 				{
 					// Assert
 					response.EnsureSuccessStatusCode();
@@ -175,7 +175,7 @@ namespace Integration
 			</p>";
 
 			// Act
-			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{HashesController.ASPX}/"))
+			using (HttpResponseMessage response = await _client.GetAsync($"{_client.BaseAddress}{HashesController.ASPX}/"))
 			{
 				// Assert
 				response.EnsureSuccessStatusCode();
@@ -207,7 +207,7 @@ namespace Integration
 				// Act
 				do
 				{
-					using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{HashesController.ASPX}/"))
+					using (HttpResponseMessage response = await _client.GetAsync($"{_client.BaseAddress}{HashesController.ASPX}/"))
 					{
 						// Assert
 						response.EnsureSuccessStatusCode();
@@ -258,7 +258,7 @@ namespace Integration
 		{
 			// Arrange
 			// Act
-			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{VirtualScrollController.ASPX}/"))
+			using (HttpResponseMessage response = await _client.GetAsync($"{_client.BaseAddress}{VirtualScrollController.ASPX}/"))
 			{
 				// Assert
 				response.EnsureSuccessStatusCode();
@@ -296,7 +296,7 @@ namespace Integration
 			{
 				var queryString = await content.ReadAsStringAsync();
 				// Act
-				using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{VirtualScrollController.ASPX}/{nameof(HashesDataTableController.Load)}?{queryString}", HttpCompletionOption.ResponseContentRead))
+				using (HttpResponseMessage response = await _client.GetAsync($"{_client.BaseAddress}{VirtualScrollController.ASPX}/{nameof(HashesDataTableController.Load)}?{queryString}", HttpCompletionOption.ResponseContentRead))
 				{
 					// Assert
 					Assert.NotNull(response);
@@ -363,7 +363,7 @@ namespace Integration
 				var queryString = await content.ReadAsStringAsync();
 				// Act
 				using (HttpResponseMessage response =
-					await _client.GetAsync($"{_fixture.AppRootPath}{VirtualScrollController.ASPX}/{nameof(HashesDataTableController.Load)}?{queryString}",
+					await _client.GetAsync($"{_client.BaseAddress}{VirtualScrollController.ASPX}/{nameof(HashesDataTableController.Load)}?{queryString}",
 					HttpCompletionOption.ResponseContentRead))
 				{
 					// Assert
@@ -396,7 +396,7 @@ namespace Integration
 
 			// Arrange
 			// Act
-			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{BlogsController.ASPX}/"))
+			using (HttpResponseMessage response = await _client.GetAsync($"{_client.BaseAddress}{BlogsController.ASPX}/"))
 			{
 				// Assert
 				response.EnsureSuccessStatusCode();
@@ -412,7 +412,7 @@ namespace Integration
 		{
 			// Arrange
 			// Act
-			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{BlogsController.ASPX}/{nameof(BlogsController.Create)}/"))
+			using (HttpResponseMessage response = await _client.GetAsync($"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(BlogsController.Create)}/"))
 			{
 				// Assert
 				response.EnsureSuccessStatusCode();
@@ -432,7 +432,7 @@ namespace Integration
 			// Arrange
 			string antiforgery_token;
 			List<KeyValuePair<string, string>> data;
-			using (var create_get_response = await _client.GetAsync($"{_fixture.AppRootPath}{BlogsController.ASPX}/{nameof(BlogsController.Create)}/",
+			using (var create_get_response = await _client.GetAsync($"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(BlogsController.Create)}/",
 				HttpCompletionOption.ResponseContentRead))
 			{
 				// Assert
@@ -453,19 +453,19 @@ namespace Integration
 				{
 					PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, create_get_response);
 					// Act
-					using (var redirect = await _client.PostAsync($"{_fixture.AppRootPath}{BlogsController.ASPX}/{nameof(BlogsController.Create)}/", formPostBodyData))
+					using (var redirect = await _client.PostAsync($"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(BlogsController.Create)}/", formPostBodyData))
 					{
 						// Assert
 						Assert.NotNull(redirect);
 						Assert.Equal(HttpStatusCode.Redirect, redirect.StatusCode);
-						Assert.Contains($"{_fixture.AppRootPath}{BlogsController.ASPX}", redirect.Headers.GetValues("Location").FirstOrDefault());
+						Assert.Contains($"/{BlogsController.ASPX}", redirect.Headers.GetValues("Location").FirstOrDefault());
 					}
 				}
 
 
 				int last_inserted_id;
 				string last_inserted_ProtectedID;
-				using (var index_response = await _client.GetAsync($"{_fixture.AppRootPath}{BlogsController.ASPX}/", HttpCompletionOption.ResponseContentRead))
+				using (var index_response = await _client.GetAsync($"{_client.BaseAddress}{BlogsController.ASPX}/", HttpCompletionOption.ResponseContentRead))
 				{
 					var responseString = await index_response.Content.ReadAsStringAsync();
 					MatchCollection matches = Regex.Matches(responseString, @"\<form method=""post"" class=""blogForm row g-3"" data-id=""([0-9].*)""\>");
@@ -495,7 +495,7 @@ namespace Integration
 				using (var formPostBodyData = new FormUrlEncodedContent(data))
 				{
 					PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, create_get_response);
-					using (var response = await _client.PostAsync($"{_fixture.AppRootPath}{BlogsController.ASPX}/{nameof(BlogActionEnum.Edit)}/{last_inserted_id}/true",
+					using (var response = await _client.PostAsync($"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(BlogActionEnum.Edit)}/{last_inserted_id}/true",
 						formPostBodyData))
 					{
 						Assert.NotNull(response);
@@ -516,7 +516,7 @@ namespace Integration
 				using (var formPostBodyData = new FormUrlEncodedContent(data))
 				{
 					PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, create_get_response);
-					using (var response = await _client.PostAsync($"{_fixture.AppRootPath}{BlogsController.ASPX}/{nameof(BlogActionEnum.Delete)}/{last_inserted_id}/true",
+					using (var response = await _client.PostAsync($"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(BlogActionEnum.Delete)}/{last_inserted_id}/true",
 						formPostBodyData))
 					{
 						Assert.NotNull(response);
@@ -546,7 +546,7 @@ namespace Integration
 		{
 			// Arrange
 			// Act
-			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{WebCamGallery.ASPX}/"))
+			using (HttpResponseMessage response = await _client.GetAsync($"{_client.BaseAddress}{WebCamGallery.ASPX}/"))
 			{
 				// Assert
 				response.EnsureSuccessStatusCode();
@@ -599,7 +599,7 @@ namespace Integration
 		{
 			// Arrange
 			// Act
-			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{WebCamImagesModel.ASPX}/{imageName}", HttpCompletionOption.ResponseHeadersRead))
+			using (HttpResponseMessage response = await _client.GetAsync($"{_client.BaseAddress}{WebCamImagesModel.ASPX}/{imageName}", HttpCompletionOption.ResponseHeadersRead))
 			{
 				// Assert
 				Assert.NotNull(response);
@@ -660,7 +660,7 @@ namespace Integration
 			if (!string.IsNullOrEmpty(etag))
 			{
 				// Arrange
-				var request = new HttpRequestMessage(HttpMethod.Get, $"{_fixture.AppRootPath}{WebCamImagesModel.ASPX}/{imageName}");
+				var request = new HttpRequestMessage(HttpMethod.Get, $"{_client.BaseAddress}{WebCamImagesModel.ASPX}/{imageName}");
 				//request.Headers.Add(HeaderNames.IfNoneMatch, etag);
 				//request.Headers.TryAddWithoutValidation(HeaderNames.ETag, etag);
 				request.Headers.IfMatch.Add(new System.Net.Http.Headers.EntityTagHeaderValue(etag));
@@ -682,7 +682,7 @@ namespace Integration
 
 			// Arrange
 			// Act
-			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{WebCamImagesModel.ASPX}/?handler=live", HttpCompletionOption.ResponseContentRead))
+			using (HttpResponseMessage response = await _client.GetAsync($"{_client.BaseAddress}{WebCamImagesModel.ASPX}/?handler=live", HttpCompletionOption.ResponseContentRead))
 			{
 				// Assert
 				Assert.NotNull(response);
@@ -718,7 +718,7 @@ namespace Integration
 		{
 			// Arrange
 			// Act
-			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}assets/Templates.home.html"))
+			using (HttpResponseMessage response = await _client.GetAsync($"{_client.BaseAddress}assets/Templates.home.html"))
 			{
 				// Assert
 				response.EnsureSuccessStatusCode();
@@ -804,6 +804,8 @@ namespace Integration
 					// Arrange
 					var payload = new Dictionary<string, string> {
 						{ "__RequestVerificationToken", antiforgery_token },
+						{ "Input.Name", "Alice Changed" },
+						{ "Input.Email", "alice.testing@example.org" },
 						{ "Input.PhoneNumber", "555438852" },
 					};
 
@@ -819,6 +821,8 @@ namespace Integration
 
 							var responseString = await response.Content.ReadAsStringAsync();
 							Assert.Contains("Your profile has been updated", responseString);
+							Assert.Contains("Alice Changed", responseString);
+							Assert.Contains("alice.testing@example.org", responseString);
 							Assert.Contains("555438852", responseString);
 						}
 					}

@@ -34,7 +34,7 @@ namespace Integration
 				{
 					AllowAutoRedirect = false
 				});
-				//cl.BaseAddress = new Uri("http://localhost");
+				client.BaseAddress = new Uri($"http://localhost{AppRootPath}");
 				return client;
 			}
 		}
