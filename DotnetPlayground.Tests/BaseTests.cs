@@ -151,7 +151,7 @@ namespace DotnetPlayground.Tests
 
 		protected IConfiguration CreateConfiguration()
 		{
-			ContentRoot = Integration.TestServerFixture<DotnetPlayground.Startup>.GetProjectPath();
+			ContentRoot = Integration.TestServerFixture<DotnetPlayground.Startup>.GetProjectPath<DotnetPlayground.Startup>();
 
 			var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 			var builder = new ConfigurationBuilder()
@@ -188,15 +188,25 @@ namespace DotnetPlayground.Tests
 
 	#region Authorized tests
 
-	public sealed class AuthorizedTestingStartup : InkBall.IntegrationTests.TestingStartup
+	public sealed class AuthorizedTestingStartup
+		: InkBall.IntegrationTests.BaseTestingStartup<ApplicationUser, DotnetPlayground.Helpers.MySignInManager>
 	{
 		public AuthorizedTestingStartup(IConfiguration configuration) : base(configuration)
 		{
 		}
 	}
 
-	public sealed class AuthorizedTestServerFixture : InkBall.IntegrationTests.TestServerFixture<AuthorizedTestingStartup>
+	public sealed class AuthorizedTestServerFixture
+		: InkBall.IntegrationTests.BaseTestServerFixture<AuthorizedTestingStartup, ApplicationUser>
 	{
+		public override string DesiredContentRoot
+		{
+			get
+			{
+				var contentRoot = Integration.TestServerFixture<DotnetPlayground.Startup>.GetProjectPath<DotnetPlayground.Startup>();
+				return contentRoot;
+			}
+		}
 	}
 
 	[CollectionDefinition(nameof(AuthorizedTestingServerCollection))]

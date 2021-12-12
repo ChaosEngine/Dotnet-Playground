@@ -72,10 +72,10 @@ namespace Integration
 		/// </param>
 		/// <param name="startupAssembly">The target project's assembly.</param>
 		/// <returns>The full path to the target project.</returns>
-		internal static string GetProjectPath(string projectRelativePath = null)
+		internal static string GetProjectPath<T>(string projectRelativePath = null) where T : class
 		{
 			// Get name of the target project which we want to test
-			var projectName = typeof(TStartup).GetTypeInfo().Assembly.GetName().Name;
+			var projectName = typeof(T).GetTypeInfo().Assembly.GetName().Name;
 
 			projectRelativePath = projectRelativePath ?? projectName;
 
@@ -106,7 +106,7 @@ namespace Integration
 
 		protected override void ConfigureWebHost(IWebHostBuilder builder)
 		{
-			var contentRoot = GetProjectPath();
+			var contentRoot = GetProjectPath<TStartup>();
 
 			Directory.SetCurrentDirectory(contentRoot);
 
