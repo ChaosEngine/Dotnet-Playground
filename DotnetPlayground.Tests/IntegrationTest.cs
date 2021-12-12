@@ -765,6 +765,7 @@ namespace Integration
 		[Theory]
 		[InlineData("Identity/Account/Manage/Index", "Phone number")]
 		[InlineData("Identity/Account/Manage/ChangePassword", "Confirm new password")]
+		//[InlineData("Identity/Account/Manage/ExternalLogins", "Registered Logins")]
 		[InlineData("Identity/Account/Manage/TwoFactorAuthentication", "Two-factor authentication")]
 		[InlineData("Identity/Account/Manage/PersonalData", "Deleting this data will permanently remove your account")]
 		public async Task Pages_Authenticated_Open(string page, string contentToCheck)
@@ -807,6 +808,7 @@ namespace Integration
 						{ "Input.Name", "Alice Changed" },
 						{ "Input.Email", "alice.testing@example.org" },
 						{ "Input.PhoneNumber", "555438852" },
+						{ "Input.DesktopNotifications", "true" },
 					};
 
 					using (var formPostBodyData = new FormUrlEncodedContent(payload))
@@ -824,6 +826,7 @@ namespace Integration
 							Assert.Contains("Alice Changed", responseString);
 							Assert.Contains("alice.testing@example.org", responseString);
 							Assert.Contains("555438852", responseString);
+							Assert.Contains("name=\"Input.DesktopNotifications\" value=\"true\"", responseString);
 						}
 					}
 				}//end using (var get_response

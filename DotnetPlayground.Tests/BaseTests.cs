@@ -189,7 +189,7 @@ namespace DotnetPlayground.Tests
 	#region Authorized tests
 
 	public sealed class AuthorizedTestingStartup
-		: InkBall.IntegrationTests.BaseTestingStartup<ApplicationUser, DotnetPlayground.Helpers.MySignInManager>
+		: InkBall.IntegrationTests.BaseTestingStartup<ApplicationUser, Helpers.MySignInManager>
 	{
 		public AuthorizedTestingStartup(IConfiguration configuration) : base(configuration)
 		{
@@ -203,7 +203,7 @@ namespace DotnetPlayground.Tests
 		{
 			get
 			{
-				var contentRoot = Integration.TestServerFixture<DotnetPlayground.Startup>.GetProjectPath<DotnetPlayground.Startup>();
+				var contentRoot = Integration.TestServerFixture<Startup>.GetProjectPath<Startup>();
 				return contentRoot;
 			}
 		}

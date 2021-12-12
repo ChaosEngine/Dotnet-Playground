@@ -84,7 +84,7 @@ namespace Integration
 
 			// Find the path to the target project
 			var directoryInfo = new DirectoryInfo(applicationBasePath);
-			int max_dir_deep_cnter = 10;
+			int max_dir_deep_cnter = 15;
 			do
 			{
 				directoryInfo = directoryInfo.Parent;
