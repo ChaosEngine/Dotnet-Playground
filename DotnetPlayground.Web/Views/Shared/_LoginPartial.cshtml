@@ -2,12 +2,11 @@
 @using DotnetPlayground.Helpers
 @using Microsoft.AspNetCore.Identity
 
-@inject MySignInManager SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
 <ul class="navbar-nav ms-auto">
     <li class="nav-item dropdown">
-        @if (SignInManager.IsSignedIn(User))
+        @if (User.Identity.IsAuthenticated)
         {
             var user = await UserManager.GetUserAsync(User);
 
