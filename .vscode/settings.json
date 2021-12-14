@@ -1,6 +1,6 @@
 {
 	"eslint.enable": true,
 	"eslint.nodePath": "DotnetPlayground.Web/node_modules",
-	"eslint.options": { "configFile": "DotnetPlayground.Web/package.json" },
+	"eslint.options": { "overrideConfigFile": "DotnetPlayground.Web/package.json" },
 	"eslint.validate": [ "javascript" ]
 }
