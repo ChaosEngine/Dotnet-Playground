@@ -20,6 +20,4 @@ namespace DotnetPlayground.Web.Helpers
 	public partial class RandomData_Context : JsonSerializerContext
 	{
 	}
-
-
 }

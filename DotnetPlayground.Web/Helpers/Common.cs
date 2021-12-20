@@ -1,4 +1,4 @@
-//#if DEBUG
+﻿//#if DEBUG
 //using Abiosoft.DotNet.DevReload;
 //#endif
 using DotnetPlayground.Models;
@@ -94,68 +94,68 @@ namespace DotnetPlayground
 		}
 	}
 
-    static class MvcOptionsExtensions
-    {
-        class RouteConvention<T> : IApplicationModelConvention
-            where T : Controller
-        {
-            private readonly IRouteTemplateProvider _routeTemplateProvider;
+	static class MvcOptionsExtensions
+	{
+		class RouteConvention<T> : IApplicationModelConvention
+			where T : Controller
+		{
+			private readonly IRouteTemplateProvider _routeTemplateProvider;
 
-            public RouteConvention(IRouteTemplateProvider routeTemplateProvider)
-            {
-                _routeTemplateProvider = routeTemplateProvider;
-            }
+			public RouteConvention(IRouteTemplateProvider routeTemplateProvider)
+			{
+				_routeTemplateProvider = routeTemplateProvider;
+			}
 
-            public void Apply(ApplicationModel application)
-            {
-                var matchedSelectors = application.Controllers.FirstOrDefault(c => c.ControllerType == typeof(T))?.Selectors;
-                if (matchedSelectors != null && matchedSelectors.Any())
-                {
-                    var centralPrefix = new AttributeRouteModel(_routeTemplateProvider);
-                    foreach (var selectorModel in matchedSelectors)
-                    {
-                        selectorModel.AttributeRouteModel = AttributeRouteModel.CombineAttributeRouteModel(centralPrefix,
-                            selectorModel.AttributeRouteModel);
-                    }
-                }
-            }
-        }
+			public void Apply(ApplicationModel application)
+			{
+				var matchedSelectors = application.Controllers.FirstOrDefault(c => c.ControllerType == typeof(T))?.Selectors;
+				if (matchedSelectors != null && matchedSelectors.Any())
+				{
+					var centralPrefix = new AttributeRouteModel(_routeTemplateProvider);
+					foreach (var selectorModel in matchedSelectors)
+					{
+						selectorModel.AttributeRouteModel = AttributeRouteModel.CombineAttributeRouteModel(centralPrefix,
+							selectorModel.AttributeRouteModel);
+					}
+				}
+			}
+		}
 
-        /*class PageConvention : IPageConvention
-        {
-            private readonly IRouteTemplateProvider _routeTemplateProvider;
+		/*class PageConvention : IPageConvention
+		{
+			private readonly IRouteTemplateProvider _routeTemplateProvider;
 
-            public PageConvention(IRouteTemplateProvider routeTemplateProvider)
-            {
-                _routeTemplateProvider = routeTemplateProvider;
-            }
+			public PageConvention(IRouteTemplateProvider routeTemplateProvider)
+			{
+				_routeTemplateProvider = routeTemplateProvider;
+			}
 
-            public void Apply(ApplicationModel application)
-            {
-                var matchedSelectors = application.Controllers.FirstOrDefault(c => c.ControllerType == typeof(PageController))?.Selectors;
-                if (matchedSelectors != null && matchedSelectors.Any())
-                {
-                    var centralPrefix = new AttributeRouteModel(_routeTemplateProvider);
-                    foreach (var selectorModel in matchedSelectors)
-                    {
-                        selectorModel.AttributeRouteModel = AttributeRouteModel.CombineAttributeRouteModel(centralPrefix,
-                            selectorModel.AttributeRouteModel);
-                    }
-                }
-            }
-        }*/
+			public void Apply(ApplicationModel application)
+			{
+				var matchedSelectors = application.Controllers.FirstOrDefault(c => c.ControllerType == typeof(PageController))?.Selectors;
+				if (matchedSelectors != null && matchedSelectors.Any())
+				{
+					var centralPrefix = new AttributeRouteModel(_routeTemplateProvider);
+					foreach (var selectorModel in matchedSelectors)
+					{
+						selectorModel.AttributeRouteModel = AttributeRouteModel.CombineAttributeRouteModel(centralPrefix,
+							selectorModel.AttributeRouteModel);
+					}
+				}
+			}
+		}*/
 
-        public static void UseCentralRoutePrefix<T>(this MvcOptions opts, IRouteTemplateProvider routeAttribute)
-            where T : Controller
-        {
-            opts.Conventions.Insert(0, new RouteConvention<T>(routeAttribute));
-        }
+		public static void UseCentralRoutePrefix<T>(this MvcOptions opts, IRouteTemplateProvider routeAttribute)
+			where T : Controller
+		{
+			opts.Conventions.Insert(0, new RouteConvention<T>(routeAttribute));
+		}
 
-        /*public static void UseCentralRoutePrefix(this RazorPagesOptions opts, IRouteTemplateProvider routeAttribute)
+		/*public static void UseCentralRoutePrefix(this RazorPagesOptions opts, IRouteTemplateProvider routeAttribute)
 		{
 			opts.Conventions.Insert(0, new PageConvention(routeAttribute));
 		}*/
-    }
+	}
 
 	/*
  #if DEBUG
