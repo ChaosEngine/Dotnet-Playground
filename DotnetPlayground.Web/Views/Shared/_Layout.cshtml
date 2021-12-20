@@ -1,6 +1,5 @@
-﻿@using Microsoft.Extensions.Options
+@using Microsoft.Extensions.Options
 @inject Microsoft.Extensions.Configuration.IConfiguration Conf
-@*@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet*@
 @inject IOptions<DBConfigShower> DBConfigShowerOptions
 @{
 	string dbs_config = DBConfigShowerOptions.Value.DBConfig;
@@ -17,12 +16,7 @@
     <title>@ViewData["Title"] - @Conf["AppTitleName"]</title>
     <environment include="Development">
         <meta name="theme-color" content="darkslateblue" />
-        <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css"  />
-        <link rel="stylesheet" href="~/css/site.css"  />
-        @if (!System.Diagnostics.Debugger.IsAttached)
-        {
-            <devreload></devreload>
-        }
+        <link rel="stylesheet" href="~/css/site.css" />
     </environment>
     <environment exclude="Development">
         <meta name="theme-color" content="darkred" />
