@@ -152,11 +152,10 @@ namespace Integration
 			_client = fixture.Client;
 		}
 
-		[Fact]
+		[IgnoreWhenRunInContainerFact]
 		public async Task GET()
 		{
-			if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return;//pass on fake DB with no data
-
+			//if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return;//pass on fake DB with no data
 
 			//Arrange
 			//get number of all total rows from previous tests :-)
@@ -270,7 +269,7 @@ namespace Integration
 			}
 		}
 
-		[Theory]
+		[IgnoreWhenRunInContainerTheory]
 		[InlineData("Key", "desc", "kawa", 5, 1, "cached")]
 		[InlineData("Key", "asc", "awak", 5, 1, "cached")]
 		[InlineData("Key", "desc", "kawa", 5, 1, "refresh")]
@@ -279,7 +278,7 @@ namespace Integration
 		[InlineData("Key", "asc", "none_existing", 5, 1, "refresh")]
 		public async Task<int> Load_Valid(string sort, string order, string search, int limit, int offset, string extraParam)
 		{
-			if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return 0;//pass on fake DB with no data
+			//if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return 0;//pass on fake DB with no data
 
 
 			// Arrange
@@ -388,10 +387,10 @@ namespace Integration
 			_client = fixture.Client;
 		}
 
-		[Fact]
+		[IgnoreWhenRunInContainerFact]
 		public async Task Show_Index()
 		{
-			if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return;//pass on fake DB with no data
+			//if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return;//pass on fake DB with no data
 
 
 			// Arrange
@@ -423,10 +422,10 @@ namespace Integration
 			}
 		}
 
-		[Fact]
+		[IgnoreWhenRunInContainerFact]
 		public async Task Blog_CRUD_Test()
 		{
-			if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return;//pass on fake DB with no data
+			//if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return;//pass on fake DB with no data
 
 
 			// Arrange

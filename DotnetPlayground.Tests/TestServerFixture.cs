@@ -17,6 +17,28 @@ using Xunit;
 
 namespace Integration
 {
+	internal class IgnoreWhenRunInContainerFactAttribute : FactAttribute
+	{
+		public IgnoreWhenRunInContainerFactAttribute()
+		{
+			if (TestServerFixture<DotnetPlayground.Startup>.DOTNET_RUNNING_IN_CONTAINER)
+			{
+				Skip = "Skipped when running in container";
+			}
+		}
+	}
+
+	internal class IgnoreWhenRunInContainerTheoryAttribute : TheoryAttribute
+	{
+		public IgnoreWhenRunInContainerTheoryAttribute()
+		{
+			if (TestServerFixture<DotnetPlayground.Startup>.DOTNET_RUNNING_IN_CONTAINER)
+			{
+				Skip = "Skipped when running in container";
+			}
+		}
+	}
+
 	/// <summary>
 	/// A test fixture which hosts the target project (project we wish to test) in an in-memory server.
 	/// </summary>
@@ -47,7 +69,15 @@ namespace Integration
 
 		internal string LiveWebCamURL { get; private set; }
 
-		internal bool DOTNET_RUNNING_IN_CONTAINER { get; private set; }
+		internal static bool DOTNET_RUNNING_IN_CONTAINER
+		{
+			get
+			{
+				string temp = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER");
+				var flag = !string.IsNullOrEmpty(temp) && temp.Equals(true.ToString(), StringComparison.InvariantCultureIgnoreCase);
+				return flag;
+			}
+		}
 
 		protected virtual void InitializeServices(IServiceCollection services)
 		{
@@ -149,9 +179,8 @@ namespace Integration
 					ImageDirectory = configuration?["ImageDirectory"];
 					LiveWebCamURL = configuration?["LiveWebCamURL"];
 
-					string temp = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER");
-					DOTNET_RUNNING_IN_CONTAINER = !string.IsNullOrEmpty(temp) && temp.Equals(true.ToString(), StringComparison.InvariantCultureIgnoreCase);
-					//Console.WriteLine($"### temp = {temp}, DOTNET_RUNNING_IN_CONTAINER = {DOTNET_RUNNING_IN_CONTAINER}");
+					//string temp = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER");
+					//DOTNET_RUNNING_IN_CONTAINER = !string.IsNullOrEmpty(temp) && temp.Equals(true.ToString(), StringComparison.InvariantCultureIgnoreCase);
 
 					var db = scopedServices.GetRequiredService<DotnetPlayground.Models.BloggingContext>();
 					if (DBKind.Equals("sqlite", StringComparison.InvariantCultureIgnoreCase))
