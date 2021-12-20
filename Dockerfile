@@ -26,8 +26,7 @@ COPY . .
 RUN sed -i -e "s/GIT_HASH/$SOURCE_COMMIT/g" -e "s/GIT_BRANCH/$SOURCE_BRANCH/g" DotnetPlayground.Web/Views/Home/About.cshtml
 RUN dotnet test --no-restore -v m
 RUN dotnet publish --no-restore -c $BUILD_CONFIG --self-contained -r linux-x64 \
-    #-p:PublishWithAspNetCoreTargetManifest=false #remove this after prerelease patch publish \
-	/p:ShowLinkerSizeComparison=true /p:CrossGenDuringPublish=false \
+    -p:PublishTrimmed=true \
     DotnetPlayground.Web
 
 
