@@ -4,14 +4,12 @@ using DotnetPlayground.Models;
 using DotnetPlayground.Tests;
 using InkBall.IntegrationTests;
 using Microsoft.Extensions.Logging;
-using Microsoft.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -522,6 +520,196 @@ namespace Integration
 						response.EnsureSuccessStatusCode();
 						Assert.Contains("application/json", response.Content.Headers.GetValues("Content-Type").FirstOrDefault());
 						Assert.Equal("\"deleted\"", await response.Content.ReadAsStringAsync());
+					}
+				}
+			}//end using (var create_get_response
+		}
+
+		[IgnoreWhenRunInContainerFact]
+		public async Task Posts_CRUD_Test()
+		{
+			//if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return;//pass on fake DB with no data
+
+
+			// Arrange
+			string antiforgery_token;
+			List<KeyValuePair<string, string>> data;
+			Post deserialized;
+			var now = DateTime.Now;
+			int last_inserted_blog_id;
+			string last_inserted_BlogProtectedID;
+
+			using (var create_get_response = await _client.GetAsync(
+				$"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(BlogsController.Create)}/",
+				HttpCompletionOption.ResponseContentRead))
+			{
+				// Assert
+				create_get_response.EnsureSuccessStatusCode();
+				antiforgery_token = await PostRequestHelper.ExtractAntiForgeryToken(create_get_response);
+
+				// Arrange
+				data = new Blog
+				{
+					BlogId = 0,
+					Post = new[] { new Post { Content = $"aaaa {now}", Title = "titla" } },
+					Url = $"http://www.inernetAt-{now.Year}-{now.Month}-{now.Day}.com/Content{now.Hour}-{now.Minute}-{now.Second}"
+				}.ToDictionary().ToList();
+				data.Add(new KeyValuePair<string, string>("__RequestVerificationToken", antiforgery_token));
+
+				using (var formPostBodyData = new FormUrlEncodedContent(data))
+				{
+					PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, create_get_response);
+					// Act
+					using (var redirect = await _client.PostAsync(
+						$"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(BlogsController.Create)}/",
+						formPostBodyData))
+					{
+						// Assert
+						Assert.NotNull(redirect);
+						Assert.Equal(HttpStatusCode.Redirect, redirect.StatusCode);
+						Assert.Contains($"/{BlogsController.ASPX}", redirect.Headers.GetValues("Location").FirstOrDefault());
+					}
+				}
+
+
+				using (var index_response = await _client.GetAsync($"{_client.BaseAddress}{BlogsController.ASPX}/", HttpCompletionOption.ResponseContentRead))
+				{
+					var responseString = await index_response.Content.ReadAsStringAsync();
+					MatchCollection matches = Regex.Matches(responseString, @"\<form method=""post"" class=""blogForm row g-3"" data-id=""([0-9].*)""\>");
+					Assert.NotEmpty(matches);
+					var ids = new List<int>(matches.Count);
+					foreach (Match m in matches)
+					{
+						var match_count = m.Success ? m.Groups[1].Captures.Count : 0;
+						Assert.True(match_count > 0);
+						var id = int.Parse(m.Groups[1].Captures[match_count - 1].Value);
+						ids.Add(id);
+					}
+					last_inserted_blog_id = ids.OrderByDescending(_ => _).First();
+					Match match = Regex.Match(responseString, $@"\<input type=""hidden"" id=""ProtectedID_{last_inserted_blog_id}"" name=""ProtectedID"" value=""([^""]+)"" \/\>");
+					Assert.True(match.Success && match.Groups[1].Captures.Count > 0);
+					last_inserted_BlogProtectedID = match.Groups[1].Captures[0].Value;
+				}
+
+				data = new Post
+				{
+					BlogId = last_inserted_blog_id,
+					Title = "Something wonderfull on the inernetz",
+					Content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+				}.ToDictionary().ToList();
+				data.Add(new KeyValuePair<string, string>("__RequestVerificationToken", antiforgery_token));
+
+				using (var formPostBodyData = new FormUrlEncodedContent(data))
+				{
+					PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, create_get_response);
+					using (var response = await _client.PostAsync(
+						$"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(PostActionEnum.AddPost)}/{last_inserted_blog_id}/true",
+						formPostBodyData))
+					{
+						Assert.NotNull(response);
+						response.EnsureSuccessStatusCode();
+						var responseString = await response.Content.ReadAsStringAsync();
+						Assert.Contains("application/json", response.Content.Headers.GetValues("Content-Type").FirstOrDefault());
+						//"BlogId":1339,"Content":"Lorem ipsum dolor sit amet, consectetur adipiscing elit","Title":"Something wonderfull on the inernetz"}
+						Assert.Contains($"\"blogId\":{last_inserted_blog_id}," +
+							"\"content\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit\"," +
+							"\"Title\":\"Something wonderfull on the inernetz\"",
+							responseString, StringComparison.InvariantCultureIgnoreCase);
+
+						// Deserialize JSON String into concrete class
+						deserialized = JsonSerializer.Deserialize<Post>(responseString);
+						Assert.IsType<Post>(deserialized);
+						Assert.Equal(last_inserted_blog_id, deserialized.BlogId);
+						Assert.True(deserialized.PostId > 0);
+						Assert.Equal("Something wonderfull on the inernetz", deserialized.Title);
+						Assert.Equal("Lorem ipsum dolor sit amet, consectetur adipiscing elit", deserialized.Content);
+					}
+				}
+
+				//verify with getting all post for blog
+				// Arrange
+				data = new List<KeyValuePair<string, string>>(/*empty*/);
+				data.Add(new KeyValuePair<string, string>("__RequestVerificationToken", antiforgery_token));
+
+				using (var formPostBodyData = new FormUrlEncodedContent(data))
+				{
+					PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, create_get_response);
+					// act
+					using (var response = await _client.PostAsync(
+						$"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(PostActionEnum.GetPosts)}/{last_inserted_blog_id}",
+						formPostBodyData))
+					{
+						// Assert
+						Assert.NotNull(response);
+						response.EnsureSuccessStatusCode();
+						var responseString = await response.Content.ReadAsStringAsync();
+						Assert.Contains("application/json", response.Content.Headers.GetValues("Content-Type").FirstOrDefault());
+						Assert.Contains($"\"blogId\":{last_inserted_blog_id}," +
+							"\"content\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit\"," +
+							"\"Title\":\"Something wonderfull on the inernetz\"",
+							responseString, StringComparison.InvariantCultureIgnoreCase);
+
+						// Deserialize JSON String into concrete class
+						var posts = JsonSerializer.Deserialize<List<Post>>(responseString);
+						//there should be ONE post
+						Assert.NotEmpty(posts);
+						deserialized = posts.FirstOrDefault();
+						Assert.Equal(last_inserted_blog_id, deserialized.BlogId);
+						Assert.True(deserialized.PostId > 0);
+						Assert.Equal("Something wonderfull on the inernetz", deserialized.Title);
+						Assert.Equal("Lorem ipsum dolor sit amet, consectetur adipiscing elit", deserialized.Content);
+					}
+				}
+
+
+
+				//delete
+				// Arrange
+				data = new Post
+				{
+					BlogId = last_inserted_blog_id,
+					PostId = deserialized.PostId
+				}.ToDictionary().ToList();
+				data.Add(new KeyValuePair<string, string>("__RequestVerificationToken", antiforgery_token));
+
+				using (var formPostBodyData = new FormUrlEncodedContent(data))
+				{
+					PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, create_get_response);
+					// Act
+					using (var response = await _client.PostAsync(
+						$"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(PostActionEnum.DeletePost)}/{last_inserted_blog_id}/true",
+						formPostBodyData))
+					{
+						// Assert
+						Assert.NotNull(response);
+						response.EnsureSuccessStatusCode();
+						Assert.Contains("application/json", response.Content.Headers.GetValues("Content-Type").FirstOrDefault());
+						Assert.Equal("\"deleted post\"", await response.Content.ReadAsStringAsync());
+					}
+				}
+
+				//verify with getting all post for blog
+				// Arrange
+				data = new List<KeyValuePair<string, string>>(/*empty*/);
+				data.Add(new KeyValuePair<string, string>("__RequestVerificationToken", antiforgery_token));
+
+				using (var formPostBodyData = new FormUrlEncodedContent(data))
+				{
+					PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, create_get_response);
+					// act
+					using (var response = await _client.PostAsync(
+						$"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(PostActionEnum.GetPosts)}/{last_inserted_blog_id}",
+						formPostBodyData))
+					{
+						// Assert
+						Assert.NotNull(response);
+						response.EnsureSuccessStatusCode();
+						var responseString = await response.Content.ReadAsStringAsync();
+
+						// Deserialize JSON String into concrete class
+						var posts = JsonSerializer.Deserialize<List<Post>>(responseString);
+						//there should be NO post
+						Assert.Empty(posts);
 					}
 				}
 			}//end using (var create_get_response
