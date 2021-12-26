@@ -429,7 +429,8 @@ namespace Integration
 			// Arrange
 			string antiforgery_token;
 			List<KeyValuePair<string, string>> data;
-			using (var create_get_response = await _client.GetAsync($"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(BlogsController.Create)}/",
+			using (var create_get_response = await _client.GetAsync(
+				$"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(BlogsController.Create)}/",
 				HttpCompletionOption.ResponseContentRead))
 			{
 				// Assert
@@ -591,6 +592,8 @@ namespace Integration
 					last_inserted_BlogProtectedID = match.Groups[1].Captures[0].Value;
 				}
 
+				//add post
+				// Arrange
 				data = new Post
 				{
 					BlogId = last_inserted_blog_id,
@@ -661,6 +664,43 @@ namespace Integration
 					}
 				}
 
+				//change post content/title
+				// Arrange
+				data = new Post
+				{
+					BlogId = last_inserted_blog_id,
+					PostId = deserialized.PostId,
+					Title = "changed Ho!",
+					Content = "changed Ha!"
+				}.ToDictionary().ToList();
+				data.Add(new KeyValuePair<string, string>("__RequestVerificationToken", antiforgery_token));
+
+				using (var formPostBodyData = new FormUrlEncodedContent(data))
+				{
+					PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, create_get_response);
+					using (var response = await _client.PostAsync(
+						$"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(PostActionEnum.EditPost)}/{last_inserted_blog_id}/true",
+						formPostBodyData))
+					{
+						Assert.NotNull(response);
+						response.EnsureSuccessStatusCode();
+						var responseString = await response.Content.ReadAsStringAsync();
+						Assert.Contains("application/json", response.Content.Headers.GetValues("Content-Type").FirstOrDefault());
+						//"BlogId":1339,"Content":"Lorem ipsum dolor sit amet, consectetur adipiscing elit","Title":"Something wonderfull on the inernetz"}
+						Assert.Contains($"\"blogId\":{last_inserted_blog_id}," +
+							"\"content\":\"changed Ha!\"," +
+							"\"Title\":\"changed Ho!\"",
+							responseString, StringComparison.InvariantCultureIgnoreCase);
+
+						// Deserialize JSON String into concrete class
+						deserialized = JsonSerializer.Deserialize<Post>(responseString);
+						Assert.IsType<Post>(deserialized);
+						Assert.Equal(last_inserted_blog_id, deserialized.BlogId);
+						Assert.True(deserialized.PostId > 0);
+						Assert.Equal("changed Ho!", deserialized.Title);
+						Assert.Equal("changed Ha!", deserialized.Content);
+					}
+				}
 
 
 				//delete
@@ -710,6 +750,28 @@ namespace Integration
 						var posts = JsonSerializer.Deserialize<List<Post>>(responseString);
 						//there should be NO post
 						Assert.Empty(posts);
+					}
+				}
+
+				//cleanup
+				data = new DecoratedBlog
+				{
+					BlogId = last_inserted_blog_id,
+					ProtectedID = last_inserted_BlogProtectedID,
+				}.ToDictionary().ToList();
+				data.Add(new KeyValuePair<string, string>("__RequestVerificationToken", antiforgery_token));
+
+				using (var formPostBodyData = new FormUrlEncodedContent(data))
+				{
+					PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, create_get_response);
+					using (var response = await _client.PostAsync(
+						$"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(BlogActionEnum.Delete)}/{last_inserted_blog_id}/true",
+						formPostBodyData))
+					{
+						Assert.NotNull(response);
+						response.EnsureSuccessStatusCode();
+						Assert.Contains("application/json", response.Content.Headers.GetValues("Content-Type").FirstOrDefault());
+						Assert.Equal("\"deleted\"", await response.Content.ReadAsStringAsync());
 					}
 				}
 			}//end using (var create_get_response
