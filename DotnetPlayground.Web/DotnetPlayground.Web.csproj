@@ -52,8 +52,6 @@
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="6.0.1" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="6.0.1" />
 		<PackageReference Include="MessagePack" Version="2.3.85" />
-		<PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
-		<!--<PackageReference Include="RedHat.AspNetCore.Server.Kestrel.Transport.Linux" Version="3.0.0-*" />-->
 	</ItemGroup>
 
 	<Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
@@ -63,6 +61,7 @@
 
 	<ItemGroup>
 		<TrimmerRootAssembly Include="System.Runtime" />
+		<!--Needed for DataProtection; keys decryption would not work without it-->
 		<TrimmerRootAssembly Include="System.Security.Cryptography.Algorithms" />
 	</ItemGroup>
 
@@ -80,7 +79,12 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		
+		<!--TODO: obsoleet, remove in the future-->
 		<!--<ProjectReference Include="..\DevReload\DevReload.csproj" />-->
+
+		<!--Conflicting dependency for debug build of Microsoft.Azure.DocumentDB.Core-->
+		<PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
 	</ItemGroup>
 
 </Project>
