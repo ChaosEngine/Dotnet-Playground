@@ -45,7 +45,9 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using MessagePack;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
-
+#if INCLUDE_MONGODB
+using DotnetPlayground.Repositories.Mongo;
+#endif
 //[assembly: UserSecretsId("aspnet-DotnetPlayground-20161230022416")]
 
 namespace DotnetPlayground
@@ -54,7 +56,7 @@ namespace DotnetPlayground
 	{
 		public IConfiguration Configuration { get; }
 
-		#region Main
+#region Main
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
@@ -128,7 +130,7 @@ namespace DotnetPlayground
 			await host.RunAsync();
 		}
 
-		#endregion Main
+#endregion Main
 
 		public Startup(IConfiguration configuration)
 		{
@@ -177,7 +179,7 @@ namespace DotnetPlayground
 			return btq;
 		}
 
-		[UnconditionalSuppressMessage("Trimming", 
+		[UnconditionalSuppressMessage("Trimming",
 			"IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code",
 			Justification = "Types are referenced further in code")]
 		void ConfigureDependencyInjection(IServiceCollection services, IWebHostEnvironment env)
@@ -213,6 +215,19 @@ namespace DotnetPlayground
 				dbs_config = Configuration["DBKind"]?.ToLower() + "+CosmosDB";
 
 				services.AddScoped<IThinHashesDocumentDBRepository, ThinHashesDocumentDBRepository>();
+			}
+			else 
+#elif INCLUDE_MONGODB
+			if (Configuration.GetSection("MongoDB")?["enabled"] == true.ToString())
+			{
+				services.Configure<MongoDBSettings>(Configuration.GetSection("MongoDB"));
+
+				services.AddSingleton<IMongoDBSettings>(sp => sp.GetRequiredService<IOptions<MongoDBSettings>>().Value);
+
+				services.AddSingleton<MongoService>();
+				dbs_config = Configuration["DBKind"]?.ToLower() + "+MongoDB";
+
+				services.AddScoped<IHashesRepositoryPure, MongoDBRepository>();
 			}
 			else
 #endif
@@ -445,10 +460,10 @@ namespace DotnetPlayground
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
-//#if DEBUG
-//				if (!System.Diagnostics.Debugger.IsAttached)
-//					app.UseDevReload(new MyDevReloadOptions(Configuration["AppRootPath"]));
-//#endif
+				//#if DEBUG
+				//				if (!System.Diagnostics.Debugger.IsAttached)
+				//					app.UseDevReload(new MyDevReloadOptions(Configuration["AppRootPath"]));
+				//#endif
 				//app.UseExceptionHandler(Configuration["AppRootPath"] + "Home/Error");
 				//app.UseBrowserLink();
 			}
@@ -475,10 +490,10 @@ namespace DotnetPlayground
 				{
 					//endpoints.MapHub<InkBall.Module.Hubs.GameHub>("/" + InkBall.Module.Hubs.GameHub.HubName);
 					endpoints.PrepareSignalRForInkBall("/");
-//#if DEBUG
-//					if (!System.Diagnostics.Debugger.IsAttached)
-//						endpoints.MapHub<DevReloadHub>("/DevReloadSignalR");
-//#endif
+					//#if DEBUG
+					//					if (!System.Diagnostics.Debugger.IsAttached)
+					//						endpoints.MapHub<DevReloadHub>("/DevReloadSignalR");
+					//#endif
 					endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 					endpoints.MapRazorPages();
 				});
