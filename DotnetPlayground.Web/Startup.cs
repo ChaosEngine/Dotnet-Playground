@@ -1,6 +1,3 @@
-//#if DEBUG
-//using Abiosoft.DotNet.DevReload;
-//#endif
 using DotnetPlayground.Helpers;
 using DotnetPlayground.Repositories;
 using DotnetPlayground.Services;
@@ -460,10 +457,6 @@ namespace DotnetPlayground
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
-				//#if DEBUG
-				//				if (!System.Diagnostics.Debugger.IsAttached)
-				//					app.UseDevReload(new MyDevReloadOptions(Configuration["AppRootPath"]));
-				//#endif
 				//app.UseExceptionHandler(Configuration["AppRootPath"] + "Home/Error");
 				//app.UseBrowserLink();
 			}
@@ -490,10 +483,6 @@ namespace DotnetPlayground
 				{
 					//endpoints.MapHub<InkBall.Module.Hubs.GameHub>("/" + InkBall.Module.Hubs.GameHub.HubName);
 					endpoints.PrepareSignalRForInkBall("/");
-					//#if DEBUG
-					//					if (!System.Diagnostics.Debugger.IsAttached)
-					//						endpoints.MapHub<DevReloadHub>("/DevReloadSignalR");
-					//#endif
 					endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 					endpoints.MapRazorPages();
 				});

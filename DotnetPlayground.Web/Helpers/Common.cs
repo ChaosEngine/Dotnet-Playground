@@ -1,7 +1,4 @@
-﻿//#if DEBUG
-//using Abiosoft.DotNet.DevReload;
-//#endif
-using DotnetPlayground.Models;
+﻿using DotnetPlayground.Models;
 using DotnetPlayground.Web.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -156,42 +153,4 @@ namespace DotnetPlayground
 			opts.Conventions.Insert(0, new PageConvention(routeAttribute));
 		}*/
 	}
-
-	/*
- #if DEBUG
-		public sealed class MyDevReloadOptions : DevReloadOptions
-		{
-			public MyDevReloadOptions(string appRootPath)
-			{
-				DevReloadPath = appRootPath + "js/__DevReload";
-				Directory = "./";
-				IgnoredSubDirectories = new string[] { ".git", ".node_modules", "bin", "obj" };
-				StaticFileExtensions = new string[] { "css", "js", "html", "cshtml" };
-				MaxConnectionFailedCount = 20;
-				CheckIntervalDelay = 2000;
-				PopoutHtmlTemplate = @"<div id='reload' class='toast' role='alert' aria-live='assertive' aria-atomic='true'
-		data-bs-autohide='false' data-bs-animation='true' style='position:absolute; top:0; right:0; z-index:9999; display:none'>
-	  <div class='toast-header'>
-		<svg class='rounded me-2' width='20' height='20' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMidYMid slice' focusable='false' role='img'><rect width='100%' height='100%' fill='red'></rect></svg>
-		<strong class='me-auto'>DevReload</strong>
-		<small>just now</small>
-		<button type='button' class='btn-close' data-bs-dismiss='toast' aria-label='Close'></button>
-	  </div>
-	  <div class='toast-body'>
-		DevReload - Reloading page...
-	  </div>
-	</div>
-	<script>
-		$('#reload').toast('hide');
-	</script>";
-				TemplateActivationJSFragment = @"$('#reload').show().toast('show');";
-				UseSignalR = true;
-				SignalRClientSide = @$"<script src='{appRootPath}lib/signalr/browser/signalr.min.js'></script>";
-					//<script src='{appRootPath}lib/msgpack5/msgpack5.min.js'></script>
-					//<script src='{appRootPath}lib/signalr-protocol-msgpack/browser/signalr-protocol-msgpack.min.js'></script>";
-				SignalRHubPath = appRootPath + "DevReloadSignalR";
-			}
-		}
-#endif
-	*/
 }

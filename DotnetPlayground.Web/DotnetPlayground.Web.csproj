@@ -81,9 +81,6 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		
-		<!--TODO: obsoleet, remove in the future-->
-		<!--<ProjectReference Include="..\DevReload\DevReload.csproj" />-->
-
 		<!--Conflicting dependency for debug build of Microsoft.Azure.DocumentDB.Core-->
 		<!-- <PackageReference Include="System.Net.NameResolution" Version="4.3.0" /> -->
 	</ItemGroup>

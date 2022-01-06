@@ -7,6 +7,3 @@
 [submodule "IdentityManager2"]
 	path = IdentityManager2
 	url = https://github.com/ChaosEngine/IdentityManager2.git
-[submodule "DevReload"]
-	path = DevReload
-	url = https://github.com/ChaosEngine/DevReload.git
