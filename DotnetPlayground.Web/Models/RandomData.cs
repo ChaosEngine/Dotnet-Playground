@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DotnetPlayground.Models
 {
-	class RandomData
+	public class RandomData
 	{
 		private static HashAlgorithm _hasher;
 

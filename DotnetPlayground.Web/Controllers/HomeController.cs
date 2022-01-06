@@ -58,12 +58,12 @@ namespace DotnetPlayground.Controllers
 			var name = HttpContext.Session.GetString(SessionKeyName);
 			var yearsMember = HttpContext.Session.GetInt32(SessionKeyYearsMember);
 
-			var date = HttpContext.Session.Get<DateTime>(SessionKeyDate);
+			var date = HttpContext.Session.GetDateTime(SessionKeyDate);
 			var sessionTime = date.TimeOfDay.ToString();
 			var currentTime = DateTime.Now.TimeOfDay.ToString();
 			var time = $"Current time: {currentTime} - session time: {sessionTime}";
 
-			var big_blob = HttpContext.Session.Get<RandomData>(typeof(RandomData).Name);
+			var big_blob = HttpContext.Session.GetRandomData(typeof(RandomData).Name);
 
 			ViewData["Message"] = $"Name: '{name}'<br />Membership years: '{yearsMember}'<br />time: '{time}'<br />"
 				+ $"BigBlob: '{big_blob}'";

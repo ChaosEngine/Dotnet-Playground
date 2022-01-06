@@ -1,18 +1,17 @@
 ﻿using DotnetPlayground;
 using DotnetPlayground.Controllers;
 using DotnetPlayground.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using DotnetPlayground.Tests;
+using InkBall.IntegrationTests;
 using Microsoft.Extensions.Logging;
-using Microsoft.Net.Http.Headers;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Net.Mime;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -36,92 +35,6 @@ namespace Integration
 		}
 	}
 
-	/// <summary>
-	/// http://geeklearning.io/asp-net-core-mvc-testing-and-the-synchronizer-token-pattern/
-	/// http://www.stefanhendriks.com/2016/05/11/integration-testing-your-asp-net-core-app-dealing-with-anti-request-forgery-csrf-formdata-and-cookies/
-	/// </summary>
-	static class PostRequestHelper
-	{
-		public static string ExtractAntiForgeryToken(string htmlResponseText)
-		{
-			if (htmlResponseText == null) throw new ArgumentNullException("htmlResponseText");
-
-			Match match = Regex.Match(htmlResponseText, @"\<input name=""__RequestVerificationToken"" type=""hidden"" value=""([^""]+)"" \/\>");
-			return match.Success ? match.Groups[1].Captures[0].Value : null;
-		}
-
-		public static async Task<string> ExtractAntiForgeryToken(HttpResponseMessage response)
-		{
-			string responseAsString = await response.Content.ReadAsStringAsync();
-			return await Task.FromResult(ExtractAntiForgeryToken(responseAsString));
-		}
-
-		/// <summary>
-		/// Inspired from:
-		/// https://github.com/aspnet/Mvc/blob/538cd9c19121f8d3171cbfddd5d842cbb756df3e/test/Microsoft.AspNet.Mvc.FunctionalTests/TempDataTest.cs#L201-L202
-		/// </summary>
-		/// <param name="response"></param>
-		/// <returns></returns>
-		public static IEnumerable<KeyValuePair<string, string>> ExtractCookiesFromResponse(HttpResponseMessage response)
-		{
-			if (response.Headers.TryGetValues("Set-Cookie", out IEnumerable<string> values))
-			{
-				var result = new KeyValuePair<string, string>[values.Count()];
-				var cookie_jar = SetCookieHeaderValue.ParseList(values.ToList());
-				int i = 0;
-				foreach (var cookie in cookie_jar)
-				{
-					result[i] = new KeyValuePair<string, string>(cookie.Name.Value, cookie.Value.Value);
-					i++;
-				}
-				return result;
-			}
-			else
-				return new KeyValuePair<string, string>[0];
-		}
-
-		public static HttpRequestMessage PutCookiesOnRequest(HttpRequestMessage newHttpRequestMessage, IEnumerable<KeyValuePair<string, string>> cookies)
-		{
-			foreach (var kvp in cookies)
-			{
-				newHttpRequestMessage.Headers.Add("Cookie", new Microsoft.Net.Http.Headers.CookieHeaderValue(kvp.Key, kvp.Value).ToString());
-			}
-
-			return newHttpRequestMessage;
-		}
-
-		public static HttpRequestMessage CopyCookiesFromResponse(HttpRequestMessage newHttpRequestMessage, HttpResponseMessage getResponse)
-		{
-			return PutCookiesOnRequest(newHttpRequestMessage, ExtractCookiesFromResponse(getResponse));
-		}
-
-		public static HttpRequestMessage Create(string routePath, IEnumerable<KeyValuePair<string, string>> formPostBodyData)
-		{
-			var newHttpRequestMessage = new HttpRequestMessage(HttpMethod.Post, routePath)
-			{
-				Content = new FormUrlEncodedContent(formPostBodyData)
-			};
-			return newHttpRequestMessage;
-		}
-
-		public static HttpRequestMessage CreateHttpRequestMessageWithCookiesFromResponse(string routePath,
-			IEnumerable<KeyValuePair<string, string>> formPostBodyData, HttpResponseMessage getResponse)
-		{
-			var newHttpRequestMessage = Create(routePath, formPostBodyData);
-			return CopyCookiesFromResponse(newHttpRequestMessage, getResponse);
-		}
-
-		public static void CreateFormUrlEncodedContentWithCookiesFromResponse(HttpHeaders headers, HttpResponseMessage getResponse)
-		{
-			var cookies = ExtractCookiesFromResponse(getResponse);
-
-			foreach (var kvp in cookies)
-			{
-				headers.Add("Cookie", new Microsoft.Net.Http.Headers.CookieHeaderValue(kvp.Key, kvp.Value).ToString());
-			}
-		}
-	}
-
 	[Collection(nameof(TestServerCollection))]
 	public class HomePage
 	{
@@ -139,7 +52,7 @@ namespace Integration
 		{
 			// Arrange
 			// Act
-			using (HttpResponseMessage response = await _client.GetAsync(_fixture.AppRootPath))
+			using (HttpResponseMessage response = await _client.GetAsync(_client.BaseAddress))
 			{
 				// Assert
 				response.EnsureSuccessStatusCode();
@@ -154,11 +67,11 @@ namespace Integration
 		public async Task ErrorHandlerTest()
 		{
 			// Arrange
-			var data = new Dictionary<string, string>
+			var payload = new Dictionary<string, string>
 			{
 				{ "action", "exception" }
 			};
-			using (var content = new FormUrlEncodedContent(data))
+			using (var content = new FormUrlEncodedContent(payload))
 			{
 				// Act
 				using (var response = await _client.PostAsync("/DeesNotExist/FooBar", content))
@@ -175,14 +88,14 @@ namespace Integration
 		public async Task UnintentionalErr()
 		{
 			// Arrange
-			var data = new Dictionary<string, string>
+			var payload = new Dictionary<string, string>
 			{
 				{ "action", "exception" }
 			};
-			using (var content = new FormUrlEncodedContent(data))
+			using (var content = new FormUrlEncodedContent(payload))
 			{
 				// Act
-				using (var response = await _client.PostAsync($"{_fixture.AppRootPath}Home/{nameof(HomeController.UnintentionalErr)}", content))
+				using (var response = await _client.PostAsync($"{_client.BaseAddress}Home/{nameof(HomeController.UnintentionalErr)}", content))
 				{
 					// Assert
 					Assert.NotNull(response);
@@ -198,7 +111,7 @@ namespace Integration
 		public async Task ClientsideLog()
 		{
 			// Arrange
-			var data = new Dictionary<string, string>
+			var payload = new Dictionary<string, string>
 			{
 				{ "level", LogLevel.Warning.ToString() },
 				{ "message", "some message" },
@@ -211,10 +124,10 @@ namespace Integration
 			//var stringPayload = JsonConvert.SerializeObject(payload);
 			//// Wrap our JSON inside a StringContent which then can be used by the HttpClient class
 			//var content = new StringContent(stringPayload, Encoding.UTF8, "application/json");
-			using (var content = new FormUrlEncodedContent(data))
+			using (var content = new FormUrlEncodedContent(payload))
 			{
 				// Act
-				using (var response = await _client.PostAsync($"{_fixture.AppRootPath}Home/{nameof(HomeController.ClientsideLog)}", content))
+				using (var response = await _client.PostAsync($"{_client.BaseAddress}Home/{nameof(HomeController.ClientsideLog)}", content))
 				{
 					// Assert
 					response.EnsureSuccessStatusCode();
@@ -237,11 +150,10 @@ namespace Integration
 			_client = fixture.Client;
 		}
 
-		[Fact]
+		[IgnoreWhenRunInContainerFact]
 		public async Task GET()
 		{
-			if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return;//pass on fake DB with no data
-
+			//if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return;//pass on fake DB with no data
 
 			//Arrange
 			//get number of all total rows from previous tests :-)
@@ -260,7 +172,7 @@ namespace Integration
 			</p>";
 
 			// Act
-			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{HashesController.ASPX}/"))
+			using (HttpResponseMessage response = await _client.GetAsync($"{_client.BaseAddress}{HashesController.ASPX}/"))
 			{
 				// Assert
 				response.EnsureSuccessStatusCode();
@@ -292,7 +204,7 @@ namespace Integration
 				// Act
 				do
 				{
-					using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{HashesController.ASPX}/"))
+					using (HttpResponseMessage response = await _client.GetAsync($"{_client.BaseAddress}{HashesController.ASPX}/"))
 					{
 						// Assert
 						response.EnsureSuccessStatusCode();
@@ -343,7 +255,7 @@ namespace Integration
 		{
 			// Arrange
 			// Act
-			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{VirtualScrollController.ASPX}/"))
+			using (HttpResponseMessage response = await _client.GetAsync($"{_client.BaseAddress}{VirtualScrollController.ASPX}/"))
 			{
 				// Assert
 				response.EnsureSuccessStatusCode();
@@ -355,7 +267,7 @@ namespace Integration
 			}
 		}
 
-		[Theory]
+		[IgnoreWhenRunInContainerTheory]
 		[InlineData("Key", "desc", "kawa", 5, 1, "cached")]
 		[InlineData("Key", "asc", "awak", 5, 1, "cached")]
 		[InlineData("Key", "desc", "kawa", 5, 1, "refresh")]
@@ -364,7 +276,7 @@ namespace Integration
 		[InlineData("Key", "asc", "none_existing", 5, 1, "refresh")]
 		public async Task<int> Load_Valid(string sort, string order, string search, int limit, int offset, string extraParam)
 		{
-			if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return 0;//pass on fake DB with no data
+			//if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return 0;//pass on fake DB with no data
 
 
 			// Arrange
@@ -381,7 +293,7 @@ namespace Integration
 			{
 				var queryString = await content.ReadAsStringAsync();
 				// Act
-				using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{VirtualScrollController.ASPX}/{nameof(HashesDataTableController.Load)}?{queryString}", HttpCompletionOption.ResponseContentRead))
+				using (HttpResponseMessage response = await _client.GetAsync($"{_client.BaseAddress}{VirtualScrollController.ASPX}/{nameof(HashesDataTableController.Load)}?{queryString}", HttpCompletionOption.ResponseContentRead))
 				{
 					// Assert
 					Assert.NotNull(response);
@@ -397,7 +309,7 @@ namespace Integration
 					};
 
 					// Deserialize JSON String into concrete class
-					var data = JsonSerializer.Deserialize<TypedResult>(jsonString, new JsonSerializerOptions{ PropertyNameCaseInsensitive = true });
+					var data = JsonSerializer.Deserialize<TypedResult>(jsonString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 					Assert.IsType(typed_result.GetType(), data);
 					Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(data.rows);
 
@@ -448,7 +360,7 @@ namespace Integration
 				var queryString = await content.ReadAsStringAsync();
 				// Act
 				using (HttpResponseMessage response =
-					await _client.GetAsync($"{_fixture.AppRootPath}{VirtualScrollController.ASPX}/{nameof(HashesDataTableController.Load)}?{queryString}",
+					await _client.GetAsync($"{_client.BaseAddress}{VirtualScrollController.ASPX}/{nameof(HashesDataTableController.Load)}?{queryString}",
 					HttpCompletionOption.ResponseContentRead))
 				{
 					// Assert
@@ -473,15 +385,15 @@ namespace Integration
 			_client = fixture.Client;
 		}
 
-		[Fact]
+		[IgnoreWhenRunInContainerFact]
 		public async Task Show_Index()
 		{
-			if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return;//pass on fake DB with no data
+			//if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return;//pass on fake DB with no data
 
 
 			// Arrange
 			// Act
-			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{BlogsController.ASPX}/"))
+			using (HttpResponseMessage response = await _client.GetAsync($"{_client.BaseAddress}{BlogsController.ASPX}/"))
 			{
 				// Assert
 				response.EnsureSuccessStatusCode();
@@ -497,7 +409,7 @@ namespace Integration
 		{
 			// Arrange
 			// Act
-			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{BlogsController.ASPX}/{nameof(BlogsController.Create)}/"))
+			using (HttpResponseMessage response = await _client.GetAsync($"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(BlogsController.Create)}/"))
 			{
 				// Assert
 				response.EnsureSuccessStatusCode();
@@ -508,16 +420,17 @@ namespace Integration
 			}
 		}
 
-		[Fact]
+		[IgnoreWhenRunInContainerFact]
 		public async Task Blog_CRUD_Test()
 		{
-			if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return;//pass on fake DB with no data
+			//if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return;//pass on fake DB with no data
 
 
 			// Arrange
 			string antiforgery_token;
 			List<KeyValuePair<string, string>> data;
-			using (var create_get_response = await _client.GetAsync($"{_fixture.AppRootPath}{BlogsController.ASPX}/{nameof(BlogsController.Create)}/",
+			using (var create_get_response = await _client.GetAsync(
+				$"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(BlogsController.Create)}/",
 				HttpCompletionOption.ResponseContentRead))
 			{
 				// Assert
@@ -538,19 +451,19 @@ namespace Integration
 				{
 					PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, create_get_response);
 					// Act
-					using (var redirect = await _client.PostAsync($"{_fixture.AppRootPath}{BlogsController.ASPX}/{nameof(BlogsController.Create)}/", formPostBodyData))
+					using (var redirect = await _client.PostAsync($"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(BlogsController.Create)}/", formPostBodyData))
 					{
 						// Assert
 						Assert.NotNull(redirect);
 						Assert.Equal(HttpStatusCode.Redirect, redirect.StatusCode);
-						Assert.Contains($"{_fixture.AppRootPath}{BlogsController.ASPX}", redirect.Headers.GetValues("Location").FirstOrDefault());
+						Assert.Contains($"/{BlogsController.ASPX}", redirect.Headers.GetValues("Location").FirstOrDefault());
 					}
 				}
 
 
 				int last_inserted_id;
 				string last_inserted_ProtectedID;
-				using (var index_response = await _client.GetAsync($"{_fixture.AppRootPath}{BlogsController.ASPX}/", HttpCompletionOption.ResponseContentRead))
+				using (var index_response = await _client.GetAsync($"{_client.BaseAddress}{BlogsController.ASPX}/", HttpCompletionOption.ResponseContentRead))
 				{
 					var responseString = await index_response.Content.ReadAsStringAsync();
 					MatchCollection matches = Regex.Matches(responseString, @"\<form method=""post"" class=""blogForm row g-3"" data-id=""([0-9].*)""\>");
@@ -580,7 +493,7 @@ namespace Integration
 				using (var formPostBodyData = new FormUrlEncodedContent(data))
 				{
 					PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, create_get_response);
-					using (var response = await _client.PostAsync($"{_fixture.AppRootPath}{BlogsController.ASPX}/{nameof(BlogActionEnum.Edit)}/{last_inserted_id}/true",
+					using (var response = await _client.PostAsync($"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(BlogActionEnum.Edit)}/{last_inserted_id}/true",
 						formPostBodyData))
 					{
 						Assert.NotNull(response);
@@ -601,7 +514,258 @@ namespace Integration
 				using (var formPostBodyData = new FormUrlEncodedContent(data))
 				{
 					PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, create_get_response);
-					using (var response = await _client.PostAsync($"{_fixture.AppRootPath}{BlogsController.ASPX}/{nameof(BlogActionEnum.Delete)}/{last_inserted_id}/true",
+					using (var response = await _client.PostAsync($"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(BlogActionEnum.Delete)}/{last_inserted_id}/true",
+						formPostBodyData))
+					{
+						Assert.NotNull(response);
+						response.EnsureSuccessStatusCode();
+						Assert.Contains("application/json", response.Content.Headers.GetValues("Content-Type").FirstOrDefault());
+						Assert.Equal("\"deleted\"", await response.Content.ReadAsStringAsync());
+					}
+				}
+			}//end using (var create_get_response
+		}
+
+		[IgnoreWhenRunInContainerFact]
+		public async Task Posts_CRUD_Test()
+		{
+			//if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return;//pass on fake DB with no data
+
+
+			// Arrange
+			string antiforgery_token;
+			List<KeyValuePair<string, string>> data;
+			Post deserialized;
+			var now = DateTime.Now;
+			int last_inserted_blog_id;
+			string last_inserted_BlogProtectedID;
+
+			using (var create_get_response = await _client.GetAsync(
+				$"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(BlogsController.Create)}/",
+				HttpCompletionOption.ResponseContentRead))
+			{
+				// Assert
+				create_get_response.EnsureSuccessStatusCode();
+				antiforgery_token = await PostRequestHelper.ExtractAntiForgeryToken(create_get_response);
+
+				// Arrange
+				data = new Blog
+				{
+					BlogId = 0,
+					Post = new[] { new Post { Content = $"aaaa {now}", Title = "titla" } },
+					Url = $"http://www.inernetAt-{now.Year}-{now.Month}-{now.Day}.com/Content{now.Hour}-{now.Minute}-{now.Second}"
+				}.ToDictionary().ToList();
+				data.Add(new KeyValuePair<string, string>("__RequestVerificationToken", antiforgery_token));
+
+				using (var formPostBodyData = new FormUrlEncodedContent(data))
+				{
+					PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, create_get_response);
+					// Act
+					using (var redirect = await _client.PostAsync(
+						$"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(BlogsController.Create)}/",
+						formPostBodyData))
+					{
+						// Assert
+						Assert.NotNull(redirect);
+						Assert.Equal(HttpStatusCode.Redirect, redirect.StatusCode);
+						Assert.Contains($"/{BlogsController.ASPX}", redirect.Headers.GetValues("Location").FirstOrDefault());
+					}
+				}
+
+
+				using (var index_response = await _client.GetAsync($"{_client.BaseAddress}{BlogsController.ASPX}/", HttpCompletionOption.ResponseContentRead))
+				{
+					var responseString = await index_response.Content.ReadAsStringAsync();
+					MatchCollection matches = Regex.Matches(responseString, @"\<form method=""post"" class=""blogForm row g-3"" data-id=""([0-9].*)""\>");
+					Assert.NotEmpty(matches);
+					var ids = new List<int>(matches.Count);
+					foreach (Match m in matches)
+					{
+						var match_count = m.Success ? m.Groups[1].Captures.Count : 0;
+						Assert.True(match_count > 0);
+						var id = int.Parse(m.Groups[1].Captures[match_count - 1].Value);
+						ids.Add(id);
+					}
+					last_inserted_blog_id = ids.OrderByDescending(_ => _).First();
+					Match match = Regex.Match(responseString, $@"\<input type=""hidden"" id=""ProtectedID_{last_inserted_blog_id}"" name=""ProtectedID"" value=""([^""]+)"" \/\>");
+					Assert.True(match.Success && match.Groups[1].Captures.Count > 0);
+					last_inserted_BlogProtectedID = match.Groups[1].Captures[0].Value;
+				}
+
+				//add post
+				// Arrange
+				data = new Post
+				{
+					BlogId = last_inserted_blog_id,
+					Title = "Something wonderfull on the inernetz",
+					Content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+				}.ToDictionary().ToList();
+				data.Add(new KeyValuePair<string, string>("__RequestVerificationToken", antiforgery_token));
+
+				using (var formPostBodyData = new FormUrlEncodedContent(data))
+				{
+					PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, create_get_response);
+					using (var response = await _client.PostAsync(
+						$"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(PostActionEnum.AddPost)}/{last_inserted_blog_id}/true",
+						formPostBodyData))
+					{
+						Assert.NotNull(response);
+						response.EnsureSuccessStatusCode();
+						var responseString = await response.Content.ReadAsStringAsync();
+						Assert.Contains("application/json", response.Content.Headers.GetValues("Content-Type").FirstOrDefault());
+						//"BlogId":1339,"Content":"Lorem ipsum dolor sit amet, consectetur adipiscing elit","Title":"Something wonderfull on the inernetz"}
+						Assert.Contains($"\"blogId\":{last_inserted_blog_id}," +
+							"\"content\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit\"," +
+							"\"Title\":\"Something wonderfull on the inernetz\"",
+							responseString, StringComparison.InvariantCultureIgnoreCase);
+
+						// Deserialize JSON String into concrete class
+						deserialized = JsonSerializer.Deserialize<Post>(responseString);
+						Assert.IsType<Post>(deserialized);
+						Assert.Equal(last_inserted_blog_id, deserialized.BlogId);
+						Assert.True(deserialized.PostId > 0);
+						Assert.Equal("Something wonderfull on the inernetz", deserialized.Title);
+						Assert.Equal("Lorem ipsum dolor sit amet, consectetur adipiscing elit", deserialized.Content);
+					}
+				}
+
+				//verify with getting all post for blog
+				// Arrange
+				data = new List<KeyValuePair<string, string>>(/*empty*/);
+				data.Add(new KeyValuePair<string, string>("__RequestVerificationToken", antiforgery_token));
+
+				using (var formPostBodyData = new FormUrlEncodedContent(data))
+				{
+					PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, create_get_response);
+					// act
+					using (var response = await _client.PostAsync(
+						$"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(PostActionEnum.GetPosts)}/{last_inserted_blog_id}",
+						formPostBodyData))
+					{
+						// Assert
+						Assert.NotNull(response);
+						response.EnsureSuccessStatusCode();
+						var responseString = await response.Content.ReadAsStringAsync();
+						Assert.Contains("application/json", response.Content.Headers.GetValues("Content-Type").FirstOrDefault());
+						Assert.Contains($"\"blogId\":{last_inserted_blog_id}," +
+							"\"content\":\"Lorem ipsum dolor sit amet, consectetur adipiscing elit\"," +
+							"\"Title\":\"Something wonderfull on the inernetz\"",
+							responseString, StringComparison.InvariantCultureIgnoreCase);
+
+						// Deserialize JSON String into concrete class
+						var posts = JsonSerializer.Deserialize<List<Post>>(responseString);
+						//there should be ONE post
+						Assert.NotEmpty(posts);
+						deserialized = posts.FirstOrDefault();
+						Assert.Equal(last_inserted_blog_id, deserialized.BlogId);
+						Assert.True(deserialized.PostId > 0);
+						Assert.Equal("Something wonderfull on the inernetz", deserialized.Title);
+						Assert.Equal("Lorem ipsum dolor sit amet, consectetur adipiscing elit", deserialized.Content);
+					}
+				}
+
+				//change post content/title
+				// Arrange
+				data = new Post
+				{
+					BlogId = last_inserted_blog_id,
+					PostId = deserialized.PostId,
+					Title = "changed Ho!",
+					Content = "changed Ha!"
+				}.ToDictionary().ToList();
+				data.Add(new KeyValuePair<string, string>("__RequestVerificationToken", antiforgery_token));
+
+				using (var formPostBodyData = new FormUrlEncodedContent(data))
+				{
+					PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, create_get_response);
+					using (var response = await _client.PostAsync(
+						$"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(PostActionEnum.EditPost)}/{last_inserted_blog_id}/true",
+						formPostBodyData))
+					{
+						Assert.NotNull(response);
+						response.EnsureSuccessStatusCode();
+						var responseString = await response.Content.ReadAsStringAsync();
+						Assert.Contains("application/json", response.Content.Headers.GetValues("Content-Type").FirstOrDefault());
+						//"BlogId":1339,"Content":"Lorem ipsum dolor sit amet, consectetur adipiscing elit","Title":"Something wonderfull on the inernetz"}
+						Assert.Contains($"\"blogId\":{last_inserted_blog_id}," +
+							"\"content\":\"changed Ha!\"," +
+							"\"Title\":\"changed Ho!\"",
+							responseString, StringComparison.InvariantCultureIgnoreCase);
+
+						// Deserialize JSON String into concrete class
+						deserialized = JsonSerializer.Deserialize<Post>(responseString);
+						Assert.IsType<Post>(deserialized);
+						Assert.Equal(last_inserted_blog_id, deserialized.BlogId);
+						Assert.True(deserialized.PostId > 0);
+						Assert.Equal("changed Ho!", deserialized.Title);
+						Assert.Equal("changed Ha!", deserialized.Content);
+					}
+				}
+
+
+				//delete
+				// Arrange
+				data = new Post
+				{
+					BlogId = last_inserted_blog_id,
+					PostId = deserialized.PostId
+				}.ToDictionary().ToList();
+				data.Add(new KeyValuePair<string, string>("__RequestVerificationToken", antiforgery_token));
+
+				using (var formPostBodyData = new FormUrlEncodedContent(data))
+				{
+					PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, create_get_response);
+					// Act
+					using (var response = await _client.PostAsync(
+						$"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(PostActionEnum.DeletePost)}/{last_inserted_blog_id}/true",
+						formPostBodyData))
+					{
+						// Assert
+						Assert.NotNull(response);
+						response.EnsureSuccessStatusCode();
+						Assert.Contains("application/json", response.Content.Headers.GetValues("Content-Type").FirstOrDefault());
+						Assert.Equal("\"deleted post\"", await response.Content.ReadAsStringAsync());
+					}
+				}
+
+				//verify with getting all post for blog
+				// Arrange
+				data = new List<KeyValuePair<string, string>>(/*empty*/);
+				data.Add(new KeyValuePair<string, string>("__RequestVerificationToken", antiforgery_token));
+
+				using (var formPostBodyData = new FormUrlEncodedContent(data))
+				{
+					PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, create_get_response);
+					// act
+					using (var response = await _client.PostAsync(
+						$"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(PostActionEnum.GetPosts)}/{last_inserted_blog_id}",
+						formPostBodyData))
+					{
+						// Assert
+						Assert.NotNull(response);
+						response.EnsureSuccessStatusCode();
+						var responseString = await response.Content.ReadAsStringAsync();
+
+						// Deserialize JSON String into concrete class
+						var posts = JsonSerializer.Deserialize<List<Post>>(responseString);
+						//there should be NO post
+						Assert.Empty(posts);
+					}
+				}
+
+				//cleanup
+				data = new DecoratedBlog
+				{
+					BlogId = last_inserted_blog_id,
+					ProtectedID = last_inserted_BlogProtectedID,
+				}.ToDictionary().ToList();
+				data.Add(new KeyValuePair<string, string>("__RequestVerificationToken", antiforgery_token));
+
+				using (var formPostBodyData = new FormUrlEncodedContent(data))
+				{
+					PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, create_get_response);
+					using (var response = await _client.PostAsync(
+						$"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(BlogActionEnum.Delete)}/{last_inserted_blog_id}/true",
 						formPostBodyData))
 					{
 						Assert.NotNull(response);
@@ -631,7 +795,7 @@ namespace Integration
 		{
 			// Arrange
 			// Act
-			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{WebCamGallery.ASPX}/"))
+			using (HttpResponseMessage response = await _client.GetAsync($"{_client.BaseAddress}{WebCamGallery.ASPX}/"))
 			{
 				// Assert
 				response.EnsureSuccessStatusCode();
@@ -684,7 +848,7 @@ namespace Integration
 		{
 			// Arrange
 			// Act
-			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{WebCamImagesModel.ASPX}/{imageName}", HttpCompletionOption.ResponseHeadersRead))
+			using (HttpResponseMessage response = await _client.GetAsync($"{_client.BaseAddress}{WebCamImagesModel.ASPX}/{imageName}", HttpCompletionOption.ResponseHeadersRead))
 			{
 				// Assert
 				Assert.NotNull(response);
@@ -745,7 +909,7 @@ namespace Integration
 			if (!string.IsNullOrEmpty(etag))
 			{
 				// Arrange
-				var request = new HttpRequestMessage(HttpMethod.Get, $"{_fixture.AppRootPath}{WebCamImagesModel.ASPX}/{imageName}");
+				var request = new HttpRequestMessage(HttpMethod.Get, $"{_client.BaseAddress}{WebCamImagesModel.ASPX}/{imageName}");
 				//request.Headers.Add(HeaderNames.IfNoneMatch, etag);
 				//request.Headers.TryAddWithoutValidation(HeaderNames.ETag, etag);
 				request.Headers.IfMatch.Add(new System.Net.Http.Headers.EntityTagHeaderValue(etag));
@@ -767,7 +931,7 @@ namespace Integration
 
 			// Arrange
 			// Act
-			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}{WebCamImagesModel.ASPX}/?handler=live", HttpCompletionOption.ResponseContentRead))
+			using (HttpResponseMessage response = await _client.GetAsync($"{_client.BaseAddress}{WebCamImagesModel.ASPX}/?handler=live", HttpCompletionOption.ResponseContentRead))
 			{
 				// Assert
 				Assert.NotNull(response);
@@ -803,7 +967,7 @@ namespace Integration
 		{
 			// Arrange
 			// Act
-			using (HttpResponseMessage response = await _client.GetAsync($"{_fixture.AppRootPath}assets/Templates.home.html"))
+			using (HttpResponseMessage response = await _client.GetAsync($"{_client.BaseAddress}assets/Templates.home.html"))
 			{
 				// Assert
 				response.EnsureSuccessStatusCode();
@@ -812,6 +976,152 @@ namespace Integration
 				Assert.Contains("IdentityManager2", responseString);
 				Assert.Contains("PathBase", responseString);
 			}
+		}
+	}
+
+	[Collection(nameof(AuthorizedTestingServerCollection))]
+	public class AccountAndProfileManagement
+	{
+		private readonly AuthorizedTestServerFixture _fixture;
+		private readonly HttpClient _anonClient;
+
+		public AccountAndProfileManagement(AuthorizedTestServerFixture fixture)
+		{
+			_fixture = fixture;
+			_anonClient = _fixture.AnonymousClient;
+		}
+
+		[Theory]
+		[InlineData("Identity/Account/Manage/Index")]
+		[InlineData("Identity/Account/Manage/ChangePassword")]
+		[InlineData("Identity/Account/Manage/ExternalLogins")]
+		[InlineData("Identity/Account/Manage/TwoFactorAuthentication")]
+		[InlineData("Identity/Account/Manage/PersonalData")]
+		public async Task Page_NonAuthenticated_Open(string page)
+		{
+			// Arrange
+			// Act
+			using (var response = await _anonClient.GetAsync($"{_anonClient.BaseAddress}{page}"))
+			{
+				// Assert
+				//Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+				Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+				Assert.Equal($"{_anonClient.BaseAddress}Identity/Account/Login?ReturnUrl=%2F{UrlEncoder.Default.Encode(page)}",
+					response.Headers.Location.ToString());
+			}
+		}
+
+		[Theory]
+		[InlineData("Identity/Account/Manage/Index", "Phone number")]
+		[InlineData("Identity/Account/Manage/ChangePassword", "Confirm new password")]
+		//[InlineData("Identity/Account/Manage/ExternalLogins", "Registered Logins")]
+		[InlineData("Identity/Account/Manage/TwoFactorAuthentication", "Two-factor authentication")]
+		[InlineData("Identity/Account/Manage/PersonalData", "Deleting this data will permanently remove your account")]
+		public async Task Pages_Authenticated_Open(string page, string contentToCheck)
+		{
+			// Arrange
+			using var client = await _fixture.CreateAuthenticatedClientAsync();
+
+			using (var request = new HttpRequestMessage(HttpMethod.Get, $"{client.BaseAddress}{page}"))
+			{
+				// Act
+				using (var response = await client.SendAsync(request))
+				{
+					// Assert
+					Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+					var responseString = await response.Content.ReadAsStringAsync();
+					Assert.Contains(contentToCheck, responseString, StringComparison.InvariantCultureIgnoreCase);
+				}
+			}
+		}
+
+		[Fact]
+		public async Task Page_Authenticated_ChangeProfile()
+		{
+			//logging-in
+			// Arrange
+			using var client = await _fixture.CreateAuthenticatedClientAsync();
+
+			using (var request = new HttpRequestMessage(HttpMethod.Get, $"{client.BaseAddress}Identity/Account/Manage"))
+			{
+				// Act
+				using (var get_response = await client.SendAsync(request, HttpCompletionOption.ResponseContentRead))
+				{
+					// Assert
+					get_response.EnsureSuccessStatusCode();
+					var antiforgery_token = await PostRequestHelper.ExtractAntiForgeryToken(get_response);
+
+					// Arrange
+					var payload = new Dictionary<string, string> {
+						{ "__RequestVerificationToken", antiforgery_token },
+						{ "Input.Name", "Alice Changed" },
+						{ "Input.Email", "alice.testing@example.org" },
+						{ "Input.PhoneNumber", "555438852" },
+						{ "Input.DesktopNotifications", "true" },
+					};
+
+					using (var formPostBodyData = new FormUrlEncodedContent(payload))
+					{
+						PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, get_response);
+						// Act
+						using (var response = await client.PostAsync($"{client.BaseAddress}Identity/Account/Manage", formPostBodyData))
+						{
+							// Assert
+							Assert.NotNull(response);
+							response.EnsureSuccessStatusCode();
+
+							var responseString = await response.Content.ReadAsStringAsync();
+							Assert.Contains("Your profile has been updated", responseString);
+							Assert.Contains("Alice Changed", responseString);
+							Assert.Contains("alice.testing@example.org", responseString);
+							Assert.Contains("555438852", responseString);
+							Assert.Contains("name=\"Input.DesktopNotifications\" value=\"true\"", responseString);
+						}
+					}
+				}//end using (var get_response
+			}//end using request
+		}
+
+		[Fact]
+		public async Task Page_Authenticated_ChangePassword()
+		{
+			//logging-in
+			// Arrange
+			using var client = await _fixture.CreateAuthenticatedClientAsync();
+
+			using (var request = new HttpRequestMessage(HttpMethod.Get, $"{client.BaseAddress}Identity/Account/Manage/ChangePassword"))
+			{
+				// Act
+				using (var get_response = await client.SendAsync(request, HttpCompletionOption.ResponseContentRead))
+				{
+					// Assert
+					get_response.EnsureSuccessStatusCode();
+					var antiforgery_token = await PostRequestHelper.ExtractAntiForgeryToken(get_response);
+
+					// Arrange
+					var payload = new Dictionary<string, string> {
+						{ "__RequestVerificationToken", antiforgery_token },
+						{ "Input.OldPassword", "#SecurePassword123" },
+						{ "Input.NewPassword", "444changePassword&^%$" },
+						{ "Input.ConfirmPassword", "444changePassword&^%$" }
+					};
+
+					using (var formPostBodyData = new FormUrlEncodedContent(payload))
+					{
+						PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, get_response);
+						// Act
+						using (var response = await client.PostAsync($"{client.BaseAddress}Identity/Account/Manage/ChangePassword", formPostBodyData))
+						{
+							// Assert
+							Assert.NotNull(response);
+							response.EnsureSuccessStatusCode();
+
+							var responseString = await response.Content.ReadAsStringAsync();
+							Assert.Contains("Your password has been changed.", responseString);
+						}
+					}
+				}//end using (var get_response
+			}//end using request
 		}
 	}
 }

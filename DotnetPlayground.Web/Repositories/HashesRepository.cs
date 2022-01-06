@@ -474,25 +474,37 @@ LIMIT @limit OFFSET @offset
 					string searchText, int offset, int limit, CancellationToken token)
 		{
 			string col_names = string.Join("],[", AllColumnNames);
-			string sql =
-(string.IsNullOrEmpty(searchText) ?
-"SELECT count(*) cnt FROM Hashes"
-:
-$@"
-CREATE TEMPORARY TABLE tempo AS
+			string sql;
+
+			if (string.IsNullOrEmpty(searchText))
+			{
+				sql = $@"SELECT count(*) cnt FROM Hashes
+;
 SELECT [{col_names}]
 FROM Hashes
-WHERE {WhereColumnCondition('[', ']')}
-;
-SELECT count(*) cnt FROM tempo"
-) +
-$@";
-SELECT [{col_names}]
-FROM {(string.IsNullOrEmpty(searchText) ? "Hashes" : "tempo")}
 
 {(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY [{sortColumn}] {sortOrderDirection}")}
 LIMIT @limit OFFSET @offset
 ";
+			}
+			else
+			{
+				string temp_tab_name = $"tempo_{Guid.NewGuid():N}";
+				sql = $@"
+CREATE TEMPORARY TABLE {temp_tab_name} AS
+SELECT [{col_names}]
+FROM Hashes
+WHERE {WhereColumnCondition('[', ']')}
+;
+SELECT count(*) cnt FROM {temp_tab_name}
+;
+SELECT [{col_names}]
+FROM {temp_tab_name}
+
+{(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY [{sortColumn}] {sortOrderDirection}")}
+LIMIT @limit OFFSET @offset
+";
+			}
 
 			var conn = _entities.Database.GetDbConnection();
 			try

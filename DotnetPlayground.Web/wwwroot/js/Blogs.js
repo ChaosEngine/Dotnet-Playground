@@ -83,11 +83,16 @@ function BlogsOnLoad() {
 
 	function PostFormSubmit(form) {
 		const blog_id = $(form).data('id');
-		const serialized_form = $(form).serialize();
 		const post_id = $(form).find("input[name='PostId']").val();
 		//const operation = serialized_form.split('operation')[1].substr(1).trim();
 		const operation = document.activeElement.value;
 		const delete_operation = 'DeletePost';
+		//remove title and content for delete, no need
+		if (operation === delete_operation) {
+			$(form).find('input#editForm1_' + post_id).remove();
+			$(form).find('textarea#editForm2_' + post_id).remove();
+		}
+		const serialized_form = $(form).serialize();
 
 		const hedrs = { 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value };
 

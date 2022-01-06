@@ -9,10 +9,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace DotnetPlayground.Tests
 {
@@ -22,7 +21,7 @@ namespace DotnetPlayground.Tests
 				DbContextOptions<BloggingContext> DbOpts,
 				IConfiguration Conf, IMemoryCache Cache,
 				ILogger<Repositories.HashesRepository> Logger,
-                IServerTiming ServerTiming
+				IServerTiming ServerTiming
 				) Setup
 		{
 			get; set;
@@ -43,7 +42,7 @@ namespace DotnetPlayground.Tests
 								IConfiguration,
 								IMemoryCache,
 								ILogger<Repositories.HashesRepository>,
-                                IServerTiming)> SetupInMemoryDB()
+								IServerTiming)> SetupInMemoryDB()
 		{
 			var builder = new ConfigurationBuilder()
 				.AddJsonFile("config.json", optional: false, reloadOnChange: true);
@@ -75,13 +74,13 @@ namespace DotnetPlayground.Tests
 			var logger = serviceProvider.GetService<ILoggerFactory>()
 				.CreateLogger<Repositories.HashesRepository>();
 
-            var serverTiming_mock = new Moq.Mock<IServerTiming>();
+			var serverTiming_mock = new Moq.Mock<IServerTiming>();
 			serverTiming_mock.SetupGet(m => m.Metrics).Returns(() =>
 			{
 				return new List<Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric>();
 			});
 
-            return (connection, options, config, cache, logger, serverTiming_mock.Object);
+			return (connection, options, config, cache, logger, serverTiming_mock.Object);
 		}
 
 		public BaseRepositoryTests()
@@ -142,24 +141,6 @@ namespace DotnetPlayground.Tests
 
 	public class BaseControllerTest
 	{
-		#region Old code
-
-		// static string AssemblyDirectory
-		// {
-		// 	get
-		// 	{
-		// 		//string codeBase = Assembly.GetExecutingAssembly().CodeBase;
-		// 		//UriBuilder uri = new UriBuilder(codeBase);
-		// 		//string path = Uri.UnescapeDataString(uri.Path);
-		// 		//return Path.GetDirectoryName(path);
-
-		// 		string codeBase = Assembly.GetExecutingAssembly().Location;
-		// 		return Path.GetDirectoryName(codeBase);
-		// 	}
-		// }
-
-		#endregion Old code
-
 		protected ILoggerFactory LoggerFactory { get; private set; }
 
 		protected IConfiguration Configuration { get; private set; }
@@ -170,7 +151,7 @@ namespace DotnetPlayground.Tests
 
 		protected IConfiguration CreateConfiguration()
 		{
-			ContentRoot = Integration.TestServerFixture<DotnetPlayground.Startup>.GetProjectPath();
+			ContentRoot = Integration.TestServerFixture<DotnetPlayground.Startup>.GetProjectPath<DotnetPlayground.Startup>();
 
 			var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 			var builder = new ConfigurationBuilder()
@@ -179,7 +160,7 @@ namespace DotnetPlayground.Tests
 				//.AddJsonFile($@"appsettings.{env.EnvironmentName}.json", optional: true)
 				.AddEnvironmentVariables();
 			if (string.IsNullOrEmpty(env) || env == "Development")
-				builder.AddUserSecrets<Startup>();
+				builder.AddUserSecrets<Startup>(optional: true);
 			return builder.Build();
 		}
 
@@ -204,4 +185,37 @@ namespace DotnetPlayground.Tests
 				Configuration["LiveWebCamURL"] = "https://127.0.0.1/webcamgalleryFake/Fakelive";
 		}
 	}
+
+	#region Authorized tests
+
+	public sealed class AuthorizedTestingStartup
+		: InkBall.IntegrationTests.BaseTestingStartup<ApplicationUser, Helpers.MySignInManager>
+	{
+		public AuthorizedTestingStartup(IConfiguration configuration) : base(configuration)
+		{
+		}
+	}
+
+	public sealed class AuthorizedTestServerFixture
+		: InkBall.IntegrationTests.BaseTestServerFixture<AuthorizedTestingStartup, ApplicationUser>
+	{
+		public override string DesiredContentRoot
+		{
+			get
+			{
+				var contentRoot = Integration.TestServerFixture<Startup>.GetProjectPath<Startup>();
+				return contentRoot;
+			}
+		}
+	}
+
+	[CollectionDefinition(nameof(AuthorizedTestingServerCollection))]
+	public sealed class AuthorizedTestingServerCollection : ICollectionFixture<AuthorizedTestServerFixture>
+	{
+		// This class has no code, and is never created. Its purpose is simply
+		// to be the place to apply [CollectionDefinition] and all the
+		// ICollectionFixture<> interfaces.
+	}
+
+	#endregion Authorized tests
 }

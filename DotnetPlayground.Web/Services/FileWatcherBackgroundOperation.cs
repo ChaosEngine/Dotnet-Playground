@@ -48,7 +48,20 @@ namespace DotnetPlayground.Services
 		public async override Task DoWorkAsync(IServiceProvider services, CancellationToken cancellation)
 		{
 			if (_initialDelay.HasValue)
-				await Task.Delay(_initialDelay.Value, cancellation);
+			{
+				try
+				{
+					await Task.Delay(_initialDelay.Value, cancellation);
+				}
+				catch (OperationCanceledException)
+				{
+					return;
+				}
+				catch (Exception)
+				{
+					throw;
+				}
+			}
 
 			using (var scope = services.CreateScope())
 			{

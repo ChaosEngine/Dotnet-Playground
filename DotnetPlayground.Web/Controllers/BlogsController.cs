@@ -22,6 +22,8 @@ namespace DotnetPlayground.Controllers
 		Task<ActionResult> Create(Blog blog);
 		Task<IActionResult> Index();
 		Task<ActionResult> BlogAction(DecoratedBlog blog, bool ajax, BlogActionEnum action = BlogActionEnum.Unknown);
+		Task<ActionResult> GetPosts(int blogId);
+		Task<ActionResult> PostAction(int blogId, bool ajax, Post post, PostActionEnum operation = PostActionEnum.Unknown);
 	}
 
 	[Route("[controller]")]
@@ -153,7 +155,7 @@ namespace DotnetPlayground.Controllers
 					break;
 				case PostActionEnum.Unknown:
 				default:
-					throw new NotSupportedException($"Unknown {nameof(operation)} {operation}");
+					throw new NotSupportedException($"{nameof(operation)} '{operation}' is unknown");
 			}
 			if (ajax)
 				return result;
@@ -222,7 +224,7 @@ namespace DotnetPlayground.Controllers
 			if (blogId <= 0 || string.IsNullOrEmpty(post.Title) || string.IsNullOrEmpty(post.Content)) return BadRequest(ModelState);
 
 			var posts = await _repo.GetPostsFromBlogAsync(blogId);
-			Post db_post = posts.FirstOrDefault(x => x.PostId == post.PostId);
+			Post db_post = posts?.FirstOrDefault(x => x.PostId == post.PostId);
 			if (db_post != null)
 			{
 				db_post.Title = post.Title;
@@ -241,8 +243,6 @@ namespace DotnetPlayground.Controllers
 			return NotFound();
 		}
 
-		//[HttpPost("Blogs/Edit/{id:int}/{ajax:bool}")]
-		//[ValidateAntiForgeryToken]
 		protected async Task<ActionResult> EditBlog(int blogId, string url, bool ajax)
 		{
 			var logger_tsk = Task.Run(() =>
@@ -266,8 +266,6 @@ namespace DotnetPlayground.Controllers
 			return NotFound();
 		}
 
-		//[HttpPost("Blogs/Delete/{id:int}/{ajax:bool}")]
-		//[ValidateAntiForgeryToken]
 		protected async Task<ActionResult> DeleteBlog(int blogId, bool ajax)
 		{
 			var logger_tsk = Task.Run(() =>

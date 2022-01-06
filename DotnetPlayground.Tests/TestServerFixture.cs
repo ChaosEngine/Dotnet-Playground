@@ -17,6 +17,28 @@ using Xunit;
 
 namespace Integration
 {
+	internal class IgnoreWhenRunInContainerFactAttribute : FactAttribute
+	{
+		public IgnoreWhenRunInContainerFactAttribute()
+		{
+			if (TestServerFixture<DotnetPlayground.Startup>.DOTNET_RUNNING_IN_CONTAINER)
+			{
+				Skip = "Skipped when running in container";
+			}
+		}
+	}
+
+	internal class IgnoreWhenRunInContainerTheoryAttribute : TheoryAttribute
+	{
+		public IgnoreWhenRunInContainerTheoryAttribute()
+		{
+			if (TestServerFixture<DotnetPlayground.Startup>.DOTNET_RUNNING_IN_CONTAINER)
+			{
+				Skip = "Skipped when running in container";
+			}
+		}
+	}
+
 	/// <summary>
 	/// A test fixture which hosts the target project (project we wish to test) in an in-memory server.
 	/// </summary>
@@ -34,7 +56,7 @@ namespace Integration
 				{
 					AllowAutoRedirect = false
 				});
-				//cl.BaseAddress = new Uri("http://localhost");
+				client.BaseAddress = new Uri($"http://localhost{AppRootPath}");
 				return client;
 			}
 		}
@@ -47,49 +69,15 @@ namespace Integration
 
 		internal string LiveWebCamURL { get; private set; }
 
-		internal bool DOTNET_RUNNING_IN_CONTAINER { get; private set; }
-
-		/*public TestServerFixture() : this(//"DotnetPlayground"
-			null)
+		internal static bool DOTNET_RUNNING_IN_CONTAINER
 		{
+			get
+			{
+				string temp = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER");
+				var flag = !string.IsNullOrEmpty(temp) && temp.Equals(true.ToString(), StringComparison.InvariantCultureIgnoreCase);
+				return flag;
+			}
 		}
-
-		protected TestServerFixture(string relativeTargetProjectParentDir)
-		{
-			var startupAssembly = typeof(TStartup).GetTypeInfo().Assembly;
-			var contentRoot = GetProjectPath(relativeTargetProjectParentDir, startupAssembly);
-
-			Directory.SetCurrentDirectory(contentRoot);
-
-			var builder = new WebHostBuilder()
-				.UseContentRoot(contentRoot)
-				.ConfigureServices(InitializeServices)
-				.UseEnvironment("Development")
-				.UseStartup(typeof(TStartup))
-				//.UseApplicationInsights()
-				;
-
-			_server = new TestServer(builder);
-
-			Client = _server.CreateClient();
-			Client.BaseAddress = new Uri("http://localhost");
-
-			var configuration = _server.Host.Services.GetService(typeof(IConfiguration)) as IConfiguration;
-			AppRootPath = configuration?["AppRootPath"];
-			DBKind = configuration?["DBKind"];
-			ImageDirectory = configuration?["ImageDirectory"];
-			LiveWebCamURL = configuration?["LiveWebCamURL"];
-
-			string temp = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER");
-			DOTNET_RUNNING_IN_CONTAINER = !string.IsNullOrEmpty(temp) && temp.Equals(true.ToString(), StringComparison.InvariantCultureIgnoreCase);
-			//Console.WriteLine($"### temp = {temp}, DOTNET_RUNNING_IN_CONTAINER = {DOTNET_RUNNING_IN_CONTAINER}");
-
-			var db = _server.Host.Services.GetRequiredService<DotnetPlayground.Models.BloggingContext>();
-			if (DBKind.Equals("sqlite",StringComparison.InvariantCultureIgnoreCase))
-				db.Database.Migrate();
-			else
-				db.Database.EnsureCreated();
-		}*/
 
 		protected virtual void InitializeServices(IServiceCollection services)
 		{
@@ -114,10 +102,10 @@ namespace Integration
 		/// </param>
 		/// <param name="startupAssembly">The target project's assembly.</param>
 		/// <returns>The full path to the target project.</returns>
-		internal static string GetProjectPath(string projectRelativePath = null)
+		internal static string GetProjectPath<T>(string projectRelativePath = null) where T : class
 		{
 			// Get name of the target project which we want to test
-			var projectName = typeof(TStartup).GetTypeInfo().Assembly.GetName().Name;
+			var projectName = typeof(T).GetTypeInfo().Assembly.GetName().Name;
 
 			projectRelativePath = projectRelativePath ?? projectName;
 
@@ -126,7 +114,7 @@ namespace Integration
 
 			// Find the path to the target project
 			var directoryInfo = new DirectoryInfo(applicationBasePath);
-			int max_dir_deep_cnter = 10;
+			int max_dir_deep_cnter = 15;
 			do
 			{
 				directoryInfo = directoryInfo.Parent;
@@ -146,47 +134,9 @@ namespace Integration
 			throw new Exception($"Project root could not be located using the application root {applicationBasePath}.");
 		}
 
-		/*#region IDisposable Support
-		private bool disposedValue = false; // To detect redundant calls
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (!disposedValue)
-			{
-				if (disposing)
-				{
-					// TODO: dispose managed state (managed objects).
-					Client.Dispose();
-					_server.Dispose();
-				}
-
-				// TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-				// TODO: set large fields to null.
-
-				disposedValue = true;
-			}
-		}
-
-		// TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-		// ~TestFixture() {
-		//   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-		//   Dispose(false);
-		// }
-
-		// This code added to correctly implement the disposable pattern.
-		public void Dispose()
-		{
-			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-			Dispose(true);
-			// TODO: uncomment the following line if the finalizer is overridden above.
-			// GC.SuppressFinalize(this);
-		}
-		#endregion IDisposable Support*/
-
-
 		protected override void ConfigureWebHost(IWebHostBuilder builder)
 		{
-			var contentRoot = GetProjectPath();
+			var contentRoot = GetProjectPath<TStartup>();
 
 			Directory.SetCurrentDirectory(contentRoot);
 
@@ -229,9 +179,8 @@ namespace Integration
 					ImageDirectory = configuration?["ImageDirectory"];
 					LiveWebCamURL = configuration?["LiveWebCamURL"];
 
-					string temp = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER");
-					DOTNET_RUNNING_IN_CONTAINER = !string.IsNullOrEmpty(temp) && temp.Equals(true.ToString(), StringComparison.InvariantCultureIgnoreCase);
-					//Console.WriteLine($"### temp = {temp}, DOTNET_RUNNING_IN_CONTAINER = {DOTNET_RUNNING_IN_CONTAINER}");
+					//string temp = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER");
+					//DOTNET_RUNNING_IN_CONTAINER = !string.IsNullOrEmpty(temp) && temp.Equals(true.ToString(), StringComparison.InvariantCultureIgnoreCase);
 
 					var db = scopedServices.GetRequiredService<DotnetPlayground.Models.BloggingContext>();
 					if (DBKind.Equals("sqlite", StringComparison.InvariantCultureIgnoreCase))

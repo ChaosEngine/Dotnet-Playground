@@ -69,7 +69,7 @@ namespace DotnetPlayground.Controllers
 			}
 			catch (OperationCanceledException ex)
 			{
-				_logger.LogWarning(ex, $"!!!!!!!!!!!!!!!Cancelled {nameof(Load)}::{nameof(_repo.SearchAsync)}" +
+				_logger.LogWarning(ex, $"!!!!!!!!!!!!!!!Cancelled {nameof(Load)}::{nameof(_repo.PagedSearchAsync)}" +
 					$"({input.Sort}, {input.Order}, {input.Search}, {input.Offset}, {input.Limit}, {token})");
 				return Ok();
 			}

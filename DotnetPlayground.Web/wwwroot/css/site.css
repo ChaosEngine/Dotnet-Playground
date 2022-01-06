@@ -32,6 +32,10 @@ a[href]:hover:not([role=button]):not([role=tab]):not(.btn):not(.dropdown-item):n
   width: 100%;
 }
 
+main.container > hr {
+  margin: 0.5rem 0;
+}
+
 /* QR code generator */
 #qrCode {
   margin: 15px;

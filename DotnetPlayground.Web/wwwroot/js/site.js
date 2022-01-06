@@ -152,7 +152,7 @@ $(function () {
 	};
 
 	console.debug = function (message) {
-		ajaxLog(logLevel.Debug, message);
+		//ajaxLog(logLevel.Debug, message);
 		org_debug.call(this, arguments);
 	};
 
