@@ -1,4 +1,4 @@
-/*global require, __dirname, process, exports*/
+﻿/*global require, __dirname, process, exports*/
 "use strict";
 
 const gulp = require("gulp"),
@@ -311,8 +311,50 @@ const minScss = gulp.series(function scssToCss() {
 
 exports.min = gulp.parallel(minJs, minInkball, minScss);
 
+///
+/// postinstall entry point (npm i)
+///
+exports.postinstall = async (cb) => {
+	const nm = 'node_modules/', dst = `${webroot}lib/`;
+	const copy_promises = [];
+	const file_copy = (src, dst, filter = null) => copy_promises.push(fs.copy(src, dst, { filter }));
 
-gulp.task("min", gulp.parallel("min:js", "min:inkball", "min:scss"));
+	file_copy(`${nm}bootstrap/dist`, `${dst}bootstrap`);
+	file_copy(`${nm}bootstrap-table/dist`, `${dst}bootstrap-table`);
+	file_copy(`${nm}node-forge/dist`, `${dst}forge`);
+	file_copy(`${nm}jquery/dist`, `${dst}jquery`);
+	file_copy(`${nm}jquery-validation/dist`, `${dst}jquery-validation`, (src) => {
+		if (fs.lstatSync(src).isDirectory() || src.includes(`jquery.validate`)) {
+			// console.log(`T:` + src);
+			return true;
+		} else {
+			// console.log(`F:` + src);
+			return false;
+		}
+	});
+	file_copy(`${nm}jquery-validation-unobtrusive/dist`, `${dst}jquery-validation-unobtrusive`);
+	file_copy(`${nm}blueimp-gallery`, `${dst}blueimp-gallery`);
+	file_copy(`${nm}video.js/dist`, `${dst}video.js`, (src) => {
+		if (fs.lstatSync(src).isDirectory() || src.includes(`alt${path.sep}video`)) {
+			// console.log(`T:` + src);
+			return true;
+		} else {
+			// console.log(`F:` + src);
+			return false;
+		}
+	});
+	file_copy(`${nm}qrcodejs`, `${dst}qrcodejs`);
+	file_copy(`${nm}@microsoft/signalr/dist`, `${dst}signalr`);
+	file_copy(`${nm}@microsoft/signalr-protocol-msgpack/dist`, `${dst}signalr-protocol-msgpack`);
+	file_copy(`${nm}msgpack5/dist`, `${dst}msgpack5`);
+	file_copy(`${nm}ace-builds/src-min-noconflict/ace.js`, `${dst}ace-builds/ace.js`);
+	file_copy(`${nm}ace-builds/src-min-noconflict/mode-csharp.js`, `${dst}ace-builds/mode-csharp.js`);
+	file_copy(`${nm}chance/dist`, `${dst}chance`);
+
+	await Promise.all(copy_promises);
+
+	return cb();
+};
 
 ///
 /// Main entry point
