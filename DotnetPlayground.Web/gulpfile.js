@@ -1,7 +1,8 @@
-﻿/*global require, __dirname, process*/
+/*global require, __dirname, process, exports*/
 "use strict";
 
 const gulp = require("gulp"),
+	fs = require('fs-extra'),
 	sass = require('gulp-sass')(require('sass')),
 	header = require('gulp-header'),
 	rimraf = require("rimraf"),
@@ -117,8 +118,8 @@ const inkballAIWorker = function (doPollyfill) {
 					'@babel/polyfill',
 					paths.inkBallJsRelative + 'AIWorker.js'
 				] : [
-						paths.inkBallJsRelative + 'AIWorker.js'
-					]
+					paths.inkBallJsRelative + 'AIWorker.js'
+				]
 			},
 			// target: "webworker",
 			output: {
@@ -163,7 +164,7 @@ const inkballAIWorker = function (doPollyfill) {
 		.pipe(gulp.dest(paths.inkBallJsRelative));
 };
 
-gulp.task("webpack", gulp.parallel(function inkballWebWorkerEntryPoint(cb) {
+exports.webpack = gulp.parallel(function inkballWebWorkerEntryPoint(cb) {
 	inkballAIWorker(true);
 	inkballAIWorker(false);
 	return cb();
@@ -171,7 +172,7 @@ gulp.task("webpack", gulp.parallel(function inkballWebWorkerEntryPoint(cb) {
 	inkballEntryPoint(false);
 	inkballEntryPoint(true);
 	return cb();
-}));
+});
 
 const fileMinifyJSFunction = function (src, result, toplevel = false) {
 	return gulp.src([src, "!" + result], { base: "." })
@@ -189,7 +190,7 @@ const fileMinifySCSSFunction = function (src, result) {
 		.pipe(gulp.dest("."));
 };
 
-gulp.task("min:inkball", gulp.parallel(function inkballJsAndCSS() {
+const minInkball = gulp.parallel(function inkballJsAndCSS() {
 	return fileMinifyJSFunction(paths.inkBallJsRelative + "inkball.js",
 		paths.inkBallJsRelative + "inkball.min.js", true);
 },
@@ -204,33 +205,33 @@ gulp.task("min:inkball", gulp.parallel(function inkballJsAndCSS() {
 			return minCSS(paths.inkBallCssRelative + "inkball.css", paths.inkBallCssRelative + "inkball.min.css",
 				paths.inkBallCssRelative + "inkball.min.css");
 		})
-));
+);
 
-gulp.task("clean:inkball", function (cb) {
+const cleanInkball = function (cb) {
 	rimraf(paths.inkBallJsRelative + "*.min.js", cb);
 	rimraf(paths.inkBallJsRelative + "*.babelify*", cb);
 	rimraf(paths.inkBallCssRelative + "*.css", cb);
 	rimraf(paths.inkBallJsRelative + "*Bundle.js", cb);
-});
+};
 ////////////// [/Inkball Section] //////////////////
 
-gulp.task("clean:js", gulp.series("clean:inkball", function cleanMinJs(cb) {
+const cleanJs = gulp.series(cleanInkball, function cleanMinJs(cb) {
 	rimraf(paths.minJs, cb);
 	rimraf(paths.SWJsDest, cb);
-}));
+});
 
-gulp.task("clean:css", function (cb) {
+const cleanCss = function (cb) {
 	rimraf(paths.concatCssDest, cb);
 	rimraf(paths.concatCssDestMin, cb);
-});
+};
 
-gulp.task("clean", gulp.series("clean:js", "clean:css"));
+exports.clean = gulp.series(cleanJs, cleanCss);
 
-gulp.task("minSWJs:js", function () {
+const minSWJsJs = function () {
 	return fileMinifyJSFunction(paths.SWJs, paths.SWJsDest);
-});
+};
 
-gulp.task("min:js", gulp.series("minSWJs:js",
+const minJs = gulp.series(minSWJsJs,
 	function concatJsDest() {
 		return gulp.src([paths.js, "!" + paths.minJs], { base: "." })
 			//.pipe(concat(paths.concatJsDest))
@@ -238,11 +239,11 @@ gulp.task("min:js", gulp.series("minSWJs:js",
 			.pipe(rename({ suffix: '.min' }))
 			.pipe(gulp.dest("."));
 	}
-));
+);
 
-gulp.task("min:css", function runTaskMinCSS() {
+const minCss = function runTaskMinCSS() {
 	return minCSS(paths.css, paths.minCss, paths.concatCssDestMin);
-});
+};
 
 const processInputArgs = function () {
 	let colorTheme = undefined;//process.env.NODE_ENV === 'production' ? 'darkred' : 'darkslateblue';
@@ -304,14 +305,20 @@ const processSCSS = function (sourcePattern, notPattern) {
 		.pipe(gulp.dest(notPattern));
 };
 
-gulp.task("min:scss", gulp.series(function scssToCss() {
+const minScss = gulp.series(function scssToCss() {
 	return processSCSS(paths.scss, paths.destCSSDir);
-}, "min:css"));
+}, minCss);
+
+exports.min = gulp.parallel(minJs, minInkball, minScss);
+
 
 gulp.task("min", gulp.parallel("min:js", "min:inkball", "min:scss"));
 
-//Main entry point
-gulp.task("default", gulp.series(
-	"clean",
-	"webpack", "min")
+///
+/// Main entry point
+///
+exports.default = gulp.series(
+	exports.clean,
+	exports.webpack,
+	exports.min
 );
