@@ -83,7 +83,7 @@
 		"jquery-validation": "1.19.3",
 		"jquery-validation-unobtrusive": "3.2.12",
 		"blueimp-gallery": "3.4.0",
-		"video.js": "7.17.0",
+		"video.js": "7.17.3",
 		"qrcodejs": "1.0.0",
 		"@microsoft/signalr": "6.0.1",
 		"@microsoft/signalr-protocol-msgpack": "6.0.1",
