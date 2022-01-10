@@ -316,34 +316,17 @@ exports.min = gulp.parallel(minJs, minInkball, minScss);
 ///
 exports.postinstall = async (cb) => {
 	const copy_promises = [];
-	const file_copy = (src, dst, filter = null) => copy_promises.push(fs.copy(src, dst, { filter }));
+	const file_copy = (src, dst) => copy_promises.push(fs.copy(src, dst));
+	const dir_copy = (src, dst, filter = undefined) => copy_promises.push(fs.copy(src, dst, { filter }));
 	const nm = 'node_modules', dst = `${webroot}lib/`;
-	const vidJS_files = [`${nm}${path.sep}video.js${path.sep}dist${path.sep}video-js.min.css`, `${nm}${path.sep}video.js${path.sep}dist${path.sep}alt${path.sep}video.core.novtt.min.js`];
-	const bootstrap_files = [`${nm}${path.sep}bootstrap${path.sep}dist${path.sep}css${path.sep}bootstrap.min.css`, `${nm}${path.sep}bootstrap${path.sep}dist${path.sep}js${path.sep}bootstrap.bundle.min.js`];
-	const bootstrap_table_files = [`${nm}${path.sep}bootstrap-table${path.sep}dist${path.sep}bootstrap-table.min.css`, `${nm}${path.sep}bootstrap-table${path.sep}dist${path.sep}bootstrap-table.min.js`];
-	const ace_build_files = [`${nm}${path.sep}ace-builds${path.sep}src-min-noconflict${path.sep}ace.js`, `${nm}${path.sep}ace-builds${path.sep}src-min-noconflict${path.sep}mode-csharp.js`];
 
-	file_copy(`${nm}/bootstrap/dist`, `${dst}bootstrap`, (src) => {
-		if (fs.lstatSync(src).isDirectory() || bootstrap_files.includes(src)) {
-			// console.log(`T:` + src);
-			return true;
-		} else {
-			// console.log(`F:` + src);
-			return false;
-		}
-	});
-	file_copy(`${nm}/bootstrap-table/dist`, `${dst}bootstrap-table`, (src) => {
-		if (fs.lstatSync(src).isDirectory() || bootstrap_table_files.includes(src)) {
-			// console.log(`T:` + src);
-			return true;
-		} else {
-			// console.log(`F:` + src);
-			return false;
-		}
-	});
-	file_copy(`${nm}/node-forge/dist`, `${dst}forge`);
-	file_copy(`${nm}/jquery/dist`, `${dst}jquery`);
-	file_copy(`${nm}/jquery-validation/dist`, `${dst}jquery-validation`, (src) => {
+	file_copy(`${nm}/bootstrap/dist/css/bootstrap.min.css`, `${dst}bootstrap/css/bootstrap.min.css`);
+	file_copy(`${nm}/bootstrap/dist/js/bootstrap.bundle.min.js`, `${dst}bootstrap/js/bootstrap.bundle.min.js`);
+	file_copy(`${nm}/bootstrap-table/dist/bootstrap-table.min.css`, `${dst}bootstrap-table/bootstrap-table.min.css`);
+	file_copy(`${nm}/bootstrap-table/dist/bootstrap-table.min.js`, `${dst}bootstrap-table/bootstrap-table.min.js`);
+	dir_copy(`${nm}/node-forge/dist`, `${dst}forge`);
+	dir_copy(`${nm}/jquery/dist`, `${dst}jquery`);
+	dir_copy(`${nm}/jquery-validation/dist`, `${dst}jquery-validation`, (src) => {
 		if (fs.lstatSync(src).isDirectory() || src.includes(`jquery.validate`)) {
 			// console.log(`T:` + src);
 			return true;
@@ -352,18 +335,11 @@ exports.postinstall = async (cb) => {
 			return false;
 		}
 	});
-	file_copy(`${nm}/jquery-validation-unobtrusive/dist`, `${dst}jquery-validation-unobtrusive`);
-	file_copy(`${nm}/blueimp-gallery`, `${dst}blueimp-gallery`);
-	file_copy(`${nm}/video.js/dist`, `${dst}video.js`, (src) => {
-		if (fs.lstatSync(src).isDirectory() || vidJS_files.includes(src)) {
-			// console.log(`T:` + src);
-			return true;
-		} else {
-			// console.log(`F:` + src);
-			return false;
-		}
-	});
-	file_copy(`${nm}/qrcodejs`, `${dst}qrcodejs`, (src) => {
+	dir_copy(`${nm}/jquery-validation-unobtrusive/dist`, `${dst}jquery-validation-unobtrusive`);
+	dir_copy(`${nm}/blueimp-gallery`, `${dst}blueimp-gallery`);
+	file_copy(`${nm}/video.js/dist/video-js.min.css`, `${dst}video.js/video-js.min.css`);
+	file_copy(`${nm}/video.js/dist/alt/video.core.novtt.min.js`, `${dst}video.js/alt/video.core.novtt.min.js`);
+	dir_copy(`${nm}/qrcodejs`, `${dst}qrcodejs`, (src) => {
 		if (fs.lstatSync(src).isDirectory() || src.includes(`qrcodejs${path.sep}qrcode`)) {
 			// console.log(`T:` + src);
 			return true;
@@ -372,19 +348,12 @@ exports.postinstall = async (cb) => {
 			return false;
 		}
 	});
-	file_copy(`${nm}/@microsoft/signalr/dist`, `${dst}signalr`);
-	file_copy(`${nm}/@microsoft/signalr-protocol-msgpack/dist`, `${dst}signalr-protocol-msgpack`);
-	file_copy(`${nm}/msgpack5/dist`, `${dst}msgpack5`);
-	file_copy(`${nm}/ace-builds/src-min-noconflict`, `${dst}ace-builds`, (src) => {
-		if (fs.lstatSync(src).isDirectory() || ace_build_files.includes(src)) {
-			// console.log(`T:` + src);
-			return true;
-		} else {
-			// console.log(`F:` + src);
-			return false;
-		}
-	});
-	file_copy(`${nm}/chance/dist`, `${dst}chance`);
+	dir_copy(`${nm}/@microsoft/signalr/dist`, `${dst}signalr`);
+	dir_copy(`${nm}/@microsoft/signalr-protocol-msgpack/dist`, `${dst}signalr-protocol-msgpack`);
+	dir_copy(`${nm}/msgpack5/dist`, `${dst}msgpack5`);
+	file_copy(`${nm}/ace-builds/src-min-noconflict/ace.js`, `${dst}ace-builds/ace.js`);
+	file_copy(`${nm}/ace-builds/src-min-noconflict/mode-csharp.js`, `${dst}ace-builds/mode-csharp.js`);
+	dir_copy(`${nm}/chance/dist`, `${dst}chance`);
 
 	await Promise.all(copy_promises);
 
