@@ -320,14 +320,31 @@ exports.postinstall = async (cb) => {
 	const dir_copy = (src, dst, filter = undefined) => copy_promises.push(fs.copy(src, dst, { filter }));
 	const nm = 'node_modules', dst = `${webroot}lib/`;
 
-	file_copy(`${nm}/bootstrap/dist/css/bootstrap.min.css`, `${dst}bootstrap/css/bootstrap.min.css`);
-	file_copy(`${nm}/bootstrap/dist/js/bootstrap.bundle.min.js`, `${dst}bootstrap/js/bootstrap.bundle.min.js`);
+	dir_copy(`${nm}/bootstrap/dist/css`, `${dst}bootstrap/css`, (src) => {
+		if (fs.lstatSync(src).isDirectory() || src.includes(`bootstrap.min.css`)) {
+			return true;
+		} else {
+			return false;
+		}
+	});
+	dir_copy(`${nm}/bootstrap/dist/js`, `${dst}bootstrap/js`, (src) => {
+		if (fs.lstatSync(src).isDirectory() || src.includes(`bootstrap.bundle.min.js`)) {
+			return true;
+		} else {
+			return false;
+		}
+	});
 	file_copy(`${nm}/bootstrap-table/dist/bootstrap-table.min.css`, `${dst}bootstrap-table/bootstrap-table.min.css`);
 	file_copy(`${nm}/bootstrap-table/dist/bootstrap-table.min.js`, `${dst}bootstrap-table/bootstrap-table.min.js`);
-	dir_copy(`${nm}/node-forge/dist`, `${dst}forge`);
-	dir_copy(`${nm}/jquery/dist`, `${dst}jquery`);
-	dir_copy(`${nm}/jquery-validation/dist`, `${dst}jquery-validation`, (src) => {
-		if (fs.lstatSync(src).isDirectory() || src.includes(`jquery.validate`)) {
+	dir_copy(`${nm}/node-forge/dist`, `${dst}node-forge`, (src) => {
+		if (fs.lstatSync(src).isDirectory() || src.includes(`forge.min.js`)) {
+			return true;
+		} else {
+			return false;
+		}
+	});
+	dir_copy(`${nm}/jquery/dist`, `${dst}jquery`, (src) => {
+		if (fs.lstatSync(src).isDirectory() || src.includes(`jquery.min`)) {
 			// console.log(`T:` + src);
 			return true;
 		} else {
@@ -335,12 +352,30 @@ exports.postinstall = async (cb) => {
 			return false;
 		}
 	});
-	dir_copy(`${nm}/jquery-validation-unobtrusive/dist`, `${dst}jquery-validation-unobtrusive`);
-	dir_copy(`${nm}/blueimp-gallery`, `${dst}blueimp-gallery`);
+	file_copy(`${nm}/jquery-validation/dist/jquery.validate.min.js`, `${dst}jquery-validation/jquery.validate.min.js`);
+	file_copy(`${nm}/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js`, `${dst}jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js`);
+	dir_copy(`${nm}/blueimp-gallery/img`, `${dst}blueimp-gallery/img`);
+	dir_copy(`${nm}/blueimp-gallery/css`, `${dst}blueimp-gallery/css`, (src) => {
+		if (fs.lstatSync(src).isDirectory() || src.includes(`blueimp-gallery.min.css`)) {
+			return true;
+		} else {
+			return false;
+		}
+	});
+	dir_copy(`${nm}/blueimp-gallery/js`, `${dst}blueimp-gallery/js`, (src) => {
+		if (fs.lstatSync(src).isDirectory() || src.includes(`${path.sep}blueimp-gallery.min.js`)) {
+			// console.log(`T:` + src);
+			return true;
+		} else {
+			// console.log(`F:` + src);
+			return false;
+		}
+	});
 	file_copy(`${nm}/video.js/dist/video-js.min.css`, `${dst}video.js/video-js.min.css`);
 	file_copy(`${nm}/video.js/dist/alt/video.core.novtt.min.js`, `${dst}video.js/alt/video.core.novtt.min.js`);
-	dir_copy(`${nm}/qrcodejs`, `${dst}qrcodejs`, (src) => {
-		if (fs.lstatSync(src).isDirectory() || src.includes(`qrcodejs${path.sep}qrcode`)) {
+	file_copy(`${nm}/qrcodejs/qrcode.min.js`, `${dst}qrcodejs/qrcode.min.js`);
+	dir_copy(`${nm}/@microsoft/signalr/dist/browser`, `${dst}signalr/browser`, (src) => {
+		if (fs.lstatSync(src).isDirectory() || src.includes(`signalr.min.js`)) {
 			// console.log(`T:` + src);
 			return true;
 		} else {
@@ -348,9 +383,16 @@ exports.postinstall = async (cb) => {
 			return false;
 		}
 	});
-	dir_copy(`${nm}/@microsoft/signalr/dist`, `${dst}signalr`);
-	dir_copy(`${nm}/@microsoft/signalr-protocol-msgpack/dist`, `${dst}signalr-protocol-msgpack`);
-	dir_copy(`${nm}/msgpack5/dist`, `${dst}msgpack5`);
+	dir_copy(`${nm}/@microsoft/signalr-protocol-msgpack/dist/browser`, `${dst}signalr-protocol-msgpack/browser`, (src) => {
+		if (fs.lstatSync(src).isDirectory() || src.includes(`signalr-protocol-msgpack.min.js`)) {
+			// console.log(`T:` + src);
+			return true;
+		} else {
+			// console.log(`F:` + src);
+			return false;
+		}
+	});
+	file_copy(`${nm}/msgpack5/dist/msgpack5.min.js`, `${dst}msgpack5/msgpack5.min.js`);
 	file_copy(`${nm}/ace-builds/src-min-noconflict/ace.js`, `${dst}ace-builds/ace.js`);
 	file_copy(`${nm}/ace-builds/src-min-noconflict/mode-csharp.js`, `${dst}ace-builds/mode-csharp.js`);
 	dir_copy(`${nm}/chance/dist`, `${dst}chance`);

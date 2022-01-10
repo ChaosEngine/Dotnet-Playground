@@ -62,7 +62,7 @@ self.addEventListener('install', function (event) {
 			'lib/blueimp-gallery/js/blueimp-gallery.min.js',
 			'lib/video.js/video-js.min.css',
 			'lib/video.js/alt/video.core.novtt.min.js',
-			'lib/forge/forge.min.js',
+			'lib/node-forge/forge.min.js',
 			'lib/bootstrap-table/bootstrap-table.min.css',
 			'lib/bootstrap-table/bootstrap-table.min.js',
 			'lib/jquery-validation/jquery.validate.min.js',
