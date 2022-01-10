@@ -1124,4 +1124,112 @@ namespace Integration
 			}//end using request
 		}
 	}
+
+	[Collection(nameof(TestServerCollection))]
+	public class StaticAssetContent
+	{
+		private readonly TestServerFixture<Startup> _fixture;
+		private readonly HttpClient _client;
+
+		public StaticAssetContent(TestServerFixture<Startup> fixture)
+		{
+			_fixture = fixture;
+			_client = fixture.Client;
+		}
+
+		[Theory]
+		[InlineData("lib/ace-builds/mode-csharp.js")]
+		[InlineData("lib/blueimp-gallery/css/blueimp-gallery.min.css")]
+		[InlineData("lib/blueimp-gallery/css/blueimp-gallery.min.css.map")]
+		[InlineData("lib/blueimp-gallery/img/close.png")]
+		[InlineData("lib/blueimp-gallery/img/close.svg")]
+		[InlineData("lib/blueimp-gallery/img/error.png")]
+		[InlineData("lib/blueimp-gallery/img/error.svg")]
+		[InlineData("lib/blueimp-gallery/img/loading.gif")]
+		[InlineData("lib/blueimp-gallery/img/loading.svg")]
+		[InlineData("lib/blueimp-gallery/img/next.png")]
+		[InlineData("lib/blueimp-gallery/img/next.svg")]
+		[InlineData("lib/blueimp-gallery/img/play-pause.png")]
+		[InlineData("lib/blueimp-gallery/img/play-pause.svg")]
+		[InlineData("lib/blueimp-gallery/img/prev.png")]
+		[InlineData("lib/blueimp-gallery/img/prev.svg")]
+		[InlineData("lib/blueimp-gallery/img/video-play.png")]
+		[InlineData("lib/blueimp-gallery/img/video-play.svg")]
+		[InlineData("lib/blueimp-gallery/js/blueimp-gallery.min.js")]
+		[InlineData("lib/blueimp-gallery/js/blueimp-gallery.min.js.map")]
+		[InlineData("lib/bootstrap/css/bootstrap.min.css")]
+		[InlineData("lib/bootstrap/css/bootstrap.min.css.map")]
+		[InlineData("lib/bootstrap/js/bootstrap.bundle.min.js")]
+		[InlineData("lib/bootstrap/js/bootstrap.bundle.min.js.map")]
+		[InlineData("lib/bootstrap-table/bootstrap-table.min.css")]
+		[InlineData("lib/bootstrap-table/bootstrap-table.min.js")]
+		[InlineData("lib/chance/chance.min.js")]
+		[InlineData("lib/chance/chance.min.js.map")]
+		[InlineData("lib/jquery/jquery.min.js")]
+		[InlineData("lib/jquery/jquery.min.map")]
+		[InlineData("lib/jquery-validation/jquery.validate.min.js")]
+		[InlineData("lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js")]
+		[InlineData("lib/msgpack5/msgpack5.min.js")]
+		[InlineData("lib/node-forge/forge.min.js")]
+		[InlineData("lib/node-forge/forge.min.js.map")]
+		[InlineData("lib/qrcodejs/qrcode.min.js")]
+		[InlineData("lib/signalr/browser/signalr.min.js")]
+		[InlineData("lib/signalr/browser/signalr.min.js.map")]
+		[InlineData("lib/signalr-protocol-msgpack/browser/signalr-protocol-msgpack.min.js")]
+		[InlineData("lib/signalr-protocol-msgpack/browser/signalr-protocol-msgpack.min.js.map")]
+		[InlineData("lib/video.js/alt/video.core.novtt.min.js")]
+		[InlineData("lib/video.js/video-js.min.css")]
+		public async Task GetStaticAssetContent(string url)
+		{
+			// Arrange
+			// Act
+			using var response = await _client.GetAsync($"{_client.BaseAddress}/{url}", HttpCompletionOption.ResponseHeadersRead);
+			// Assert
+			Assert.NotNull(response);
+
+			response.EnsureSuccessStatusCode();
+
+			// Assert
+			IEnumerable<string> c_type;
+			switch (Path.GetExtension(url).ToLowerInvariant())
+			{
+				case ".css":
+					Assert.IsType<StreamContent>(response.Content);
+					Assert.True(response.Content.Headers.TryGetValues("Content-Type", out c_type));
+					Assert.NotNull(c_type);
+					Assert.Equal("text/css", response.Content.Headers.ContentType.MediaType);
+					break;
+
+				case ".js":
+					Assert.IsType<StreamContent>(response.Content);
+					Assert.True(response.Content.Headers.TryGetValues("Content-Type", out c_type));
+					Assert.NotNull(c_type);
+					Assert.Equal("application/javascript", response.Content.Headers.ContentType.MediaType);
+					break;
+
+				case ".gif":
+				case ".png":
+				case ".svg":
+				case ".avif":
+				case ".jpg":
+				case ".jpeg":
+					Assert.IsType<StreamContent>(response.Content);
+					Assert.True(response.Content.Headers.TryGetValues("Content-Type", out c_type));
+					Assert.NotNull(c_type);
+					Assert.StartsWith("image/", response.Content.Headers.ContentType.MediaType);
+					break;
+
+				case ".map":
+					Assert.IsType<StreamContent>(response.Content);
+					Assert.True(response.Content.Headers.TryGetValues("Content-Type", out c_type));
+					Assert.NotNull(c_type);
+					//Assert.Equal("text/plain", response.Content.Headers.ContentType.MediaType);
+					break;
+
+				default:
+					Assert.False(response.IsSuccessStatusCode, "bad extension");
+					break;
+			}
+		}
+	}
 }
