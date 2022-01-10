@@ -1137,7 +1137,7 @@ namespace Integration
 			_client = fixture.Client;
 		}
 
-		[Theory]
+		[IgnoreWhenRunInContainerTheory]
 		[InlineData("lib/ace-builds/mode-csharp.js")]
 		[InlineData("lib/blueimp-gallery/css/blueimp-gallery.min.css")]
 		[InlineData("lib/blueimp-gallery/css/blueimp-gallery.min.css.map")]
