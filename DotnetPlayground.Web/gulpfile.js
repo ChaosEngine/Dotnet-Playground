@@ -50,9 +50,8 @@ const minCSS = function (sourcePattern, notPattern, dest) {
 		.pipe(sourcemaps.init())
 		.pipe(cleanCSS())
 		.pipe(sourcemaps.mapSources(function(sourcePath, file) {
-			//console.log(`OMG-mapSources A '${sourcePath}', '${file}' Z`);
-			// source paths are prefixed with '../src/'
-			return sourcePath.replace('wwwroot/css/', '').replace('../InkBall/src/InkBall.Module/', '').replace('.min.css','.css');
+			// console.log(`OMG-mapSources A '${sourcePath}', '${file.basename}' Z`);
+			return file.basename.replace('.min', '');
 		}))
 		.pipe(sourcemaps.write('./', { includeContent: false }))
 		.pipe(gulp.dest("."));
@@ -192,9 +191,8 @@ const fileMinifyJSFunction = function (src, dest, toplevel = false) {
 			toplevel: toplevel
 		}))
 		.pipe(sourcemaps.mapSources(function(sourcePath, file) {
-			//console.log(`OMG-mapSources A '${sourcePath}', '${file}' Z`);
-			// source paths are prefixed with '../src/'
-			return sourcePath.replace('../InkBall/src/InkBall.Module/wwwroot/js/', '').replace('wwwroot/', '').replace('.min.js','.js');
+			// console.log(`OMG-mapSources A '${sourcePath}', '${file.basename}' Z`);
+			return file.basename.replace('.min', '');
 		}))
 		.pipe(sourcemaps.write('./', { includeContent: false }))
 		.pipe(gulp.dest("."));
@@ -226,7 +224,6 @@ const minInkball = gulp.parallel(function inkballJsAndCSS() {
 
 const cleanInkball = function (cb) {
 	rimraf(paths.inkBallJsRelative + "*.min.js", cb);
-	rimraf(paths.inkBallJsRelative + "*.babelify*", cb);
 	rimraf(paths.inkBallCssRelative + "*.css", cb);
 	rimraf(paths.inkBallJsRelative + "*Bundle.js", cb);
 	rimraf(paths.inkBallJsRelative + "*.map", cb);
@@ -260,9 +257,8 @@ const minJs = gulp.series(minSWJsJs,
 			.pipe(terser())
 			.pipe(rename({ suffix: '.min' }))
 			.pipe(sourcemaps.mapSources(function(sourcePath, file) {
-				//console.log(`OMG-mapSources A '${sourcePath}', '${file}' Z`);
-				// source paths are prefixed with '../src/'
-				return sourcePath.replace('wwwroot/js/', '').replace('workers/', '');
+				// console.log(`OMG-mapSources A '${sourcePath}', '${file.basename}' Z`);
+				return file.basename.replace('.min', '');
 			}))
 			.pipe(sourcemaps.write('./', { includeContent: false }))
 			.pipe(gulp.dest("."));
