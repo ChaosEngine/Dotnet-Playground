@@ -1,4 +1,4 @@
-﻿/*global require, __dirname, process, exports*/
+/*global require, __dirname, process, exports*/
 "use strict";
 
 const gulp = require("gulp"),
@@ -165,14 +165,14 @@ const inkballAIWorker = function (doPollyfill) {
 };
 
 exports.webpack = gulp.parallel(function inkballWebWorkerEntryPoint(cb) {
-	inkballAIWorker(true);
+	// inkballAIWorker(true);
 	inkballAIWorker(false);
 	return cb();
-}, function inkballMainEntryPoint(cb) {
+}/*, function inkballMainEntryPoint(cb) {
 	inkballEntryPoint(false);
 	inkballEntryPoint(true);
 	return cb();
-});
+}*/);
 
 const fileMinifyJSFunction = function (src, result, toplevel = false) {
 	return gulp.src([src, "!" + result], { base: "." })
