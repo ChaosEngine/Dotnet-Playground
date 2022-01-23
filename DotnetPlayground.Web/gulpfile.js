@@ -1,4 +1,4 @@
-/*global require, __dirname, process, exports*/
+﻿/*global require, __dirname, process, exports*/
 "use strict";
 
 const gulp = require("gulp"),
@@ -11,6 +11,7 @@ const gulp = require("gulp"),
 	terser = require("gulp-terser"),
 	//babel = require("gulp-babel"),
 	rename = require("gulp-rename"),
+	sourcemaps = require('gulp-sourcemaps'),
 	path = require('path'),
 	webpack = require('webpack-stream'),
 	//esmWebpackPlugin = require("@purtuga/esm-webpack-plugin"),
@@ -46,11 +47,19 @@ var paths = {
 const minCSS = function (sourcePattern, notPattern, dest) {
 	return gulp.src([sourcePattern, "!" + notPattern])
 		.pipe(concat(dest))
+		.pipe(sourcemaps.init())
 		.pipe(cleanCSS())
+		.pipe(sourcemaps.mapSources(function(sourcePath, file) {
+			//console.log(`OMG-mapSources A '${sourcePath}', '${file}' Z`);
+			// source paths are prefixed with '../src/'
+			return sourcePath.replace('wwwroot/css/', '').replace('../InkBall/src/InkBall.Module/', '').replace('.min.css','.css');
+		}))
+		.pipe(sourcemaps.write('./', { includeContent: false }))
 		.pipe(gulp.dest("."));
 };
 
 ////////////// [Inkball Section] //////////////////
+// eslint-disable-next-line no-unused-vars
 const inkballEntryPoint = function (min) {
 	return gulp.src([
 		paths.inkBallJsRelative + 'inkball.js'
@@ -159,7 +168,8 @@ const inkballAIWorker = function (doPollyfill) {
 				hints: process.env.NODE_ENV === 'production' ? "warning" : false
 			},
 			mode: "production",
-			stats: "errors-warnings"
+			stats: "errors-warnings",
+			devtool: 'source-map'
 		}))
 		.pipe(gulp.dest(paths.inkBallJsRelative));
 };
@@ -174,18 +184,25 @@ exports.webpack = gulp.parallel(function inkballWebWorkerEntryPoint(cb) {
 	return cb();
 }*/);
 
-const fileMinifyJSFunction = function (src, result, toplevel = false) {
-	return gulp.src([src, "!" + result], { base: "." })
-		.pipe(concat(result))
+const fileMinifyJSFunction = function (src, dest, toplevel = false) {
+	return gulp.src([src, "!" + dest], { base: "." })
+		.pipe(concat(dest))
+		.pipe(sourcemaps.init())
 		.pipe(terser({
 			toplevel: toplevel
 		}))
+		.pipe(sourcemaps.mapSources(function(sourcePath, file) {
+			//console.log(`OMG-mapSources A '${sourcePath}', '${file}' Z`);
+			// source paths are prefixed with '../src/'
+			return sourcePath.replace('../InkBall/src/InkBall.Module/wwwroot/js/', '').replace('wwwroot/', '').replace('.min.js','.js');
+		}))
+		.pipe(sourcemaps.write('./', { includeContent: false }))
 		.pipe(gulp.dest("."));
 };
 
-const fileMinifySCSSFunction = function (src, result) {
-	return gulp.src([src, "!" + result], { base: "." })
-		.pipe(concat(result))
+const fileMinifySCSSFunction = function (src, dest) {
+	return gulp.src([src, "!" + dest], { base: "." })
+		.pipe(concat(dest))
 		.pipe(sass().on('error', sass.logError))
 		.pipe(gulp.dest("."));
 };
@@ -212,17 +229,21 @@ const cleanInkball = function (cb) {
 	rimraf(paths.inkBallJsRelative + "*.babelify*", cb);
 	rimraf(paths.inkBallCssRelative + "*.css", cb);
 	rimraf(paths.inkBallJsRelative + "*Bundle.js", cb);
+	rimraf(paths.inkBallJsRelative + "*.map", cb);
 };
 ////////////// [/Inkball Section] //////////////////
 
 const cleanJs = gulp.series(cleanInkball, function cleanMinJs(cb) {
 	rimraf(paths.minJs, cb);
 	rimraf(paths.SWJsDest, cb);
+	rimraf(webroot + "js/**/*.map", cb);
+	rimraf(webroot + "*.map", cb);
 });
 
 const cleanCss = function (cb) {
 	rimraf(paths.concatCssDest, cb);
 	rimraf(paths.concatCssDestMin, cb);
+	rimraf(webroot + "css/*.map", cb);
 };
 
 exports.clean = gulp.series(cleanJs, cleanCss);
@@ -235,15 +256,18 @@ const minJs = gulp.series(minSWJsJs,
 	function concatJsDest() {
 		return gulp.src([paths.js, "!" + paths.minJs], { base: "." })
 			//.pipe(concat(paths.concatJsDest))
+			.pipe(sourcemaps.init())
 			.pipe(terser())
 			.pipe(rename({ suffix: '.min' }))
+			.pipe(sourcemaps.mapSources(function(sourcePath, file) {
+				//console.log(`OMG-mapSources A '${sourcePath}', '${file}' Z`);
+				// source paths are prefixed with '../src/'
+				return sourcePath.replace('wwwroot/js/', '').replace('workers/', '');
+			}))
+			.pipe(sourcemaps.write('./', { includeContent: false }))
 			.pipe(gulp.dest("."));
 	}
 );
-
-const minCss = function runTaskMinCSS() {
-	return minCSS(paths.css, paths.minCss, paths.concatCssDestMin);
-};
 
 const processInputArgs = function () {
 	let colorTheme = undefined;//process.env.NODE_ENV === 'production' ? 'darkred' : 'darkslateblue';
@@ -307,7 +331,9 @@ const processSCSS = function (sourcePattern, notPattern) {
 
 const minScss = gulp.series(function scssToCss() {
 	return processSCSS(paths.scss, paths.destCSSDir);
-}, minCss);
+}, function runTaskMinCSS() {
+	return minCSS(paths.css, paths.minCss, paths.concatCssDestMin);
+});
 
 exports.min = gulp.parallel(minJs, minInkball, minScss);
 
