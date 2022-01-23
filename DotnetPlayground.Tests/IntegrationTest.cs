@@ -1137,7 +1137,7 @@ namespace Integration
 			_client = fixture.Client;
 		}
 
-		[IgnoreWhenRunInContainerTheory]
+		[IgnoreWhenDirNotExistsTheory(relativePath: @"../../../../DotnetPlayground.Web/wwwroot/lib/jquery")]
 		[InlineData("lib/ace-builds/mode-csharp.js")]
 		[InlineData("lib/blueimp-gallery/css/blueimp-gallery.min.css")]
 		[InlineData("lib/blueimp-gallery/css/blueimp-gallery.min.css.map")]
@@ -1181,6 +1181,8 @@ namespace Integration
 		[InlineData("lib/video.js/video-js.min.css")]
 		public async Task GetStaticAssetContent(string url)
 		{
+			//if (!Directory.Exists("wwwroot/lib/jquery")) return;
+
 			// Arrange
 			// Act
 			using var response = await _client.GetAsync($"{_client.BaseAddress}/{url}", HttpCompletionOption.ResponseHeadersRead);
