@@ -130,6 +130,7 @@
         <script src="~/lib/jquery/jquery.min.js"></script>
         <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
         <script src="~/js/site.js" asp-append-version="false"></script>
+        @*This is the fix, to enforce manual loading, but why? https://github.com/dotnet/aspnetcore/issues/39715 *@
         <script src="/_framework/aspnetcore-browser-refresh.js"></script>
     </environment>
     <environment exclude="Development">
