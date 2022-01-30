@@ -50,7 +50,8 @@ self.addEventListener('install', function (event) {
 		`js/Blogs${suffix}.js`,
 		`js/WebCamGallery${suffix}.js`,
 		`js/Puzzles${suffix}.js`,
-		`js/Hashes${suffix}.js`
+		`js/Hashes${suffix}.js`,
+		`js/VirtualScroll${suffix}.js`
 	];
 
 	if (isDev) {

@@ -108,12 +108,17 @@ window.addEventListener('load', function () {
 
 	////////////execution/////////////
 	let jqTable = $('#table');
+	//connecting events
 	jqTable.data("query-params", processQueryParams);
 	jqTable.data("response-handler", responseHandler);
 	$("#table thead tr th:last").data("formatter", validateFormatter);
 
 	LoadParamsFromStore(jqTable, window.localStorage);
 
+	//overcomming https://github.com/wenzhixin/bootstrap-table/issues/5997 bug
+	$.fn.bootstrapTable.defaults.onVirtualScroll = function () {
+		return false;
+	};
 	const table = jqTable.bootstrapTable(), epsilon = 2;
 	let lastScroll = false;
 
@@ -130,17 +135,14 @@ window.addEventListener('load', function () {
 		_refreshClicked = "refresh";
 	});
 	table.on('refresh.bs.table', function (params) {
-		//let opts = table.bootstrapTable('getOptions');
 		params.ExtraParam = "refresh";
-
-		//localStorage.removeItem('VirtOpts');
-	});
+	})
 	// register row-click event
-	table.on('click-row.bs.table', function (element, row, tr) {
+	.on('click-row.bs.table', function (element, row, tr) {
 		tr.addClass('highlight').siblings().removeClass('highlight');
-	});
+	})
 	// load success
-	table.on('load-success.bs.table', function () {
+	.on('load-success.bs.table', function () {
 		$('#spTimeToLoad').text('Took ' + ((new Date().getTime() - _startTime) + 'ms!'));
 
 		lastScroll = false;
@@ -177,9 +179,9 @@ window.addEventListener('load', function () {
 				}
 			});
 		}, 0);
-	});
+	})
 	// load error
-	table.on('load-error.bs.table', function () {
+	.on('load-error.bs.table', function () {
 		$('#spTimeToLoad').text('error!');
 	});
 });
