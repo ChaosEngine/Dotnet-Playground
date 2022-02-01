@@ -44,26 +44,6 @@ function clientValidate(button) {
 }
 
 /**
- * https://stackoverflow.com/a/2641047/4429828
- * @param {string} name of event
- * @param {function} fn is a handler function
- */
-$.fn.bindFirst = function (name, fn) {
-	// Bind as you normally would. Don't want to miss out on any jQuery magic
-	this.on(name, fn);
-
-	// Thanks to a comment by @@Martin, adding support for namespaced events too.
-	this.each(function () {
-		let handlers = $._data(this, 'events')[name.split('.')[0]];
-		//console.log(handlers);
-		// take out the handler we just inserted from the end
-		let handler = handlers.pop();
-		// move it at the beginning
-		handlers.splice(0, 0, handler);
-	});
-};
-
-/**
  * Global document ready function
  */
 $(function () {

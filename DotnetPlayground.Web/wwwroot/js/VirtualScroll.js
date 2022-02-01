@@ -4,8 +4,28 @@ window.addEventListener('load', function () {
 	////////////methods start/////////////
 	let _startTime = null, _refreshClicked = "cached";
 
-	function getId(element) {
-		let result = $(element).closest('tr').data('uniqueid');
+	/**
+	 * https://stackoverflow.com/a/2641047/4429828
+	 * @param {string} name of event
+	 * @param {function} fn is a handler function
+	 */
+	$.fn.bindFirst = function (name, fn) {
+		// Bind as you normally would. Don't want to miss out on any jQuery magic
+		this.on(name, fn);
+
+		// Thanks to a comment by @@Martin, adding support for namespaced events too.
+		this.each(function () {
+			let handlers = $._data(this, 'events')[name.split('.')[0]];
+			//console.log(handlers);
+			// take out the handler we just inserted from the end
+			let handler = handlers.pop();
+			// move it at the beginning
+			handlers.splice(0, 0, handler);
+		});
+	};
+
+	function getIdFromRowElement(rowEl) {
+		const result = $(rowEl).find("td:first").text();
 		return result;
 	}
 
@@ -19,7 +39,7 @@ window.addEventListener('load', function () {
 		if (virtOpts?.SortOrder !== undefined && ["asc", "desc"].includes(virtOpts.SortOrder)) {
 			jqTable.data("sort-order", virtOpts.SortOrder);
 		}
-		if (virtOpts?.SortName !== undefined && ["Key", "HashMD5", "HashSHA256"].includes(virtOpts.SortName)) {
+		if (virtOpts?.SortName !== undefined && ["key", "hashMD5", "hashSHA256"].includes(virtOpts.SortName)) {
 			jqTable.data("sort-name", virtOpts.SortName);
 		}
 		if (virtOpts?.PageNumber !== undefined) {
@@ -46,7 +66,7 @@ window.addEventListener('load', function () {
 			virtOpts.SortOrder = params.order;
 			virtOpts.set = true;
 		}
-		if (params.sort === undefined && ["Key", "HashMD5", "HashSHA256"].includes(virtOpts?.SortName)) {
+		if (params.sort === undefined && ["key", "hashMD5", "hashSHA256"].includes(virtOpts?.SortName)) {
 			params.sort = virtOpts.SortName;
 		} else if (params.sort !== undefined && params.sort !== virtOpts?.SortName) {
 			virtOpts.SortName = params.sort;
@@ -85,32 +105,24 @@ window.addEventListener('load', function () {
 		$('#spTimeToLoad').text('Loading...');
 
 		SaveParamsToStore(params, window.localStorage);
+		if (params.sort)
+			params.sort = params.sort[0].toUpperCase() + params.sort.substring(1);
 
 		return params;
 	}
 
-	function responseHandler(response) {
-		//debugger;
-		const mapped = response.rows.map(function (tab) {
-			return { Key: tab.key, HashMD5: tab.hashMD5, HashSHA256: tab.hashSHA256 };
-		});
-		response.rows = mapped;
-		return response;
-	}
-
 	function validateFormatter(value, row) {
-		return (typeof row.HashMD5 !== "string" || typeof row.HashSHA256 !== "string") ? ''
-			: '<button class="btn btn-success btn-sm" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>';
+		return (typeof row.hashMD5 !== "string" || typeof row.hashSHA256 !== "string") ? '' :
+			'<button class="btn btn-success btn-sm" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>';
 	}
 	////////////methods end/////////////
 
 
 
 	////////////execution/////////////
-	let jqTable = $('#table');
+	const jqTable = $('#table');
 	//connecting events
 	jqTable.data("query-params", processQueryParams);
-	jqTable.data("response-handler", responseHandler);
 	$("#table thead tr th:last").data("formatter", validateFormatter);
 
 	LoadParamsFromStore(jqTable, window.localStorage);
@@ -119,69 +131,71 @@ window.addEventListener('load', function () {
 	$.fn.bootstrapTable.defaults.onVirtualScroll = function () {
 		return false;
 	};
-	const table = jqTable.bootstrapTable(), epsilon = 2;
+	const table = jqTable.bootstrapTable();
 	let lastScroll = false;
 
 	$('#exampleModal').on('show.bs.modal', function () {
-		let tr = table.find('tr.highlight');
-		let id = getId(tr);
-		let msg = (id === undefined) ? 'No row selected' : 'Key selected: ' + id;
+		const tr = table.find('tr.highlight');
+		const id = getIdFromRowElement(tr);
+		const msg = (id === undefined) ? 'No row selected' : 'Key selected: ' + id;
 
-		let modal = $(this);
+		const modal = $(this);
 		modal.find('.modal-body').text(msg);
 	});
 
+	//click-bind button event, but first in line and indicate some variable
 	$("button[name='refresh']").bindFirst('click', function () {
 		_refreshClicked = "refresh";
 	});
 	table.on('refresh.bs.table', function (params) {
 		params.ExtraParam = "refresh";
 	})
-	// register row-click event
-	.on('click-row.bs.table', function (element, row, tr) {
-		tr.addClass('highlight').siblings().removeClass('highlight');
-	})
-	// load success
-	.on('load-success.bs.table', function () {
-		$('#spTimeToLoad').text('Took ' + ((new Date().getTime() - _startTime) + 'ms!'));
+		// register row-click event
+		.on('click-row.bs.table', function (element, row, tr) {
+			tr.addClass('highlight').siblings().removeClass('highlight');
+		})
+		// load success
+		.on('load-success.bs.table', function () {
+			$('#spTimeToLoad').text('Took ' + ((new Date().getTime() - _startTime) + 'ms!'));
 
-		lastScroll = false;
-		setTimeout(function () {
-			//console.log('event bind');
-			$('.fixed-table-body').scrollTop(epsilon).on('scroll', function () {
-				//console.log('scroll = ' + $('.fixed-table-body').scrollTop());
+			lastScroll = false;
+			setTimeout(function () {
+				//console.log('event bind');
+				const epsilon = 2;
+				$('.fixed-table-body').scrollTop(epsilon).on('scroll', function () {
+					//console.log('scroll = ' + $('.fixed-table-body').scrollTop());
 
-				if (lastScroll &&
-					($(this).scrollTop() + $(this).innerHeight() + epsilon) >= $(this)[0].scrollHeight) {
-					console.log('end reached -> nextPage');
-					lastScroll = true;
+					if (lastScroll &&
+						($(this).scrollTop() + $(this).innerHeight() + epsilon) >= $(this)[0].scrollHeight) {
+						console.log('end reached -> nextPage');
+						lastScroll = true;
 
-					const options = table.bootstrapTable('getOptions');
-					if (options.pageNumber >= options.totalPages)
-						table.bootstrapTable('selectPage', 1);
-					else
-						table.bootstrapTable('nextPage');
-					$(this).off('scroll');
-				}
-				else if (lastScroll && $(this).scrollTop() <= 0) {
-					console.log('top reached <- prevPage');
-					lastScroll = true;
+						const options = table.bootstrapTable('getOptions');
+						if (options.pageNumber >= options.totalPages)
+							table.bootstrapTable('selectPage', 1);
+						else
+							table.bootstrapTable('nextPage');
+						$(this).off('scroll');
+					}
+					else if (lastScroll && $(this).scrollTop() <= 0) {
+						console.log('top reached <- prevPage');
+						lastScroll = true;
 
-					const options = table.bootstrapTable('getOptions');
-					if (options.pageNumber <= 1)
-						table.bootstrapTable('selectPage', options.totalPages);
-					else
-						table.bootstrapTable('prevPage');
-					$(this).off('scroll');
-				}
-				else {
-					lastScroll = true;
-				}
-			});
-		}, 0);
-	})
-	// load error
-	.on('load-error.bs.table', function () {
-		$('#spTimeToLoad').text('error!');
-	});
+						const options = table.bootstrapTable('getOptions');
+						if (options.pageNumber <= 1)
+							table.bootstrapTable('selectPage', options.totalPages);
+						else
+							table.bootstrapTable('prevPage');
+						$(this).off('scroll');
+					}
+					else {
+						lastScroll = true;
+					}
+				});
+			}, 0);
+		})
+		// load error
+		.on('load-error.bs.table', function () {
+			$('#spTimeToLoad').text('error!');
+		});
 });
