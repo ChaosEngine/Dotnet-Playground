@@ -1123,6 +1123,45 @@ namespace Integration
 				}//end using (var get_response
 			}//end using request
 		}
+
+		[Fact]
+		public async Task Bad_Login_Lockout_Account()
+		{
+			// Arrange
+			string user_name = "lockout.testing@example.org", bad_password = "BadP@sswordWh1ch$houldL0ckAccount";
+			using var client = _fixture.CreateClient();
+
+			//we have a chance of 5 times failing to login with improper password; after that account is locked out
+			for (int failed_login_counter = 1; failed_login_counter < 5; failed_login_counter++)
+			{
+				// Act
+				using var unauthorized_resp = await _fixture.GetAuthenticationLoginResponseAsync(
+					userName: user_name,
+					password: bad_password,
+					incommingClient: client);
+				// Assert
+				Assert.Equal(HttpStatusCode.Unauthorized, unauthorized_resp.StatusCode);
+
+
+				//Ensuring proper login does not reset lock counter, vide this video
+				//https://www.youtube.com/watch?v=FzQcu9LYd_k - Bypassing Brute-Force Protection with Burpsuite
+				await _fixture.CreateAuthenticatedClientAsync(
+					userName: "alice.testing@example.org",
+					password: "#SecurePassword123",
+					incommingClient: client
+					);
+			}
+
+
+			// Act
+			using var locked_out_response = await _fixture.GetAuthenticationLoginResponseAsync(
+				userName: user_name,
+				password: bad_password,
+				incommingClient: client);
+			// Assert
+			Assert.Equal(HttpStatusCode.OK, locked_out_response.StatusCode);
+			Assert.EndsWith("Identity/Account/Lockout", locked_out_response.RequestMessage.RequestUri.ToString());
+		}
 	}
 
 	[Collection(nameof(TestServerCollection))]
