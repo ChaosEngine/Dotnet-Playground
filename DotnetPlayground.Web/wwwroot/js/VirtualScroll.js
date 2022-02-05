@@ -60,16 +60,18 @@ window.addEventListener('load', function () {
 			virtOpts.PageSize = params.limit;
 			virtOpts.set = true;
 		}
-		if (params.order === undefined && ["asc", "desc"].includes(virtOpts?.SortOrder)) {
-			params.order = virtOpts.SortOrder;
-		} else if (params.order !== undefined && params.order !== virtOpts?.SortOrder) {
-			virtOpts.SortOrder = params.order;
+		if (params.order !== virtOpts?.SortOrder) {
+			if (params.order === undefined)
+				delete virtOpts.SortOrder;
+			else
+				virtOpts.SortOrder = params.order;
 			virtOpts.set = true;
 		}
-		if (params.sort === undefined && ["key", "hashMD5", "hashSHA256"].includes(virtOpts?.SortName)) {
-			params.sort = virtOpts.SortName;
-		} else if (params.sort !== undefined && params.sort !== virtOpts?.SortName) {
-			virtOpts.SortName = params.sort;
+		if (params.sort !== virtOpts?.SortName) {
+			if (params.sort === undefined)
+				delete virtOpts.SortName;
+			else
+				virtOpts.SortName = params.sort;
 			virtOpts.set = true;
 		}
 		if (params.offset === undefined && virtOpts?.PageNumber !== undefined) {
@@ -78,12 +80,15 @@ window.addEventListener('load', function () {
 			virtOpts.PageNumber = (params.offset / parseInt(params.limit) + 1);
 			virtOpts.set = true;
 		}
-		if (params.search === undefined && virtOpts?.SearchText !== undefined) {
-			params.search = virtOpts.SearchText;
-		} else if (params.search !== undefined && params.search !== virtOpts?.SearchText && params.search.length > 0) {
-			virtOpts.SearchText = params.search;
+		if (params.search !== virtOpts?.SearchText) {
+			if (params.search === undefined || params.search.length <= 0)
+				delete virtOpts.SearchText;
+			else
+				virtOpts.SearchText = params.search;
 			virtOpts.set = true;
 		}
+
+
 		if (virtOpts.set === true) {
 			delete virtOpts.set;
 			store.setItem("VirtOpts", JSON.stringify(virtOpts));
