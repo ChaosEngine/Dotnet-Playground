@@ -1,4 +1,5 @@
-/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate|WebCamGalleryOnLoad" }]*/
+/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "WebCamGalleryOnLoad" }]*/
+/* eslint-disable no-console */
 /*global g_AppRootPath, videojs, blueimp*/
 "use strict";
 ///////////////////WebCamGallery functions start/////////////////

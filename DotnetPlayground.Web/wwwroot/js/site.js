@@ -2,42 +2,27 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate" }]*/
 /*global forge*/
 "use strict";
-//This code is not babel-transpiled to suport legacy browser; must be compatible with ALL
 
 var g_AppRootPath = location.pathname.match(/\/([^/]+)\//)[0],
 	g_LogPath = g_AppRootPath + "Home/ClientsideLog",
 	g_IsDevelopment = window.location.host.match(/:\d+/) !== null;
-//g_Version = 'PROJECT_VERSION';
-
-//executed immediatelly function
-/*(function () {
-	//change header background depending on developmen/production enviromewnt
-	Array.prototype.slice.call(document.querySelectorAll("nav.navbar")).forEach(function (el) {
-		el.classList.remove("bg-dark");
-		el.classList.add(g_IsDevelopment ? 'bg-dark-development' : 'bg-dark-production');
-	});
-
-	//append version to footer
-	if (g_Version && g_Version !== '')
-		document.getElementById('spVersion').textContent = ", Version: " + g_Version;
-})();*/
 
 function clientValidate(button) {
-	let tr = $(button).parent().parent();
+	const tr = $(button).parent().parent();
 
-	let key = tr.find("td").eq(0).text();
-	let orig_md5 = tr.find("td").eq(1).text();
-	let orig_sha = tr.find("td").eq(2).text();
+	const key = tr.find("td").eq(0).text();
+	const orig_md5 = tr.find("td").eq(1).text();
+	const orig_sha = tr.find("td").eq(2).text();
 
 	if (orig_md5 === '' || orig_sha === '')
 		return;
 
 	let md = forge.md.md5.create();
 	md.update(key);
-	let md5 = md.digest().toHex();
+	const md5 = md.digest().toHex();
 	md = forge.md.sha256.create();
 	md.update(key);
-	let sha = md.digest().toHex();
+	const sha = md.digest().toHex();
 
 	tr.find("td").eq(1).html("<strong style='color:" + (md5 === orig_md5 ? "green" : "red") + "'>" + orig_md5 + "</strong>");
 	tr.find("td").eq(2).html("<strong style='color:" + (sha === orig_sha ? "green" : "red") + "'>" + orig_sha + "</strong>");
