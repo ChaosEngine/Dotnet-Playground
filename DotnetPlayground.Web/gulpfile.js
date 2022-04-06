@@ -40,8 +40,8 @@ var paths = {
 	SharedJs: webroot + "js/workers/shared.js",
 	SharedJsDest: webroot + "js/workers/shared.min.js",
 	//<WebWorkers/>
-	inkBallJsRelative: "../InkBall/src/InkBall.Module/wwwroot/js/",
-	inkBallCssRelative: "../InkBall/src/InkBall.Module/wwwroot/css/"
+	inkBallJsRelative: "../InkBall/src/InkBall.Module/IBwwwroot/js/",
+	inkBallCssRelative: "../InkBall/src/InkBall.Module/IBwwwroot/css/"
 };
 
 const minCSS = function (sourcePattern, notPattern, dest) {
