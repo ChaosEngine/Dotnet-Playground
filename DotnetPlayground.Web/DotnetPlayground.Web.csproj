@@ -75,7 +75,7 @@
 
 	<ItemGroup Condition="'$(Configuration)'=='Debug'">
 		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.3" />
-		<PackageReference Include="Microsoft.AspNetCore.Razor.Language" Version="6.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.Razor.Language" Version="6.0.4" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.3">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
