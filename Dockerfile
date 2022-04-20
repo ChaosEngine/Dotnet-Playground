@@ -41,7 +41,7 @@ COPY --from=build --chown="$USER":"$USER" /build/DotnetPlayground.Web/bin/$BUILD
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 #fix https://github.com/oracle/dotnet-db-samples/issues/148
-RUN if [ "$BUILD_CONFIG" = "Oracle" ]; then sed -i '1s/^/openssl_conf = default_conf\n/' /etc/ssl/openssl.cnf && \
+RUN if [ "$BUILD_CONFIG" = "Oracle" ]; then sed -i '1s/^/openssl_conf = default_conf\n/' /etc/ssl1.1/openssl.cnf && \
     echo -e " \n\
 [default_conf] \n\
 ssl_conf = ssl_sect \n\
@@ -50,7 +50,7 @@ system_default = system_default_sect \n\
 [system_default_sect] \n\
 MinProtocol = TLSv1.2 \n\
 CipherString = DEFAULT:@SECLEVEL=2 \n\
-" >> /etc/ssl/openssl.cnf; \
+" >> /etc/ssl1.1/openssl.cnf; \
     fi
 
 USER "$USER"
