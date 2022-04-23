@@ -132,10 +132,6 @@ window.addEventListener('load', function () {
 
 	LoadParamsFromStore(jqTable, window.localStorage);
 
-	//overcomming https://github.com/wenzhixin/bootstrap-table/issues/5997 bug
-	$.fn.bootstrapTable.defaults.onVirtualScroll = function () {
-		return false;
-	};
 	const table = jqTable.bootstrapTable();
 	let lastScroll = false;
 
