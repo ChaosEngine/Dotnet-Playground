@@ -79,8 +79,8 @@
 		"blueimp-gallery": "3.4.0",
 		"video.js": "7.18.1",
 		"qrcodejs": "1.0.0",
-		"@microsoft/signalr": "6.0.4",
-		"@microsoft/signalr-protocol-msgpack": "6.0.4",
+		"@microsoft/signalr": "6.0.5",
+		"@microsoft/signalr-protocol-msgpack": "6.0.5",
 		"msgpack5": "6.0.0",
 		"ace-builds": "1.4.14",
 		"chance": "1.1.8"

@@ -93,9 +93,9 @@ self.addEventListener('install', function (event) {
 			'https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@3.2.12/dist/jquery.validate.unobtrusive.min.js'
 			//'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js',//questionable, only dev ?
 			//'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/mode-csharp.min.js',//questionable, only dev ?
-			//'https://cdn.jsdelivr.net/npm/@microsoft/signalr@6.0.3/dist/browser/signalr.min.js',//questionable, inkball ?
+			//'https://cdn.jsdelivr.net/npm/@microsoft/signalr@6.0.5/dist/browser/signalr.min.js',//questionable, inkball ?
 			//'https://cdn.jsdelivr.net/npm/msgpack5@5.3.2/dist/msgpack5.min.js',//questionable, inkball ?
-			//'https://cdn.jsdelivr.net/npm/@microsoft/signalr-protocol-msgpack@6.0.3/dist/browser/signalr-protocol-msgpack.min.js'//questionable, inkball ?
+			//'https://cdn.jsdelivr.net/npm/@microsoft/signalr-protocol-msgpack@6.0.5/dist/browser/signalr-protocol-msgpack.min.js'//questionable, inkball ?
 		]);
 	}
 
