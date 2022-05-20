@@ -79,17 +79,17 @@ self.addEventListener('install', function (event) {
 		//cdn resources
 		RESOURCES = RESOURCES.concat([
 			'https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.4.0/css/blueimp-gallery.min.css',
-			'https://cdnjs.cloudflare.com/ajax/libs/video.js/7.18.1/video-js.min.css',
+			'https://cdnjs.cloudflare.com/ajax/libs/video.js/7.19.2/video-js.min.css',
 			'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.20.1/bootstrap-table.min.css',
 			'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css',
 			'https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.4.0/js/blueimp-gallery.min.js',
-			'https://cdnjs.cloudflare.com/ajax/libs/video.js/7.18.1/alt/video.core.novtt.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/video.js/7.19.2/alt/video.core.novtt.min.js',
 			'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.20.1/bootstrap-table.min.js',
 			//'https://cdn.jsdelivr.net/npm/chance@1.1.8/dist/chance.min.js',
 			'https://cdn.jsdelivr.net/npm/node-forge@1.3.1/dist/forge.min.js',
 			'https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js',
 			'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js',
-			'https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.2/jquery.validate.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.4/jquery.validate.min.js',
 			'https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@3.2.12/dist/jquery.validate.unobtrusive.min.js'
 			//'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js',//questionable, only dev ?
 			//'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/mode-csharp.min.js',//questionable, only dev ?
