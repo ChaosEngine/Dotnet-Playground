@@ -124,12 +124,14 @@
     </main>
     <footer class="container">
         <noscript>Your browser does not support JavaScript! REALLY?!</noscript>
-        <p id="spVersion">&copy; 2021 - @Conf["AppTitleName"]</p>
+        <p id="spVersion">&copy; 2022 - @Conf["AppTitleName"]</p>
     </footer>
     <environment include="Development">
         <script src="~/lib/jquery/jquery.min.js"></script>
         <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
         <script src="~/js/site.js" asp-append-version="false"></script>
+        @*This is the fix, to enforce manual loading, but why? https://github.com/dotnet/aspnetcore/issues/39715 *@
+        <script src="/_framework/aspnetcore-browser-refresh.js"></script>
     </environment>
     <environment exclude="Development">
         <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"

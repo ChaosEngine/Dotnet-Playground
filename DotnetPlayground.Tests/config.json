@@ -1,6 +1,0 @@
-{
-	"ConnectionStrings": {
-		"Sqlite": "DataSource=:memory:"
-	},
-	"DBKind": "sqlite"
-}

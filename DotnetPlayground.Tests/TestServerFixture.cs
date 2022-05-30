@@ -39,6 +39,28 @@ namespace Integration
 		}
 	}
 
+	internal class IgnoreWhenDirNotExistsTheoryAttribute : TheoryAttribute
+	{
+		static bool? _exists = null;
+
+		static bool CheckIfRelativePathExists(string relativePath)
+		{
+			return Directory.Exists(
+				relativePath
+				.Replace('/', Path.DirectorySeparatorChar)
+				.Replace('\\', Path.DirectorySeparatorChar)
+				);
+		}
+
+		public IgnoreWhenDirNotExistsTheoryAttribute(string relativePath)
+		{
+			if ((_exists ??= CheckIfRelativePathExists(relativePath)) == false)
+			{
+				Skip = $"Skipped when dir '{relativePath}' not exist";
+			}
+		}
+	}
+
 	/// <summary>
 	/// A test fixture which hosts the target project (project we wish to test) in an in-memory server.
 	/// </summary>

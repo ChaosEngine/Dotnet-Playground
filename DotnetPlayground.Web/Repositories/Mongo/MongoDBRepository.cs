@@ -129,7 +129,7 @@ namespace DotnetPlayground.Repositories.Mongo
 					.Select(s => s.FirstLetta);
 
 				//TODO: this or count* other method?
-				var count = await _hashesCol.CountDocumentsAsync(new BsonDocument());
+				var count = (int)await _hashesCol.EstimatedDocumentCountAsync(null, token);
 				var key_length = 0;
 				if (count > 0)
 				{
@@ -140,7 +140,7 @@ namespace DotnetPlayground.Repositories.Mongo
 					key_length = (await result.FirstOrDefaultAsync(token)).Length;
 				}
 
-				hi.Count = (int)count;
+				hi.Count = count;
 				hi.KeyLength = key_length;
 				hi.Alphabet = string.Concat(alphabet);
 				hi.IsCalculating = false;
@@ -185,22 +185,30 @@ namespace DotnetPlayground.Repositories.Mongo
 				_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("ctor", Watch.ElapsedMilliseconds,
 					"from ctor till PagedSearchAsync"));
 
-				FilterDefinition<ThinHashes> filterDefinition;
+				Task<long> count_tsk;
+				IFindFluent<ThinHashes, ThinHashes> source;
+
 				if (!string.IsNullOrEmpty(searchText))
 				{
-					searchText = $"/^{searchText}/s";
+					searchText = $"/^{searchText}/";
 
 					var filterBuilder = Builders<ThinHashes>.Filter;
 					BsonRegularExpression bsonregex = new BsonRegularExpression(searchText);
-					filterDefinition =
+					var filterDefinition =
 						filterBuilder.Regex(x => x.Key, bsonregex) |
 						filterBuilder.Regex(x => x.HashMD5, bsonregex) |
 						filterBuilder.Regex(x => x.HashSHA256, bsonregex);
+
+					source = _hashesCol.Find(filterDefinition);
+					count_tsk = source.CountDocumentsAsync(token);
 				}
 				else
-					filterDefinition = Builders<ThinHashes>.Filter.Empty;
+				{
+					var filterDefinition = Builders<ThinHashes>.Filter.Empty;
+					source = _hashesCol.Find(filterDefinition);
+					count_tsk = _hashesCol.EstimatedDocumentCountAsync(null, token);
+				}
 
-				IFindFluent<ThinHashes, ThinHashes> source;
 				if (!string.IsNullOrEmpty(sortColumn))
 				{
 					SortDefinition<ThinHashes> sortDefinition;
@@ -210,16 +218,13 @@ namespace DotnetPlayground.Repositories.Mongo
 					else
 						sortDefinition = Builders<ThinHashes>.Sort.Ascending(sortColumn);
 
-					source = _hashesCol.Find(filterDefinition).Sort(sortDefinition);
+					source = source.Sort(sortDefinition);
 				}
-				else
-					source = _hashesCol.Find(filterDefinition);
 
-				var count = source.CountDocumentsAsync(token);
-				var found = source.Skip(offset).Limit(limit).ToListAsync(token);
-				await Task.WhenAll(count, found);
+				var found_tsk = source.Skip(offset).Limit(limit).ToListAsync(token);
+				await Task.WhenAll(count_tsk, found_tsk);
 
-				return (found.Result, (int)count.Result);
+				return (found_tsk.Result, (int)count_tsk.Result);
 			}
 			finally
 			{

@@ -31,10 +31,9 @@
 		   data-classes="table table-sm table-hover table-striped"
 		   data-side-pagination="server"
 		   data-url="Load"
-		   data-query-params="extraServerParams"
-		   data-response-handler="responseHandler"
 		   data-pagination="true"
 		   data-pagination-use-intermediate="true"
+		   data-sort-reset="true"
 		   data-show-refresh="true"
 		   data-search="true"
 		   data-toolbar="#toolbar"
@@ -46,10 +45,10 @@
 		   >
 		<thead>
 			<tr>
-				<th data-field="Key" data-sortable="true" data-halign="center" data-align="center">Key</th>
-				<th data-field="HashMD5" data-sortable="true">HashMD5</th>
-				<th data-field="HashSHA256" data-sortable="true">HashSHA256</th>
-				<th data-field="Validate" data-sortable="false" data-halign="center" data-align="center" data-formatter="validateFormatter">Validate</th>
+				<th data-field="key" data-sortable="true" data-halign="center" data-align="center">Key</th>
+				<th data-field="hashMD5" data-sortable="true">HashMD5</th>
+				<th data-field="hashSHA256" data-sortable="true">HashSHA256</th>
+				<th data-field="Validate" data-sortable="false" data-halign="center" data-align="center">Validate</th>
 			</tr>
 		</thead>
 	</table>
@@ -61,7 +60,7 @@
 		<link rel="stylesheet" href="~/lib/bootstrap-table/bootstrap-table.min.css" />
 	</environment>
 	<environment exclude="Development">
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.19.1/bootstrap-table.min.css" integrity="sha512-Ulm5pOx2O8n6XDa0CY2S+GfOmV2R2SrvCpVmhjsxi4VmvcqB5JM5POLuePq496f9CkeAtvPpJlcjLRcTPk79iw==" crossorigin="anonymous" 
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.20.2/bootstrap-table.min.css" integrity="sha512-HIPiLbxNKmx+x+VFnDHICgl1nbRzW3tzBPvoeX0mq9dWP9H1ZGMRPXfYsHhcJS1na58bzUpbbfpQ/n4SIL7Tlw==" crossorigin="anonymous" 
 			asp-fallback-href="~/lib/bootstrap-table/bootstrap-table.min.css"
 			asp-fallback-test-class="bootstrap-table fullscreen" asp-fallback-test-property="position" asp-fallback-test-value="fixed" />
 	</environment>
@@ -70,118 +69,15 @@
 {
 	<environment include="Development">
 		<script src="~/lib/bootstrap-table/bootstrap-table.min.js"></script>
+		<script src="~/js/VirtualScroll.js"></script>
 	</environment>
 	<environment exclude="Development">
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.19.1/bootstrap-table.min.js" integrity="sha512-SoNdA/8QMSSlEcJAXKdAALavPMfGJnoh/96Tosg3qxQhdktSAttyHT7ePJghxJNvLCeyJYtXcdrTgLvHHsbRcQ==" crossorigin="anonymous"
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.20.2/bootstrap-table.min.js" integrity="sha512-9KY1w0S1bRPqvsNIxj3XovwFzZ7bOFG8u0K1LByeMVrzYhLu3v7sFRAlwfhBVFsHRiuMc6shv1lRLCTInwqxNg==" crossorigin="anonymous"
 				asp-fallback-src="~/lib/bootstrap-table/bootstrap-table.min.js"
 				asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.bootstrapTable">
 		</script>
+		<script src="~/js/VirtualScroll.min.js"></script>
 	</environment>
 
 	@await Html.PartialAsync("_CryptoJSScriptsPartial")
-
-	<script type="text/javascript">
-		var _startTime = null;
-		var _refreshClicked = "cached";
-
-		function validateFormatter(value, row) {
-			return (row.HashMD5 == null || row.HashSHA256 == null) ? ''
-				: '<button class="btn btn-success btn-sm" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>';
-		}
-
-		function extraServerParams(params) {
-			_startTime = new Date().getTime();
-			params.ExtraParam = _refreshClicked;
-			_refreshClicked = "cached";
-			$('#spTimeToLoad').text('Loading...');
-			return params;
-		}
-
-		function responseHandler(response) {
-			//debugger;
-			const mapped = response.rows.map(function(tab) {
-				return { Key: tab.key, HashMD5: tab.hashMD5, HashSHA256: tab.hashSHA256 };
-			});
-			response.rows = mapped;
-			return response;
-		}
-  
-		function getId(element) {
-			let result = $(element).closest('tr').data('uniqueid');
-			return result;
-		}
-		
-		window.addEventListener('load', function () {
-            const table = $('#table').bootstrapTable(), epsilon = 2;
-			let lastScroll = false;
-			
-			$('#exampleModal').on('show.bs.modal', function (event) {
-				let tr = table.find('tr.highlight');
-				let id = getId(tr);
-				let msg = (id === undefined) ? 'No row selected' : 'Key selected: ' + id;
-			  
-				let modal = $(this);
-				modal.find('.modal-body').text(msg);
-			})
-
-			$("button[name='refresh']").bindFirst('click', function (event) {
-				_refreshClicked = "refresh";
-			});
-			table.on('refresh.bs.table', function (params) {
-				//let opts = table.bootstrapTable('getOptions');
-				params.ExtraParam = "refresh";
-			});
-			// register row-click event
-			table.on('click-row.bs.table', function (element, row, tr) {
-				tr.addClass('highlight').siblings().removeClass('highlight');
-			});
-			// load success
-			table.on('load-success.bs.table', function (data) {
-				$('#spTimeToLoad').text('Took ' + ((new Date().getTime() - _startTime) + 'ms!'));
-
-				lastScroll = false;
-				setTimeout(function() {
-					//console.log('event bind');
-					$('.fixed-table-body').scrollTop(epsilon).bind('scroll', function(event) {
-						//console.log('scroll = ' + $('.fixed-table-body').scrollTop());
-
-						if (lastScroll &&
-							($(this).scrollTop() + $(this).innerHeight() + epsilon) >= $(this)[0].scrollHeight)
-						{
-							console.log('end reached -> nextPage');
-							lastScroll = true;
-
-							const options = table.bootstrapTable('getOptions');
-							if(options.pageNumber >= options.totalPages)
-								table.bootstrapTable('selectPage', 1);
-							else
-								table.bootstrapTable('nextPage');
-							$(this).unbind('scroll');
-						}
-						else if (lastScroll && $(this).scrollTop() <= 0)
-						{
-							console.log('top reached <- prevPage');
-							lastScroll = true;
-
-							const options = table.bootstrapTable('getOptions');
-							if(options.pageNumber <= 1)
-								table.bootstrapTable('selectPage', options.totalPages);
-							else
-								table.bootstrapTable('prevPage');
-							$(this).unbind('scroll');
-						}
-						else
-						{
-							lastScroll = true;
-						}
-					});
-				}, 0);
-			});
-			// load error
-			table.on('load-error.bs.table', function (status, res) {
-				$('#spTimeToLoad').text('error!');
-			});
-		});
-
-	</script>
 }

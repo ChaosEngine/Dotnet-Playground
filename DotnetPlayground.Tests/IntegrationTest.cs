@@ -1123,5 +1123,154 @@ namespace Integration
 				}//end using (var get_response
 			}//end using request
 		}
+
+		[Fact]
+		public async Task Bad_Login_Lockout_Account()
+		{
+			// Arrange
+			string user_name = "lockout.testing@example.org", bad_password = "BadP@sswordWh1ch$houldL0ckAccount";
+			using var client = _fixture.CreateClient();
+
+			//we have a chance of 5 times failing to login with improper password; after that account is locked out
+			for (int failed_login_counter = 1; failed_login_counter < 5; failed_login_counter++)
+			{
+				// Act
+				using var unauthorized_resp = await _fixture.GetAuthenticationLoginResponseAsync(
+					userName: user_name,
+					password: bad_password,
+					incommingClient: client);
+				// Assert
+				Assert.Equal(HttpStatusCode.Unauthorized, unauthorized_resp.StatusCode);
+
+
+				//Ensuring proper login does not reset lock counter, vide this video
+				//https://www.youtube.com/watch?v=FzQcu9LYd_k - Bypassing Brute-Force Protection with Burpsuite
+				await _fixture.CreateAuthenticatedClientAsync(
+					userName: "alice.testing@example.org",
+					password: "#SecurePassword123",
+					incommingClient: client
+					);
+			}
+
+
+			// Act
+			using var locked_out_response = await _fixture.GetAuthenticationLoginResponseAsync(
+				userName: user_name,
+				password: bad_password,
+				incommingClient: client);
+			// Assert
+			Assert.Equal(HttpStatusCode.OK, locked_out_response.StatusCode);
+			Assert.EndsWith("Identity/Account/Lockout", locked_out_response.RequestMessage.RequestUri.ToString());
+		}
+	}
+
+	[Collection(nameof(TestServerCollection))]
+	public class StaticAssetContent
+	{
+		private readonly TestServerFixture<Startup> _fixture;
+		private readonly HttpClient _client;
+
+		public StaticAssetContent(TestServerFixture<Startup> fixture)
+		{
+			_fixture = fixture;
+			_client = fixture.Client;
+		}
+
+		[IgnoreWhenDirNotExistsTheory(relativePath: @"../../../../DotnetPlayground.Web/wwwroot/lib/jquery")]
+		[InlineData("lib/ace-builds/mode-csharp.js")]
+		[InlineData("lib/blueimp-gallery/css/blueimp-gallery.min.css")]
+		[InlineData("lib/blueimp-gallery/css/blueimp-gallery.min.css.map")]
+		[InlineData("lib/blueimp-gallery/img/close.png")]
+		[InlineData("lib/blueimp-gallery/img/close.svg")]
+		[InlineData("lib/blueimp-gallery/img/error.png")]
+		[InlineData("lib/blueimp-gallery/img/error.svg")]
+		[InlineData("lib/blueimp-gallery/img/loading.gif")]
+		[InlineData("lib/blueimp-gallery/img/loading.svg")]
+		[InlineData("lib/blueimp-gallery/img/next.png")]
+		[InlineData("lib/blueimp-gallery/img/next.svg")]
+		[InlineData("lib/blueimp-gallery/img/play-pause.png")]
+		[InlineData("lib/blueimp-gallery/img/play-pause.svg")]
+		[InlineData("lib/blueimp-gallery/img/prev.png")]
+		[InlineData("lib/blueimp-gallery/img/prev.svg")]
+		[InlineData("lib/blueimp-gallery/img/video-play.png")]
+		[InlineData("lib/blueimp-gallery/img/video-play.svg")]
+		[InlineData("lib/blueimp-gallery/js/blueimp-gallery.min.js")]
+		[InlineData("lib/blueimp-gallery/js/blueimp-gallery.min.js.map")]
+		[InlineData("lib/bootstrap/css/bootstrap.min.css")]
+		[InlineData("lib/bootstrap/css/bootstrap.min.css.map")]
+		[InlineData("lib/bootstrap/js/bootstrap.bundle.min.js")]
+		[InlineData("lib/bootstrap/js/bootstrap.bundle.min.js.map")]
+		[InlineData("lib/bootstrap-table/bootstrap-table.min.css")]
+		[InlineData("lib/bootstrap-table/bootstrap-table.min.js")]
+		[InlineData("lib/chance/chance.min.js")]
+		[InlineData("lib/chance/chance.min.js.map")]
+		[InlineData("lib/jquery/jquery.min.js")]
+		[InlineData("lib/jquery/jquery.min.map")]
+		[InlineData("lib/jquery-validation/jquery.validate.min.js")]
+		[InlineData("lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js")]
+		[InlineData("lib/msgpack5/msgpack5.min.js")]
+		[InlineData("lib/node-forge/forge.min.js")]
+		[InlineData("lib/node-forge/forge.min.js.map")]
+		[InlineData("lib/qrcodejs/qrcode.min.js")]
+		[InlineData("lib/signalr/browser/signalr.min.js")]
+		[InlineData("lib/signalr/browser/signalr.min.js.map")]
+		[InlineData("lib/signalr-protocol-msgpack/browser/signalr-protocol-msgpack.min.js")]
+		[InlineData("lib/signalr-protocol-msgpack/browser/signalr-protocol-msgpack.min.js.map")]
+		[InlineData("lib/video.js/alt/video.core.novtt.min.js")]
+		[InlineData("lib/video.js/video-js.min.css")]
+		public async Task GetStaticAssetContent(string url)
+		{
+			//if (!Directory.Exists("wwwroot/lib/jquery")) return;
+
+			// Arrange
+			// Act
+			using var response = await _client.GetAsync($"{_client.BaseAddress}/{url}", HttpCompletionOption.ResponseHeadersRead);
+			// Assert
+			Assert.NotNull(response);
+
+			response.EnsureSuccessStatusCode();
+
+			// Assert
+			IEnumerable<string> c_type;
+			switch (Path.GetExtension(url).ToLowerInvariant())
+			{
+				case ".css":
+					Assert.IsType<StreamContent>(response.Content);
+					Assert.True(response.Content.Headers.TryGetValues("Content-Type", out c_type));
+					Assert.NotNull(c_type);
+					Assert.Equal("text/css", response.Content.Headers.ContentType.MediaType);
+					break;
+
+				case ".js":
+					Assert.IsType<StreamContent>(response.Content);
+					Assert.True(response.Content.Headers.TryGetValues("Content-Type", out c_type));
+					Assert.NotNull(c_type);
+					Assert.Equal("application/javascript", response.Content.Headers.ContentType.MediaType);
+					break;
+
+				case ".gif":
+				case ".png":
+				case ".svg":
+				case ".avif":
+				case ".jpg":
+				case ".jpeg":
+					Assert.IsType<StreamContent>(response.Content);
+					Assert.True(response.Content.Headers.TryGetValues("Content-Type", out c_type));
+					Assert.NotNull(c_type);
+					Assert.StartsWith("image/", response.Content.Headers.ContentType.MediaType);
+					break;
+
+				case ".map":
+					Assert.IsType<StreamContent>(response.Content);
+					Assert.True(response.Content.Headers.TryGetValues("Content-Type", out c_type));
+					Assert.NotNull(c_type);
+					//Assert.Equal("text/plain", response.Content.Headers.ContentType.MediaType);
+					break;
+
+				default:
+					Assert.False(response.IsSuccessStatusCode, "bad extension");
+					break;
+			}
+		}
 	}
 }

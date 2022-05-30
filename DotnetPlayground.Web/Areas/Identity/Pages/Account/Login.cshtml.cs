@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using DotnetPlayground.Helpers;
 using DotnetPlayground.Models;
@@ -105,7 +106,9 @@ namespace IdentitySample.DefaultUI
 				{
 					ModelState.AddModelError(string.Empty, "Invalid login attempt.");
 					ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-					return Page();
+					var ppp = Page();
+					ppp.StatusCode = (int)HttpStatusCode.Unauthorized;
+					return ppp;
 				}
 			}
 

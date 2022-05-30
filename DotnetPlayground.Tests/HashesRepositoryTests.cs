@@ -267,9 +267,8 @@ namespace Repositories
 			}
 
 			//2nd run
-			var db = SetupInMemoryDB();
-			db.Wait();
-			Setup = db.Result;
+			var db = await SetupInMemoryDB();
+			Setup = db;
 			try
 			{
 				// Run the test against one instance of the context

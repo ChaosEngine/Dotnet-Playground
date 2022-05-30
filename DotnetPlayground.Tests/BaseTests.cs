@@ -45,7 +45,12 @@ namespace DotnetPlayground.Tests
 								IServerTiming)> SetupInMemoryDB()
 		{
 			var builder = new ConfigurationBuilder()
-				.AddJsonFile("config.json", optional: false, reloadOnChange: true);
+				//.AddJsonFile("config.json", optional: false, reloadOnChange: true)
+				.AddInMemoryCollection(new Dictionary<string, string>
+				{
+					{ "ConnectionStrings:Sqlite", "DataSource=:memory:" },
+					{ "DBKind", "sqlite" }
+				});
 			var config = builder.Build();
 
 			var connection = new SqliteConnection(config.GetConnectionString("Sqlite"));

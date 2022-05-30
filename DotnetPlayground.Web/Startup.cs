@@ -473,6 +473,7 @@ namespace DotnetPlayground
 			app.Map("/dotnet", main =>
 			{
 				main.UseStaticFiles();
+				main.UseStaticFilesForInkBall();
 				main.UseRouting();
 				main.UseServerTiming();
 				main.UseSession();
@@ -481,7 +482,6 @@ namespace DotnetPlayground
 
 				main.UseEndpoints(endpoints =>
 				{
-					//endpoints.MapHub<InkBall.Module.Hubs.GameHub>("/" + InkBall.Module.Hubs.GameHub.HubName);
 					endpoints.PrepareSignalRForInkBall("/");
 					endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 					endpoints.MapRazorPages();
