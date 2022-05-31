@@ -49,8 +49,7 @@ main.container > hr {
 	background-color: darkred;
 }*/
 .bg-my-theme {
-  background-color: darkslateblue;
-  /*$themeColor is an injectted variable on gulp build pipeline by gulp-sass, gulp-header */
+  background-color: darkslateblue; /*$themeColor is an injectted variable on gulp build pipeline by gulp-sass, gulp-header */
 }
 
 .navbar-dark .navbar-nav .nav-link {
@@ -116,7 +115,6 @@ footer.container > noscript {
     width: 1280px !important;
     height: 960px !important;
   }
-
   #live.img-fluid {
     max-width: 1280px !important;
   }
