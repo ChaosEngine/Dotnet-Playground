@@ -98,11 +98,14 @@ namespace DotnetPlayground
 						.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
 						.AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true)
 #if DEBUG
-						.AddJsonFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "ins-override-config.json"), optional: true, reloadOnChange: true)
+						// .AddJsonFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "ins-override-config.json"), optional: true, reloadOnChange: true)
+						.AddSymLinkJsonFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "ins-override-config.json"), optional: true, reloadOnChange: true)
 #else
-						.AddJsonFile($"/etc/dotnet-playground/my-override-appsettings.json", optional: true, reloadOnChange: true)
+						//.AddJsonFile($"/etc/dotnet-playground/my-override-appsettings.json", optional: true, reloadOnChange: true)
+						.AddSymLinkJsonFile($"/etc/dotnet-playground/my-override-appsettings.json", optional: true, reloadOnChange: true)
 #endif
 						.AddEnvironmentVariables();
+
 					if (hostingContext.HostingEnvironment.IsDevelopment())
 						config.AddUserSecrets<Startup>(optional: true);
 				})
