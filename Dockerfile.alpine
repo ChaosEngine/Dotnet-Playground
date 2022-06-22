@@ -43,20 +43,20 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN mkdir -p /etc/dotnet-playground/ && mkdir -p /etc/dotnet-playground/..2021_05_10_09_52_07.053597227 \
     && ln -s /etc/dotnet-playground/..2021_05_10_09_52_07.053597227 /etc/dotnet-playground/..data \
-    && cat > /etc/dotnet-playground/..2021_05_10_09_52_07.053597227/my-override-appsettings.json <<EOF
-{
-  "Logging": {
-		"IncludeScopes": false,
-		"LogLevel": {
-			"Default": "Warning",
-			"System": "Warning",
-			"Microsoft": "Warning",
-			"Microsoft.AspNetCore.Hosting.Diagnostics": "Warning",
-			"DotnetPlayground.Services": "Warning"
-		}
-	}
-}
-EOF
+    && echo -e '{ \n\
+  "Logging": { \n\
+		"IncludeScopes": false, \n\
+		"LogLevel": { \n\
+			"Default": "Warning", \n\
+			"System": "Warning", \n\
+			"Microsoft": "Warning", \n\
+			"Microsoft.AspNetCore.Hosting.Diagnostics": "Warning", \n\
+			"DotnetPlayground.Services": "Warning" \n\
+		} \n\
+	} \n\
+}\n' > /etc/dotnet-playground/..2021_05_10_09_52_07.053597227/my-override-appsettings.json \
+    && chown -R "$USER": /etc/dotnet-playground/ && chmod 660 /etc/dotnet-playground/..2021_05_10_09_52_07.053597227/my-override-appsettings.json
+
 RUN ln -s /etc/dotnet-playground/..data/my-override-appsettings.json /etc/dotnet-playground/my-override-appsettings.json
 
 USER "$USER"
