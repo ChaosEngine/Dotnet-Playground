@@ -53,7 +53,7 @@ namespace DotnetPlayground
 	{
 		public IConfiguration Configuration { get; }
 
-#region Main
+		#region Main
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
@@ -94,16 +94,23 @@ namespace DotnetPlayground
 				.UseContentRoot(Directory.GetCurrentDirectory())
 				.ConfigureAppConfiguration((hostingContext, config) =>
 				{
+#if DEBUG
+					var override_config = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "ins-override-config.json");
+#else
+					var override_config = "/etc/dotnet-playground/my-override-appsettings.json";
+#endif
+					var fileInfo = new FileInfo(override_config);
+					if (fileInfo.LinkTarget != null)
+					{
+						FileSystemInfo targetInfo = fileInfo.ResolveLinkTarget(returnFinalTarget: true);
+						if (targetInfo.Exists)
+							override_config = targetInfo.FullName;
+					}
+
 					config.SetBasePath(hostingContext.HostingEnvironment.ContentRootPath)
 						.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
 						.AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true)
-#if DEBUG
-						// .AddJsonFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "ins-override-config.json"), optional: true, reloadOnChange: true)
-						.AddSymLinkJsonFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "ins-override-config.json"), optional: true, reloadOnChange: true)
-#else
-						//.AddJsonFile($"/etc/dotnet-playground/my-override-appsettings.json", optional: true, reloadOnChange: true)
-						.AddSymLinkJsonFile($"/etc/dotnet-playground/my-override-appsettings.json", optional: true, reloadOnChange: true)
-#endif
+						.AddJsonFile(override_config, optional: true, reloadOnChange: true)
 						.AddEnvironmentVariables();
 
 					if (hostingContext.HostingEnvironment.IsDevelopment())
@@ -135,7 +142,7 @@ namespace DotnetPlayground
 			await host.RunAsync();
 		}
 
-#endregion Main
+		#endregion Main
 
 		public Startup(IConfiguration configuration)
 		{
