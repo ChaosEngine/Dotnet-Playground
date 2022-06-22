@@ -97,6 +97,11 @@ namespace DotnetPlayground
 					config.SetBasePath(hostingContext.HostingEnvironment.ContentRootPath)
 						.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
 						.AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true)
+#if DEBUG
+						.AddJsonFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "ins-override-config.json"), optional: true, reloadOnChange: true)
+#else
+						.AddJsonFile($"/etc/dotnet-playground/my-override-appsettings.json", optional: true, reloadOnChange: true)
+#endif
 						.AddEnvironmentVariables();
 					if (hostingContext.HostingEnvironment.IsDevelopment())
 						config.AddUserSecrets<Startup>(optional: true);
@@ -186,8 +191,8 @@ namespace DotnetPlayground
 				loggingBuilder.AddConfiguration(Configuration.GetSection("Logging"));
 				loggingBuilder.AddConsole();
 
-				if (env.IsDevelopment())
-					loggingBuilder.AddDebug();
+				// if (env.IsDevelopment())
+				// 	loggingBuilder.AddDebug();
 			});
 #if DEBUG
 			//services.AddApplicationInsightsTelemetry();

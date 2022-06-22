@@ -41,6 +41,24 @@ COPY --from=build --chown="$USER":"$USER" /build/DotnetPlayground.Web/bin/$BUILD
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
+RUN mkdir -p /etc/dotnet-playground/ && mkdir -p /etc/dotnet-playground/..2021_05_10_09_52_07.053597227 \
+    && ln -s /etc/dotnet-playground/..2021_05_10_09_52_07.053597227 /etc/dotnet-playground/..data \
+    && cat > /etc/dotnet-playground/..2021_05_10_09_52_07.053597227/my-override-appsettings.json <<EOF
+{
+  "Logging": {
+		"IncludeScopes": false,
+		"LogLevel": {
+			"Default": "Warning",
+			"System": "Warning",
+			"Microsoft": "Warning",
+			"Microsoft.AspNetCore.Hosting.Diagnostics": "Warning",
+			"DotnetPlayground.Services": "Warning"
+		}
+	}
+}
+EOF
+RUN ln -s /etc/dotnet-playground/..data/my-override-appsettings.json /etc/dotnet-playground/my-override-appsettings.json
+
 USER "$USER"
 
 VOLUME /shared
