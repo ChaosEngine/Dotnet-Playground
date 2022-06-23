@@ -101,9 +101,9 @@ footer.container > noscript {
 	color: red
 }
 
-#spVersion::after {
-	content: $projectVersion /*$projectVersion is an injectted variable on gulp build pipeline by gulp-sass, gulp-header */
-}
+//#spVersion::after {
+//	content: $projectVersion //$projectVersion is an injectted variable on gulp build pipeline by gulp-sass, gulp-header
+//}
 
 /***************VirtualScroll start***************/
 .bootstrap-table {

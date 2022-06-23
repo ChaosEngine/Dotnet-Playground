@@ -11,6 +11,7 @@ const gulp = require("gulp"),
 	terser = require("gulp-terser"),
 	//babel = require("gulp-babel"),
 	rename = require("gulp-rename"),
+	replace = require('gulp-replace'),
 	sourcemaps = require('gulp-sourcemaps'),
 	path = require('path'),
 	webpack = require('webpack-stream'),
@@ -27,6 +28,8 @@ var paths = {
 	scss: webroot + "css/**/*.scss",
 	minCss: webroot + "css/**/*.min.css",
 	destCSSDir: webroot + "css/",
+	_LayoutFile: "Views/Shared/_Layout.cshtml",
+	dest_LayoutFile: "Views/Shared/",
 	concatCssDest: webroot + "css/site.css",
 	concatCssDestMin: webroot + "css/site.min.css",
 	concatJsDest: webroot + "js/site.min.js",
@@ -43,13 +46,14 @@ var paths = {
 	inkBallJsRelative: "../InkBall/src/InkBall.Module/IBwwwroot/js/",
 	inkBallCssRelative: "../InkBall/src/InkBall.Module/IBwwwroot/css/"
 };
+var argVars = { env: undefined, colorTheme: undefined, projectVersion: undefined };
 
 const minCSS = function (sourcePattern, notPattern, dest) {
 	return gulp.src([sourcePattern, "!" + notPattern])
 		.pipe(concat(dest))
 		.pipe(sourcemaps.init())
 		.pipe(cleanCSS())
-		.pipe(sourcemaps.mapSources(function(sourcePath, file) {
+		.pipe(sourcemaps.mapSources(function (sourcePath, file) {
 			// console.log(`OMG-mapSources A '${sourcePath}', '${file.basename}' Z`);
 			return file.basename.replace('.min', '');
 		}))
@@ -190,7 +194,7 @@ const fileMinifyJSFunction = function (src, dest, toplevel = false) {
 		.pipe(terser({
 			toplevel: toplevel
 		}))
-		.pipe(sourcemaps.mapSources(function(sourcePath, file) {
+		.pipe(sourcemaps.mapSources(function (sourcePath, file) {
 			// console.log(`OMG-mapSources A '${sourcePath}', '${file.basename}' Z`);
 			return file.basename.replace('.min', '');
 		}))
@@ -256,7 +260,7 @@ const minJs = gulp.series(minSWJsJs,
 			.pipe(sourcemaps.init())
 			.pipe(terser())
 			.pipe(rename({ suffix: '.min' }))
-			.pipe(sourcemaps.mapSources(function(sourcePath, file) {
+			.pipe(sourcemaps.mapSources(function (sourcePath, file) {
 				// console.log(`OMG-mapSources A '${sourcePath}', '${file.basename}' Z`);
 				return file.basename.replace('.min', '');
 			}))
@@ -293,10 +297,14 @@ const processInputArgs = function () {
 		console.log('Argv => ' + JSON.stringify(params));
 	}
 
-	if (projectVersion !== undefined && projectVersion.length > 0)
-		projectVersion = ', Version: ' + projectVersion;
-	else
-		projectVersion = ', Debug: xx.yy.zz-ssss';
+	if (projectVersion !== undefined && projectVersion.length > 0) {
+		//production
+		//projectVersion = ', Version: ' + projectVersion;
+	}
+	else {
+		//debug
+		projectVersion = 'xx.yy.zz-debug';
+	}
 
 	switch (env) {
 		case 'prod':
@@ -317,18 +325,30 @@ const processInputArgs = function () {
 };
 
 const processSCSS = function (sourcePattern, notPattern) {
-	const { colorTheme, projectVersion } = processInputArgs();
-
 	return gulp.src([sourcePattern, "!" + notPattern])
-		.pipe(header('$themeColor: ${color};\n$projectVersion: ${version};\n', { color: colorTheme, version: `'${projectVersion}'` }))
+		.pipe(header('$themeColor: ${color};\n', { color: argVars.colorTheme }))
 		.pipe(sass().on('error', sass.logError))
 		.pipe(gulp.dest(notPattern));
 };
 
-const minScss = gulp.series(function scssToCss() {
+const minScss = gulp.series(function (cb) {
+	const { env, colorTheme, projectVersion } = processInputArgs();
+
+	argVars.env = env;
+	argVars.colorTheme = colorTheme;
+	argVars.projectVersion = projectVersion;
+	return cb();
+}, function scssToCss() {
 	return processSCSS(paths.scss, paths.destCSSDir);
 }, function runTaskMinCSS() {
 	return minCSS(paths.css, paths.minCss, paths.concatCssDestMin);
+}, function processLayoutFooter() {
+	const sourcePattern = paths._LayoutFile;
+	const notPattern = paths.dest_LayoutFile;
+
+	return gulp.src([sourcePattern, "!" + notPattern])
+		.pipe(replace('xx.yy.zz-debug', argVars.projectVersion))
+		.pipe(gulp.dest(notPattern));
 });
 
 exports.min = gulp.parallel(minJs, minInkball, minScss);
