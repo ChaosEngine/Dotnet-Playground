@@ -72,6 +72,10 @@ footer.container > noscript {
   color: red;
 }
 
+#spVersion::after {
+  content: ", Debug: xx.yy.zz-ssss";
+}
+
 /***************VirtualScroll start***************/
 .bootstrap-table button.btn .bi-arrow-clockwise:after {
   content: "↻";

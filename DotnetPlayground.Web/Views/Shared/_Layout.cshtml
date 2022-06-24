@@ -1,4 +1,4 @@
-@using Microsoft.Extensions.Options
+﻿@using Microsoft.Extensions.Options
 @inject Microsoft.Extensions.Configuration.IConfiguration Conf
 @inject IOptions<DBConfigShower> DBConfigShowerOptions
 @{
@@ -124,7 +124,7 @@
     </main>
     <footer class="container">
         <noscript>Your browser does not support JavaScript! REALLY?!</noscript>
-        <p>&copy; 2022 - @Conf["AppTitleName"], Version: xx.yy.zz-debug</p>
+        <p id="spVersion">&copy; 2022 - @Conf["AppTitleName"]</p>
     </footer>
     <environment include="Development">
         <script src="~/lib/jquery/jquery.min.js"></script>
