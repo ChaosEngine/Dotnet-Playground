@@ -81,7 +81,7 @@
 		"qrcodejs": "1.0.0",
 		"@microsoft/signalr": "6.0.5",
 		"@microsoft/signalr-protocol-msgpack": "6.0.5",
-		"msgpack5": "6.0.0",
+		"msgpack5": "6.0.1",
 		"ace-builds": "1.5.1",
 		"chance": "1.1.8"
 	},
