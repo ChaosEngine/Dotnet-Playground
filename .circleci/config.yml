@@ -1,26 +1,56 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
-
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
+orbs:
+  win: circleci/windows@4.1
 jobs:
-  say-hello:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
-    docker:
-      - image: cimg/base:stable
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+  test:
+    executor: win/server-2022
     steps:
       - checkout
       - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
-
-# Invoke jobs via workflows
-# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+          name: Update submodules
+          command: |
+            git submodule sync
+            git submodule update --init --recursive --jobs 8
+      - restore_cache:
+          keys:
+            - dotnet-packages-v1-{{ checksum "DotnetPlayground.Web/DotnetPlayground.Web.csproj" }}
+      # - run:
+      #     name: "Print Working Directory"
+      #     command: dir
+      # - run:
+      #     name: "Dotnet version"
+      #     command: dotnet.exe --info
+      - run:
+          name: "Install project dependencies"
+          command: dotnet.exe restore
+      - save_cache:
+          paths:
+            - C:\Users\circleci\.nuget\packages
+          key: dotnet-packages-v1-{{ checksum "DotnetPlayground.Web/DotnetPlayground.Web.csproj" }}
+      - run:
+          name: "Run Application Tests"
+          command: |
+            $env:DBKind="sqlite" ; $env:ConnectionStrings__Sqlite="Filename=./bin/Debug/net6.0/Blogging.db"
+            dotnet.exe test -v n --results-directory:test_coverage --collect:"Code Coverage"
+      - store_artifacts:
+          path: C:\Users\circleci\project\test_coverage
+  build:
+    description: Build application with Release configuration
+    executor: win/server-2022
+    steps:
+      - checkout
+      - run:
+          name: Update submodules
+          command: |
+            git submodule sync
+            git submodule update --init --recursive --jobs 8
+      - run:
+          name: "Build Application according to some given configuration"
+          command: dotnet.exe publish -c Release --self-contained  -r win10-x64 DotnetPlayground.Web
 workflows:
-  say-hello-workflow:
+  test_and_build:
     jobs:
-      - say-hello
+      - test
+      - build:
+          requires:
+            - test
