@@ -1,0 +1,56 @@
+version: 2.1
+orbs:
+  win: circleci/windows@4.1
+jobs:
+  test:
+    executor: win/server-2022
+    steps:
+      - checkout
+      - run:
+          name: Update submodules
+          command: |
+            git submodule sync
+            git submodule update --init --recursive --jobs 8
+      - restore_cache:
+          keys:
+            - dotnet-packages-v1-{{ checksum "DotnetPlayground.Web/DotnetPlayground.Web.csproj" }}
+      # - run:
+      #     name: "Print Working Directory"
+      #     command: dir
+      # - run:
+      #     name: "Dotnet version"
+      #     command: dotnet.exe --info
+      - run:
+          name: "Install project dependencies"
+          command: dotnet.exe restore
+      - save_cache:
+          paths:
+            - C:\Users\circleci\.nuget\packages
+          key: dotnet-packages-v1-{{ checksum "DotnetPlayground.Web/DotnetPlayground.Web.csproj" }}
+      - run:
+          name: "Run Application Tests"
+          command: |
+            $env:DBKind="sqlite" ; $env:ConnectionStrings__Sqlite="Filename=./bin/Debug/net6.0/Blogging.db"
+            dotnet.exe test -v n --results-directory:test_coverage --collect:"Code Coverage"
+      - store_artifacts:
+          path: C:\Users\circleci\project\test_coverage
+  build:
+    description: Build application with Release configuration
+    executor: win/server-2022
+    steps:
+      - checkout
+      - run:
+          name: Update submodules
+          command: |
+            git submodule sync
+            git submodule update --init --recursive --jobs 8
+      - run:
+          name: "Build Application according to some given configuration"
+          command: dotnet.exe publish -c Release --self-contained  -r win10-x64 DotnetPlayground.Web
+workflows:
+  test_and_build:
+    jobs:
+      - test
+      - build:
+          requires:
+            - test
