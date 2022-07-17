@@ -8,6 +8,12 @@ body {
   position: relative;
 }
 
+@media (prefers-color-scheme: dark) {
+  body {
+    color: #d3d3d3;
+    background-color: #191d21;
+  }
+}
 /* Wrapping element */
 /* Set some basic padding to keep content from hitting the edges */
 .body-content {
