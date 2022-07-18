@@ -58,6 +58,8 @@
                 else
                     console.log('ace csharpMode not loaded!');
                 //editor.setOption("readOnly", true);
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+                    editor.setTheme('ace/theme/chaos');
 
                 editor.on('focus', function () {
                     AceSetCommandEnabled(editor, "indent", true);

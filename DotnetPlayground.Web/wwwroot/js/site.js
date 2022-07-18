@@ -116,7 +116,7 @@ $(function () {
 		org_trace.call(this, arguments);
 	};
 
-	console.debug = function (message) {
+	console.debug = function () {
 		//ajaxLog(logLevel.Debug, message);
 		org_debug.call(this, arguments);
 	};
@@ -144,6 +144,38 @@ $(function () {
 	window.addEventListener('offline', updateOnlineStatus);
 	if (navigator.onLine === false)
 		updateOnlineStatus();
+
+
+
+
+	//Taken from https://anduin.aiursoft.com/post/2020/3/27/bootstrap-dark-theme-minimum-style
+	const initDarkTheme = function () {
+		if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+			// dark mode
+			$('.navbar-light').addClass('navbar-dark');
+			$('.navbar-light').removeClass('navbar-light');
+			$('body').addClass('bg-dark');
+			$('body').css('color', 'white');
+			$('.modal-content').addClass('bg-dark');
+			$('.modal-content').css('color', 'white');
+			$('.container-fluid').addClass('bg-dark');
+			$('.container-fluid').css('color', 'white');
+			$('.list-group-item').addClass('bg-dark');
+			$('.list-group-item').css('color', 'white');
+			$('.content-wrapper').addClass('bg-dark');
+			$('.card').addClass('bg-dark');
+			$('.card-body').css('border', '1px solid rgba(255,255,255,.125)');
+			$('.bg-light').addClass('bg-dark');
+			$('.bg-light').removeClass('bg-light');
+			$('.bg-white').addClass('bg-dark');
+			$('.bg-white').removeClass('bg-white');
+			$('.bd-footer').addClass('bg-dark');
+			$('table').addClass('table-dark');
+		}
+	};
+	initDarkTheme();
+	window.matchMedia('(prefers-color-scheme: dark)').addEventListener("change", initDarkTheme);
+
 });
 
 window.onerror = function (msg, url, line, col, error) {

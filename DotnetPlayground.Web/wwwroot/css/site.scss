@@ -9,10 +9,20 @@ body {
 
 @media (prefers-color-scheme: dark) {
     body {
-        color: #d3d3d3;
-        background-color: #191d21;
+        color: white;
+        background-color: rgb(33, 37, 41);
     }
 	// More styles (colors-only)
+	.fixed-table-loading {
+        color: white !important;
+		//same as above main dark background
+        background-color: rgb(33, 37, 41) !important;
+	}
+	.card {
+		--bs-bg-opacity: 1;
+		//slightly darker
+		background-color: rgb(39, 49, 59) !important;
+	}
 }
 
 /* Wrapping element */
