@@ -49,7 +49,9 @@
                     maxLines: 30,
                     wrap: true,
                     showPrintMargin: false,
-                    autoScrollEditorIntoView: true
+                    autoScrollEditorIntoView: true,
+                    theme: window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ?
+                        'ace/theme/chaos' : 'ace/theme/textmate'
                 });
                 const csharp = ace.require("ace/mode/csharp");
                 if (csharp) {
@@ -59,8 +61,6 @@
                 else
                     console.log('ace csharpMode not loaded!');
                 //editor.setOption("readOnly", true);
-                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
-                    editor.setTheme('ace/theme/chaos');
 
                 editor.on('focus', function () {
                     AceSetCommandEnabled(editor, "indent", true);
