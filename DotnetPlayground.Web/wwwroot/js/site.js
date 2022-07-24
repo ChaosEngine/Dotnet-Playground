@@ -24,8 +24,8 @@ function clientValidate(button) {
 	md.update(key);
 	const sha = md.digest().toHex();
 
-	tr.find("td").eq(1).html("<strong style='color:" + (md5 === orig_md5 ? "green" : "red") + "'>" + orig_md5 + "</strong>");
-	tr.find("td").eq(2).html("<strong style='color:" + (sha === orig_sha ? "green" : "red") + "'>" + orig_sha + "</strong>");
+	tr.find("td").eq(1).css("color", (md5 === orig_md5 ? "green" : "red")).css('font-weight', 'bold');
+	tr.find("td").eq(2).css("color", (sha === orig_sha ? "green" : "red")).css('font-weight', 'bold');
 }
 
 /**
@@ -79,6 +79,53 @@ $(function () {
 					console.log('Service Worker Ready');
 				});
 		}
+	}
+
+	function registerThemeChangeHandler() {
+		//Taken from https://anduin.aiursoft.com/post/2020/3/27/bootstrap-dark-theme-minimum-style
+		const initDarkTheme = function () {
+			if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+				// dark mode
+				$('.navbar-light').addClass('navbar-dark').removeClass('navbar-light');
+				$('body').addClass('bg-dark').css('color', 'white');
+				$('.modal-content').addClass('bg-dark').css('color', 'white');
+				// $('.container-fluid').addClass('bg-dark').css('color', 'white');
+				$('.form-control').css('color', 'white').css('background-color', 'rgb(33, 37, 41)');
+				$('.form-select').addClass('bg-dark text-white').removeClass('bg-light text-black');
+				$('.list-group-item').addClass('bg-dark').css('color', 'white');
+				$('.content-wrapper').addClass('bg-dark');
+				$('.card').addClass('bg-dark');
+				$('.card-body').css('border', '1px solid rgba(255,255,255,.125)');
+				$('.bg-light').addClass('bg-dark').removeClass('bg-light');
+				$('.bg-white').addClass('bg-dark').removeClass('bg-white');
+				$('.bd-footer').addClass('bg-dark');
+				$('table').addClass('table-dark').removeClass('table-light');
+				$('#editor.ace_editor').addClass('ace-chaos ace_dark').removeClass('ace-tm');
+			}
+		};
+		const initLightTheme = function () {
+			if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+				// light mode
+				// $('.navbar-dark').addClass('navbar-light').removeClass('navbar-dark');
+				$('body').removeClass('bg-dark').css('color', 'black');
+				$('.modal-content').addClass('bg-light').css('color', 'rgb(33, 37, 41)');
+				// $('.container-fluid').addClass('bg-light').css('color', 'rgb(33, 37, 41)');
+				$('.form-control').css('color', 'rgb(33, 37, 41)').css('background-color', 'white');
+				$('.form-select').addClass('bg-light text-black').removeClass('bg-dark text-white');
+				$('.list-group-item').addClass('bg-light').css('color', 'rgb(33, 37, 41)');
+				$('.content-wrapper').addClass('bg-light');
+				$('.card').removeClass('bg-dark');
+				$('.card-body').css('border', '1px solid rgba(0,0,0,.175)');
+				$('.bg-light').addClass('bg-light').removeClass('bg-dark');
+				$('.bg-white').addClass('bg-light').removeClass('bg-black');
+				$('.bd-footer').addClass('bg-light');
+				$('table')/* .addClass('table-light') */.removeClass('table-dark');
+				$('#editor.ace_editor').removeClass('ace-chaos ace_dark').addClass('ace-tm');
+			}
+		};
+		initDarkTheme();
+		window.matchMedia('(prefers-color-scheme: dark)').addEventListener("change", initDarkTheme);
+		window.matchMedia('(prefers-color-scheme: light)').addEventListener("change", initLightTheme);
 	}
 
 	function updateOnlineStatus() {
@@ -145,75 +192,7 @@ $(function () {
 	if (navigator.onLine === false)
 		updateOnlineStatus();
 
-
-
-
-	//Taken from https://anduin.aiursoft.com/post/2020/3/27/bootstrap-dark-theme-minimum-style
-	const initDarkTheme = function () {
-		if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-			// dark mode
-			$('.navbar-light').addClass('navbar-dark');
-			$('.navbar-light').removeClass('navbar-light');
-			$('body').addClass('bg-dark');
-			$('body').css('color', 'white');
-			$('.modal-content').addClass('bg-dark');
-			$('.modal-content').css('color', 'white');
-			$('.container-fluid').addClass('bg-dark');
-			$('.container-fluid').css('color', 'white');
-			$('.form-control').css('color', 'white');
-			$('.form-control').css('background-color', 'rgb(33, 37, 41)');
-			$('.form-select').addClass('bg-dark text-white');
-			$('.form-select').removeClass('bg-light text-black');
-			$('.list-group-item').addClass('bg-dark');
-			$('.list-group-item').css('color', 'white');
-			$('.content-wrapper').addClass('bg-dark');
-			$('.card').addClass('bg-dark');
-			$('.card-body').css('border', '1px solid rgba(255,255,255,.125)');
-			$('.bg-light').addClass('bg-dark');
-			$('.bg-light').removeClass('bg-light');
-			$('.bg-white').addClass('bg-dark');
-			$('.bg-white').removeClass('bg-white');
-			$('.bd-footer').addClass('bg-dark');
-			$('table').addClass('table-dark');
-			$('table').removeClass('table-light');
-			$('#editor.ace_editor').addClass('ace-chaos ace_dark');
-			$('#editor.ace_editor').removeClass('ace-tm');
-		}
-	};
-	const initLightTheme = function () {
-		if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-			// light mode
-			// $('.navbar-dark').addClass('navbar-light');
-			// $('.navbar-dark').removeClass('navbar-dark');
-			$('body').removeClass('bg-dark');
-			$('body').css('color', 'black');
-			$('.modal-content').addClass('bg-light');
-			$('.modal-content').css('color', 'rgb(33, 37, 41)');
-			$('.container-fluid').addClass('bg-light');
-			$('.container-fluid').css('color', 'rgb(33, 37, 41)');
-			$('.form-control').css('color', 'rgb(33, 37, 41)');
-			$('.form-control').css('background-color', 'white');
-			$('.form-select').addClass('bg-light text-black');
-			$('.form-select').removeClass('bg-dark text-white');
-			$('.list-group-item').addClass('bg-light');
-			$('.list-group-item').css('color', 'rgb(33, 37, 41)');
-			$('.content-wrapper').addClass('bg-light');
-			$('.card').addClass('bg-light');
-			$('.card-body').css('border', '1px solid rgba(0,0,0,.175)');
-			$('.bg-light').addClass('bg-light');
-			$('.bg-light').removeClass('bg-dark');
-			$('.bg-white').addClass('bg-light');
-			$('.bg-white').removeClass('bg-black');
-			$('.bd-footer').addClass('bg-light');
-			$('table').addClass('table-light');
-			$('table').removeClass('table-dark');
-			$('#editor.ace_editor').removeClass('ace-chaos ace_dark');
-			$('#editor.ace_editor').addClass('ace-tm');
-		}
-	};
-	initDarkTheme();
-	window.matchMedia('(prefers-color-scheme: dark)').addEventListener("change", initDarkTheme);
-	window.matchMedia('(prefers-color-scheme: light)').addEventListener("change", initLightTheme);
+	registerThemeChangeHandler();
 
 });
 
