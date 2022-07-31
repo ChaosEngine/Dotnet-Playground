@@ -13,7 +13,7 @@ body {
     color: white;
     background-color: rgb(33, 37, 41);
   }
-  .fixed-table-loading {
+  .form-select, .form-control, .accordion-item, .accordion-button, .fixed-table-loading {
     color: white !important;
     background-color: rgb(33, 37, 41) !important;
   }

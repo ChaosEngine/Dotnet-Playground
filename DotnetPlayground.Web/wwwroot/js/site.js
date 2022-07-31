@@ -90,8 +90,8 @@ $(function () {
 				$('body').addClass('bg-dark').css('color', 'white');
 				$('.modal-content').addClass('bg-dark').css('color', 'white');
 				// $('.container-fluid').addClass('bg-dark').css('color', 'white');
-				$('.form-control').css('color', 'white').css('background-color', 'rgb(33, 37, 41)');
-				$('.form-select').addClass('bg-dark text-white').removeClass('bg-light text-black');
+				// $('.form-control').css('color', 'white').css('background-color', 'rgb(33, 37, 41)');
+				// $('.form-select').addClass('bg-dark text-white').removeClass('bg-light text-black');
 				$('.list-group-item').addClass('bg-dark').css('color', 'white');
 				$('.content-wrapper').addClass('bg-dark');
 				$('.card').addClass('bg-dark');
@@ -110,8 +110,8 @@ $(function () {
 				$('body').removeClass('bg-dark').css('color', 'black');
 				$('.modal-content').addClass('bg-light').css('color', 'rgb(33, 37, 41)');
 				// $('.container-fluid').addClass('bg-light').css('color', 'rgb(33, 37, 41)');
-				$('.form-control').css('color', 'rgb(33, 37, 41)').css('background-color', 'white');
-				$('.form-select').addClass('bg-light text-black').removeClass('bg-dark text-white');
+				// $('.form-control').css('color', 'rgb(33, 37, 41)').css('background-color', 'white');
+				// $('.form-select').addClass('bg-light text-black').removeClass('bg-dark text-white');
 				$('.list-group-item').addClass('bg-light').css('color', 'rgb(33, 37, 41)');
 				$('.content-wrapper').addClass('bg-light');
 				$('.card').removeClass('bg-dark');
