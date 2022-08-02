@@ -45,6 +45,13 @@ jobs:
             git submodule sync
             git submodule update --init --recursive --jobs 8
       - run:
+          name: Install dependencies
+          command: |
+            nvm install lts
+            nvm use lts
+            node --version
+            npm --version
+      - run:
           name: "Build Application according to some given configuration"
           command: dotnet.exe publish -c Release --self-contained  -r win10-x64 DotnetPlayground.Web
 workflows:
