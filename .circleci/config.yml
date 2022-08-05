@@ -40,9 +40,9 @@ jobs:
           command: |
               dotnet tool install -g trx2junit
               $env:Path += ";$HOME\.dotnet\tools"
-              trx2junit C:\Users\circleci\project\test_coverage\tests\**\TestResults\*.trx
+              trx2junit C:\Users\circleci\project\test_coverage\*.trx
       - store_test_results:
-          path: tests\TestResults
+          path: C:\Users\circleci\project\test_coverage\
   build:
     description: Build application with Release configuration
     executor: win/server-2022
