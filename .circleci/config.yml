@@ -31,7 +31,7 @@ jobs:
           name: "Run Application Tests"
           command: |
             $env:DBKind="sqlite" ; $env:ConnectionStrings__Sqlite="Filename=./bin/Debug/net6.0/Blogging.db"
-            dotnet.exe test -v n --results-directory:test_coverage --collect:"Code Coverage"
+            dotnet.exe test -v n --results-directory:"C:\Users\circleci\project\test_coverage" --collect:"Code Coverage"
       - store_artifacts:
           path: C:\Users\circleci\project\test_coverage
   build:
