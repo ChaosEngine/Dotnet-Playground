@@ -31,9 +31,18 @@ jobs:
           name: "Run Application Tests"
           command: |
             $env:DBKind="sqlite" ; $env:ConnectionStrings__Sqlite="Filename=./bin/Debug/net6.0/Blogging.db"
-            dotnet.exe test -v n --results-directory:"C:\Users\circleci\project\test_coverage" --collect:"Code Coverage"
+            dotnet.exe test -v n --results-directory:"C:\Users\circleci\project\test_coverage" --collect:"Code Coverage" --logger "trx"
       - store_artifacts:
           path: C:\Users\circleci\project\test_coverage
+      - run:
+          name: test results
+          when: always
+          command: |
+              dotnet tool install -g trx2junit
+              export PATH="$PATH:/root/.dotnet/tools"
+              trx2junit tests/**/TestResults/*.trx
+      - store_test_results:
+          path: tests/TestResults
   build:
     description: Build application with Release configuration
     executor: win/server-2022
