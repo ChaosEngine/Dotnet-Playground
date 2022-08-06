@@ -221,7 +221,7 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 		img.setAttribute('data-last-modified', 'refreshing');
 
 		try {
-			const response = await fetch(g_AppRootPath + /* "bad_"+ */"WebCamImages/?handler=live", {
+			const response = await fetch(g_AppRootPath + "WebCamImages/?handler=live", {
 				method: 'GET',
 				headers: { 'Cache-Control': 'no-cache' }
 			});

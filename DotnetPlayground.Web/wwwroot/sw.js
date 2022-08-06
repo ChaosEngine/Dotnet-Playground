@@ -2,7 +2,7 @@
 "use strict";
 //Offline mode service worker implementation
 
-const CACHE_NAME = 'cache';
+let CACHE_NAME = 'cache';
 
 self.addEventListener('install', function (event) {
 	const swUrl = new URL(self.location);
@@ -10,6 +10,10 @@ self.addEventListener('install', function (event) {
 	let isDev = swUrl.searchParams.get('isDev');
 	isDev = isDev === true || isDev === "true" || isDev === 1 || isDev === "1" ? true : false;
 	const suffix = isDev ? '' : '.min';
+	const version = swUrl.searchParams.get('version');
+	if (version !== "" && version !== "GIT_BRANCH_GIT_HASH") {
+		CACHE_NAME += '_' + version;
+	}
 
 	let RESOURCES = [
 		'',
