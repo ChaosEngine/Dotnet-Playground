@@ -79,10 +79,10 @@
 		"blueimp-gallery": "3.4.0",
 		"video.js": "7.20.1",
 		"qrcodejs": "1.0.0",
-		"@microsoft/signalr": "6.0.7",
-		"@microsoft/signalr-protocol-msgpack": "6.0.7",
+		"@microsoft/signalr": "6.0.8",
+		"@microsoft/signalr-protocol-msgpack": "6.0.8",
 		"msgpack5": "6.0.2",
-		"ace-builds": "1.8.1",
+		"ace-builds": "1.9.4",
 		"chance": "1.1.8"
 	},
 	"overrides": {
