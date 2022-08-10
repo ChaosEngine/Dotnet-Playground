@@ -85,19 +85,20 @@ namespace DotnetPlayground.Helpers
 
 		protected async override Task<AuthenticationTicket> CreateTicketAsync(ClaimsIdentity identity, AuthenticationProperties properties, OAuthTokenResponse tokens)
 		{
+			var token = Context.RequestAborted;
 			using (var request = new HttpRequestMessage(HttpMethod.Get, Options.UserInformationEndpoint))
 			{
 				request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", tokens.AccessToken);
-				request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+				request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(System.Net.Mime.MediaTypeNames.Application.Json));
 
-				using (var response = await Backchannel.SendAsync(request, Context.RequestAborted))
+				using (var response = await Backchannel.SendAsync(request, token))
 				{
 					if (!response.IsSuccessStatusCode)
 					{
 						throw new HttpRequestException($"An error occurred when retrieving user information ({response.StatusCode}). Please check if the authentication information is correct and the corresponding API is enabled.");
 					}
 
-					var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync()).RootElement;
+					var payload = JsonDocument.Parse(await response.Content.ReadAsStringAsync(token)).RootElement;
 					var context = new OAuthCreatingTicketContext(new ClaimsPrincipal(identity), properties, Context, Scheme, Options, Backchannel, tokens, payload);
 					context.RunClaimActions();
 
