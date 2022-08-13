@@ -50,6 +50,17 @@
 	"browserslist": [
 		"defaults"
 	],
+	"jest": {
+		"clearMocks": true,
+		"collectCoverage": false,
+		"coverageDirectory": "coverage",
+		"coverageProvider": "v8",
+		"roots": [
+			"../DotnetPlayground.Tests/client.jest.tests/",
+			"../InkBall/test/InkBall.Tests/client.jest.tests/"
+		],
+		"testEnvironment": "jsdom"
+	},
 	"devDependencies": {
 		"eslint": "8.25.0",
 		"fs-extra": "10.1.0",
