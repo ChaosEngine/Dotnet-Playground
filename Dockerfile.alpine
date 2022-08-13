@@ -22,7 +22,7 @@ COPY ./*.sln ./NuGet.config ./
 RUN dotnet restore -r alpine-x64
 
 COPY . .
-RUN sed -i -e "s/GIT_HASH/$SOURCE_COMMIT/g" -e "s/GIT_BRANCH/$SOURCE_BRANCH/g" DotnetPlayground.Web/Views/Home/About.cshtml
+RUN sed -i -e "s/GIT_HASH/$SOURCE_COMMIT/g" -e "s/GIT_BRANCH/$SOURCE_BRANCH/g" DotnetPlayground.Web/wwwroot/js/site.js
 RUN dotnet test --no-restore -v m
 RUN dotnet publish --no-restore -c $BUILD_CONFIG --self-contained -r alpine-x64 \
     -p:PublishTrimmed=true \

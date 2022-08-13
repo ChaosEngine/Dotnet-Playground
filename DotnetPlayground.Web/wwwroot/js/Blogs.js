@@ -189,7 +189,7 @@ function BlogsOnLoad() {
 			'New Post' +
 			'</a>' +
 			'<div class="collapse mt-2 card-body border" id="addPost_' + blog_id + '">' +
-			'<form method="post" action="Blogs/AddPost/' + blog_id + '/false" class="postForm row g-2" data-id="' + blog_id + '">' +
+			'<form method="post" action="Blogs/AddPost/' + blog_id + '/false" class="postForm row g-2 m-3" data-id="' + blog_id + '">' +
 			'<div class="text-danger validation-summary-valid" data-valmsg-summary="true">' +
 			'<ul><li style="display:none"></li></ul>' +
 			'</div>' +

@@ -13,7 +13,7 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 	/**
 	 * on live img refresh click
 	 */
-	function RefreshLiveImage() {
+	async function RefreshLiveImage() {
 		const live = document.querySelector("#live");
 		if (live !== null) {
 			const data_last_modified = live.getAttribute('data-last-modified');
@@ -23,7 +23,7 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 				let msg = String(secs_between) + ' secs elapsed since last live-image load';
 				if (secs_between > liveImageExpireTimeInSeconds) {
 					msg += ', reloading!';
-					LoadImageAsBinaryArray(live);
+					await LoadImageAsBinaryArray(live);
 				}
 				console.log(msg);
 			}
@@ -217,36 +217,35 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 		});
 	}
 
-	function LoadImageAsBinaryArray(img) {
+	async function LoadImageAsBinaryArray(img) {
 		img.setAttribute('data-last-modified', 'refreshing');
 
-		// Simulate a call to Dropbox or other service that can
-		// return an image as an ArrayBuffer.
-		const xhr = new XMLHttpRequest();
-		// Use JSFiddle logo as a sample image to avoid complicating
-		// this example with cross-domain issues.
-		xhr.open("GET", g_AppRootPath + "WebCamImages/?handler=live", true);
-		xhr.setRequestHeader('Cache-Control', 'no-cache');
-		// Ask for the result as an ArrayBuffer.
-		xhr.responseType = "arraybuffer";
-		xhr.onload = function () {
-			// Obtain a blob: URL for the image data.
-			const arrayBufferView = new Uint8Array(this.response);
-			const blob = new Blob([arrayBufferView], { type: "image/jpeg" });
+		try {
+			const response = await fetch(g_AppRootPath + "WebCamImages/?handler=live", {
+				method: 'GET',
+				headers: { 'Cache-Control': 'no-cache' }
+			});
+			if (response.ok !== true)
+				throw new Error('response not ok');
 
-			const hdr_last_modified = this.getResponseHeader('Last-Modified');
+			const headers = response.headers;
+			const hdr_last_modified = headers.get('Last-Modified');
 
-			const urlCreator = window.URL || window.webkitURL;
-			const imageUrl = urlCreator.createObjectURL(blob);
+			const blob = await response.blob();
+
+			const imageUrl = URL.createObjectURL(blob);
 			img.onload = function () {
-				urlCreator.revokeObjectURL(this.src);
+				URL.revokeObjectURL(this.src);
 			};
 			img.src = imageUrl;
 			img.setAttribute('data-last-modified', hdr_last_modified);
 
 			last_refresh = new Date();
-		};
-		xhr.send();
+		} catch (err) {
+			img.setAttribute('data-last-modified', new Date().toUTCString());
+			last_refresh = new Date();
+			alert(err.toString());
+		}
 	}
 
 	function GenerateAnnualMovie(event) {
@@ -309,21 +308,21 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 			ReplImg(value);
 		}
 		else {
-			const empty = "images/no_img.svg";
+			const no_img = "images/no_img.svg";
 
 			if (!value.onmouseover)
 				value.onmouseover = ReplImg;
-			const empty_img = g_AppRootPath + empty;
+			const empty_img = g_AppRootPath + no_img;
 			value.src = empty_img;
 
 			//const source = value.parentNode.getElementsByTagName('source')[0];
 			let source = document.createElement('source');
 			source.type = "image/svg+xml";
-			source.srcset = empty;
+			source.srcset = no_img;
 			value.parentNode.insertBefore(source, value);
 			source = document.createElement('source');
 			source.type = "image/svg+xml";
-			source.srcset = empty;
+			source.srcset = no_img;
 			value.parentNode.insertBefore(source, value);
 		}
 	});
@@ -424,7 +423,7 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 		}
 	});
 
-	
+
 	if ($('#secretAction').is(":visible") === true) {
 		$('#btnAnnualMovieGenerator').prop('disabled', false);
 		$('#divAnnualMovieGenerator').on('show.bs.collapse', function (event) {

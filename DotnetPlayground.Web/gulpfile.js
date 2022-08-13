@@ -49,7 +49,7 @@ const minCSS = function (sourcePattern, notPattern, dest) {
 		.pipe(concat(dest))
 		.pipe(sourcemaps.init())
 		.pipe(cleanCSS())
-		.pipe(sourcemaps.mapSources(function(sourcePath, file) {
+		.pipe(sourcemaps.mapSources(function (sourcePath, file) {
 			// console.log(`OMG-mapSources A '${sourcePath}', '${file.basename}' Z`);
 			return file.basename.replace('.min', '');
 		}))
@@ -190,7 +190,7 @@ const fileMinifyJSFunction = function (src, dest, toplevel = false) {
 		.pipe(terser({
 			toplevel: toplevel
 		}))
-		.pipe(sourcemaps.mapSources(function(sourcePath, file) {
+		.pipe(sourcemaps.mapSources(function (sourcePath, file) {
 			// console.log(`OMG-mapSources A '${sourcePath}', '${file.basename}' Z`);
 			return file.basename.replace('.min', '');
 		}))
@@ -256,7 +256,7 @@ const minJs = gulp.series(minSWJsJs,
 			.pipe(sourcemaps.init())
 			.pipe(terser())
 			.pipe(rename({ suffix: '.min' }))
-			.pipe(sourcemaps.mapSources(function(sourcePath, file) {
+			.pipe(sourcemaps.mapSources(function (sourcePath, file) {
 				// console.log(`OMG-mapSources A '${sourcePath}', '${file.basename}' Z`);
 				return file.basename.replace('.min', '');
 			}))

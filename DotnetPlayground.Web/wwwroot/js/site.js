@@ -1,11 +1,12 @@
 ﻿/*eslint-disable no-console*/
-/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate" }]*/
+/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate|handleAboutPageBranchHash" }]*/
 /*global forge*/
 "use strict";
 
 var g_AppRootPath = location.pathname.match(/\/([^/]+)\//)[0],
 	g_LogPath = g_AppRootPath + "Home/ClientsideLog",
-	g_IsDevelopment = window.location.host.match(/:\d+/) !== null;
+	g_IsDevelopment = window.location.host.match(/:\d+/) !== null,
+	g_gitBranch = "GIT_BRANCH", g_gitHash = "GIT_HASH";
 
 function clientValidate(button) {
 	const tr = $(button).parent().parent();
@@ -26,6 +27,23 @@ function clientValidate(button) {
 
 	tr.find("td").eq(1).css("color", (md5 === orig_md5 ? "green" : "red")).css('font-weight', 'bold');
 	tr.find("td").eq(2).css("color", (sha === orig_sha ? "green" : "red")).css('font-weight', 'bold');
+}
+
+function handleAboutPageBranchHash() {
+	let anchor = document.querySelector('#branchHash > a:first-child');
+	if (anchor) {
+		anchor.setAttribute('href', anchor.getAttribute('href') + g_gitBranch);
+		const strong = anchor.querySelector('strong');
+		if (strong)
+			strong.innerText = g_gitBranch;
+	}
+	anchor= document.querySelector('#branchHash > a:last-child');
+	if (anchor) {
+		anchor.setAttribute('href', anchor.getAttribute('href') + g_gitHash);
+		const strong = anchor.querySelector('strong');
+		if (strong)
+			strong.innerText = g_gitHash;
+	}
 }
 
 /**
@@ -66,7 +84,9 @@ $(function () {
 		if ('serviceWorker' in navigator
 			//&& (navigator.serviceWorker.controller === null || navigator.serviceWorker.controller.state !== "activated")
 		) {
-			const swUrl = rootPath + 'sw' + (isDev === true ? '' : '.min') + '.js?domain=' + encodeURIComponent(rootPath) + '&isDev=' + encodeURIComponent(isDev);
+			const version = encodeURIComponent(g_gitBranch + '_' + g_gitHash);
+			const swUrl = rootPath + 'sw' + (isDev === true ? '' : '.min') + '.js?domain=' + encodeURIComponent(rootPath) +
+				'&isDev=' + encodeURIComponent(isDev) + '&version=' + version;
 
 			navigator.serviceWorker
 				.register(swUrl, { scope: rootPath })
