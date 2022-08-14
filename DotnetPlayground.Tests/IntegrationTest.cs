@@ -927,7 +927,7 @@ namespace Integration
 		[Fact]
 		public async Task GetLiveImage()
 		{
-			if (string.IsNullOrEmpty(_fixture.LiveWebCamURL)) return;
+			//if (string.IsNullOrEmpty(_fixture.LiveWebCamURL)) return;
 
 			// Arrange
 			// Act

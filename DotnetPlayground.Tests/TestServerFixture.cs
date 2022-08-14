@@ -1,13 +1,13 @@
-﻿using DotnetPlayground.Repositories;
+﻿using DotnetPlayground;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
-using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using RazorPages;
 using System;
 using System.IO;
 using System.Linq;
@@ -173,6 +173,8 @@ namespace Integration
 			{
 				// Build the service provider.
 				var sp = services.BuildServiceProvider();
+
+				services.AddHttpClient<IMjpgStreamerHttpClient, TestableMjpgStreamerHttpClient>();
 
 				// Create a scope to obtain a reference to the database context (ApplicationDbContext).
 				using (var scope = sp.CreateScope())
