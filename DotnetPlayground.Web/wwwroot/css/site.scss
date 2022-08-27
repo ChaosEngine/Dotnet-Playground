@@ -13,7 +13,7 @@ body {
         background-color: rgb(33, 37, 41);
     }
 	// More styles (colors-only)
-	.form-select, .form-control, .accordion-item, .accordion-button, .fixed-table-loading {
+	.form-select, .form-control, .accordion-item, .accordion-button, .fixed-table-loading, a.nav-link.active {
         color: white !important;
 		//same as above main dark background
         background-color: rgb(33, 37, 41) !important;
