@@ -40,6 +40,11 @@ log/
 *.VisualState.xml
 TestResult.xml
 
+# Playwright test results and reports
+DotnetPlayground.Web/test-results/
+DotnetPlayground.Web/playwright-report/
+DotnetPlayground.Web/playwright/.cache/
+
 # Build Results of an ATL Project
 [Dd]ebugPS/
 [Rr]eleasePS/

@@ -50,17 +50,6 @@
 	"browserslist": [
 		"defaults"
 	],
-	"jest": {
-		"clearMocks": true,
-		"collectCoverage": false,
-		"coverageDirectory": "coverage",
-		"coverageProvider": "v8",
-		"roots": [
-			"../DotnetPlayground.Tests/client.jest.tests/",
-			"../InkBall/test/InkBall.Tests/client.jest.tests/"
-		],
-		"testEnvironment": "jsdom"
-	},
 	"devDependencies": {
 		"eslint": "8.25.0",
 		"fs-extra": "10.1.0",
@@ -79,13 +68,7 @@
 		"webpack-stream": "7.0.0",
 		"poly-decomp": "0.3.0",
 		"worker-plugin": "5.0.1",
-		"jest": "29.0.1",
-		"@babel/core": "7.18.13",
-		"@babel/preset-env": "^7.18.10",
-		"@babel/plugin-transform-runtime": "7.18.10",
-		"babel-plugin-transform-import-meta": "2.2.0",
-		"babel-jest": "29.0.1",
-		"jest-environment-jsdom": "29.0.1"
+		"@playwright/test": "1.25.1"
 	},
 	"dependencies": {
 		"bootstrap": "5.2.2",
@@ -108,7 +91,6 @@
 	},
 	"scripts": {
 		"postinstall": "npx gulp postinstall",
-		"gulp": "npx gulp",
-		"test": "jest"
+		"gulp": "npx gulp"
 	}
 }
