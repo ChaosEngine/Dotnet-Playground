@@ -30,6 +30,9 @@ namespace DotnetPlayground.Controllers
 	public class BlogsController : Controller, IBlogsController
 	{
 		public const string ASPX = "Blogs";
+		private static readonly JsonSerializerOptions _serializationOpts = new JsonSerializerOptions { 
+			DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+		};
 
 		private readonly ILogger<BlogsController> _logger;
 		private readonly IConfiguration _configuration;
@@ -113,7 +116,7 @@ namespace DotnetPlayground.Controllers
 		{
 			var lst = await _repo.GetPostsFromBlogAsync(blogId);
 
-			return Json(lst, new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault });
+			return Json(lst, _serializationOpts);
 		}
 
 		[Route(@"{operation:regex(^(" +
@@ -188,7 +191,7 @@ namespace DotnetPlayground.Controllers
 					BlogId = post.BlogId,
 					Title = post.Title,
 					Content = post.Content
-				}, new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault });
+				}, _serializationOpts);
 			}
 
 			return NotFound();
@@ -237,7 +240,7 @@ namespace DotnetPlayground.Controllers
 					BlogId = post.BlogId,
 					Title = post.Title,
 					Content = post.Content
-				}, new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault });
+				}, _serializationOpts);
 			}
 
 			return NotFound();
