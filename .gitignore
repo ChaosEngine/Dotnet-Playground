@@ -41,8 +41,9 @@ log/
 TestResult.xml
 
 # Playwright test results and reports
-DotnetPlayground.Web/test-results/
-DotnetPlayground.Web/playwright-report/
+DotnetPlayground.Web/e2e/test-results/
+DotnetPlayground.Web/e2e/playwright-report/
+DotnetPlayground.Web/e2e/storageState.json
 DotnetPlayground.Web/playwright/.cache/
 
 # Build Results of an ATL Project
