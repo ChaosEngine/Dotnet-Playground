@@ -1,8 +1,10 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
 
-test('Homepage as Playwright0 with no game', async ({ page }) => {
-	await page.goto('InkBall/Game');
+test('Homepage as Playwright0 with no game', async ({ browser }) => {
+	const page = await browser.newPage({ ignoreHTTPSErrors: true });
+	
+	page.goto('InkBall/Game');
 
 	// Expect a title "to contain" a substring.
 	await expect(page).toHaveTitle(/Home - Dotnet Core Playground/);

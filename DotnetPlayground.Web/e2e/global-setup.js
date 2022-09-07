@@ -1,11 +1,20 @@
 // global-setup.js
-import { chromium/* , FullConfig */ } from '@playwright/test';
+import { chromium, firefox, webkit, /* FullConfig  */ } from '@playwright/test';
 
 async function globalSetup(config) {
-  const browser = await chromium.launch();
-  const page = await browser.newPage();
+  let browser = undefined;
+  if (!browser && chromium)
+    browser = await chromium.launch();
+  if (!browser && firefox)
+    browser = await firefox.launch();
+  if (!browser && webkit)
+    browser = await webkit.launch();
+  const page = await browser.newPage({
+    ignoreHTTPSErrors: true
+  });
 
-  await page.goto(config.projects.find(p => p.name === browser._name).use.baseURL + 'Identity/Account/Login');
+  const loginURL = config.projects[0].use.baseURL + 'Identity/Account/Login';
+  await page.goto(loginURL);
 
   await page.locator('input[name="Input.Email"]').fill('Playwright0@test.domain.com');
   await page.locator('input[name="Input.Password"]').fill('Playwright0!');
