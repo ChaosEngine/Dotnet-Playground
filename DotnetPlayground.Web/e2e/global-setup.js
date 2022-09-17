@@ -1,29 +1,39 @@
 // global-setup.js
-import { chromium, firefox, webkit, /* FullConfig  */ } from '@playwright/test';
+import { chromium, firefox, webkit/*, FullConfig */ } from '@playwright/test';
+import { FixtureUsers } from './TwoUsersFixtures';
+
+async function signInUser(browser, loginURL, storageStatePath, user) {
+	const page = await browser.newPage({ ignoreHTTPSErrors: true });
+
+	if (user.email && user.password) {
+		await page.goto(loginURL);
+
+		await page.locator('input[name="Input.Email"]').fill(user.email);
+		await page.locator('input[name="Input.Password"]').fill(user.password);
+		await page.locator('form#account button[type=submit]').click();
+	}
+
+	// Save signed-in state to 'storageState.json'.
+	await page.context().storageState({ path: `${storageStatePath}${user.userName}-storageState.json` });
+}
 
 async function globalSetup(config) {
-  let browser = undefined;
-  if (!browser && chromium)
-    browser = await chromium.launch();
-  if (!browser && firefox)
-    browser = await firefox.launch();
-  if (!browser && webkit)
-    browser = await webkit.launch();
-  const page = await browser.newPage({
-    ignoreHTTPSErrors: true
-  });
+	let browser = undefined;
+	if (!browser && chromium)
+		browser = await chromium.launch();
+	if (!browser && firefox)
+		browser = await firefox.launch();
+	if (!browser && webkit)
+		browser = await webkit.launch();
 
-  const loginURL = config.projects[0].use.baseURL + 'Identity/Account/Login';
-  await page.goto(loginURL);
+	const use = config.projects.find(p => p._id === browser._name).use;
+	const loginURL = use.baseURL + 'Identity/Account/Login';
 
-  await page.locator('input[name="Input.Email"]').fill('Playwright0@test.domain.com');
-  await page.locator('input[name="Input.Password"]').fill('Playwright0!');
-  await page.locator('form#account button[type=submit]').click();
+	for (const fu of FixtureUsers) {
+		await signInUser(browser, loginURL, use.storageState, fu);
+	}
 
-  // Save signed-in state to 'storageState.json'.
-  await page.context().storageState({ path: './e2e/storageState.json' });
-
-  await browser.close();
+	await browser.close();
 }
 
 export default globalSetup;
