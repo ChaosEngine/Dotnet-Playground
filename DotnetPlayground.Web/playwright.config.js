@@ -46,7 +46,7 @@ const config = {
 		/* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
 		trace: 'on-first-retry',
 		// Tell all tests to load signed-in state from 'storageState.json'.
-		storageState: './e2e/storageState.json'
+		storageState: './e2e/storageStates/'
 	},
 
 	/* Configure projects for major browsers */
@@ -57,14 +57,12 @@ const config = {
 				...devices['Desktop Chrome']
 			}
 		},
-
 		{
 			name: 'firefox',
 			use: {
 				...devices['Desktop Firefox']
 			}
 		},
-
 		{
 			name: 'webkit',
 			use: {
