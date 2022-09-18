@@ -1,10 +1,31 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
 
+/**
+ * Tests redirects to authorize requireing pages
+ * @param {object} browser playwright
+ * @param {string} pageUrl url to page
+ */
+async function notAllowedAndRedirecttoLogin(browser, pageUrl) {
+	const page = await browser.newPage({ ignoreHTTPSErrors: true });
+
+	page.goto(pageUrl);
+
+	// Expects the URL to be Home because Game page redirect if no game present.
+	await expect(page).toHaveURL(/.*Identity\/Account\/Login.*/);
+
+	// Expect a title "to contain" a substring.
+	await expect(page).toHaveTitle(/Log in - Dotnet Core Playground/);
+
+	// Just login prompt
+	const body = page.locator('body');
+	await expect(body).toContainText(/Log in/);
+}
+
 test.describe('Logged in as Anonymous', () => {
 	test.use({ storageState: './e2e/storageStates/Anonymous-storageState.json' });
 
-	test('Homepage as Anonymous', async ({ browser }) => {
+	test('Home as Anonymous', async ({ browser }) => {
 		const page = await browser.newPage({ ignoreHTTPSErrors: true });
 
 		page.goto('InkBall/Home');
@@ -18,18 +39,23 @@ test.describe('Logged in as Anonymous', () => {
 	});
 
 	test('Game page as Anonymous with redirect to LogIn', async ({ browser }) => {
+		await notAllowedAndRedirecttoLogin(browser, 'InkBall/Game');
+	});
+
+	test('GamesList page as Anonymous with redirect to LogIn', async ({ browser }) => {
+		await notAllowedAndRedirecttoLogin(browser, 'InkBall/GamesList');
+	});
+
+	test('Highscores page as Anonymous with redirect to LogIn', async ({ browser }) => {
+		await notAllowedAndRedirecttoLogin(browser, 'InkBall/Highscores');
+	});
+
+	test('NotExisting page as Anonymous with redirect to LogIn', async ({ browser }) => {
 		const page = await browser.newPage({ ignoreHTTPSErrors: true });
 
-		page.goto('InkBall/Game');
+		const resp = await page.goto('InkBall/NotExisting');
 
 		// Expects the URL to be Home because Game page redirect if no game present.
-		await expect(page).toHaveURL(/.*Identity\/Account\/Login.*/);
-
-		// Expect a title "to contain" a substring.
-		await expect(page).toHaveTitle(/Log in - Dotnet Core Playground/);
-
-		// Just login prompt
-		const body= page.locator('body');
-		await expect(body).toContainText(/Log in/);
+		await expect(resp?.status()).toBe(404);
 	});
 });

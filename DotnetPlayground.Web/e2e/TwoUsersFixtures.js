@@ -15,9 +15,6 @@ class PlaywrightUser {
 	constructor(page, userName) {
 		this.page = page;
 		this.userName = userName;
-
-		// Example locator pointing to "Welcome User" greeting.
-		this.greeting = page.locator('p.inkhome');
 	}
 
 	static async create(browser, userName) {
