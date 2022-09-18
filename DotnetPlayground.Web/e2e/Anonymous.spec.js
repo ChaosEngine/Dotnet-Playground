@@ -7,7 +7,7 @@ import { test, expect } from '@playwright/test';
  * @param {string} pageUrl url to page
  */
 async function notAllowedAndRedirecttoLogin(browser, pageUrl) {
-	const page = await browser.newPage({ ignoreHTTPSErrors: true });
+	const page = await browser.newPage();
 
 	page.goto(pageUrl);
 
@@ -22,11 +22,13 @@ async function notAllowedAndRedirecttoLogin(browser, pageUrl) {
 	await expect(body).toContainText(/Log in/);
 }
 
+test.describe.configure({ mode: 'parallel' });
+
 test.describe('Logged in as Anonymous', () => {
-	test.use({ storageState: './e2e/storageStates/Anonymous-storageState.json' });
+	test.use({ storageState: './e2e/storageStates/Anonymous-storageState.json', ignoreHTTPSErrors: true });
 
 	test('Home as Anonymous', async ({ browser }) => {
-		const page = await browser.newPage({ ignoreHTTPSErrors: true });
+		const page = await browser.newPage();
 
 		page.goto('InkBall/Home');
 
@@ -51,7 +53,7 @@ test.describe('Logged in as Anonymous', () => {
 	});
 
 	test('NotExisting page as Anonymous with redirect to LogIn', async ({ browser }) => {
-		const page = await browser.newPage({ ignoreHTTPSErrors: true });
+		const page = await browser.newPage();
 
 		const resp = await page.goto('InkBall/NotExisting');
 
