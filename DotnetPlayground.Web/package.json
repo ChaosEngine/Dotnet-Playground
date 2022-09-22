@@ -68,7 +68,7 @@
 		"webpack-stream": "7.0.0",
 		"poly-decomp": "0.3.0",
 		"worker-plugin": "5.0.1",
-		"@playwright/test": "1.25.2"
+		"@playwright/test": "1.26.0"
 	},
 	"dependencies": {
 		"bootstrap": "5.2.2",
