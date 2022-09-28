@@ -21,6 +21,8 @@ async function testLoggedInAndNoGameAllert(page, userName) {
 	// await page.screenshot({ path: `./e2e/screenshot-${userName}.png` });
 }
 
+// const delay = ms => new Promise(res => setTimeout(res, ms));
+
 async function testLoggedInGamesList(page) {
 	await page.goto('InkBall/GamesList');
 
@@ -61,23 +63,36 @@ test('P0 create game, P1 joins', async ({ Playwright1: p1, Playwright2: p2 }) =>
 	const p1_btnNewGame = p1.page.locator('input[type=submit]', { hasText: 'New game' });
 	await expect(p1_btnNewGame).toBeVisible();
 	await p1_btnNewGame.click();
+	await expect(p1.page).toHaveURL(/.*InkBall\/Game/);
+
 
 
 	//P2 goes to game list and joins active game
 	await p2.page.goto('InkBall/GamesList');
+	const p2_Join = await p2.page.locator('td.gtd', { hasText: 'Playwright1' })
+		.locator('..')
+		.locator('input[type=submit]', { hasText: 'Join' });
 
-	const td = await p2.page.locator('td.gtd:has-text("Playwright1")');
-	await expect(td).toBeVisible();
-	const tr = await td.locator('..');
-	await expect(tr).toBeVisible();
-	const p2_Join = await tr.locator('input[type=submit]:has-text("Join")');
-
-	// const p2_Join = p2.page.locator('input[type=submit]', { hasText: 'Join' });
-	// const p2_Join = p2.page.locator('input[type=submit]', { hasText: 'Join' });
 	await expect(p2_Join).toBeVisible();
-	await (p2_Join).click();
+	await p2_Join.click();
+	await expect(p2.page).toHaveURL(/.*InkBall\/Game/);
 
+
+
+
+	await p1.page.locator('svg#screen').click({ position: { x: 1 * 16, y: 1 * 16 } });
+	// await delay(3000);
+	await p2.page.locator('svg#screen').click({ position: { x: 2 * 16, y: 2 * 16 } });
+	// await delay(3000);
+
+
+	await expect(p1.page.locator('svg#screen > circle')).toHaveCount(2 + 1);
+	await expect(p2.page.locator('svg#screen > circle')).toHaveCount(2 + 1);
+
+
+	//Ensure P1 sees P2 joined, then cancells started game
 	const p1_btnCancel = p1.page.locator('input[type=submit]#SurrenderButton');
 	await expect(p1_btnCancel).toBeVisible();
+
 	await p1_btnCancel.click();
 });
