@@ -2,8 +2,8 @@ import { test as base/* , Page, Browser, Locator */ } from '@playwright/test';
 export { expect } from '@playwright/test';
 
 export const FixtureUsers = [
-	{ userName: 'Playwright0', password: 'Playwright0!', email: 'Playwright0@test.domain.com' },
 	{ userName: 'Playwright1', password: 'Playwright1!', email: 'Playwright1@test.domain.com' },
+	{ userName: 'Playwright2', password: 'Playwright2!', email: 'Playwright2@test.domain.com' },
 	{ userName: 'Anonymous' }
 ];
 
@@ -28,13 +28,13 @@ class PlaywrightUser {
 	}
 }
 
-// Extend base test by providing "Playwright0" and "Playwright1".
+// Extend base test by providing "Playwright1" and "Playwright2".
 // This new "test" can be used in multiple test files, and each of them will get the fixtures.
 export const test = base.extend(
-	// Playwright0: async ({ browser }, use) => {
+	// Playwright1: async ({ browser }, use) => {
 	// 	await use(await PlaywrightUser.create(browser, FixtureUsers[0].userName));
 	// },
-	// Playwright1: async ({ browser }, use) => {
+	// Playwright2: async ({ browser }, use) => {
 	// 	await use(await PlaywrightUser.create(browser, FixtureUsers[1].userName));
 	// }
 	Object.fromEntries(

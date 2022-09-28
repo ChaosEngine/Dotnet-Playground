@@ -32,43 +32,52 @@ async function testLoggedInGamesList(page) {
 	await expect(btnNewGame).toBeVisible();
 }
 
-test('Playwright0 and Playwright1 - no games created', async ({ Playwright0, Playwright1, Anonymous }) => {
-	// ... interact with Playwright0 and/or Playwright1 ...
-
-	await testLoggedInAndNoGameAllert(Playwright0.page, Playwright0.userName);
+test('Playwright1 and Playwright2 - no games created', async ({ Playwright1, Playwright2, Anonymous }) => {
+	// ... interact with Playwright1 and/or Playwright2 ...
 
 	await testLoggedInAndNoGameAllert(Playwright1.page, Playwright1.userName);
+
+	await testLoggedInAndNoGameAllert(Playwright2.page, Playwright2.userName);
 });
 
-test('Playwright0 and Playwright1 - GamesList', async ({ Playwright0, Playwright1 }) => {
-	// ... interact with Playwright0 and/or Playwright1 ...
+test('Playwright1 and Playwright2 - GamesList', async ({ Playwright1, Playwright2 }) => {
+	// ... interact with Playwright1 and/or Playwright2 ...
 
-	await testLoggedInGamesList(Playwright0.page);
+	await testLoggedInGamesList(Playwright1.page);
 });
 
-test('P0 create game, P1 joins', async ({ Playwright0, Playwright1 }) => {
-	// ... interact with Playwright0 and/or Playwright1 ...
+test('P0 create game, P1 joins', async ({ Playwright1: p1, Playwright2: p2 }) => {
+	// ... interact with Playwright1 and/or Playwright2 ...
 
-	await Playwright0.page.goto('InkBall/Home');
+	await p1.page.goto('InkBall/Home');
 
-	const p0_GameType = Playwright0.page.locator('select#GameType');
-	p0_GameType.selectOption({ label: 'First capture wins' });
+	const p1_GameType = p1.page.locator('select#GameType');
+	p1_GameType.selectOption({ label: 'First capture wins' });
 
-	const p0_BoardSize = Playwright0.page.locator('select#BoardSize');
-	p0_BoardSize.selectOption({ label: '20 x 26' });
+	const p1_BoardSize = p1.page.locator('select#BoardSize');
+	p1_BoardSize.selectOption({ label: '20 x 26' });
 
-	const p0_btnNewGame = Playwright0.page.locator('input[type=submit]', { hasText: 'New game' });
-	await expect(p0_btnNewGame).toBeVisible();
-	await p0_btnNewGame.click();
+	//P1 creates new game and goins into waiting-listening mode
+	const p1_btnNewGame = p1.page.locator('input[type=submit]', { hasText: 'New game' });
+	await expect(p1_btnNewGame).toBeVisible();
+	await p1_btnNewGame.click();
 
 
-	await Playwright1.page.goto('InkBall/GamesList');
+	//P2 goes to game list and joins active game
+	await p2.page.goto('InkBall/GamesList');
 
-	const p1_Join = Playwright1.page.locator('input[type=submit]', { hasText: 'Join' });
-	await expect(p1_Join).toBeVisible();
-	await (p1_Join).click();
+	const td = await p2.page.locator('td.gtd:has-text("Playwright1")');
+	await expect(td).toBeVisible();
+	const tr = await td.locator('..');
+	await expect(tr).toBeVisible();
+	const p2_Join = await tr.locator('input[type=submit]:has-text("Join")');
 
-	const p0_btnCancel = Playwright0.page.locator('input[type=submit]#SurrenderButton');
-	await expect(p0_btnCancel).toBeVisible();
-	await p0_btnCancel.click();
+	// const p2_Join = p2.page.locator('input[type=submit]', { hasText: 'Join' });
+	// const p2_Join = p2.page.locator('input[type=submit]', { hasText: 'Join' });
+	await expect(p2_Join).toBeVisible();
+	await (p2_Join).click();
+
+	const p1_btnCancel = p1.page.locator('input[type=submit]#SurrenderButton');
+	await expect(p1_btnCancel).toBeVisible();
+	await p1_btnCancel.click();
 });
