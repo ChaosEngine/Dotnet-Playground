@@ -51,12 +51,12 @@
 			{
 				alert("success: " + response);
 			},
-			error: function (x, t, m)
+			error: function (jqXHR, textStatus, errorThrown)
 			{
-				if (t === "timeout") {
+				if (textStatus === "timeout") {
 					alert("got timeout");
 				} else {
-					alert(t);
+					alert(textStatus);
 				}
 			}
 		});

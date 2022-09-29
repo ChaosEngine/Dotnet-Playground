@@ -1,5 +1,6 @@
 ﻿/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "PuzzlesOnLoad" }]*/
 /*eslint-disable no-console*/
+/*global myAlert*/
 "use strict";
 
 function PuzzlesOnLoad() {
@@ -34,7 +35,9 @@ function PuzzlesOnLoad() {
 
 	$(".puzzles form").on("submit", function (event) {
 		event.preventDefault();
-		console.log('submitados!');
+		myAlert('submitados!', 'titlos', (obj, e) => {
+			console.log(obj, e);
+		});
 	});
 
 	$('input[type="file"]').on('change', function () {

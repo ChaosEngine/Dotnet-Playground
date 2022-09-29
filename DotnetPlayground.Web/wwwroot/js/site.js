@@ -1,6 +1,6 @@
 ﻿/*eslint-disable no-console*/
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate|handleAboutPageBranchHash" }]*/
-/*global forge*/
+/*global forge, bootstrap*/
 "use strict";
 
 var g_AppRootPath = location.pathname.match(/\/([^/]+)\//)[0],
@@ -37,13 +37,39 @@ function handleAboutPageBranchHash() {
 		if (strong)
 			strong.innerText = g_gitBranch;
 	}
-	anchor= document.querySelector('#branchHash > a:last-child');
+	anchor = document.querySelector('#branchHash > a:last-child');
 	if (anchor) {
 		anchor.setAttribute('href', anchor.getAttribute('href') + g_gitHash);
 		const strong = anchor.querySelector('strong');
 		if (strong)
 			strong.innerText = g_gitHash;
 	}
+}
+
+/**
+ * Custom alert bootstrap modal
+ * @param {string} msg content shown
+ * @param {string} title of the dialog
+ * @param {function} onCloseCallback callback executed on close
+ */
+function myAlert(msg, title = 'Alert', onCloseCallback = undefined) {
+	const myModalEl = document.getElementById('divModal');
+	const myModal = bootstrap.Modal.getOrCreateInstance(myModalEl, { keyboard: true, backdrop: true });
+
+	if (onCloseCallback) {
+		// on close action
+		myModalEl.addEventListener('hidden.bs.modal', function listener(e) {
+			// remove event listener
+			e.target.removeEventListener(e.type, listener);
+
+			// call handler with original context
+			return onCloseCallback.call(this, e);
+		});
+	}
+
+	myModalEl.querySelector('.modal-body').textContent = msg;
+	document.getElementById('divModalLabel').textContent = title;
+	myModal.show();
 }
 
 /**
@@ -158,7 +184,6 @@ $(function () {
 		}
 	}
 
-
 	/**
 	 * Mapped after Microsoft.Extensions.Logging
 	 * */
@@ -202,6 +227,13 @@ $(function () {
 		ajaxLog(logLevel.Error, msg, url, line, col, error);
 		org_error.call(this, arguments);
 	};
+	//overriding window.alert with proxy pattern
+	(function () {
+		window.alert = function (arg0) {
+			// execute my handler
+			myAlert(arg0);
+		};
+	})(window.alert);
 
 	registerServiceWorker(g_AppRootPath, g_IsDevelopment);
 

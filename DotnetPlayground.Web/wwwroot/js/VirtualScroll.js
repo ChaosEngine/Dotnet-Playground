@@ -135,10 +135,10 @@ window.addEventListener('load', function () {
 	const table = jqTable.bootstrapTable();
 	let lastScroll = false;
 
-	$('#exampleModal').on('show.bs.modal', function () {
+	$('#divModal').on('show.bs.modal', function () {
 		const tr = table.find('tr.highlight');
 		const id = getIdFromRowElement(tr);
-		const msg = (id === undefined) ? 'No row selected' : 'Key selected: ' + id;
+		const msg = (id === undefined || id === "") ? 'No row selected' : 'Key selected: ' + id;
 
 		const modal = $(this);
 		modal.find('.modal-body').text(msg);

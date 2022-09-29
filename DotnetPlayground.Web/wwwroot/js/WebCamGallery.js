@@ -273,20 +273,22 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 				alert("error");
 				return;
 			}
-			//const stringified = JSON.stringify(response.product, null, 2);
-			//display.text(stringified);
+			else {
+				//const stringified = JSON.stringify(response.product, null, 2);
+				//display.text(stringified);
 
-			$('#tbAnnualMovieGenerator caption').remove();
-			$(response.product).each(function (index, item) {
-				$('#tbAnnualMovieGenerator tbody').append(
-					'<tr>' +
-					'<td>' + item[0] + '</td>' +
-					'<td>' + item[1] + '</td>' +
-					'<td>' + item[2] + '</td>' +
-					'<td>' + item[3] + '</td>' +
-					'</tr>'
-				);
-			});
+				$('#tbAnnualMovieGenerator caption').remove();
+				$(response.product).each(function (index, item) {
+					$('#tbAnnualMovieGenerator tbody').append(
+						'<tr>' +
+						'<td>' + item[0] + '</td>' +
+						'<td>' + item[1] + '</td>' +
+						'<td>' + item[2] + '</td>' +
+						'<td>' + item[3] + '</td>' +
+						'</tr>'
+					);
+				});
+			}
 		}).fail(function (_jqXHR, textStatus, errorThrown) {
 			alert("error: " + textStatus + " " + errorThrown);
 			$('#tbAnnualMovieGenerator').html('');
