@@ -126,6 +126,23 @@
         <noscript>Your browser does not support JavaScript! REALLY?!</noscript>
         <p id="spVersion">&copy; 2022 - @Conf["AppTitleName"]</p>
     </footer>
+	<!-- Modal -->
+	<div class="modal fade" id="divModal" tabindex="-1" aria-labelledby="divModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title text-break" id="divModalLabel">Modal title</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+                <div class="modal-body text-break">
+                    Content
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <environment include="Development">
         <script src="~/lib/jquery/jquery.min.js"></script>
         <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>

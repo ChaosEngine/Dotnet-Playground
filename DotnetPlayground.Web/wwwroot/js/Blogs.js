@@ -112,9 +112,10 @@ function BlogsOnLoad() {
 				card.parentElement.removeChild(card);
 				return;
 			}
-
-			const collapsible = document.querySelector("#collapse_" + blog_id);
-			CreateAccordionPostContent(blog_id, collapsible, [result]);
+			else {
+				const collapsible = document.querySelector("#collapse_" + blog_id);
+				CreateAccordionPostContent(blog_id, collapsible, [result]);
+			}
 
 		}).fail(function (jqXHR, textStatus, errorThrown) {
 			alert("error: " + textStatus + " " + errorThrown);
@@ -150,11 +151,12 @@ function BlogsOnLoad() {
 				$(tr).remove();
 				return;
 			}
-
-			let edit = $(form).find('.edit');
-			edit.val(blog.url);
-			let display = tr.find('label.displaying');
-			display.text(blog.url);
+			else {
+				const edit = $(form).find('.edit');
+				edit.val(blog.url);
+				let display = tr.find('label.displaying');
+				display.text(blog.url);
+			}
 		}).fail(function (jqXHR, textStatus, errorThrown) {
 			alert("error: " + textStatus + " " + errorThrown);
 		});
@@ -231,7 +233,7 @@ function BlogsOnLoad() {
 					alert("error");
 					return;
 				}
-				if (result && result.length > 0) {
+				else if (result && result.length > 0) {
 					CreateAccordionPostContent(blog_id, collapsible, result);
 				}
 
