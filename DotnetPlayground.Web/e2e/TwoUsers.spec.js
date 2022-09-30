@@ -21,7 +21,15 @@ async function testLoggedInAndNoGameAllert(page, userName) {
 	// await page.screenshot({ path: `./e2e/screenshot-${userName}.png` });
 }
 
-// const delay = ms => new Promise(res => setTimeout(res, ms));
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
+const putPointForPlayer = async (player, x, y) => {
+	await player.page.locator('svg#screen').click({ position: { x: x * 16, y: y * 16 }/* , timeout: 20 * 1000  */ });
+};
+
+const testPointExistanceForForPlayer = async (player, x, y) => {
+	await expect(player.page.locator(`circle[cx="${x}"][cy="${y}"]`)).toBeVisible(/* { timeout: 20 * 1000 } */);
+};
 
 async function testLoggedInGamesList(page) {
 	await page.goto('InkBall/GamesList');
@@ -48,7 +56,7 @@ test('Playwright1 and Playwright2 - GamesList', async ({ Playwright1, Playwright
 	await testLoggedInGamesList(Playwright1.page);
 });
 
-test('P0 create game, P1 joins', async ({ Playwright1: p1, Playwright2: p2 }) => {
+test('P1 create game, P2 joins', async ({ Playwright1: p1, Playwright2: p2 }) => {
 	// ... interact with Playwright1 and/or Playwright2 ...
 
 	await p1.page.goto('InkBall/Home');
@@ -66,7 +74,6 @@ test('P0 create game, P1 joins', async ({ Playwright1: p1, Playwright2: p2 }) =>
 	await expect(p1.page).toHaveURL(/.*InkBall\/Game/);
 
 
-
 	//P2 goes to game list and joins active game
 	await p2.page.goto('InkBall/GamesList');
 	const p2_Join = await p2.page.locator('td.gtd', { hasText: 'Playwright1' })
@@ -77,17 +84,23 @@ test('P0 create game, P1 joins', async ({ Playwright1: p1, Playwright2: p2 }) =>
 	await p2_Join.click();
 	await expect(p2.page).toHaveURL(/.*InkBall\/Game/);
 
+	await expect(p1.page.locator('svg#screen')).toBeVisible();
+	await expect(p2.page.locator('svg#screen')).toBeVisible();
+
+	await delay(5 * 1000);
 
 
 
-	await p1.page.locator('svg#screen').click({ position: { x: 1 * 16, y: 1 * 16 } });
-	// await delay(3000);
-	await p2.page.locator('svg#screen').click({ position: { x: 2 * 16, y: 2 * 16 } });
-	// await delay(3000);
+	await putPointForPlayer(p1, 1, 1);
+	await testPointExistanceForForPlayer(p2, 1, 1);
+
+	await putPointForPlayer(p2, 2, 2);
+	await testPointExistanceForForPlayer(p1, 2, 2);
 
 
-	await expect(p1.page.locator('svg#screen > circle')).toHaveCount(2 + 1);
-	await expect(p2.page.locator('svg#screen > circle')).toHaveCount(2 + 1);
+
+	await expect(p1.page.locator('circle')).toHaveCount(2 + 1);
+	await expect(p2.page.locator('circle')).toHaveCount(2 + 1);
 
 
 	//Ensure P1 sees P2 joined, then cancells started game
