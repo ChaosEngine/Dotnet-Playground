@@ -27,7 +27,7 @@ const putPointForPlayer = async (player, x, y) => {
 	await player.page.locator('svg#screen').click({ position: { x: x * 16, y: y * 16 }/* , timeout: 20 * 1000  */ });
 };
 
-const testPointExistanceForForPlayer = async (player, x, y) => {
+const testPointExistanceForPlayer = async (player, x, y) => {
 	await expect(player.page.locator(`circle[cx="${x}"][cy="${y}"]`)).toBeVisible(/* { timeout: 20 * 1000 } */);
 };
 
@@ -42,6 +42,7 @@ async function testLoggedInGamesList(page) {
 	await expect(btnNewGame).toBeVisible();
 }
 
+// eslint-disable-next-line no-unused-vars
 test('Playwright1 and Playwright2 - no games created', async ({ Playwright1, Playwright2, Anonymous }) => {
 	// ... interact with Playwright1 and/or Playwright2 ...
 
@@ -50,6 +51,7 @@ test('Playwright1 and Playwright2 - no games created', async ({ Playwright1, Pla
 	await testLoggedInAndNoGameAllert(Playwright2.page, Playwright2.userName);
 });
 
+// eslint-disable-next-line no-unused-vars
 test('Playwright1 and Playwright2 - GamesList', async ({ Playwright1, Playwright2 }) => {
 	// ... interact with Playwright1 and/or Playwright2 ...
 
@@ -92,10 +94,10 @@ test('P1 create game, P2 joins', async ({ Playwright1: p1, Playwright2: p2 }) =>
 
 
 	await putPointForPlayer(p1, 1, 1);
-	await testPointExistanceForForPlayer(p2, 1, 1);
+	await testPointExistanceForPlayer(p2, 1, 1);
 
 	await putPointForPlayer(p2, 2, 2);
-	await testPointExistanceForForPlayer(p1, 2, 2);
+	await testPointExistanceForPlayer(p1, 2, 2);
 
 
 
