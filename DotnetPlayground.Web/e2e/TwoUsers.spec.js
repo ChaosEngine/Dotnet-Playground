@@ -1,5 +1,8 @@
+/* eslint-disable no-unused-vars */
 // Import test with our new fixtures.
 import { test, expect } from './TwoUsersFixtures';
+
+
 
 async function testLoggedInAndNoGameAllert(page, userName) {
 	await page.goto('InkBall/Game');
@@ -23,12 +26,15 @@ async function testLoggedInAndNoGameAllert(page, userName) {
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
-const putPointForPlayer = async (player, x, y) => {
-	await player.page.locator('svg#screen').click({ position: { x: x * 16, y: y * 16 }/* , timeout: 20 * 1000  */ });
+const testPointExistanceForPlayer = async (player, x, y) => {
+	await expect(player.page.locator(`svg#screen > circle[cx="${x}"][cy="${y}"]`)).toBeVisible(/* { timeout: 20 * 1000 } */);
 };
 
-const testPointExistanceForPlayer = async (player, x, y) => {
-	await expect(player.page.locator(`circle[cx="${x}"][cy="${y}"]`)).toBeVisible(/* { timeout: 20 * 1000 } */);
+const putPointForPlayer = async (player, x, y, otherPlayer = undefined) => {
+	await player.page.locator('svg#screen').click({ position: { x: x * 16, y: y * 16 }/* , timeout: 20 * 1000  */ });
+
+	if (otherPlayer)
+		await testPointExistanceForPlayer(otherPlayer, x, y);
 };
 
 async function testLoggedInGamesList(page) {
@@ -42,7 +48,64 @@ async function testLoggedInGamesList(page) {
 	await expect(btnNewGame).toBeVisible();
 }
 
-// eslint-disable-next-line no-unused-vars
+async function createGameFromHome(player, gameTypeStr = 'First capture wins', boardSizeStr = '20 x 26') {
+	await player.page.goto('InkBall/Home');
+
+	const selGameType = player.page.locator('select#GameType');
+	selGameType.selectOption({ label: gameTypeStr });
+
+	const selBoardSize = player.page.locator('select#BoardSize');
+	selBoardSize.selectOption({ label: boardSizeStr });
+
+	//P1 creates new game and goins into waiting-listening mode
+	const btnNewGame = player.page.locator('input[type=submit]', { hasText: 'New game' });
+	// await expect(btnNewGame).toBeVisible();
+	await btnNewGame.click();
+
+	await expect(player.page).toHaveURL(/.*InkBall\/Game/);
+
+	await expect(player.page.locator('svg#screen')).toBeVisible();
+}
+
+async function joinCreatedGame(player, otherPlayerNameWithGameToJoin = 'Playwright1') {
+	await player.page.goto('InkBall/GamesList');
+
+	const btnJoin = await player.page.locator('td.gtd', { hasText: otherPlayerNameWithGameToJoin })
+		.locator('..')
+		.locator('input[type=submit]', { hasText: 'Join' });
+
+	// await expect(btnJoin).toBeVisible();
+	await btnJoin.click();
+
+	await expect(player.page).toHaveURL(/.*InkBall\/Game/);
+
+	await expect(player.page.locator('svg#screen')).toBeVisible();
+}
+
+async function surrenderOrCancelGame(player) {
+	const btnCancel = player.page.locator('input[type=submit]#SurrenderButton');
+	await expect(btnCancel).toBeVisible();
+
+	await btnCancel.click();
+}
+
+async function startDrawingLine(player) {
+	const btnStopAndDraw = player.page.locator('input[type=button]#StopAndDraw');
+	await expect(btnStopAndDraw).toBeVisible();
+
+	await btnStopAndDraw.click();
+}
+
+async function verifyWin(player, message = 'And the winner is... red.') {
+	const legend1 = player.page.locator('div.modal-body', { hasText: message });
+	await expect(legend1).toBeVisible();
+
+	const btnModalClose1 = player.page.locator('button[data-bs-dismiss="modal"]', { hasText: 'Close' });
+	await btnModalClose1.click();
+
+	await expect(player.page).toHaveURL(/.*InkBall\/GamesList/);
+}
+
 test('Playwright1 and Playwright2 - no games created', async ({ Playwright1, Playwright2, Anonymous }) => {
 	// ... interact with Playwright1 and/or Playwright2 ...
 
@@ -51,7 +114,6 @@ test('Playwright1 and Playwright2 - no games created', async ({ Playwright1, Pla
 	await testLoggedInAndNoGameAllert(Playwright2.page, Playwright2.userName);
 });
 
-// eslint-disable-next-line no-unused-vars
 test('Playwright1 and Playwright2 - GamesList', async ({ Playwright1, Playwright2 }) => {
 	// ... interact with Playwright1 and/or Playwright2 ...
 
@@ -60,54 +122,53 @@ test('Playwright1 and Playwright2 - GamesList', async ({ Playwright1, Playwright
 
 test('P1 create game, P2 joins', async ({ Playwright1: p1, Playwright2: p2 }) => {
 	// ... interact with Playwright1 and/or Playwright2 ...
-
-	await p1.page.goto('InkBall/Home');
-
-	const p1_GameType = p1.page.locator('select#GameType');
-	p1_GameType.selectOption({ label: 'First capture wins' });
-
-	const p1_BoardSize = p1.page.locator('select#BoardSize');
-	p1_BoardSize.selectOption({ label: '20 x 26' });
-
-	//P1 creates new game and goins into waiting-listening mode
-	const p1_btnNewGame = p1.page.locator('input[type=submit]', { hasText: 'New game' });
-	await expect(p1_btnNewGame).toBeVisible();
-	await p1_btnNewGame.click();
-	await expect(p1.page).toHaveURL(/.*InkBall\/Game/);
-
+	//create new game as p1
+	await createGameFromHome(p1);
 
 	//P2 goes to game list and joins active game
-	await p2.page.goto('InkBall/GamesList');
-	const p2_Join = await p2.page.locator('td.gtd', { hasText: 'Playwright1' })
-		.locator('..')
-		.locator('input[type=submit]', { hasText: 'Join' });
+	await joinCreatedGame(p2, p1.userName);
 
-	await expect(p2_Join).toBeVisible();
-	await p2_Join.click();
-	await expect(p2.page).toHaveURL(/.*InkBall\/Game/);
+	await delay(4 * 1000);//wait for signalR to settle in (?)
 
-	await expect(p1.page.locator('svg#screen')).toBeVisible();
-	await expect(p2.page.locator('svg#screen')).toBeVisible();
-
-	await delay(5 * 1000);
-
-
-
-	await putPointForPlayer(p1, 1, 1);
-	await testPointExistanceForPlayer(p2, 1, 1);
-
-	await putPointForPlayer(p2, 2, 2);
-	await testPointExistanceForPlayer(p1, 2, 2);
+	//put 5x p1 points and 5x p2 point interchangebly and verify existence
+	await putPointForPlayer(p1, 11, 3, p2);
+	await putPointForPlayer(p2, 6, 3, p1);
+	await putPointForPlayer(p1, 12, 4, p2);
+	await putPointForPlayer(p2, 7, 4, p1);
+	await putPointForPlayer(p1, 11, 5, p2);
+	await putPointForPlayer(p2, 6, 5, p1);
+	await putPointForPlayer(p1, 10, 4, p2);
+	await putPointForPlayer(p2, 5, 4, p1);
+	await putPointForPlayer(p1, 6, 4, p2);//center
+	await putPointForPlayer(p2, 11, 4, p1);//center
 
 
 
-	await expect(p1.page.locator('circle')).toHaveCount(2 + 1);
-	await expect(p2.page.locator('circle')).toHaveCount(2 + 1);
+	await expect(p1.page.locator('circle')).toHaveCount(10 + 1);
+	await expect(p2.page.locator('circle')).toHaveCount(10 + 1);
 
 
 	//Ensure P1 sees P2 joined, then cancells started game
-	const p1_btnCancel = p1.page.locator('input[type=submit]#SurrenderButton');
-	await expect(p1_btnCancel).toBeVisible();
+	// await surrenderOrCancelGame(p1);
 
-	await p1_btnCancel.click();
+
+	// await startDrawingLine(p1);
+	// await putPointForPlayer(p1, 11, 3);
+	// await putPointForPlayer(p1, 12, 4);
+	// await putPointForPlayer(p1, 11, 5);
+	// await putPointForPlayer(p1, 10, 4);
+	// await putPointForPlayer(p1, 11, 3);
+	// await verifyWin(p1, 'And the winner is... red.');
+	// await verifyWin(p2, 'And the winner is... red.');
+
+
+	await startDrawingLine(p2);
+	await putPointForPlayer(p2, 6, 3);
+	await putPointForPlayer(p2, 7, 4);
+	await putPointForPlayer(p2, 6, 5);
+	await putPointForPlayer(p2, 5, 4);
+	await putPointForPlayer(p2, 6, 3);
+	await verifyWin(p1, 'And the winner is... blue.');
+	await verifyWin(p2, 'And the winner is... blue.');
+
 });
