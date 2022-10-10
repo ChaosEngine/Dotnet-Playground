@@ -3,7 +3,7 @@
 import { test, expect } from './TwoUsersFixtures';
 
 
-
+//////handy helper functions - START//////
 async function testLoggedInAndNoGameAllert(page, userName) {
 	await page.goto('InkBall/Game');
 
@@ -105,7 +105,12 @@ async function verifyWin(player, message = 'And the winner is... red.') {
 
 	await expect(player.page).toHaveURL(/.*InkBall\/GamesList/);
 }
+//////handy helper functions - END//////
 
+
+
+
+//////Tests//////
 test('Playwright1 and Playwright2 - no games created', async ({ Playwright1, Playwright2, Anonymous }) => {
 	// ... interact with Playwright1 and/or Playwright2 ...
 
