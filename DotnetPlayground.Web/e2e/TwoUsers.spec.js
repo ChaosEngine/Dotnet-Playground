@@ -105,6 +105,14 @@ async function verifyWin(player, message = 'And the winner is... red.') {
 
 	await expect(player.page).toHaveURL(/.*InkBall\/GamesList/);
 }
+
+async function chatPlayerToPlayer(fromPlayer, toPlayer, message) {
+	await fromPlayer.page.locator('#messageInput').type(message);
+	await fromPlayer.page.locator('input#sendButton').click();
+
+	const p2_liMessagesList = toPlayer.page.locator('#messagesList', { hasText: message });
+	await expect(p2_liMessagesList).toBeVisible();
+}
 //////handy helper functions - END//////
 
 
@@ -125,7 +133,7 @@ test('Playwright1 and Playwright2 - GamesList', async ({ Playwright1, Playwright
 	await testLoggedInGamesList(Playwright1.page);
 });
 
-test('P1 create game, P2 joins', async ({ Playwright1: p1, Playwright2: p2 }) => {
+test('P1 create game, P2 joins, P2 wins', async ({ Playwright1: p1, Playwright2: p2 }) => {
 	// ... interact with Playwright1 and/or Playwright2 ...
 	//create new game as p1
 	await createGameFromHome(p1);
@@ -152,6 +160,8 @@ test('P1 create game, P2 joins', async ({ Playwright1: p1, Playwright2: p2 }) =>
 	await expect(p1.page.locator('circle')).toHaveCount(10 + 1);
 	await expect(p2.page.locator('circle')).toHaveCount(10 + 1);
 
+	await chatPlayerToPlayer(p1, p2, 'hello man');
+	await chatPlayerToPlayer(p2, p1, 'yo yo yo!');
 
 	//Ensure P1 sees P2 joined, then cancells started game
 	// await surrenderOrCancelGame(p1);
