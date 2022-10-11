@@ -119,7 +119,7 @@ async function chatPlayerToPlayer(fromPlayer, toPlayer, message) {
 
 
 //////Tests//////
-test('Playwright1 and Playwright2 - no games created', async ({ Playwright1, Playwright2, Anonymous }) => {
+test('Playwright1 and Playwright2 - no games created', async ({ Playwright1, Playwright2 }) => {
 	// ... interact with Playwright1 and/or Playwright2 ...
 
 	await testLoggedInAndNoGameAllert(Playwright1.page, Playwright1.userName);
