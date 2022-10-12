@@ -22,18 +22,26 @@ jobs:
       #     command: dotnet.exe --info
       - run:
           name: "Install project dependencies"
-          command: dotnet.exe restore
+          command: |
+            nvm install lts
+            nvm use lts
+            dotnet.exe restore
+            npx playwright install chrome --with-deps
       - save_cache:
           paths:
             - C:\Users\circleci\.nuget\packages
+            - C:\Users\circleci\AppData\Local\ms-playwright
           key: dotnet-packages-v1-{{ checksum "DotnetPlayground.Web/DotnetPlayground.Web.csproj" }}
       - run:
           name: "Run Application Tests"
           command: |
             $env:DBKind="sqlite" ; $env:ConnectionStrings__Sqlite="Filename=./bin/Debug/net6.0/Blogging.db"
             dotnet.exe test -v n --results-directory:"C:\Users\circleci\project\test_coverage" --collect:"Code Coverage" --logger "trx"
+            npx playwright test
       - store_artifacts:
           path: C:\Users\circleci\project\test_coverage
+      - store_artifacts:
+          path: C:\Users\circleci\project\DotnetPlayground.Web\e2e\playwright-report
       - run:
           name: test results
           when: always
@@ -62,7 +70,7 @@ jobs:
             npm --version
       - run:
           name: "Build Application according to some given configuration"
-          command: dotnet.exe publish -c Release --self-contained  -r win10-x64 DotnetPlayground.Web
+          command: dotnet.exe publish -c Release --self-contained -r win10-x64 DotnetPlayground.Web
 workflows:
   test_and_build:
     jobs:
