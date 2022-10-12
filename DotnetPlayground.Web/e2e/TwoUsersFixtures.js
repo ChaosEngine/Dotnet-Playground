@@ -4,7 +4,7 @@ export { expect } from '@playwright/test';
 export const FixtureUsers = [
 	{ userName: 'Playwright1', password: 'Playwright1!', email: 'Playwright1@test.domain.com' },
 	{ userName: 'Playwright2', password: 'Playwright2!', email: 'Playwright2@test.domain.com' }
-	// , { userName: 'Anonymous' }
+	, { userName: 'Anonymous' }
 ];
 
 // Page Object Model for the "PlaywrightUserX" page.

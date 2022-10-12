@@ -53,7 +53,7 @@ namespace DotnetPlayground
 	{
 		public IConfiguration Configuration { get; }
 
-#region Main
+		#region Main
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
@@ -124,10 +124,13 @@ namespace DotnetPlayground
 				})
 				.Build();
 
+#if DEBUG
+			await ContextFactory.CreateDBApplyMigrationsAndSeedDebugUsers(host);
+#endif
 			await host.RunAsync();
 		}
 
-#endregion Main
+		#endregion Main
 
 		public Startup(IConfiguration configuration)
 		{

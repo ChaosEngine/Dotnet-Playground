@@ -1,7 +1,10 @@
 using DotnetPlayground;
+using DotnetPlayground.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 #if INCLUDE_ORACLE
 using Oracle.ManagedDataAccess.Client;
 #endif
@@ -12,6 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace DotnetPlayground
 {
@@ -176,5 +180,77 @@ namespace DotnetPlayground
 
 			return config;
 		}
+
+#if DEBUG
+		private static async Task SeedUsers(IServiceProvider scopedServices)
+		{
+			try
+			{
+				using var userManager = scopedServices.GetRequiredService<UserManager<ApplicationUser>>();
+
+				// Seed the database with test data.
+				var user_pass_pairs = new (ApplicationUser user, string pass)[]
+				{
+					(   new ApplicationUser
+						{
+							UserName = "Playwright1@test.domain.com",
+							Email = "Playwright1@test.domain.com",
+							//Age = 20,
+							UserSettingsJSON = "{}",
+							Name = "Playwright1"
+						},
+						"Playwright1!"
+					),
+					(   new ApplicationUser
+						{
+							UserName = "Playwright2@test.domain.com",
+							Email = "Playwright2@test.domain.com",
+							//Age = 18,
+							UserSettingsJSON = "{}",
+							Name = "Playwright2"
+						},
+						"Playwright2!"
+					)
+				};
+
+				foreach (var pair in user_pass_pairs)
+				{
+					var existing_usr = await userManager.FindByEmailAsync(pair.user.Email);
+					if (existing_usr == null)
+					{
+						var result = await userManager.CreateAsync(pair.user, pair.pass);
+						if (!result.Succeeded)
+							throw new Exception($"Unable to create {pair.user.Name}:\r\n" + string.Join("\r\n", result.Errors.Select(error => $"{error.Code}: {error.Description}")));
+					}
+
+					// var emailConfirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(pair.user);
+					// var confirmation_result = await userManager.ConfirmEmailAsync(pair.user, emailConfirmationToken);
+					// if (!confirmation_result.Succeeded)
+					// 	throw new Exception("Unable to verify alices email address:\r\n" + string.Join("\r\n", result.Errors.Select(error => $"{error.Code}: {error.Description}")));
+				}
+
+			}
+			catch (Exception)
+			{
+				throw;
+			}
+		}
+
+		public static async Task CreateDBApplyMigrationsAndSeedDebugUsers(IHost host)
+		{
+			using (var scope = host.Services.CreateScope())
+			{
+				using var blogging_ctx = scope.ServiceProvider.GetRequiredService<BloggingContext>();
+				if (await blogging_ctx.Database.EnsureCreatedAsync())
+				{
+					//blogging db created now apply migration to games context
+					using var games_ctx = scope.ServiceProvider.GetRequiredService<InkBall.Module.Model.GamesContext>();
+					await games_ctx.Database.MigrateAsync();
+				}
+
+				await SeedUsers(scope.ServiceProvider);
+			}
+		}
+#endif
 	}
 }
