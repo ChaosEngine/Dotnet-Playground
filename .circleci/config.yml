@@ -26,22 +26,30 @@ jobs:
             nvm install lts
             nvm use lts
             dotnet.exe restore
-            npx playwright install chrome --with-deps
+            cd DotnetPlayground.Web
+            npm i
+            npx playwright install
       - save_cache:
           paths:
             - C:\Users\circleci\.nuget\packages
             - C:\Users\circleci\AppData\Local\ms-playwright
           key: dotnet-packages-v1-{{ checksum "DotnetPlayground.Web/DotnetPlayground.Web.csproj" }}
       - run:
-          name: "Run Application Tests"
+          name: "Run Unit and Integration Tests"
           command: |
             $env:DBKind="sqlite" ; $env:ConnectionStrings__Sqlite="Filename=./bin/Debug/net6.0/Blogging.db"
             dotnet.exe test -v n --results-directory:"C:\Users\circleci\project\test_coverage" --collect:"Code Coverage" --logger "trx"
+      - run:
+          name: "End-2-End Playwright browser tests"
+          command: |
+            cd DotnetPlayground.Web
+            $env:DBKind="sqlite" ; $env:ConnectionStrings__Sqlite="Filename=./bin/Debug/Blogging.db"
+            
             npx playwright test
       - store_artifacts:
           path: C:\Users\circleci\project\test_coverage
       - store_artifacts:
-          path: C:\Users\circleci\project\DotnetPlayground.Web\e2e\playwright-report
+          path: DotnetPlayground.Web\e2e\playwright-report
       - run:
           name: test results
           when: always
