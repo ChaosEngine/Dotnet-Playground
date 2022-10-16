@@ -107,6 +107,7 @@ const config = {
 		command: 'dotnet run',
 		url: 'https://localhost:4553/dotnet/',
 		timeout: 120 * 1000,
+		reuseExistingServer: true,
 		ignoreHTTPSErrors: true
 	}
 };
