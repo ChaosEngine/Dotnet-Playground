@@ -89,7 +89,7 @@ self.addEventListener('install', function (event) {
 			'https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.4.0/js/blueimp-gallery.min.js',
 			'https://cdnjs.cloudflare.com/ajax/libs/video.js/7.20.2/alt/video.core.novtt.min.js',
 			'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.21.1/bootstrap-table.min.js',
-			//'https://cdn.jsdelivr.net/npm/chance@1.1.8/dist/chance.min.js',
+			//'https://cdn.jsdelivr.net/npm/chance@1.1.9/dist/chance.min.js',
 			'https://cdn.jsdelivr.net/npm/node-forge@1.3.1/dist/forge.min.js',
 			'https://cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.min.js',
 			'https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js',

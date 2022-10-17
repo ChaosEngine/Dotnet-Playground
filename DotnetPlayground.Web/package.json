@@ -83,8 +83,8 @@
 		"@microsoft/signalr": "6.0.10",
 		"@microsoft/signalr-protocol-msgpack": "6.0.10",
 		"msgpack5": "6.0.2",
-		"ace-builds": "1.12.0",
-		"chance": "1.1.8"
+		"ace-builds": "1.12.3",
+		"chance": "1.1.9"
 	},
 	"overrides": {
 		"clean-css": ">=5.3.1"
