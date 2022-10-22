@@ -69,7 +69,7 @@ namespace DotnetPlayground.Controllers
 				+ $"BigBlob: '{big_blob}'";
 
 			//Bogus.Faker f = new Bogus.Faker();
-			
+
 			return await Task.FromResult(View(/*f*/));
 		}
 
@@ -105,7 +105,7 @@ namespace DotnetPlayground.Controllers
 				statusCode = Response.StatusCode;
 
 			var reExecute = HttpContext.Features.Get<IStatusCodeReExecuteFeature>();
-			_logger.LogInformation($"Unexpected Status Code: {statusCode}, OriginalPath: {reExecute?.OriginalPath}");
+			_logger.LogInformation("Unexpected Status Code: {statusCode}, OriginalPath: {OriginalPath}", statusCode, reExecute?.OriginalPath);
 
 			return await Task.FromResult(View(statusCode));
 		}
@@ -164,7 +164,7 @@ namespace DotnetPlayground.Controllers
 			}
 			catch (OperationCanceledException ex)
 			{
-				_logger.LogWarning(ex, $"!!!!!!!!!!!!!!!Cancelled {nameof(GetSleep)}");
+				_logger.LogWarning(ex, "!!!!!!!!!!!!!!!Cancelled GetSleep");
 				return "-3";
 			}
 			catch (Exception)
@@ -200,7 +200,7 @@ namespace DotnetPlayground.Controllers
 			}
 			catch (OperationCanceledException ex)
 			{
-				_logger.LogWarning(ex, $"!!!!!!!!!!!!!!!Cancelled {nameof(GetDelay)}");
+				_logger.LogWarning(ex, "!!!!!!!!!!!!!!!Cancelled GetDelay");
 				return "-3";
 			}
 			catch (Exception)

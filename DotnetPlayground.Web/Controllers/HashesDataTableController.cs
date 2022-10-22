@@ -24,7 +24,7 @@ namespace DotnetPlayground.Controllers
 
 		private readonly ILogger<HashesDataTableController> _logger;
 		private readonly IHashesRepositoryPure _repo;
-		
+
 		public HashesDataTableController(IHashesRepositoryPure repo, ILogger<HashesDataTableController> logger) : base()
 		{
 			_logger = logger;
@@ -69,8 +69,9 @@ namespace DotnetPlayground.Controllers
 			}
 			catch (OperationCanceledException ex)
 			{
-				_logger.LogWarning(ex, $"!!!!!!!!!!!!!!!Cancelled {nameof(Load)}::{nameof(_repo.PagedSearchAsync)}" +
-					$"({input.Sort}, {input.Order}, {input.Search}, {input.Offset}, {input.Limit}, {token})");
+				_logger.LogWarning(ex,
+					"!!!!!!!!!!!!!!!Cancelled Load::PagedSearchAsync({Sort}, {Order}, {Search}, {Offset}, {Limit}, {token})",
+					input.Sort, input.Order, input.Search, input.Offset, input.Limit, token);
 				return Ok();
 			}
 			catch (Exception)
@@ -116,8 +117,9 @@ namespace DotnetPlayground.Controllers
 			}
 			catch (OperationCanceledException ex)
 			{
-				_logger.LogWarning(ex, $"!!!!!!!!!!!!!!!Cancelled {nameof(Load)}::{nameof(_repo.SearchAsync)}" +
-					$"({input.Sort}, {input.Order}, {input.Search}, {input.Offset}, {input.Limit}, {token})");
+				_logger.LogWarning(ex,
+					"!!!!!!!!!!!!!!!Cancelled Load::PagedSearchAsync({Sort}, {Order}, {Search}, {Offset}, {Limit}, {token})",
+					input.Sort, input.Order, input.Search, input.Offset, input.Limit, token);
 				return Ok();
 			}
 			catch (Exception)

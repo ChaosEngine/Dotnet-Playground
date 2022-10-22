@@ -30,7 +30,8 @@ namespace DotnetPlayground.Controllers
 	public class BlogsController : Controller, IBlogsController
 	{
 		public const string ASPX = "Blogs";
-		private static readonly JsonSerializerOptions _serializationOpts = new JsonSerializerOptions { 
+		private static readonly JsonSerializerOptions _serializationOpts = new JsonSerializerOptions
+		{
 			DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
 		};
 
@@ -174,7 +175,7 @@ namespace DotnetPlayground.Controllers
 		{
 			var logger_tsk = Task.Run(() =>
 			{
-				_logger.LogInformation(0, $"id = {blogId} title = {(post.Title ?? "<null>")} {nameof(post.Content)} = {post.Content ?? "<null>"}");
+				_logger.LogInformation("blogId = {blogId} title = {title} content = {content}", blogId, post.Title, post.Content);
 			});
 
 			if (blogId <= 0 || string.IsNullOrEmpty(post.Title) || string.IsNullOrEmpty(post.Content)) return BadRequest(ModelState);
@@ -201,7 +202,7 @@ namespace DotnetPlayground.Controllers
 		{
 			var logger_tsk = Task.Run(() =>
 			{
-				_logger.LogInformation(2, $"blogId = {blogId}, {nameof(postId)} = {postId}");
+				_logger.LogInformation("blogId = {blogId}, postId = {postId}", blogId, postId);
 			});
 
 			if (blogId <= 0 || postId <= 0) return BadRequest(ModelState);
@@ -221,7 +222,7 @@ namespace DotnetPlayground.Controllers
 		{
 			var logger_tsk = Task.Run(() =>
 			{
-				_logger.LogInformation(0, $"id = {blogId} title = {(post.Title ?? "<null>")} {nameof(post.Content)} = {post.Content ?? "<null>"}");
+				_logger.LogInformation("id = {blogId} title = {title} content = {content}", blogId, post.Title, post.Content);
 			});
 
 			if (blogId <= 0 || string.IsNullOrEmpty(post.Title) || string.IsNullOrEmpty(post.Content)) return BadRequest(ModelState);
@@ -250,7 +251,7 @@ namespace DotnetPlayground.Controllers
 		{
 			var logger_tsk = Task.Run(() =>
 			{
-				_logger.LogInformation(0, $"id = {blogId} url = {(url ?? "<null>")} {nameof(ajax)} = {ajax.ToString()}");
+				_logger.LogInformation("id = {blogId} url = {url} ajax = {ajax}", blogId, url, ajax.ToString());
 			});
 
 			if (blogId <= 0 || string.IsNullOrEmpty(url)) return BadRequest(ModelState);
@@ -273,7 +274,7 @@ namespace DotnetPlayground.Controllers
 		{
 			var logger_tsk = Task.Run(() =>
 			{
-				_logger.LogInformation(2, $"id = {blogId}, {nameof(ajax)} = {ajax.ToString()}");
+				_logger.LogInformation("id = {blogId}, ajax = {ajax}", blogId, ajax.ToString());
 			});
 
 			if (blogId <= 0) return BadRequest(ModelState);
@@ -297,7 +298,7 @@ namespace DotnetPlayground.Controllers
 		{
 			var logger_tsk = Task.Run(() =>
 			{
-				_logger.LogInformation(1, $"id = {blog.BlogId} url = {(blog.Url ?? "<null>")}");
+				_logger.LogInformation("id = {blogId} url = {url}", blog.BlogId, blog.Url);
 			});
 
 			if (ModelState.IsValid)

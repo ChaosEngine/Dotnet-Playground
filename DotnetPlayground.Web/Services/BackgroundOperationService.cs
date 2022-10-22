@@ -30,7 +30,7 @@ namespace DotnetPlayground.Services
 
 		public Task StartAsync(CancellationToken cancellationToken)
 		{
-			_logger.LogInformation($"### {nameof(BackgroundOperationService)} starting");
+			_logger.LogInformation("### BackgroundOperationService starting");
 
 			_shutdown = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
@@ -61,12 +61,12 @@ namespace DotnetPlayground.Services
 				await Task.Delay(TimeSpan.FromMilliseconds(250), _shutdown.Token);
 			}
 
-			_logger.LogInformation($"### worker ending");
+			_logger.LogInformation("### worker ending");
 		}
 
 		public Task StopAsync(CancellationToken cancellationToken)
 		{
-			_logger.LogInformation($"### {nameof(BackgroundOperationService)} stopping");
+			_logger.LogInformation("### BackgroundOperationService stopping");
 
 			// Stop called without start
 			if (_worker == null)

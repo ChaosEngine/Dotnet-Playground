@@ -104,11 +104,11 @@ namespace DotnetPlayground.Repositories.Mongo
 			{
 				if ((await GetHashesInfoFromDB(token)) != null)
 				{
-					logger.LogInformation(0, $"###Leaving calculation of initial Hash parameters; already present");
+					logger.LogInformation("###Leaving calculation of initial Hash parameters; already present");
 					hi = await GetHashesInfoFromDB(token);
 					return hi;
 				}
-				logger.LogInformation(0, $"###Starting calculation of initial Hash parameters");
+				logger.LogInformation("###Starting calculation of initial Hash parameters");
 
 				hi = new HashesInfo { ID = 0, IsCalculating = true };
 
@@ -151,7 +151,7 @@ namespace DotnetPlayground.Repositories.Mongo
 					hi,
 					new FindOneAndReplaceOptions<HashesInfo> { ReturnDocument = ReturnDocument.After });
 
-				logger.LogInformation(0, $"###Calculation of initial Hash parameters ended");
+				logger.LogInformation("###Calculation of initial Hash parameters ended");
 			}
 			catch (Exception ex)
 			{

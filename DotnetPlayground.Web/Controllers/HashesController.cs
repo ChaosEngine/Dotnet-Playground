@@ -45,8 +45,8 @@ namespace DotnetPlayground.Controllers
 				_backgroundTaskQueue.QueueBackgroundWorkItem(new CalculateHashesInfoBackgroundOperation());
 			}
 
-			_logger.LogInformation(0,
-				$"###Returning {nameof(HashesInfo)}.{nameof(HashesInfo.IsCalculating)} = {(curr_has_inf != null ? curr_has_inf.IsCalculating.ToString() : "null")}");
+			_logger.LogInformation("###Returning HashesInfo.IsCalculating = {IsCalculating}",
+				(curr_has_inf != null ? curr_has_inf.IsCalculating.ToString() : "null"));
 
 			ViewBag.Info = curr_has_inf;
 
@@ -71,7 +71,7 @@ namespace DotnetPlayground.Controllers
 
 			var logger_tsk = Task.Run(() =>
 			{
-				_logger.LogInformation(0, $"{nameof(hi.Search)} = {hi.Search}, {nameof(hi.Kind)} = {hi.Kind.ToString()}");
+				_logger.LogInformation("Search = {Search}, Kind = {Kind}", hi.Search, hi.Kind);
 			});
 
 			hi.Search = hi.Search.Trim().ToLower();
@@ -90,7 +90,7 @@ namespace DotnetPlayground.Controllers
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public async Task<ActionResult> Autocomplete([Required]string text, bool ajax)
+		public async Task<ActionResult> Autocomplete([Required] string text, bool ajax)
 		{
 			if (!ModelState.IsValid)
 			{
@@ -104,7 +104,7 @@ namespace DotnetPlayground.Controllers
 			}
 			var logger_tsk = Task.Run(() =>
 			{
-				_logger.LogInformation(0, $"{nameof(text)} = {text}, {nameof(ajax)} = {ajax.ToString()}");
+				_logger.LogInformation("text = {text}, ajax = {ajax}", text, ajax.ToString());
 			});
 
 			text = text.Trim().ToLower();
