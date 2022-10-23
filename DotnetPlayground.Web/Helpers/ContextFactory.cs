@@ -15,6 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DotnetPlayground
@@ -195,7 +196,6 @@ namespace DotnetPlayground
 						{
 							UserName = "Playwright1@test.domain.com",
 							Email = "Playwright1@test.domain.com",
-							//Age = 20,
 							UserSettingsJSON = "{}",
 							Name = "Playwright1"
 						},
@@ -205,7 +205,6 @@ namespace DotnetPlayground
 						{
 							UserName = "Playwright2@test.domain.com",
 							Email = "Playwright2@test.domain.com",
-							//Age = 18,
 							UserSettingsJSON = "{}",
 							Name = "Playwright2"
 						},
@@ -236,18 +235,27 @@ namespace DotnetPlayground
 			}
 		}
 
-		public static async Task CreateDBApplyMigrationsAndSeedDebugUsers(IHost host)
+		public static async Task CreateDBApplyMigrationsAndSeedDebugUsers(IHost host, CancellationToken token = default)
 		{
 			using (var scope = host.Services.CreateScope())
 			{
+				//main app context - blogging
 				using var blogging_ctx = scope.ServiceProvider.GetRequiredService<BloggingContext>();
-				if (await blogging_ctx.Database.EnsureCreatedAsync())
-				{
-					//blogging db created now apply migration to games context
-					using var games_ctx = scope.ServiceProvider.GetRequiredService<InkBall.Module.Model.GamesContext>();
-					await games_ctx.Database.MigrateAsync();
-				}
+				//check if any migrations applied, if not - do that
+				var migrations_applied = await blogging_ctx.Database.GetAppliedMigrationsAsync(token);
+				if (!migrations_applied.Any())
+					await blogging_ctx.Database.MigrateAsync(token);
 
+
+				//blogging db created now apply migration to games context
+				using var games_ctx = scope.ServiceProvider.GetRequiredService<InkBall.Module.Model.GamesContext>();
+				migrations_applied = await games_ctx.Database.GetAppliedMigrationsAsync(token);
+				//check if games related context migrations applied, if not - do that
+				if (!migrations_applied.Any(m => m.Contains(nameof(InkBall.Module.Migrations.InitialInkBall))))
+					await games_ctx.Database.MigrateAsync(token);
+
+
+				//seed debug/test users if not present already
 				await SeedUsers(scope.ServiceProvider);
 			}
 		}
