@@ -86,12 +86,14 @@ workflows:
           filters:
             branches:
               only:
+                - master
                 - dev
                 - circleci-project-setup
       - build:
           filters:
             branches:
               only:
+                - master
                 - dev
                 - circleci-project-setup
           requires:
