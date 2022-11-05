@@ -173,7 +173,7 @@ namespace DotnetPlayground.Models
 					// 	v => JsonConvert.DeserializeObject<ApplicationUserSettings>(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore })
 					// )
 					.HasColumnName("UserSettings")
-					;
+					.HasColumnType(JsonColumnTypeFromProvider(Database.ProviderName));
 			});
 		}
 	}
