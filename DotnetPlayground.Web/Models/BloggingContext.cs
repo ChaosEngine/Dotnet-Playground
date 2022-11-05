@@ -1,5 +1,6 @@
 ﻿using DotnetPlayground;
 using DotnetPlayground.Models;
+using InkBall.Module.Model;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
@@ -64,29 +65,8 @@ namespace DotnetPlayground.Models
 			}
 		}
 
-		internal static string JsonColumnTypeFromProvider(string activeProvider)
-		{
-			switch (activeProvider)
-			{
-				case "Microsoft.EntityFrameworkCore.SqlServer":
-					return "nvarchar(1000)";
-
-				case "Pomelo.EntityFrameworkCore.MySql":
-					return "json";
-
-				case "Microsoft.EntityFrameworkCore.Sqlite":
-					return "TEXT";
-
-				case "Npgsql.EntityFrameworkCore.PostgreSQL":
-					return "jsonb";
-
-				case "Oracle.EntityFrameworkCore":
-					return "CLOB";
-
-				default:
-					throw new NotSupportedException($"Bad DBKind name {activeProvider}");
-			}
-		}
+		internal static string JsonColumnTypeFromProvider(string activeProvider) =>
+			GamesContext.JsonColumnTypeFromProvider(activeProvider);
 
 		public BloggingContext(DbContextOptions<BloggingContext> options)
 			: base(options)
