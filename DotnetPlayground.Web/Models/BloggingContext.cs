@@ -92,6 +92,7 @@ namespace DotnetPlayground.Models
 				entity.HasOne(d => d.Blog)
 					.WithMany(p => p.Post)
 					.HasForeignKey(d => d.BlogId);
+				entity.Property(e => e.PostId).ValueGeneratedOnAdd();
 				entity.ToTable("Post");
 			});
 

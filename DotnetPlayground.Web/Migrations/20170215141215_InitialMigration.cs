@@ -21,6 +21,7 @@ namespace DotnetPlayground.Migrations
                 {
                     BlogId = table.Column<int>(nullable: false)
 						.Annotation("Sqlite:Autoincrement", true)
+						.Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
 #if INCLUDE_SQLSERVER
 						.Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
 #endif
@@ -56,14 +57,18 @@ namespace DotnetPlayground.Migrations
                 {
                     PostId = table.Column<int>(nullable: false)
 						.Annotation("Sqlite:Autoincrement", true)
+						.Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
 #if INCLUDE_ORACLE
 						.Annotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn)
 #endif
 #if INCLUDE_SQLSERVER
 						.Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
 #endif
-                        ,
-                    BlogId = table.Column<int>(nullable: false),
+#if INCLUDE_POSTGRES
+						.Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
+#endif
+						,
+					BlogId = table.Column<int>(nullable: false),
                     Content = table.Column<string>(nullable: true),
                     Title = table.Column<string>(nullable: true)
                 },
