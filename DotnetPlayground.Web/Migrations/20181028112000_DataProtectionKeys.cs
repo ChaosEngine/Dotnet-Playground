@@ -27,7 +27,7 @@ namespace DotnetPlayground.Migrations
 						.Annotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn)
 #endif
 #if INCLUDE_POSTGRES
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
 #endif
                     , FriendlyName = table.Column<string>(nullable: true, maxLength: 100),
                     Xml = table.Column<string>(nullable: true, maxLength: 4000)

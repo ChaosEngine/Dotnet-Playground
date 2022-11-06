@@ -89,10 +89,10 @@ namespace DotnetPlayground
 					conn_str = configuration.GetConnectionString("PostgreSql");
 					if (dbContextOpts != null)
 					{
-						var conn = new Npgsql.NpgsqlConnection(conn_str);
-						conn.ProvideClientCertificatesCallback = MyProvideClientCertificatesCallback;
-
-						dbContextOpts.UseNpgsql(conn);
+						dbContextOpts.UseNpgsql(conn_str, (connBuilder) =>
+						{
+							connBuilder.ProvideClientCertificatesCallback(MyProvideClientCertificatesCallback);
+						});
 					}
 					break;
 #endif

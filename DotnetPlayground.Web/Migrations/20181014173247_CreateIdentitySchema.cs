@@ -90,7 +90,7 @@ namespace DotnetPlayground.Migrations
 						.Annotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn)
 #endif
 #if INCLUDE_POSTGRES
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
 #endif
                     , UserId = table.Column<string>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
