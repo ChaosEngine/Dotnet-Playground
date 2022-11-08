@@ -27,6 +27,7 @@ namespace DotnetPlayground.Migrations
 			//description of similiar bug: https://github.com/npgsql/efcore.pg/issues/144
             // all in all: need to cover to postgresql special case, even when there is no data(!)
 			string json_type = BloggingContext.JsonColumnTypeFromProvider(this.ActiveProvider);
+#if INCLUDE_POSTGRES
 			if (migrationBuilder.IsNpgsql())
 			{
 				migrationBuilder.AlterColumn<string>(
@@ -38,13 +39,21 @@ namespace DotnetPlayground.Migrations
 			}
             else
 			{
-				migrationBuilder.AlterColumn<string>(
+                migrationBuilder.AlterColumn<string>(
                     name: "Json",
                     table: "GoogleProtectionKeys",
                     type: json_type,
 					nullable: true,
                     oldType: "varchar(100)");
             }
+#else
+           migrationBuilder.AlterColumn<string>(
+                    name: "Json",
+                    table: "GoogleProtectionKeys",
+                    type: json_type,
+					nullable: true,
+                    oldType: "varchar(100)");
+#endif
 		}
 
 		protected override void Down(MigrationBuilder migrationBuilder)
