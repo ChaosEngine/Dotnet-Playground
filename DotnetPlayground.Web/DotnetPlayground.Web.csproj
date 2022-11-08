@@ -17,11 +17,14 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>TRACE;INCLUDE_ORACLE;INCLUDE_MONGODB;INCLUDE_SQLSERVER;INCLUDE_POSTGRES</DefineConstants>
+		<DefineConstants>TRACE;INCLUDE_ORACLE;INCLUDE_MONGODB;INCLUDE_SQLSERVER;INCLUDE_POSTGRES;INCLUDE_MYSQL</DefineConstants>
 	</PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Oracle|AnyCPU'">
-    <DefineConstants>INCLUDE_ORACLE</DefineConstants>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Oracle|AnyCPU'">
+		<DefineConstants>INCLUDE_ORACLE</DefineConstants>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DefineConstants>INCLUDE_MYSQL</DefineConstants>
+	</PropertyGroup>
 
 	<ItemGroup>
 		<None Update="wwwroot\**\*;Views\**\*">
@@ -41,7 +44,7 @@
 		<PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="6.0.10" Condition="$(DefineConstants.Contains('INCLUDE_SQLSERVER'))" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.10" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.7" Condition="$(DefineConstants.Contains('INCLUDE_POSTGRES'))" />
-		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="6.0.2" />
+		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="6.0.2" Condition="$(DefineConstants.Contains('INCLUDE_MYSQL'))" />
 		<PackageReference Include="Oracle.EntityFrameworkCore" Version="6.21.61" Condition="$(DefineConstants.Contains('INCLUDE_ORACLE'))" />
 		<PackageReference Include="IdentityManager2.AspNetIdentity" Version="1.0.0" />
 		<PackageReference Include="Lib.AspNetCore.ServerTiming" Version="5.0.1" />
@@ -67,7 +70,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Caching-MySQL\src\Pomelo.Extensions.Caching.MySql\Pomelo.Extensions.Caching.MySql.csproj" />
+		<ProjectReference Include="..\Caching-MySQL\src\Pomelo.Extensions.Caching.MySql\Pomelo.Extensions.Caching.MySql.csproj" Condition="$(DefineConstants.Contains('INCLUDE_MYSQL'))" />
 		<ProjectReference Include="..\InkBall\src\InkBall.Module\InkBall.Module.csproj" />
 		<ProjectReference Include="..\IdentityManager2\src\IdentityManager2\IdentityManager2.csproj" />
 		<Watch Include="..\InkBall\src\InkBall.Module\**\*.cshtml" />

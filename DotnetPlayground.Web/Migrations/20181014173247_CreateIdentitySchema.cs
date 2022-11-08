@@ -82,7 +82,9 @@ namespace DotnetPlayground.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Sqlite:Autoincrement", true)
+#if INCLUDE_MYSQL
 						.Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
+#endif
 #if INCLUDE_SQLSERVER
 						.Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
 #endif

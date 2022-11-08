@@ -7,7 +7,9 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+#if INCLUDE_MYSQL
 using MySqlConnector;
+#endif
 #if INCLUDE_POSTGRES
 using Npgsql;
 using NpgsqlTypes;
@@ -344,6 +346,7 @@ FETCH NEXT @limit ROWS ONLY
 		}
 #endif
 
+#if INCLUDE_MYSQL
 		/// <summary>
 		/// Searches my SQL asynchronous.
 		/// </summary>
@@ -459,6 +462,7 @@ LIMIT @limit OFFSET @offset
 				return (found, count);
 			}//end using
 		}
+#endif
 
 		/// <summary>
 		/// Searches the sqlite asynchronous.
@@ -862,8 +866,11 @@ OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 				{
 					switch (_entities.ConnectionTypeName)
 					{
+#if INCLUDE_MYSQL
 						case "mysqlconnection":
 							return await PagedSearchMySqlAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);
+#endif
+
 #if INCLUDE_SQLSERVER
 						case "sqlconnection":
 							return await PagedSearchSqlServerAsync(sortColumn, sortOrderDirection, searchText, offset, limit, token);

@@ -21,7 +21,9 @@ namespace DotnetPlayground.Migrations
                 {
                     BlogId = table.Column<int>(nullable: false)
 						.Annotation("Sqlite:Autoincrement", true)
+#if INCLUDE_MYSQL
 						.Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
+#endif
 #if INCLUDE_SQLSERVER
 						.Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
 #endif
@@ -57,7 +59,9 @@ namespace DotnetPlayground.Migrations
                 {
                     PostId = table.Column<int>(nullable: false)
 						.Annotation("Sqlite:Autoincrement", true)
+#if INCLUDE_MYSQL
 						.Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
+#endif
 #if INCLUDE_ORACLE
 						.Annotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn)
 #endif

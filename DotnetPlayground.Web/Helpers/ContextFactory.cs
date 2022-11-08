@@ -34,6 +34,7 @@ namespace DotnetPlayground
 			string conn_str;
 			switch (configuration["DBKind"]?.ToLower())
 			{
+#if INCLUDE_MYSQL
 				case "mysql":
 				case "mariadb":
 				case "maria":
@@ -55,6 +56,7 @@ namespace DotnetPlayground
 						});
 					}
 					break;
+#endif
 
 #if INCLUDE_SQLSERVER
 				case "sqlserver":
