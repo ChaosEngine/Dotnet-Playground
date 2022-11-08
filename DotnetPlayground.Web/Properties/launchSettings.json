@@ -17,7 +17,7 @@
     "Web-Kestrel": {
       "commandName": "Project",
       "environmentVariables": {
-        "ASPNETCORE_URLS": "https://+:4553",
+        "ASPNETCORE_URLS": "https://localhost:4553",
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "applicationUrl": "https://localhost:4553"
