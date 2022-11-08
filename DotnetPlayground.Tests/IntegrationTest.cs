@@ -1247,7 +1247,7 @@ namespace Integration
 					Assert.IsType<StreamContent>(response.Content);
 					Assert.True(response.Content.Headers.TryGetValues("Content-Type", out c_type));
 					Assert.NotNull(c_type);
-					Assert.Equal("application/javascript", response.Content.Headers.ContentType.MediaType);
+					Assert.Equal("text/javascript", response.Content.Headers.ContentType.MediaType);
 					break;
 
 				case ".gif":
