@@ -10,7 +10,6 @@
 		<UserSecretsId>aspnet-DotnetPlayground-20161230022416</UserSecretsId>
 		<TypeScriptToolsVersion>2.8</TypeScriptToolsVersion>
 		<TieredCompilation>true</TieredCompilation>
-		<!--<PublishTrimmed>true</PublishTrimmed>-->
 		<TrimMode>link</TrimMode>
 		<SuppressTrimAnalysisWarnings>false</SuppressTrimAnalysisWarnings>
 		<Configurations>Debug;Release;Oracle</Configurations>
