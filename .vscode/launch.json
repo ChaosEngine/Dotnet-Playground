@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/DotnetPlayground.Web/bin/Debug/net6.0/DotnetPlayground.Web.dll",
+            "program": "${workspaceFolder}/DotnetPlayground.Web/bin/Debug/net7.0/DotnetPlayground.Web.dll",
             "args": [],
             "cwd": "${workspaceFolder}/DotnetPlayground.Web",
             "stopAtEntry": false,

@@ -85,6 +85,7 @@ workflows:
                 - master
                 - dev
                 - circleci-project-setup
+                - dotnet-7
       - build:
           filters:
             branches:
@@ -92,5 +93,6 @@ workflows:
                 - master
                 - dev
                 - circleci-project-setup
+                - dotnet-7
           requires:
             - run-tests

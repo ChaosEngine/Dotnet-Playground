@@ -1,10 +1,10 @@
 # syntax = docker/dockerfile:experimental
-FROM mcr.microsoft.com/dotnet/sdk:6.0-bullseye-slim AS build
+FROM mcr.microsoft.com/dotnet/sdk:7.0-bullseye-slim AS build
 RUN --mount=type=cache,target=/root/.nuget --mount=type=cache,target=/root/.local/share/NuGet --mount=type=cache,target=/root/.npm/ --mount=type=cache,target=./DotnetPlayground.Web/node_modules
 RUN curl -sL https://deb.nodesource.com/setup_18.x | bash - && apt-get install -y nodejs
 WORKDIR /build
 
-ENV DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/net6.0/Blogging.db"
+ENV DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/net7.0/Blogging.db"
 ARG SOURCE_COMMIT
 ARG SOURCE_BRANCH
 ARG BUILD_CONFIG=${BUILD_CONFIG:-Release}
@@ -32,11 +32,11 @@ RUN dotnet publish --no-restore -c $BUILD_CONFIG --self-contained -r linux-x64 \
 
 
 
-FROM mcr.microsoft.com/dotnet/runtime-deps:6.0-bullseye-slim
+FROM mcr.microsoft.com/dotnet/runtime-deps:7.0-bullseye-slim
 WORKDIR /app
 ENV USER=nobody TZ=Europe/Warsaw ASPNETCORE_URLS=http://+:5000
 ARG BUILD_CONFIG=${BUILD_CONFIG:-Release}
-COPY --from=build --chown="$USER":"$USER" /build/DotnetPlayground.Web/bin/$BUILD_CONFIG/net6.0/linux-x64/publish/ /build/startApp.sh ./
+COPY --from=build --chown="$USER":"$USER" /build/DotnetPlayground.Web/bin/$BUILD_CONFIG/net7.0/linux-x64/publish/ /build/startApp.sh ./
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
