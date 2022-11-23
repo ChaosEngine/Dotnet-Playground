@@ -237,33 +237,38 @@ namespace DotnetPlayground.Repositories
 		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> PagedSearchSqlServerAsync(string sortColumn, string sortOrderDirection,
 					string searchText, int offset, int limit, CancellationToken token)
 		{
-			string col_names = string.Join("],[", AllColumnNames);
+			//string col_names = string.Join("],[", AllColumnNames);
 			string sql =
 (string.IsNullOrEmpty(searchText) ?
-"SELECT rows FROM sysindexes WHERE id = OBJECT_ID('Hashes') AND indid < 2"
+$@"SELECT A.*,
+	(SELECT rows FROM sysindexes WHERE id = OBJECT_ID('Hashes') AND indid < 2) cnt
+FROM 
+(
+    SELECT *
+    FROM [Hashes]
+	{(string.IsNullOrEmpty(sortColumn) ? "ORDER BY 1" : $"ORDER BY [{sortColumn}] {sortOrderDirection}")}
+    OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY
+) A
+"
 :
 $@"
-SELECT [{col_names}]
-INTO #tempo
-FROM Hashes
-WHERE {WhereColumnCondition('[', ']')};
-SELECT count(*) cnt FROM #tempo
-"
-) +
-$@";
-SELECT [{col_names}]
-FROM {(string.IsNullOrEmpty(searchText) ? "Hashes" : "#tempo")}
-
+WITH RowAndWhere AS
+(
+    SELECT *
+    FROM [Hashes]
+    WHERE {WhereColumnCondition('[', ']')}
+)
+SELECT RaW.*, (SELECT COUNT(*) FROM RowAndWhere) cnt
+FROM RowAndWhere RaW
 {(string.IsNullOrEmpty(sortColumn) ? "ORDER BY 1" : $"ORDER BY [{sortColumn}] {sortOrderDirection}")}
-OFFSET @offset ROWS
-FETCH NEXT @limit ROWS ONLY
-";
+OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY
+");
 
 			var conn = _entities.Database.GetDbConnection();
 			try
 			{
 				var found = new List<ThinHashes>(limit);
-				int count = -1;
+				int count = 0;
 
 				await conn.OpenAsync(token);
 				using (var cmd = conn.CreateCommand())
@@ -311,29 +316,21 @@ FETCH NEXT @limit ROWS ONLY
 
 					using (var rdr = await cmd.ExecuteReaderAsync(token))
 					{
-						if (await rdr.ReadAsync(token))
+						object[] strings = new object[4];
+						while (await rdr.ReadAsync(token))
 						{
-							count = rdr.GetInt32(0);
-						}
-
-						if (count > 0 && await rdr.NextResultAsync(token) && rdr.HasRows)
-						{
-							while (await rdr.ReadAsync(token))
+							rdr.GetValues(strings);
+							found.Add(
+							new ThinHashes
 							{
-								string[] strings = new string[3];
-								rdr.GetValues(strings);
-								found.Add(new ThinHashes
-								{
-									Key = strings[0],
-									HashMD5 = strings[1],
-									HashSHA256 = strings[2]
-								}/*strings*/);
+								Key = (string)strings[0],
+								HashMD5 = (string)strings[1],
+								HashSHA256 = (string)strings[2],
 							}
+							);
 						}
-						else
-						{
-							//found.Add(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
-						}
+						if (strings[3] != null)
+							count = int.Parse(strings[3].ToString());
 					}
 				}
 
@@ -360,32 +357,39 @@ FETCH NEXT @limit ROWS ONLY
 		private async Task<(List<ThinHashes> Itemz, int Count)> PagedSearchMySqlAsync(string sortColumn, string sortOrderDirection, string searchText,
 					int offset, int limit, CancellationToken token)
 		{
-			string col_names = string.Join("`,`", AllColumnNames);
+			//string col_names = string.Join("`,`", AllColumnNames);
 			string sql = "SET SESSION SQL_BIG_SELECTS=1;" +
 (string.IsNullOrEmpty(searchText) ?
-@"
-SELECT count(*) cnt FROM Hashes"
+$@"
+SELECT
+	A.*, (SELECT COUNT(*) FROM `Hashes`) cnt
+FROM 
+(
+	SELECT *
+	FROM `Hashes`
+	{(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY `{sortColumn}` {sortOrderDirection}")}
+	LIMIT @limit OFFSET @offset
+) A
+"
 :
 $@"
-CREATE TEMPORARY TABLE tempo AS
-SELECT `{col_names}`
-FROM Hashes
-WHERE {WhereColumnCondition('`', '`')}
-;
-SELECT count(*) cnt FROM tempo"
-) +
-$@";
-SELECT `{col_names}`
-FROM {(string.IsNullOrEmpty(searchText) ? "Hashes" : "tempo")}
+WITH RowAndWhere AS
+(
+    SELECT *
+    FROM `Hashes`
+    WHERE {WhereColumnCondition('`', '`')}
+)
 
+SELECT RaW.*, (SELECT COUNT(*) FROM RowAndWhere) cnt
+FROM RowAndWhere RaW
 {(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY `{sortColumn}` {sortOrderDirection}")}
 LIMIT @limit OFFSET @offset
-";
+");
 
 			using (var conn = new MySqlConnection(_configuration.GetConnectionString("MySQL")))
 			{
 				var found = new List<ThinHashes>(limit);
-				int count = -1;
+				int count = 0;
 
 				await conn.OpenAsync(token);
 				using (var cmd = new MySqlCommand(sql, conn))
@@ -433,29 +437,21 @@ LIMIT @limit OFFSET @offset
 
 					using (var rdr = await cmd.ExecuteReaderAsync(token))
 					{
-						if (await rdr.ReadAsync(token))
+						object[] strings = new object[4];
+						while (await rdr.ReadAsync(token))
 						{
-							count = rdr.GetInt32(0);
-						}
-
-						if (count > 0 && await rdr.NextResultAsync(token) && rdr.HasRows)
-						{
-							while (await rdr.ReadAsync(token))
+							rdr.GetValues(strings);
+							found.Add(
+							new ThinHashes
 							{
-								string[] strings = new string[3];
-								rdr.GetValues(strings);
-								found.Add(new ThinHashes
-								{
-									Key = strings[0],
-									HashMD5 = strings[1],
-									HashSHA256 = strings[2]
-								}/*strings*/);
+								Key = (string)strings[0],
+								HashMD5 = (string)strings[1],
+								HashSHA256 = (string)strings[2],
 							}
+							);
 						}
-						else
-						{
-							//found.Add(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
-						}
+						if (strings[3] != null)
+							count = int.Parse(strings[3].ToString());
 					}
 				}
 
@@ -477,44 +473,36 @@ LIMIT @limit OFFSET @offset
 		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> PagedSearchSqliteAsync(string sortColumn, string sortOrderDirection,
 					string searchText, int offset, int limit, CancellationToken token)
 		{
-			string col_names = string.Join("],[", AllColumnNames);
-			string sql;
-
-			if (string.IsNullOrEmpty(searchText))
-			{
-				sql = $@"SELECT count(*) cnt FROM Hashes
-;
-SELECT [{col_names}]
+			// string col_names = string.Join("],[", AllColumnNames);
+			string sql =
+(string.IsNullOrEmpty(searchText) ?
+$@"
+SELECT A.*, (SELECT count(*) FROM Hashes) cnt
+FROM 
+(SELECT *
 FROM Hashes
-
+{(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY [{sortColumn}] {sortOrderDirection}")}
+LIMIT @limit OFFSET @offset) A
+"
+:
+$@"
+WITH RowAndWhere AS
+(
+	SELECT *
+	FROM ""Hashes""
+	WHERE {WhereColumnCondition('[', ']')}
+)
+SELECT B.*, (SELECT COUNT(*) FROM RowAndWhere) cnt
+FROM RowAndWhere B
 {(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY [{sortColumn}] {sortOrderDirection}")}
 LIMIT @limit OFFSET @offset
-";
-			}
-			else
-			{
-				string temp_tab_name = $"tempo_{Guid.NewGuid():N}";
-				sql = $@"
-CREATE TEMPORARY TABLE {temp_tab_name} AS
-SELECT [{col_names}]
-FROM Hashes
-WHERE {WhereColumnCondition('[', ']')}
-;
-SELECT count(*) cnt FROM {temp_tab_name}
-;
-SELECT [{col_names}]
-FROM {temp_tab_name}
-
-{(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY [{sortColumn}] {sortOrderDirection}")}
-LIMIT @limit OFFSET @offset
-";
-			}
+");
 
 			var conn = _entities.Database.GetDbConnection();
 			try
 			{
 				var found = new List<ThinHashes>(limit);
-				int count = -1;
+				int count = 0;
 
 				await conn.OpenAsync(token);
 				using (var cmd = conn.CreateCommand())
@@ -562,29 +550,21 @@ LIMIT @limit OFFSET @offset
 
 					using (var rdr = await cmd.ExecuteReaderAsync(token))
 					{
-						if (await rdr.ReadAsync(token))
+						object[] strings = new object[4];
+						while (await rdr.ReadAsync(token))
 						{
-							count = rdr.GetInt32(0);
-						}
-
-						if (count > 0 && await rdr.NextResultAsync(token) && rdr.HasRows)
-						{
-							while (await rdr.ReadAsync(token))
+							rdr.GetValues(strings);
+							found.Add(
+							new ThinHashes
 							{
-								string[] strings = new string[3];
-								rdr.GetValues(strings);
-								found.Add(new ThinHashes
-								{
-									Key = strings[0],
-									HashMD5 = strings[1],
-									HashSHA256 = strings[2]
-								}/*strings*/);
+								Key = (string)strings[0],
+								HashMD5 = (string)strings[1],
+								HashSHA256 = (string)strings[2],
 							}
+							);
 						}
-						else
-						{
-							//found.Add(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
-						}
+						if (strings[3] != null)
+							count = int.Parse(strings[3].ToString());
 					}
 				}
 
@@ -609,34 +589,37 @@ LIMIT @limit OFFSET @offset
 		/// <returns></returns>
 		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> PagedSearchPostgresAsync(string sortColumn, string sortOrderDirection, string searchText, int offset, int limit, CancellationToken token)
 		{
-			string col_names = string.Join("\",\"", PostgresAllColumnNames);
-			string sql =// "SET SESSION SQL_BIG_SELECTS=1;" +
+			// string col_names = string.Join("\",\"", PostgresAllColumnNames);
+			string sql =
 (string.IsNullOrEmpty(searchText) ?
-@"
-SELECT count(*) cnt FROM ""Hashes"""
+$@"
+SELECT A.*, (SELECT count(*) FROM ""Hashes"") cnt
+FROM 
+(SELECT *
+FROM ""Hashes""
+{(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY \"{PostgresAllColumnNames.FirstOrDefault(x => string.Compare(x, sortColumn, StringComparison.CurrentCultureIgnoreCase) == 0)}\" {sortOrderDirection}")}
+LIMIT @limit OFFSET @offset) A
+"
 :
 $@"
-CREATE TEMPORARY TABLE tempo AS
-SELECT ""{col_names}""
-FROM ""Hashes""
-WHERE {WhereColumnCondition('"', '"', PostgresAllColumnNames)}
-;
-SELECT count(*) cnt FROM tempo"
-) +
-$@";
-SELECT ""{col_names}""
-FROM {(string.IsNullOrEmpty(searchText) ? "\"Hashes\"" : "tempo")}
-
-{(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY \"{PostgresAllColumnNames.FirstOrDefault(x => string.Compare(x, sortColumn, StringComparison.CurrentCultureIgnoreCase) == 0)}\" {sortOrderDirection}")}
+WITH RowAndWhere AS
+(
+	SELECT *
+	FROM ""Hashes""
+    WHERE {WhereColumnCondition('"', '"', PostgresAllColumnNames)}
+)
+SELECT B.*, (SELECT COUNT(*) FROM RowAndWhere) cnt
+FROM RowAndWhere B
+{(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY B.\"{PostgresAllColumnNames.FirstOrDefault(x => string.Compare(x, sortColumn, StringComparison.CurrentCultureIgnoreCase) == 0)}\" {sortOrderDirection}")}
 LIMIT @limit OFFSET @offset
-";
+");
 
 			using (var conn = new NpgsqlConnection(_configuration.GetConnectionString("PostgreSql")))
 			{
 				conn.ProvideClientCertificatesCallback = ContextFactory.MyProvideClientCertificatesCallback;
 
 				var found = new List<ThinHashes>(limit);
-				int count = -1;
+				int count = 0;
 
 				await conn.OpenAsync(token);
 				using (var cmd = new NpgsqlCommand(sql, conn))
@@ -684,29 +667,21 @@ LIMIT @limit OFFSET @offset
 
 					using (var rdr = await cmd.ExecuteReaderAsync(token))
 					{
-						if (await rdr.ReadAsync(token))
+						object[] strings = new object[4];
+						while (await rdr.ReadAsync(token))
 						{
-							count = rdr.GetInt32(0);
-						}
-
-						if (count > 0 && await rdr.NextResultAsync(token) && rdr.HasRows)
-						{
-							while (await rdr.ReadAsync(token))
+							rdr.GetValues(strings);
+							found.Add(
+							new ThinHashes
 							{
-								string[] strings = new string[3];
-								rdr.GetValues(strings);
-								found.Add(new ThinHashes
-								{
-									Key = strings[0],
-									HashMD5 = strings[1],
-									HashSHA256 = strings[2]
-								}/*strings*/);
+								Key = (string)strings[0],
+								HashMD5 = (string)strings[1],
+								HashSHA256 = (string)strings[2],
 							}
+							);
 						}
-						else
-						{
-							//found.Add(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
-						}
+						if (strings[3] != null)
+							count = int.Parse(strings[3].ToString());
 					}
 				}
 
@@ -729,7 +704,6 @@ LIMIT @limit OFFSET @offset
 		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> PagedSearchOracleAsync(
 			string sortColumn, string sortOrderDirection, string searchText, int offset, int limit, CancellationToken token)
 		{
-			string col_names = string.Join("\",\"", PostgresAllColumnNames);
 			string sql =
 (string.IsNullOrEmpty(searchText) ?
 $@"
@@ -820,8 +794,6 @@ OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 								HashMD5 = (string)strings[1],
 								HashSHA256 = (string)strings[2],
 							}
-							/*strings.Take(3).Cast<string>().ToArray()*/
-							//new string[] { (string)strings[0], (string)strings[1], (string)strings[2] }
 							);
 						}
 						if (strings[3] != null)
