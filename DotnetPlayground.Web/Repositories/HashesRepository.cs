@@ -473,36 +473,44 @@ LIMIT @limit OFFSET @offset
 		private async Task<(IEnumerable<ThinHashes> Itemz, int Count)> PagedSearchSqliteAsync(string sortColumn, string sortOrderDirection,
 					string searchText, int offset, int limit, CancellationToken token)
 		{
-			// string col_names = string.Join("],[", AllColumnNames);
-			string sql =
-(string.IsNullOrEmpty(searchText) ?
-$@"
-SELECT A.*, (SELECT count(*) FROM Hashes) cnt
-FROM 
-(SELECT *
+			string col_names = string.Join("],[", AllColumnNames);
+			string sql;
+
+			if (string.IsNullOrEmpty(searchText))
+			{
+				sql = $@"SELECT count(*) cnt FROM Hashes
+;
+SELECT [{col_names}]
 FROM Hashes
-{(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY [{sortColumn}] {sortOrderDirection}")}
-LIMIT @limit OFFSET @offset) A
-"
-:
-$@"
-WITH RowAndWhere AS
-(
-	SELECT *
-	FROM ""Hashes""
-	WHERE {WhereColumnCondition('[', ']')}
-)
-SELECT B.*, (SELECT COUNT(*) FROM RowAndWhere) cnt
-FROM RowAndWhere B
+
 {(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY [{sortColumn}] {sortOrderDirection}")}
 LIMIT @limit OFFSET @offset
-");
+";
+			}
+			else
+			{
+				string temp_tab_name = $"tempo_{Guid.NewGuid():N}";
+				sql = $@"
+CREATE TEMPORARY TABLE {temp_tab_name} AS
+SELECT [{col_names}]
+FROM Hashes
+WHERE {WhereColumnCondition('[', ']')}
+;
+SELECT count(*) cnt FROM {temp_tab_name}
+;
+SELECT [{col_names}]
+FROM {temp_tab_name}
+
+{(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY [{sortColumn}] {sortOrderDirection}")}
+LIMIT @limit OFFSET @offset
+";
+			}
 
 			var conn = _entities.Database.GetDbConnection();
 			try
 			{
 				var found = new List<ThinHashes>(limit);
-				int count = 0;
+				int count = -1;
 
 				await conn.OpenAsync(token);
 				using (var cmd = conn.CreateCommand())
@@ -550,21 +558,29 @@ LIMIT @limit OFFSET @offset
 
 					using (var rdr = await cmd.ExecuteReaderAsync(token))
 					{
-						object[] strings = new object[4];
-						while (await rdr.ReadAsync(token))
+						if (await rdr.ReadAsync(token))
 						{
-							rdr.GetValues(strings);
-							found.Add(
-							new ThinHashes
-							{
-								Key = (string)strings[0],
-								HashMD5 = (string)strings[1],
-								HashSHA256 = (string)strings[2],
-							}
-							);
+							count = rdr.GetInt32(0);
 						}
-						if (strings[3] != null)
-							count = int.Parse(strings[3].ToString());
+
+						if (count > 0 && await rdr.NextResultAsync(token) && rdr.HasRows)
+						{
+							while (await rdr.ReadAsync(token))
+							{
+								string[] strings = new string[3];
+								rdr.GetValues(strings);
+								found.Add(new ThinHashes
+								{
+									Key = strings[0],
+									HashMD5 = strings[1],
+									HashSHA256 = strings[2]
+								}/*strings*/);
+							}
+						}
+						else
+						{
+							//found.Add(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
+						}
 					}
 				}
 
