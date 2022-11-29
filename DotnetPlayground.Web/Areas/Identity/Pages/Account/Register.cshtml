@@ -8,7 +8,7 @@
 
 <h4>Create a new account.</h4>
 <hr />
-<form method="post" action="~/Identity/Account/Register?returnUrl=@Model.ReturnUrl" class="col-sm-12 col-md-8 row g-3">
+<form id="profile-form" method="post" action="~/Identity/Account/Register?returnUrl=@Model.ReturnUrl" class="col-sm-12 col-md-8 row g-3">
 	<div asp-validation-summary="All" class="text-danger"></div>
 	<div class="col-12">
 		<label asp-for="Input.Email" class="form-label"></label>
@@ -31,10 +31,17 @@
 		<span asp-validation-for="Input.Name" class="text-danger"></span>
 	</div>
 	<div class="col-12">
-		<div class="form-check form-switch">
-			<input type="checkbox" class="form-check-input" asp-for="Input.DesktopNotifications" />
-			<label class="form-check-label" asp-for="Input.DesktopNotifications"></label>
-		</div>
+		<fieldset class="p-1">
+			<legend>InkBall</legend>
+			<div class="form-check form-switch">
+				<input type="checkbox" class="form-check-input" asp-for="Input.DesktopNotifications" />
+				<label class="form-check-label" asp-for="Input.DesktopNotifications"></label>
+			</div>
+			<div class="form-check form-switch">
+				<input type="checkbox" class="form-check-input" asp-for="Input.ShowChatNotifications" checked />
+				<label class="form-check-label" asp-for="Input.ShowChatNotifications"></label>
+			</div>
+		</fieldset>
 	</div>
 	<div class="col-12">
 		<button type="submit" class="btn btn-secondary w-auto">Register</button>
@@ -48,7 +55,10 @@
 "use strict";
 
 	function StoreApplicationUserSettings() {
-		const settings = { DesktopNotifications: $("#Input_DesktopNotifications:checked").length >= 1 };
+		const settings = { 
+			DesktopNotifications: $("#Input_DesktopNotifications:checked").length >= 1,
+			ShowChatNotifications: $("#Input_ShowChatNotifications:checked").length >= 1
+		};
 		const to_store = JSON.stringify(settings);
 		sessionStorage.setItem("ApplicationUserSettings", to_store);
 	}

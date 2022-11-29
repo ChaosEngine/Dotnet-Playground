@@ -39,10 +39,17 @@
 		<span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
 	</div>
 	<div class="col-12">
-		<div class="form-check form-switch">
-			<input type="checkbox" class="form-check-input" asp-for="Input.DesktopNotifications" />
-			<label class="form-check-label" asp-for="Input.DesktopNotifications"></label>
-		</div>
+		<fieldset class="p-1">
+			<legend>InkBall</legend>
+			<div class="form-check form-switch">
+				<input type="checkbox" class="form-check-input" asp-for="Input.DesktopNotifications" />
+				<label class="form-check-label" asp-for="Input.DesktopNotifications"></label>
+			</div>
+			<div class="form-check form-switch">
+				<input type="checkbox" class="form-check-input" asp-for="Input.ShowChatNotifications" />
+				<label class="form-check-label" asp-for="Input.ShowChatNotifications"></label>
+			</div>
+		</fieldset>
 	</div>
 	<div class="col-12">
 		<button id="update-profile-button" type="submit" class="btn btn-primary">Save</button>
@@ -56,7 +63,10 @@
 "use strict";
 
 	function StoreApplicationUserSettings() {
-		const settings = { DesktopNotifications: $("#Input_DesktopNotifications:checked").length >= 1 };
+		const settings = {
+			DesktopNotifications: $("#Input_DesktopNotifications:checked").length >= 1,
+			ShowChatNotifications: $("#Input_ShowChatNotifications:checked").length >= 1
+		};
 		const to_store = JSON.stringify(settings);
 		sessionStorage.setItem("ApplicationUserSettings", to_store);
 	}

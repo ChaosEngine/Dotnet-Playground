@@ -204,3 +204,9 @@ footer.container > noscript {
   z-index: -2;
   background-image: var(--uploadedImg);
 }
+
+/***************Preferences/Profile start*************/
+#profile-form fieldset {
+  border: 4px solid transparent;
+  border-image: 16 repeating-linear-gradient(90deg, blue, red 25%);
+}

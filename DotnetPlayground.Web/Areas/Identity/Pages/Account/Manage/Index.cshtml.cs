@@ -66,6 +66,9 @@ namespace IdentitySample.DefaultUI
 
 			[Display(Name = "Allow desktop notifications")]
 			public bool DesktopNotifications { get; set; }
+
+			[Display(Name = "Show chat notifications")]
+			public bool ShowChatNotifications { get; set; }
 		}
 
 		public async Task<IActionResult> OnGetAsync()
@@ -83,7 +86,8 @@ namespace IdentitySample.DefaultUI
 				//Age = user.Age,
 				Email = user.Email,
 				PhoneNumber = user.PhoneNumber,
-				DesktopNotifications = (user.UserSettings?.DesktopNotifications).GetValueOrDefault(false)
+				DesktopNotifications = (user.UserSettings?.DesktopNotifications).GetValueOrDefault(false),
+				ShowChatNotifications = (user.UserSettings?.ShowChatNotifications).GetValueOrDefault(false)
 			};
 
 			IsEmailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
@@ -109,8 +113,17 @@ namespace IdentitySample.DefaultUI
 			if (user.UserSettings == null)
 				user.UserSettings = new ApplicationUserSettings();
 
-			if (Input.DesktopNotifications != (user.UserSettings?.DesktopNotifications).GetValueOrDefault(false))
-				user.UserSettings = new ApplicationUserSettings { DesktopNotifications = Input.DesktopNotifications };
+			if (
+				Input.DesktopNotifications != (user.UserSettings?.DesktopNotifications).GetValueOrDefault(false) || 
+				Input.ShowChatNotifications != (user.UserSettings?.ShowChatNotifications).GetValueOrDefault(false)
+				)
+			{
+				user.UserSettings = new ApplicationUserSettings
+				{ 
+					DesktopNotifications = Input.DesktopNotifications,
+					ShowChatNotifications = Input.ShowChatNotifications
+				};
+			}
 
 			var updateProfileResult = await _userManager.UpdateAsync(user);
 			if (!updateProfileResult.Succeeded)

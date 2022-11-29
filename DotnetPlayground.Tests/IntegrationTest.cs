@@ -1058,6 +1058,7 @@ namespace Integration
 						{ "Input.Email", "alice.testing@example.org" },
 						{ "Input.PhoneNumber", "555438852" },
 						{ "Input.DesktopNotifications", "true" },
+						{ "Input.ShowChatNotifications", "true" },
 					};
 
 					using (var formPostBodyData = new FormUrlEncodedContent(payload))
@@ -1076,6 +1077,7 @@ namespace Integration
 							Assert.Contains("alice.testing@example.org", responseString);
 							Assert.Contains("555438852", responseString);
 							Assert.Contains("name=\"Input.DesktopNotifications\" value=\"true\"", responseString);
+							Assert.Contains("name=\"Input.ShowChatNotifications\" value=\"true\"", responseString);
 						}
 					}
 				}//end using (var get_response

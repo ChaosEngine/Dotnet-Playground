@@ -137,6 +137,9 @@ namespace IdentitySample.DefaultUI
 
 			[Display(Name = "Allow desktop notifications")]
 			public bool DesktopNotifications { get; set; }
+
+			[Display(Name = "Show chat notifications")]
+			public bool ShowChatNotifications { get; set; }
 		}
 
 		public override async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -153,7 +156,8 @@ namespace IdentitySample.DefaultUI
 					//Age = Input.Age,
 					UserSettings = new ApplicationUserSettings
 					{
-						DesktopNotifications = Input.DesktopNotifications
+						DesktopNotifications = Input.DesktopNotifications,
+						ShowChatNotifications = Input.ShowChatNotifications
 					}
 				};
 
