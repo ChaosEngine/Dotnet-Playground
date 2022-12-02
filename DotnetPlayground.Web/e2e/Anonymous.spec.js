@@ -2,7 +2,7 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * Tests redirects to authorize requireing pages
+ * Tests redirects to authorize requiring pages
  * @param {object} browser playwright
  * @param {string} pageUrl url to page
  */

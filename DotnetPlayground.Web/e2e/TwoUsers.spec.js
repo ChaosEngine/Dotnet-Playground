@@ -4,7 +4,7 @@ import { test, expect } from './TwoUsersFixtures';
 
 
 //////handy helper functions - START//////
-async function testLoggedInAndNoGameAllert(page, userName) {
+async function testLoggedInAndNoGameAlert(page, userName) {
 	await page.goto('InkBall/Game');
 
 	// Example locator pointing to "Welcome User" greeting.
@@ -26,7 +26,7 @@ async function testLoggedInAndNoGameAllert(page, userName) {
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
-const testPointExistanceForPlayer = async (player, x, y) => {
+const testPointExistenceForPlayer = async (player, x, y) => {
 	await expect(player.page.locator(`svg#screen > circle[cx="${x}"][cy="${y}"]`)).toBeVisible( { timeout: 20 * 1000 } );
 };
 
@@ -34,7 +34,7 @@ const putPointForPlayer = async (player, x, y, otherPlayer = undefined) => {
 	await player.page.locator('svg#screen').click({ position: { x: x * 16, y: y * 16 } , timeout: 20 * 1000   });
 
 	if (otherPlayer)
-		await testPointExistanceForPlayer(otherPlayer, x, y);
+		await testPointExistenceForPlayer(otherPlayer, x, y);
 };
 
 async function testLoggedInGamesList(page) {
@@ -57,7 +57,7 @@ async function createGameFromHome(player, gameTypeStr = 'First capture wins', bo
 	const selBoardSize = player.page.locator('select#BoardSize');
 	selBoardSize.selectOption({ label: boardSizeStr });
 
-	//P1 creates new game and goins into waiting-listening mode
+	//P1 creates new game and going into waiting-listening mode
 	const btnNewGame = player.page.locator('input[type=submit]', { hasText: 'New game' });
 	// await expect(btnNewGame).toBeVisible();
 	await btnNewGame.click();
@@ -122,9 +122,9 @@ async function chatPlayerToPlayer(fromPlayer, toPlayer, message) {
 test('Playwright1 and Playwright2 - no games created', async ({ Playwright1, Playwright2 }) => {
 	// ... interact with Playwright1 and/or Playwright2 ...
 
-	await testLoggedInAndNoGameAllert(Playwright1.page, Playwright1.userName);
+	await testLoggedInAndNoGameAlert(Playwright1.page, Playwright1.userName);
 
-	await testLoggedInAndNoGameAllert(Playwright2.page, Playwright2.userName);
+	await testLoggedInAndNoGameAlert(Playwright2.page, Playwright2.userName);
 });
 
 test('Playwright1 and Playwright2 - GamesList', async ({ Playwright1, Playwright2 }) => {
@@ -143,7 +143,7 @@ test('P1 create game, P2 joins, P2 wins', async ({ Playwright1: p1, Playwright2:
 
 	await delay(4 * 1000);//wait for signalR to settle in (?)
 
-	//put 5x p1 points and 5x p2 point interchangebly and verify existence
+	//put 5x p1 points and 5x p2 point interchangeably and verify existence
 	await putPointForPlayer(p1, 11, 3, p2);
 	await putPointForPlayer(p2, 6, 3, p1);
 	await putPointForPlayer(p1, 12, 4, p2);
@@ -163,7 +163,7 @@ test('P1 create game, P2 joins, P2 wins', async ({ Playwright1: p1, Playwright2:
 	await chatPlayerToPlayer(p1, p2, 'hello man');
 	await chatPlayerToPlayer(p2, p1, 'yo yo yo!');
 
-	//Ensure P1 sees P2 joined, then cancells started game
+	//Ensure P1 sees P2 joined, then cancels started game
 	// await surrenderOrCancelGame(p1);
 
 
