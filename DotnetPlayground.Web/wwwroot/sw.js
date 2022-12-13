@@ -95,7 +95,7 @@ self.addEventListener('install', function (event) {
 			'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.21.2/bootstrap-table.min.js',
 			//'https://cdn.jsdelivr.net/npm/chance@1.1.9/dist/chance.min.js',
 			'https://cdn.jsdelivr.net/npm/node-forge@1.3.1/dist/forge.min.js',
-			'https://cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.min.js',
+			'https://cdn.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js',
 			'https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js',
 			'https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js',
 			'https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@4.0.0/dist/jquery.validate.unobtrusive.min.js'
