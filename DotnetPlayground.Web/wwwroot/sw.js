@@ -6,17 +6,18 @@ let CACHE_NAME = 'cache';
 
 self.addEventListener('install', function (event) {
 	const swUrl = new URL(self.location);
-	const domain = swUrl.searchParams.get('domain');
+	const rootPath = swUrl.searchParams.get('path');
 	let isDev = swUrl.searchParams.get('isDev');
 	isDev = isDev === true || isDev === "true" || isDev === 1 || isDev === "1" ? true : false;
-	const suffix = isDev ? '' : '.min';
+	const suffix = isDev ? '.' : '.min.';
 	const version = swUrl.searchParams.get('version');
 	if (version !== "" && version !== "GIT_BRANCH_GIT_HASH") {
 		CACHE_NAME += '_' + version;
 	}
 
 	let RESOURCES = [
-		'',
+		//local pages to cache
+		'',//root or home
 		'Home/About',
 		'Home/Contact',
 		'Home/UnintentionalErr/',
@@ -32,6 +33,7 @@ self.addEventListener('install', function (event) {
 		'InkBall/Home',
 		'InkBall/Rules',
 
+		//local images to cache
 		'images/favicon.png',
 		'images/banner1.svg',
 		'images/banner2.svg',
@@ -46,19 +48,21 @@ self.addEventListener('install', function (event) {
 		'img/homescreen.jpg',
 		'https://haos.hopto.org/webcamgallery/poster.jpeg',
 
-		`js/workers/shared${suffix}.js`,
-		`js/workers/BruteForceWorker${suffix}.js`,
-		`js/BruteForce${suffix}.js`,
-		`css/site${suffix}.css`,
-		`js/site${suffix}.js`,
-		`js/Blogs${suffix}.js`,
-		`js/WebCamGallery${suffix}.js`,
-		`js/Puzzles${suffix}.js`,
-		`js/Hashes${suffix}.js`,
-		`js/VirtualScroll${suffix}.js`
+		//resources to cache
+		`js/workers/shared${suffix}js`,
+		`js/workers/BruteForceWorker${suffix}js`,
+		`js/BruteForce${suffix}js`,
+		`css/site${suffix}css`,
+		`js/site${suffix}js`,
+		`js/Blogs${suffix}js`,
+		`js/WebCamGallery${suffix}js`,
+		`js/Puzzles${suffix}js`,
+		`js/Hashes${suffix}js`,
+		`js/VirtualScroll${suffix}js`
 	];
 
 	if (isDev) {
+		//extrernal resources but installed locally
 		RESOURCES = RESOURCES.concat([
 			'lib/jquery/jquery.min.js',
 			'lib/bootstrap/css/bootstrap.min.css',
@@ -84,11 +88,11 @@ self.addEventListener('install', function (event) {
 		RESOURCES = RESOURCES.concat([
 			'https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.4.0/css/blueimp-gallery.min.css',
 			'https://cdnjs.cloudflare.com/ajax/libs/video.js/7.20.2/video-js.min.css',
-			'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.21.1/bootstrap-table.min.css',
+			'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.21.2/bootstrap-table.min.css',
 			'https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css',
 			'https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.4.0/js/blueimp-gallery.min.js',
 			'https://cdnjs.cloudflare.com/ajax/libs/video.js/7.20.2/alt/video.core.novtt.min.js',
-			'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.21.1/bootstrap-table.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.21.2/bootstrap-table.min.js',
 			//'https://cdn.jsdelivr.net/npm/chance@1.1.9/dist/chance.min.js',
 			'https://cdn.jsdelivr.net/npm/node-forge@1.3.1/dist/forge.min.js',
 			'https://cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.min.js',
@@ -112,9 +116,10 @@ self.addEventListener('install', function (event) {
 				const response = await fetch(crossRequest);
 				await cache.put(crossRequest, response);
 			});
-			//then load local domain requests
+			//then load local rootPath requests
 			await cache.addAll(RESOURCES.filter(res => res.indexOf("http") !== 0).map(localPath => {
-				return domain + localPath;
+				//console.log(`rootPath = ${rootPath}`);
+				return rootPath + localPath;
 			}));
 		})
 	);
