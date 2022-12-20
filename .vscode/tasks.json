@@ -22,8 +22,7 @@
             "command": "dotnet",
             "type": "process",
             "args": [
-                "test",
-                "${workspaceFolder}/DotnetPlayground.Tests/DotnetPlayground.Tests.csproj"
+                "test"
             ],
             "group": {
                 "kind": "test",
