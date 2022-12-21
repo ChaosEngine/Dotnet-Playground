@@ -17,7 +17,7 @@ jobs:
           command: |
             curl -O https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb
             dpkg -i packages-microsoft-prod.deb && rm packages-microsoft-prod.deb
-            apt update && apt install -y dotnet-sdk-6.0
+            apt update && apt install -y dotnet-sdk-7.0
       - run:
           name: Show versions
           command: |
@@ -58,7 +58,7 @@ jobs:
           path: ./test_coverage/
   build:
     docker:
-      - image: mcr.microsoft.com/dotnet/sdk:6.0
+      - image: mcr.microsoft.com/dotnet/sdk:7.0
     # Steps to the job
     steps:
       - checkout
