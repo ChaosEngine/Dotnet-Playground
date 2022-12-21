@@ -1,9 +1,9 @@
 version: 2.1
-orbs:
-  win: circleci/windows@4.1
 jobs:
-  test:
-    executor: win/server-2022
+  run-tests:
+    docker:
+      - image: mcr.microsoft.com/playwright:next
+    # Steps to the job
     steps:
       - checkout
       - run:
@@ -11,57 +11,54 @@ jobs:
           command: |
             git submodule sync
             git submodule update --init --recursive --jobs 8
-      - restore_cache:
-          keys:
-            - dotnet-packages-v1-{{ checksum "DotnetPlayground.Web/DotnetPlayground.Web.csproj" }}
-      # - run:
-      #     name: "Print Working Directory"
-      #     command: dir
-      # - run:
-      #     name: "Dotnet version"
-      #     command: dotnet.exe --info
       - run:
-          name: "Install project dependencies"
+          name: Install framework
           command: |
-            nvm install lts
-            nvm use lts
-            dotnet.exe restore
+            curl -O https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb
+            dpkg -i packages-microsoft-prod.deb && rm packages-microsoft-prod.deb
+            apt update && apt install -y dotnet-sdk-6.0
+      - run:
+          name: Show versions
+          command: |
+            dotnet --info
+            node --version
+            npm --version
+      - run:
+          name: Install project dependencies
+          command: |
+            dotnet restore
             cd DotnetPlayground.Web
             npm i
             npx playwright install
-      - save_cache:
-          paths:
-            - C:\Users\circleci\.nuget\packages
-            - C:\Users\circleci\AppData\Local\ms-playwright
-          key: dotnet-packages-v1-{{ checksum "DotnetPlayground.Web/DotnetPlayground.Web.csproj" }}
+            cd ..
       - run:
-          name: "Run Unit and Integration Tests"
+          name: Run Unit and Integration Tests
           command: |
-            $env:DBKind="sqlite" ; $env:ConnectionStrings__Sqlite="Filename=./bin/Debug/net6.0/Blogging.db"
-            dotnet.exe test -v n --results-directory:"C:\Users\circleci\project\test_coverage" --collect:"Code Coverage" --logger "trx"
+            export DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/Blogging.db"
+            dotnet test -v n --results-directory:"./test_coverage" --collect:"Code Coverage" --logger "trx"
       - run:
-          name: "End-2-End Playwright browser tests"
+          name: End-2-End Playwright browser tests
           command: |
             cd DotnetPlayground.Web
-            $env:DBKind="sqlite" ; $env:ConnectionStrings__Sqlite="Filename=./bin/Debug/Blogging.db"
-            
+            export DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/Blogging.db"
             npx playwright test
       - store_artifacts:
-          path: C:\Users\circleci\project\test_coverage
+          path: ./test_coverage
       - store_artifacts:
-          path: DotnetPlayground.Web\e2e\playwright-report
+          path: DotnetPlayground.Web/e2e/playwright-report
       - run:
           name: test results
           when: always
           command: |
               dotnet tool install -g trx2junit
-              $env:Path += ";$HOME\.dotnet\tools"
-              trx2junit C:\Users\circleci\project\test_coverage\*.trx
+              export PATH="$PATH:$HOME/.dotnet/tools"
+              trx2junit ./test_coverage/*.trx
       - store_test_results:
-          path: C:\Users\circleci\project\test_coverage\
+          path: ./test_coverage/
   build:
-    description: Build application with Release configuration
-    executor: win/server-2022
+    docker:
+      - image: mcr.microsoft.com/dotnet/sdk:6.0
+    # Steps to the job
     steps:
       - checkout
       - run:
@@ -70,19 +67,16 @@ jobs:
             git submodule sync
             git submodule update --init --recursive --jobs 8
       - run:
-          name: Install dependencies
-          command: |
-            nvm install lts
-            nvm use lts
-            node --version
-            npm --version
+          name: Install node/npm
+          command: curl -sL https://deb.nodesource.com/setup_18.x | bash - && apt-get install -y nodejs
       - run:
           name: "Build Application according to some given configuration"
-          command: dotnet.exe publish -c Release --self-contained -r win10-x64 DotnetPlayground.Web
+          command: dotnet publish -c Release --self-contained -r linux-x64 DotnetPlayground.Web
+# Invoke jobs via workflows
 workflows:
   test_and_build:
     jobs:
-      - test:
+      - run-tests:
           filters:
             branches:
               only:
@@ -97,4 +91,4 @@ workflows:
                 - dev
                 - circleci-project-setup
           requires:
-            - test
+            - run-tests
