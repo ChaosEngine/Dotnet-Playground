@@ -13,6 +13,7 @@ jobs:
             git submodule update --init --recursive --jobs 8
       - run:
           name: Install framework
+          # should be 20.04 but...whatever
           command: |
             curl -O https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb
             dpkg -i packages-microsoft-prod.deb && rm packages-microsoft-prod.deb
@@ -68,6 +69,7 @@ jobs:
             git submodule update --init --recursive --jobs 8
       - run:
           name: Install node/npm
+          # keep an eye on the node/npm version here
           command: curl -sL https://deb.nodesource.com/setup_18.x | bash - && apt-get install -y nodejs
       - run:
           name: "Build Application according to some given configuration"

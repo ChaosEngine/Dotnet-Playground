@@ -27,11 +27,12 @@ async function testLoggedInAndNoGameAlert(page, userName) {
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
 const testPointExistenceForPlayer = async (player, x, y) => {
-	await expect(player.page.locator(`svg#screen > circle[cx="${x}"][cy="${y}"]`)).toBeVisible({ timeout: 20 * 1000 });
+	await expect(player.page.locator(`svg#screen > circle[cx="${x}"][cy="${y}"]`)).toBeVisible();
 };
 
 const putPointForPlayer = async (player, x, y, otherPlayer = undefined) => {
-	await player.page.locator('svg#screen').click({ position: { x: x * 16, y: y * 16 }, timeout: 20 * 1000 });
+	await player.page.locator('svg#screen').click({ position: { x: x * 16, y: y * 16 } });
+	await player.page.locator('svg#screen').click({ position: { x: x * 16, y: y * 16 } });//two clicks make it somehow better?
 
 	if (otherPlayer)
 		await testPointExistenceForPlayer(otherPlayer, x, y);
