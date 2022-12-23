@@ -1,5 +1,6 @@
 using DotnetPlayground.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 namespace DotnetPlayground.Controllers
@@ -8,7 +9,8 @@ namespace DotnetPlayground.Controllers
 	{
 		public const string ASPX = "VirtualScroll";
 
-		public VirtualScrollController(IHashesRepositoryPure repo, ILogger<HashesDataTableController> logger) : base(repo, logger)
+		public VirtualScrollController(IHashesRepositoryPure repo, ILogger<HashesDataTableController> logger,
+			IMemoryCache cache) : base(repo, logger, cache)
 		{
 		}
 

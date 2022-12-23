@@ -152,6 +152,8 @@ namespace DotnetPlayground.Tests
 
 		protected IDataProtectionProvider DataProtectionProvider { get; private set; }
 
+		protected IMemoryCache Cache { get; private set; }
+
 		protected string ContentRoot { get; private set; }
 
 		protected IConfiguration CreateConfiguration()
@@ -185,6 +187,9 @@ namespace DotnetPlayground.Tests
 
 			var configuration = CreateConfiguration();
 			Configuration = configuration;
+
+			var cache = serviceProvider.GetService<IMemoryCache>();
+			Cache = cache;
 
 			if (string.IsNullOrEmpty(Configuration["LiveWebCamURL"]))
 				Configuration["LiveWebCamURL"] = "https://127.0.0.1/webcamgalleryFake/Fakelive";
