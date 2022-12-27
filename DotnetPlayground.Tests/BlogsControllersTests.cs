@@ -458,6 +458,111 @@ quired to go through him to do anything, though."
 			}
 		}
 
+
+		[Fact]
+		public async Task DeleteBlog_WithPost()
+		{
+			// Arrange
+			Moq.Mock<IBloggingRepository> mock = MockBloggingRepository();
+			IBloggingRepository repository = mock.Object;
+			var logger = LoggerFactory.CreateLogger<BlogsController>();
+			var post = new Post
+			{
+				BlogId = 1,
+				Title = "Ok, here's one...",
+				Content = @"At a company that I used to work for, the CEO's brother  was  the
+""system  operator"".It was his job to do backups, maintentance,
+etc.Problem was, he didn't have a clue about Unix.  We were re-
+quired to go through him to do anything, though."
+			};
+			ActionResult result;
+
+			using (IBlogsController controller = new BlogsController(repository, logger, Configuration, DataProtectionProvider))
+			{
+				// Act
+				//proper operation
+				result = await controller.PostAction(1, true, post, PostActionEnum.AddPost);
+
+				// Assert
+				Assert.NotNull(result);
+				Assert.IsType<JsonResult>(result);
+				Assert.Equal(post.BlogId, ((Post)((JsonResult)result).Value).BlogId);
+				Assert.Equal(post.Title, ((Post)((JsonResult)result).Value).Title);
+				Assert.Equal(post.Content, ((Post)((JsonResult)result).Value).Content);
+
+
+
+				// Arrange
+				//add one object
+				await repository.AddAsync(new Blog
+				{
+					BlogId = 2,
+					Post = new List<Post>(),
+					Url = "http://www.internet.com",
+				});
+				await repository.SaveAsync();
+
+				post = new Post
+				{
+					BlogId = 2,
+					PostId = 1,
+					Title = "title internet post",
+					Content = "content internet post"
+				};
+
+				// Act
+				result = await controller.PostAction(2, true, post, PostActionEnum.AddPost);
+
+				// Assert
+				Assert.IsType<JsonResult>(result);
+				Assert.IsType<Post>(((JsonResult)result).Value);
+				Assert.Equal(2, ((Post)((JsonResult)result).Value).BlogId);
+				Assert.Equal(1, ((Post)((JsonResult)result).Value).PostId);
+				Assert.Equal(post.Title, ((Post)((JsonResult)result).Value).Title);
+				Assert.Equal(post.Content, ((Post)((JsonResult)result).Value).Content);
+			}
+
+
+			using (IBlogsController controller = new BlogsController(repository, logger, Configuration, DataProtectionProvider))
+			{
+				// Arrange
+				var model = new DecoratedBlog
+				{
+					BlogId = 2,
+					Post = null,
+					Url = "bad_url_but_no_matter",
+					ProtectedID = "giberish"
+				};
+
+				// Act
+				result = await controller.BlogAction(model, true, BlogActionEnum.Delete);
+
+				// Assert
+				Assert.IsType<JsonResult>(result);
+				Assert.IsType<string>(((JsonResult)result).Value);
+				Assert.Equal("deleted", ((JsonResult)result).Value.ToString());
+
+
+
+				// Arrange
+				model = new DecoratedBlog
+				{
+					BlogId = 1,
+					Post = null,
+					Url = "bad_url_but_no_matter",
+					ProtectedID = "giberish"
+				};
+
+				// Act
+				result = await controller.BlogAction(model, true, BlogActionEnum.Delete);
+
+				// Assert
+				Assert.IsType<JsonResult>(result);
+				Assert.IsType<string>(((JsonResult)result).Value);
+				Assert.Equal("deleted", ((JsonResult)result).Value.ToString());
+			}
+		}
+
 		[Fact]
 		public async Task InvalidCreatePost()
 		{

@@ -526,8 +526,10 @@ namespace Integration
 			}//end using (var create_get_response
 		}
 
-		[IgnoreWhenRunInContainerFact]
-		public async Task Posts_CRUD_Test()
+		[IgnoreWhenRunInContainerTheory]
+		[InlineData(true)]
+		[InlineData(false)]
+		public async Task Posts_CRUD_Test(bool delete_posts_before_blog_cascade_delete_test)
 		{
 			//if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return;//pass on fake DB with no data
 
@@ -702,54 +704,56 @@ namespace Integration
 					}
 				}
 
-
-				//delete
-				// Arrange
-				data = new Post
+				if (delete_posts_before_blog_cascade_delete_test)
 				{
-					BlogId = last_inserted_blog_id,
-					PostId = deserialized.PostId
-				}.ToDictionary().ToList();
-				data.Add(new KeyValuePair<string, string>("__RequestVerificationToken", antiforgery_token));
-
-				using (var formPostBodyData = new FormUrlEncodedContent(data))
-				{
-					PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, create_get_response);
-					// Act
-					using (var response = await _client.PostAsync(
-						$"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(PostActionEnum.DeletePost)}/{last_inserted_blog_id}/true",
-						formPostBodyData))
+					//delete
+					// Arrange
+					data = new Post
 					{
-						// Assert
-						Assert.NotNull(response);
-						response.EnsureSuccessStatusCode();
-						Assert.Contains("application/json", response.Content.Headers.GetValues("Content-Type").FirstOrDefault());
-						Assert.Equal("\"deleted post\"", await response.Content.ReadAsStringAsync());
+						BlogId = last_inserted_blog_id,
+						PostId = deserialized.PostId
+					}.ToDictionary().ToList();
+					data.Add(new KeyValuePair<string, string>("__RequestVerificationToken", antiforgery_token));
+
+					using (var formPostBodyData = new FormUrlEncodedContent(data))
+					{
+						PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, create_get_response);
+						// Act
+						using (var response = await _client.PostAsync(
+							$"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(PostActionEnum.DeletePost)}/{last_inserted_blog_id}/true",
+							formPostBodyData))
+						{
+							// Assert
+							Assert.NotNull(response);
+							response.EnsureSuccessStatusCode();
+							Assert.Contains("application/json", response.Content.Headers.GetValues("Content-Type").FirstOrDefault());
+							Assert.Equal("\"deleted post\"", await response.Content.ReadAsStringAsync());
+						}
 					}
-				}
 
-				//verify with getting all post for blog
-				// Arrange
-				data = new List<KeyValuePair<string, string>>(/*empty*/);
-				data.Add(new KeyValuePair<string, string>("__RequestVerificationToken", antiforgery_token));
+					//verify with getting all post for blog
+					// Arrange
+					data = new List<KeyValuePair<string, string>>(/*empty*/);
+					data.Add(new KeyValuePair<string, string>("__RequestVerificationToken", antiforgery_token));
 
-				using (var formPostBodyData = new FormUrlEncodedContent(data))
-				{
-					PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, create_get_response);
-					// act
-					using (var response = await _client.PostAsync(
-						$"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(PostActionEnum.GetPosts)}/{last_inserted_blog_id}",
-						formPostBodyData))
+					using (var formPostBodyData = new FormUrlEncodedContent(data))
 					{
-						// Assert
-						Assert.NotNull(response);
-						response.EnsureSuccessStatusCode();
-						var responseString = await response.Content.ReadAsStringAsync();
+						PostRequestHelper.CreateFormUrlEncodedContentWithCookiesFromResponse(formPostBodyData.Headers, create_get_response);
+						// act
+						using (var response = await _client.PostAsync(
+							$"{_client.BaseAddress}{BlogsController.ASPX}/{nameof(PostActionEnum.GetPosts)}/{last_inserted_blog_id}",
+							formPostBodyData))
+						{
+							// Assert
+							Assert.NotNull(response);
+							response.EnsureSuccessStatusCode();
+							var responseString = await response.Content.ReadAsStringAsync();
 
-						// Deserialize JSON String into concrete class
-						var posts = JsonSerializer.Deserialize<List<Post>>(responseString);
-						//there should be NO post
-						Assert.Empty(posts);
+							// Deserialize JSON String into concrete class
+							var posts = JsonSerializer.Deserialize<List<Post>>(responseString);
+							//there should be NO post
+							Assert.Empty(posts);
+						}
 					}
 				}
 
