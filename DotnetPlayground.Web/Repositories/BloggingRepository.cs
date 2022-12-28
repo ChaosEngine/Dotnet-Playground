@@ -4,14 +4,19 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
+using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace DotnetPlayground.Repositories
 {
 	public interface IBloggingRepository : IGenericRepository<BloggingContext, Blog>
 	{
-		Task<bool> DeletePostAsync(int blogId, int postId);
+		Task<bool> DeletePostAsync(Expression<Func<Post, bool>> predicate);
 
 		Task<List<Post>> GetPostsFromBlogAsync(int blogId);
+
+		Task<int> EditPosts(Expression<Func<Post, bool>> predicate,
+			Expression<Func<SetPropertyCalls<Post>, SetPropertyCalls<Post>>> setPropertyCalls);
 	}
 
 	public class BloggingRepository : GenericRepository<BloggingContext, Blog>, IBloggingRepository
@@ -20,14 +25,13 @@ namespace DotnetPlayground.Repositories
 		{
 		}
 
-		public async Task<bool> DeletePostAsync(int blogId, int postId)
+		public async Task<bool> DeletePostAsync(Expression<Func<Post, bool>> predicate)
 		{
-			var post = await _entities.Posts.FirstOrDefaultAsync(p => p.BlogId == blogId && p.PostId == postId);
-			if (post != null)
-			{
-				_entities.Remove(post);
+			var deleted_count = await _entities.Posts
+				.Where(predicate)
+				.ExecuteDeleteAsync();
+			if (deleted_count > 0)
 				return true;
-			}
 			return false;
 		}
 
@@ -36,5 +40,15 @@ namespace DotnetPlayground.Repositories
 			var posts = await _entities.Posts.Where(p => p.BlogId == blogId).ToListAsync();
 			return posts;
 		}
-	}
+
+        public async Task<int> EditPosts(Expression<Func<Post, bool>> predicate,
+			Expression<Func<SetPropertyCalls<Post>, SetPropertyCalls<Post>>> setPropertyCalls)
+        {
+            var updated_count = await _entities.Posts
+                .Where(predicate)
+                .ExecuteUpdateAsync(setPropertyCalls);
+
+            return updated_count;
+        }
+    }
 }

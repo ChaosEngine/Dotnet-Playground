@@ -207,11 +207,9 @@ namespace DotnetPlayground.Controllers
 
 			if (blogId <= 0 || postId <= 0) return BadRequest(ModelState);
 
-			var deleted = await _repo.DeletePostAsync(blogId, postId);
+			var deleted = await _repo.DeletePostAsync(p => p.BlogId == blogId && p.PostId == postId);
 			if (deleted)
 			{
-				await _repo.SaveAsync();
-
 				return Json("deleted post");
 			}
 			else
@@ -227,14 +225,14 @@ namespace DotnetPlayground.Controllers
 
 			if (blogId <= 0 || string.IsNullOrEmpty(post.Title) || string.IsNullOrEmpty(post.Content)) return BadRequest(ModelState);
 
-			var posts = await _repo.GetPostsFromBlogAsync(blogId);
-			Post db_post = posts?.FirstOrDefault(x => x.PostId == post.PostId);
-			if (db_post != null)
-			{
-				db_post.Title = post.Title;
-				db_post.Content = post.Content;
-				int modified = await _repo.SaveAsync();
+			int modified = await _repo.EditPosts(p => p.BlogId == blogId && p.PostId == post.PostId,
+				(s) => s
+				.SetProperty(p => p.Title, db_post => post.Title)
+				.SetProperty(p => p.Content, db_post => post.Content)
+			);
 
+			if (modified > 0)
+			{
 				return Json(new Post
 				{
 					PostId = post.PostId,
@@ -256,18 +254,18 @@ namespace DotnetPlayground.Controllers
 
 			if (blogId <= 0 || string.IsNullOrEmpty(url)) return BadRequest(ModelState);
 
-			Task<Blog> tsk = _repo.GetSingleAsync(blogId);
-			Blog blog = await tsk;
-			if (blog != null && url != blog.Url)
-			{
-				blog.Url = url;
-				_repo.Edit(blog);
-				int modified = await _repo.SaveAsync();
-
-				return Json(blog);
-			}
-
-			return NotFound();
+			int modified = await _repo.Edit(b =>
+				b.BlogId == blogId,
+				(s) => s.SetProperty(blog => blog.Url, blog => url)
+			);
+			if (modified > 0)
+				return Json(new Blog
+				{
+					BlogId = blogId,
+					Url = url,
+				});
+			else
+				return NotFound();
 		}
 
 		protected async Task<ActionResult> DeleteBlog(int blogId, bool ajax)
@@ -279,13 +277,8 @@ namespace DotnetPlayground.Controllers
 
 			if (blogId <= 0) return BadRequest(ModelState);
 
-			Task<Blog> tsk = _repo.GetSingleAsync(blogId);
-			Blog blog = await tsk;
-			if (blog != null)
+			if ((await _repo.Delete(b => b.BlogId == blogId)) == true)
 			{
-				_repo.Delete(blog);
-				await _repo.SaveAsync();
-
 				return Json("deleted");
 			}
 			else

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,10 +19,11 @@ namespace DotnetPlayground.Repositories
 		Ent Add(Ent entity);
 		Task<Ent> AddAsync(Ent entity);
 		Task AddRangeAsync(IEnumerable<Ent> entities);
-		void Delete(Ent entity);
+		Task<bool> Delete(Expression<Func<Ent, bool>> predicate);
 		void DeleteRange(IEnumerable<Ent> entities);
 		void DeleteAll();
-		void Edit(Ent entity);
+		Task<int> Edit(Expression<Func<Ent, bool>> predicate,
+            Expression<Func<SetPropertyCalls<Ent>, SetPropertyCalls<Ent>>> setPropertyCalls);
 		IQueryable<Ent> FindBy(Expression<Func<Ent, bool>> predicate);
 		Task<List<Ent>> FindByAsync(Expression<Func<Ent, bool>> predicate);
 		Task<Ent> GetSingleAsync(params object[] keyValues);
@@ -109,28 +111,38 @@ namespace DotnetPlayground.Repositories
 			return _entities.Set<Ent>().AddRangeAsync(entities);
 		}
 
-		public virtual void Delete(Ent entity)
+		public virtual async Task<bool> Delete(Expression<Func<Ent, bool>> predicate)
 		{
-			_entities.Set<Ent>().Remove(entity);
-		}
+            var deleted_count = await _entities.Set<Ent>().Where(predicate).ExecuteDeleteAsync();
+            if (deleted_count > 0)
+                return true;
+            return false;
+        }
 
-		public virtual void DeleteRange(IEnumerable<Ent> entities)
+        public virtual void DeleteRange(IEnumerable<Ent> entities)
 		{
 			_entities.Set<Ent>().RemoveRange(entities);
 		}
 
 		public virtual void DeleteAll()
 		{
-			IQueryable<Ent> query = _entities.Set<Ent>();
-			_entities.Set<Ent>().RemoveRange(query);
+			_entities.Set<Ent>().ExecuteDelete();
 		}
 
-		public virtual void Edit(Ent entity)
+		public virtual async Task<int> Edit(Expression<Func<Ent, bool>> predicate,
+            Expression<Func<SetPropertyCalls<Ent>, SetPropertyCalls<Ent>>> setPropertyCalls
+            )
 		{
-			_entities.Entry(entity).State = EntityState.Modified;
-		}
+			//_entities.Entry(entity).State = EntityState.Modified;
 
-		public virtual int Save()
+			var updated_count = await _entities.Set<Ent>()
+				.Where(predicate)
+                .ExecuteUpdateAsync(setPropertyCalls);
+
+			return updated_count;
+        }
+
+        public virtual int Save()
 		{
 			return _entities.SaveChanges();
 		}

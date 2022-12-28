@@ -93,10 +93,7 @@ namespace Repositories
 				using (var context = new BloggingContext(DBFixture.Setup.DbOpts))
 				{
 					var repository = new BloggingRepository(context);
-					var result = (await repository.FindByAsync(x => x.Url == "http://sample.com/foobar")).FirstOrDefault();
-					repository.Delete(result);
-
-					await repository.SaveAsync();
+					await repository.Delete(x => x.Url == "http://sample.com/foobar");
 
 					Assert.Empty((await repository.FindByAsync(x => x.Url == "http://sample.com/foobar")));
 				}
@@ -125,11 +122,11 @@ namespace Repositories
 				using (var context = new BloggingContext(DBFixture.Setup.DbOpts))
 				{
 					var repository = new BloggingRepository(context);
-					var result = (await repository.FindByAsync(x => x.Url == "http://some.address.com/foo")).FirstOrDefault();
-					Assert.NotNull(result);
-
-					result.Url = "http://domain.com/bar";
-					repository.Edit(result);
+					
+					await repository.Edit(
+						x => x.Url == "http://some.address.com/foo", 
+						b=> b.SetProperty(blob => blob.Url, "http://domain.com/bar")
+					);
 
 					await repository.SaveAsync();
 				}

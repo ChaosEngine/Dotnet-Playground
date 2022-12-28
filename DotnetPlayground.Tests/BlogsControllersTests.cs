@@ -9,6 +9,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using System;
+using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query;
+using System.Reflection.Metadata;
 
 namespace Controllers
 {
@@ -76,29 +79,53 @@ namespace Controllers
 			//	return Task.FromResult<Blog>(null);
 			//});
 
-			mock.Setup(r => r.Edit(Moq.It.IsAny<Blog>())).Callback<Blog>((s) =>
+			mock.Setup(r => r.Edit(
+				Moq.It.IsAny<Expression<Func<Blog, bool>>>(),
+				Moq.It.IsAny<Expression<Func<SetPropertyCalls<Blog>, SetPropertyCalls<Blog>>>>()
+				)).Returns<Expression<Func<Blog, bool>>, Expression<Func<SetPropertyCalls<Blog>, SetPropertyCalls<Blog>>>>(
+				(predicate, setPropertyCalls) =>
 			{
-				var found = lst.FirstOrDefault(_ => _.BlogId == s.BlogId);
-				found.Url = s.Url;
+				var found = lst.Where(predicate.Compile());
+				var afunc = setPropertyCalls.Compile();
+				//afunc ?????
+				//found.Url = s.Url;
+
+				return Task.FromResult(found.Count());
 			});
 
-			mock.Setup(r => r.Delete(Moq.It.IsAny<Blog>())).Callback<Blog>((s) =>
+			mock.Setup(r => r.EditPosts(
+				Moq.It.IsAny<Expression<Func<Post, bool>>>(),
+				Moq.It.IsAny<Expression<Func<SetPropertyCalls<Post>, SetPropertyCalls<Post>>>>()
+				)).Returns<Expression<Func<Post, bool>>, Expression<Func<SetPropertyCalls<Post>, SetPropertyCalls<Post>>>>(
+				(predicate, setPropertyCalls) =>
+				{
+					var found = lst.SelectMany(b => b.Post).Where(predicate.Compile());
+					var afunc = setPropertyCalls.Compile();
+					//afunc ?????
+					//found.Url = s.Url;
+
+					return Task.FromResult(found.Count());
+				});
+
+			mock.Setup(r => r.Delete(Moq.It.IsAny<Expression<Func<Blog, bool>>>())).Returns<Expression<Func<Blog, bool>>>((s) =>
 			{
-				var found = lst.FirstOrDefault(_ => _.BlogId == s.BlogId);
+				var found = lst.FirstOrDefault(s.Compile());
 				if (found != null)
 				{
 					lst.Remove(found);
+					return Task.FromResult(true);
 				}
+				return Task.FromResult(false);
 			});
 
-			mock.Setup(r => r.DeletePostAsync(Moq.It.IsAny<int>(), Moq.It.IsAny<int>())).Returns<int, int>((blogId, postId) =>
+			mock.Setup(r => r.DeletePostAsync(Moq.It.IsAny<Expression<Func<Post, bool>>>())).Returns<Expression<Func<Post, bool>>>(s =>
 			{
-				var blog = lst.FirstOrDefault(b => b.BlogId == blogId && b.Post.Any(p => p.PostId == postId));
-				if (blog != null)
+				var found = lst.SelectMany(b => b.Post).FirstOrDefault(s.Compile());
+				if (found != null)
 				{
-					var post = blog.Post.FirstOrDefault(_ => _.PostId == postId);
-					blog.Post.Remove(post);
-					return Task.FromResult(true);
+					var posts = lst.First(b => b.BlogId == found.BlogId).Post;
+					//var post = posts.FirstOrDefault(p => p.PostId == found.PostId);
+					return Task.FromResult(posts.Remove(found));
 				}
 				return Task.FromResult(false);
 			});

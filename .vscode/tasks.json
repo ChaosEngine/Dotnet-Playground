@@ -36,11 +36,11 @@
         {
             "label": "publish",
             "windows": {
-                "command": "dotnet publish -c Release -r win-x64 -p:ShowLinkerSizeComparison=true -p:CrossGenDuringPublish=false DotnetPlayground.Web"
+                "command": "dotnet publish -c Release -r win-x64 --self-contained -p:PublishTrimmed=true -p:ShowLinkerSizeComparison=true -p:CrossGenDuringPublish=false DotnetPlayground.Web"
             },
             "linux": {
-                "command": "dotnet publish -c Release -r linux-x64 -p:ShowLinkerSizeComparison=true -p:CrossGenDuringPublish=false DotnetPlayground.Web"
-            },            
+                "command": "dotnet publish -c Release -r linux-x64 --self-contained -p:PublishTrimmed=true -p:ShowLinkerSizeComparison=true -p:CrossGenDuringPublish=false DotnetPlayground.Web"
+            },
             "type": "shell",
             "presentation": {
                 "reveal": "always"
