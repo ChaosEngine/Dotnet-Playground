@@ -24,7 +24,21 @@ async function testLoggedInAndNoGameAlert(page, userName) {
 	// await page.screenshot({ path: `./e2e/screenshot-${userName}.png` });
 }
 
-const delay = ms => new Promise(res => setTimeout(res, ms));
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+/**
+ * Gets random number in range: min(inclusive) - max (exclusive)
+ * @param {any} min - from(inclusive)
+ * @param {any} max - to (exclusive)
+ * @returns {integer} random number
+ */
+const getRandomInt = (min, max) => {
+	min = Math.max(0, Math.min(min, max));
+	max = Math.max(0, Math.max(max, min));
+	min = Math.ceil(min);
+	max = Math.floor(max);
+	return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+};
 
 const testPointExistenceForPlayer = async (player, x, y) => {
 	await expect(player.page.locator(`svg#screen > circle[cx="${x}"][cy="${y}"]`)).toBeVisible();
@@ -142,19 +156,20 @@ test('P1 create game, P2 joins, P2 wins', async ({ Playwright1: p1, Playwright2:
 	//P2 goes to game list and joins active game
 	await joinCreatedGame(p2, p1.userName);
 
+	const randX = getRandomInt(0, 8), randY = getRandomInt(0, 19);
 	await delay(4 * 1000);//wait for signalR to settle in (?)
 
 	//put 5x p1 points and 5x p2 point interchangeably and verify existence
-	await putPointForPlayer(p1, 11, 3, p2);
-	await putPointForPlayer(p2, 6, 3, p1);
-	await putPointForPlayer(p1, 12, 4, p2);
-	await putPointForPlayer(p2, 7, 4, p1);
-	await putPointForPlayer(p1, 11, 5, p2);
-	await putPointForPlayer(p2, 6, 5, p1);
-	await putPointForPlayer(p1, 10, 4, p2);
-	await putPointForPlayer(p2, 5, 4, p1);
-	await putPointForPlayer(p1, 6, 4, p2);//center
-	await putPointForPlayer(p2, 11, 4, p1);//center
+	await putPointForPlayer(p1, randX + 11, randY + 3, p2);
+	await putPointForPlayer(p2, randX + 6, randY + 3, p1);
+	await putPointForPlayer(p1, randX + 12, randY + 4, p2);
+	await putPointForPlayer(p2, randX + 7, randY + 4, p1);
+	await putPointForPlayer(p1, randX + 11, randY + 5, p2);
+	await putPointForPlayer(p2, randX + 6, randY + 5, p1);
+	await putPointForPlayer(p1, randX + 10, randY + 4, p2);
+	await putPointForPlayer(p2, randX + 5, randY + 4, p1);
+	await putPointForPlayer(p1, randX + 6, randY + 4, p2);//center
+	await putPointForPlayer(p2, randX + 11, randY + 4, p1);//center
 
 
 
@@ -169,21 +184,21 @@ test('P1 create game, P2 joins, P2 wins', async ({ Playwright1: p1, Playwright2:
 
 
 	// await startDrawingLine(p1);
-	// await putPointForPlayer(p1, 11, 3);
-	// await putPointForPlayer(p1, 12, 4);
-	// await putPointForPlayer(p1, 11, 5);
-	// await putPointForPlayer(p1, 10, 4);
-	// await putPointForPlayer(p1, 11, 3);
+	// await putPointForPlayer(p1, randX + 11, randY + 3);
+	// await putPointForPlayer(p1, randX + 12, randY + 4);
+	// await putPointForPlayer(p1, randX + 11, randY + 5);
+	// await putPointForPlayer(p1, randX + 10, randY + 4);
+	// await putPointForPlayer(p1, randX + 11, randY + 3);
 	// await verifyWin(p1, 'And the winner is... red.');
 	// await verifyWin(p2, 'And the winner is... red.');
 
 
 	await startDrawingLine(p2);
-	await putPointForPlayer(p2, 6, 3);
-	await putPointForPlayer(p2, 7, 4);
-	await putPointForPlayer(p2, 6, 5);
-	await putPointForPlayer(p2, 5, 4);
-	await putPointForPlayer(p2, 6, 3);
+	await putPointForPlayer(p2, randX + 6, randY + 3);
+	await putPointForPlayer(p2, randX + 7, randY + 4);
+	await putPointForPlayer(p2, randX + 6, randY + 5);
+	await putPointForPlayer(p2, randX + 5, randY + 4);
+	await putPointForPlayer(p2, randX + 6, randY + 3);
 	await verifyWin(p1, 'And the winner is... blue.');
 	await verifyWin(p2, 'And the winner is... blue.');
 
