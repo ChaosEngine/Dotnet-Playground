@@ -1,6 +1,7 @@
 version: 2.1
+
 jobs:
-  run-tests:
+  all-tests:
     docker:
       - image: mcr.microsoft.com/playwright:next
     # Steps to the job
@@ -56,6 +57,170 @@ jobs:
               trx2junit ./test_coverage/*.trx
       - store_test_results:
           path: ./test_coverage/
+
+
+  Pomelo-tests:
+    docker:
+      - image: mcr.microsoft.com/dotnet/sdk:7.0
+    # Steps to the job
+    steps:
+      - checkout
+      - run:
+          name: Update submodules
+          command: |
+            git submodule sync
+            git submodule update --init --recursive --jobs 8
+      - run:
+          name: Show versions
+          command: |
+            dotnet --info
+      - run:
+          name: Install project dependencies
+          command: |
+            #needed for code coverage
+            apt update && apt install -y libxml2
+            cd Caching-MySQL/test/Pomelo.Extensions.Caching.MySql.Tests
+            dotnet restore
+      - run:
+          name: Run Unit Tests
+          command: |
+            export DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/Blogging.db"
+            dotnet test -v n --results-directory:"./test_coverage" --collect:"Code Coverage" --logger "trx" Caching-MySQL/test/Pomelo.Extensions.Caching.MySql.Tests
+      - store_artifacts:
+          path: ./test_coverage
+      - run:
+          name: test results
+          when: always
+          command: |
+              dotnet tool install -g trx2junit
+              export PATH="$PATH:$HOME/.dotnet/tools"
+              trx2junit ./test_coverage/*.trx
+      - store_test_results:
+          path: ./test_coverage/
+
+
+  InkBall-tests:
+    docker:
+      - image: mcr.microsoft.com/dotnet/sdk:7.0
+    # Steps to the job
+    steps:
+      - checkout
+      - run:
+          name: Update submodules
+          command: |
+            git submodule sync
+            git submodule update --init --recursive --jobs 8
+      - run:
+          name: Show versions
+          command: |
+            dotnet --info
+      - run:
+          name: Install project dependencies
+          command: |
+            #needed for code coverage
+            apt update && apt install -y libxml2
+            cd InkBall/test/InkBall.Tests
+            dotnet restore
+      - run:
+          name: Run Unit Tests
+          command: |
+            export DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/Blogging.db"
+            dotnet test -v n --results-directory:"./test_coverage" --collect:"Code Coverage" --logger "trx" InkBall/test/InkBall.Tests
+      - store_artifacts:
+          path: ./test_coverage
+      - run:
+          name: test results
+          when: always
+          command: |
+              dotnet tool install -g trx2junit
+              export PATH="$PATH:$HOME/.dotnet/tools"
+              trx2junit ./test_coverage/*.trx
+      - store_test_results:
+          path: ./test_coverage/
+
+
+  DotnetPlayground-tests:
+    docker:
+      - image: mcr.microsoft.com/dotnet/sdk:7.0
+    # Steps to the job
+    steps:
+      - checkout
+      - run:
+          name: Update submodules
+          command: |
+            git submodule sync
+            git submodule update --init --recursive --jobs 8
+      - run:
+          name: Show versions
+          command: |
+            dotnet --info
+      - run:
+          name: Install project dependencies
+          command: |
+            #needed for code coverage
+            apt update && apt install -y libxml2
+            cd DotnetPlayground.Tests
+            dotnet restore
+      - run:
+          name: Run Unit Tests
+          command: |
+            export DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/Blogging.db"
+            dotnet test -v n --results-directory:"./test_coverage" --collect:"Code Coverage" --logger "trx" DotnetPlayground.Tests
+      - store_artifacts:
+          path: ./test_coverage
+      - run:
+          name: test results
+          when: always
+          command: |
+              dotnet tool install -g trx2junit
+              export PATH="$PATH:$HOME/.dotnet/tools"
+              trx2junit ./test_coverage/*.trx
+      - store_test_results:
+          path: ./test_coverage/
+
+
+  Playwright-tests:
+    docker:
+      - image: mcr.microsoft.com/playwright:next
+    # Steps to the job
+    steps:
+      - checkout
+      - run:
+          name: Update submodules
+          command: |
+            git submodule sync
+            git submodule update --init --recursive --jobs 8
+      - run:
+          name: Install framework
+          # should be 20.04 but...whatever
+          command: |
+            curl -O https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb
+            dpkg -i packages-microsoft-prod.deb && rm packages-microsoft-prod.deb
+            apt update && apt install -y dotnet-sdk-7.0
+      - run:
+          name: Show versions
+          command: |
+            dotnet --info
+            node --version
+            npm --version
+      - run:
+          name: Install project dependencies
+          command: |
+            dotnet restore
+            cd DotnetPlayground.Web
+            npm i
+            npx playwright install
+            cd ..
+      - run:
+          name: End-2-End Playwright browser tests
+          command: |
+            cd DotnetPlayground.Web
+            export DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/Blogging.db"
+            npx playwright test
+      - store_artifacts:
+          path: DotnetPlayground.Web/e2e/playwright-report
+
+
   build:
     docker:
       - image: mcr.microsoft.com/dotnet/sdk:7.0
@@ -74,18 +239,48 @@ jobs:
       - run:
           name: "Build Application according to some given configuration"
           command: dotnet publish -c Release --self-contained -r linux-x64 DotnetPlayground.Web
+
+
 # Invoke jobs via workflows
 workflows:
+  version: 2
   test_and_build:
     jobs:
-      - run-tests:
+      # - all-tests:
+      #     filters:
+      #       branches:
+      #         only:
+      #           - master
+      #           - dev
+      #           - circleci-project-setup
+      - Pomelo-tests:
           filters:
             branches:
               only:
                 - master
                 - dev
                 - circleci-project-setup
-                - dotnet-7
+      - InkBall-tests:
+          filters:
+            branches:
+              only:
+                - master
+                - dev
+                - circleci-project-setup
+      - DotnetPlayground-tests:
+          filters:
+            branches:
+              only:
+                - master
+                - dev
+                - circleci-project-setup
+      - Playwright-tests:
+          filters:
+            branches:
+              only:
+                - master
+                - dev
+                - circleci-project-setup
       - build:
           filters:
             branches:
@@ -93,6 +288,9 @@ workflows:
                 - master
                 - dev
                 - circleci-project-setup
-                - dotnet-7
           requires:
-            - run-tests
+            # - all-tests
+            - Pomelo-tests
+            - InkBall-tests
+            - DotnetPlayground-tests
+            - Playwright-tests
