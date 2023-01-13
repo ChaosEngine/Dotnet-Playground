@@ -46,7 +46,7 @@ const testPointExistenceForPlayer = async (player, x, y) => {
 
 const putPointForPlayer = async (player, x, y, otherPlayer = undefined) => {
 	await player.page.locator('svg#screen').click({ position: { x: x * 16, y: y * 16 } });
-	await player.page.locator('svg#screen').click({ position: { x: x * 16, y: y * 16 } });//two clicks make it somehow better?
+	// await player.page.locator('svg#screen').click({ position: { x: x * 16, y: y * 16 } });//two clicks make it somehow better?
 
 	if (otherPlayer)
 		await testPointExistenceForPlayer(otherPlayer, x, y);
