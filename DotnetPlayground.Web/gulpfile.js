@@ -5,7 +5,7 @@ const gulp = require("gulp"),
 	fs = require('fs-extra'),
 	sass = require('gulp-sass')(require('sass')),
 	header = require('gulp-header'),
-	rimraf = require("rimraf"),
+	glob = require("tiny-glob"),
 	concat = require("gulp-concat"),
 	cleanCSS = require("gulp-clean-css"),
 	terser = require("gulp-terser"),
@@ -55,6 +55,15 @@ const minCSS = function (sourcePattern, notPattern, dest) {
 		}))
 		.pipe(sourcemaps.write('./', { includeContent: false }))
 		.pipe(gulp.dest("."));
+};
+
+const rimraf = async function (globPattern) {
+	const found_files = await glob(globPattern);
+
+	found_files.forEach(async file => {
+		// console.log(file);
+		await fs.remove(file);
+	});
 };
 
 ////////////// [Inkball Section] //////////////////
@@ -222,25 +231,37 @@ const minInkball = gulp.parallel(function inkballJsAndCSS() {
 		})
 );
 
-const cleanInkball = function (cb) {
-	rimraf(paths.inkBallJsRelative + "*.min.js", cb);
-	rimraf(paths.inkBallCssRelative + "*.css", cb);
-	rimraf(paths.inkBallJsRelative + "*Bundle.js", cb);
-	rimraf(paths.inkBallJsRelative + "*.map", cb);
+const cleanInkball = async function (cb) {
+	await Promise.all([
+		rimraf(paths.inkBallJsRelative + "*.min.js"),
+		rimraf(paths.inkBallCssRelative + "*.css"),
+		rimraf(paths.inkBallJsRelative + "*Bundle.js"),
+		rimraf(paths.inkBallJsRelative + "*.map")
+	]);
+
+	cb();
 };
 ////////////// [/Inkball Section] //////////////////
 
-const cleanJs = gulp.series(cleanInkball, function cleanMinJs(cb) {
-	rimraf(paths.minJs, cb);
-	rimraf(paths.SWJsDest, cb);
-	rimraf(webroot + "js/**/*.map", cb);
-	rimraf(webroot + "*.map", cb);
+const cleanJs = gulp.series(cleanInkball, async function cleanMinJs(cb) {
+	await Promise.all([
+		rimraf(paths.minJs),
+		rimraf(paths.SWJsDest),
+		rimraf(webroot + "js/**/*.map"),
+		rimraf(webroot + "*.map")
+	]);
+
+	cb();
 });
 
-const cleanCss = function (cb) {
-	rimraf(paths.concatCssDest, cb);
-	rimraf(paths.concatCssDestMin, cb);
-	rimraf(webroot + "css/*.map", cb);
+const cleanCss = async function (cb) {
+	await Promise.all([
+		rimraf(paths.concatCssDest),
+		rimraf(paths.concatCssDestMin),
+		rimraf(webroot + "css/*.map")
+	]);
+	
+	cb();
 };
 
 exports.clean = gulp.series(cleanJs, cleanCss);
