@@ -723,7 +723,7 @@ LIMIT @limit OFFSET @offset
 			string sql =
 (string.IsNullOrEmpty(searchText) ?
 $@"
-SELECT A.*, (SELECT count(*) FROM ""Hashes"") cnt
+SELECT A.*, (select num_rows from user_tables where table_name = 'Hashes') cnt
 FROM 
 (SELECT /*+ FIRST_ROWS({limit}) */ *
 FROM ""Hashes""
