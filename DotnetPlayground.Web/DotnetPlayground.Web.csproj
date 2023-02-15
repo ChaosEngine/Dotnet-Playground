@@ -51,7 +51,7 @@
 		<PackageReference Include="MongoDB.Driver" Version="2.19.0" Condition="$(DefineConstants.Contains('INCLUDE_MONGODB'))" />
 		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.58.0.2874" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="7.0.2" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="7.0.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="7.0.3" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="7.0.2" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="7.0.2" />
 		<PackageReference Include="MessagePack" Version="2.4.59" />
