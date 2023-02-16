@@ -18,7 +18,7 @@ namespace DotnetPlayground.GraphQL.Extensions
 			Order = order;
 		}
 
-		public override void OnConfigure(
+		protected override void OnConfigure(
 			IDescriptorContext context,
 			IObjectFieldDescriptor descriptor,
 			MemberInfo member)
