@@ -26,7 +26,7 @@ async function globalSetup(config) {
 	if (!browser && webkit)
 		browser = await webkit.launch();
 
-	const use = config.projects.find(p => p._id === browser._name).use;
+	const use = config.projects.find(p => p.name === browser._name).use;
 	const loginURL = use.baseURL + 'Identity/Account/Login';
 
 	for (const fu of FixtureUsers) {
