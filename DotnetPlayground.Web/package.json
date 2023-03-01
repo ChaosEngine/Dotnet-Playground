@@ -51,7 +51,7 @@
 		"defaults"
 	],
 	"devDependencies": {
-		"eslint": "8.34.0",
+		"eslint": "8.35.0",
 		"fs-extra": "11.1.0",
 		"gulp": "4.0.2",
 		"gulp-terser": "2.1.0",
@@ -68,7 +68,7 @@
 		"webpack-stream": "7.0.0",
 		"poly-decomp": "0.3.0",
 		"worker-plugin": "5.0.1",
-		"@playwright/test": "1.31.1"
+		"@playwright/test": "1.31.2"
 	},
 	"dependencies": {
 		"bootstrap": "5.2.3",
@@ -83,8 +83,8 @@
 		"@microsoft/signalr": "7.0.3",
 		"@microsoft/signalr-protocol-msgpack": "7.0.3",
 		"msgpack5": "6.0.2",
-		"ace-builds": "1.15.2",
-		"chance": "1.1.10"
+		"ace-builds": "1.15.3",
+		"chance": "1.1.11"
 	},
 	"overrides": {
 		"clean-css": ">=5.3.1"
