@@ -116,7 +116,7 @@ window.addEventListener('load', function () {
 		return params;
 	}
 
-	function validateFormatter(value, row) {
+	function validateFormatter(_value, row) {
 		return (typeof row.hashMD5 !== "string" || typeof row.hashSHA256 !== "string") ? '' :
 			'<button class="btn btn-success btn-sm" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>';
 	}

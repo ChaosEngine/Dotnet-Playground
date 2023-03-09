@@ -9,11 +9,11 @@ var g_AppRootPath = location.pathname.match(/\/([^/]+)\//)[0],
 	g_gitBranch = "GIT_BRANCH", g_gitHash = "GIT_HASH";
 
 function clientValidate(button) {
-	const tr = $(button).parent().parent();
+	const td = $(button).parent().parent().find("td");
 
-	const key = tr.find("td").eq(0).text();
-	const orig_md5 = tr.find("td").eq(1).text();
-	const orig_sha = tr.find("td").eq(2).text();
+	const key = td.eq(0).text();
+	const orig_md5 = td.eq(1).text();
+	const orig_sha = td.eq(2).text();
 
 	if (orig_md5 === '' || orig_sha === '')
 		return;
@@ -25,8 +25,8 @@ function clientValidate(button) {
 	md.update(key);
 	const sha = md.digest().toHex();
 
-	tr.find("td").eq(1).css("color", (md5 === orig_md5 ? "green" : "red")).css('font-weight', 'bold');
-	tr.find("td").eq(2).css("color", (sha === orig_sha ? "green" : "red")).css('font-weight', 'bold');
+	td.eq(1).css("color", (md5 === orig_md5 ? "green" : "red")).css('font-weight', 'bold');
+	td.eq(2).css("color", (sha === orig_sha ? "green" : "red")).css('font-weight', 'bold');
 }
 
 function handleAboutPageBranchHash() {
@@ -92,7 +92,7 @@ $(function () {
 			["aInkList", "aInkGame", "aInkGameHigh"] :
 			["aInkRegister"];
 
-		links2disable.forEach(function (id) {
+		links2disable.forEach(id => {
 			const el = document.getElementById(id);
 			//el.removeAttribute("href");
 			el.setAttribute("tabindex", "-1");
@@ -258,8 +258,7 @@ window.onerror = function (msg, url, line, col, error) {
 	//alert("Error: " + msg + "\nurl: " + url + "\nline: " + line + extra);
 	console.error(msg, url, line, col, error);
 
-	let suppressErrorAlert = true;
 	// If you return true, then error alerts (like in older versions of 
 	// Internet Explorer) will be suppressed.
-	return suppressErrorAlert;
+	return true;
 };

@@ -35,42 +35,44 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 	/**
 	 * Based on https://developers.google.com/speed/webp/faq#how_can_i_detect_browser_support_for_webp and https://github.com/leechy/imgsupport
 	 * @param {string} imgType is image type to test support
-	 * @param {function} callback 'callback(result)' will be passed back the detection result (in an asynchronous way!)
+	 * @returns {Promise<boolean>} support flag
 	 */
-	function checkImageFeature(imgType, callback) {
-		switch (imgType) {
-			case 'webp':
-				{
-					const img = new Image();
-					img.onload = function () {
-						const result = (img.width > 0) && (img.height > 0);
-						callback(result);
-					};
-					img.onerror = function () {
-						callback(false);
-					};
-					img.src = "data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA";
-				}
-				break;
-			case 'avif':
-				{
-					const img = new Image();
-					img.onload = function () {
-						callback(img.height === 2);
-					};
-					img.onerror = function () {
-						callback(false);
-					};
-					img.src = 'data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADybWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAeaWxvYwAAAABEAAABAAEAAAABAAABGgAAAB0AAAAoaWluZgAAAAAAAQAAABppbmZlAgAAAAABAABhdjAxQ29sb3IAAAAAamlwcnAAAABLaXBjbwAAABRpc3BlAAAAAAAAAAIAAAACAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQ0MAAAAABNjb2xybmNseAACAAIAAYAAAAAXaXBtYQAAAAAAAAABAAEEAQKDBAAAACVtZGF0EgAKCBgANogQEAwgMg8f8D///8WfhwB8+ErK42A=';
-				}
-				break;
-			default:
-				throw Error('bad imgType');
-		}
+	async function checkImageFeature(imgType) {
+		return new Promise((resolve, reject) => {
+			switch (imgType) {
+				case 'webp':
+					{
+						const img = new Image();
+						img.onload = function () {
+							const result = (img.width > 0) && (img.height > 0);
+							resolve(result);
+						};
+						img.onerror = function () {
+							resolve(false);
+						};
+						img.src = "data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA";
+					}
+					break;
+				case 'avif':
+					{
+						const img = new Image();
+						img.onload = function () {
+							resolve(img.height === 2);
+						};
+						img.onerror = function () {
+							resolve(false);
+						};
+						img.src = 'data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADybWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAADnBpdG0AAAAAAAEAAAAeaWxvYwAAAABEAAABAAEAAAABAAABGgAAAB0AAAAoaWluZgAAAAAAAQAAABppbmZlAgAAAAABAABhdjAxQ29sb3IAAAAAamlwcnAAAABLaXBjbwAAABRpc3BlAAAAAAAAAAIAAAACAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQ0MAAAAABNjb2xybmNseAACAAIAAYAAAAAXaXBtYQAAAAAAAAABAAEEAQKDBAAAACVtZGF0EgAKCBgANogQEAwgMg8f8D///8WfhwB8+ErK42A=';
+					}
+					break;
+				default:
+					reject(new Error('bad imgType'));
+			}
+		});
 	}
 
-	function LoadFirstGallerImages() {
-		$('img.active:not([src])').each(function (index, value) {
+	function LoadFirstGalleryImages() {
+		$('img.active:not([src])').each(function (_index, value) {
 			const img = value;
 			const alt = img.alt;
 			if (alt && alt !== 'no img') {
@@ -153,7 +155,7 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 		});
 	}
 
-	function LoadBlueImpGallery(event) {
+	async function LoadBlueImpGallery(event) {
 		event = event || window.event;
 		event.preventDefault();
 
@@ -205,16 +207,14 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 			blueimp.Gallery(urls, options);
 		}
 
-		checkImageFeature('avif', function (isAvifSupported) {
-			if (isAvifSupported === false) {
-				checkImageFeature('webp', function (isWebPSupported) {
-					prepareImagesForGallery(event, isAvifSupported, isWebPSupported);
-				});
-			} else {
-				const isWebPSupported = false;
-				prepareImagesForGallery(event, isAvifSupported, isWebPSupported);
-			}
-		});
+		const isAvifSupported = await checkImageFeature('avif');
+		if (isAvifSupported === false) {
+			const isWebPSupported = await checkImageFeature('webp');
+			prepareImagesForGallery(event, isAvifSupported, isWebPSupported);
+		} else {
+			const isWebPSupported = false;
+			prepareImagesForGallery(event, isAvifSupported, isWebPSupported);
+		}
 	}
 
 	async function LoadImageAsBinaryArray(img) {
@@ -301,7 +301,7 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 	$('#aLive').on('click', RefreshLiveImage);
 
 	//bluimp-gallery handling
-	$('#links').on('click', LoadBlueImpGallery);
+	$('#links a').on('click', LoadBlueImpGallery);
 
 	btnReplAllImg.on('click', ReplAllImg);
 
@@ -331,16 +331,20 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 
 	const liveImgAddr = g_AppRootPath + 'WebCamImages/?handler=live';
 
+	/**
+	 * Handler for navigation change
+	 * @param {PopStateEvent} event being sent
+	 */
 	window.onpopstate = function (event) {
 		//console.log("location: " + document.location + ", state: " + JSON.stringify(event.state));
 		const name = (event.state ? event.state.foo : location.hash) || "#live-tab";
-		const tab = $("#myTab a[href='" + name + "']");
+		const tab = $(`#myTab a[href='${name}']`);
 		if (tab !== undefined)
 			tab.tab('show');
 
 		if (name === '#gallery-tab') {
 			btnReplAllImg.show();
-			LoadFirstGallerImages();
+			LoadFirstGalleryImages();
 		}
 		else if (name === '#live-tab') {
 			$('#live').attr('src', liveImgAddr);
@@ -359,13 +363,13 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 	};
 	if (location.hash !== undefined && location.hash.length > 0) {
 		const name = location.hash;
-		const tab = $("#myTab a[href='" + name + "']");
+		const tab = $(`#myTab a[href='${name}']`);
 		if (tab !== undefined)
 			tab.tab('show');
 
 		if (name === '#gallery-tab') {
 			btnReplAllImg.show();
-			LoadFirstGallerImages();
+			LoadFirstGalleryImages();
 		}
 		else if (name === '#video-tab') {
 			LoadVideoJS();
@@ -385,7 +389,7 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 		$("#myTab a").first().tab('show');
 	if ($("#myTab a[href='#gallery-tab']").hasClass('active')) {
 		btnReplAllImg.show();
-		LoadFirstGallerImages();
+		LoadFirstGalleryImages();
 	}
 	else if ($("#myTab a[href='#video-tab']").hasClass('active')) {
 		LoadVideoJS();
@@ -400,7 +404,7 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 		if (e.target.hash !== undefined) {
 			if (e.target.hash.indexOf('gallery-tab') !== -1) {
 				btnReplAllImg.show();
-				LoadFirstGallerImages();
+				LoadFirstGalleryImages();
 			}
 			else if (e.target.hash.indexOf('live-tab') !== -1) {
 				$('#live').attr('src', liveImgAddr);
