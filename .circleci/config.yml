@@ -209,7 +209,7 @@ jobs:
             dotnet restore
             cd DotnetPlayground.Web
             npm i
-            npx playwright install
+            npx playwright install chromium
             cd ..
       - run:
           name: End-2-End Playwright browser tests
