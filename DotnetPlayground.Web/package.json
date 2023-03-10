@@ -87,7 +87,8 @@
 		"chance": "1.1.11"
 	},
 	"overrides": {
-		"clean-css": ">=5.3.1"
+		"clean-css": ">=5.3.1",
+		"terser": "<5.16.6"
 	},
 	"scripts": {
 		"postinstall": "npx gulp postinstall",
