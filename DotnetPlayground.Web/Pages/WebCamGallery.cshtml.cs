@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Lib.AspNetCore.ServerTiming;
+using Lib.ServerTiming;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -64,7 +64,7 @@ namespace DotnetPlayground.Models
 
 		public void OnGet()
 		{
-			_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("ctor", Watch.ElapsedMilliseconds, "from ctor till GET"));
+			_serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("ctor", Watch.ElapsedMilliseconds, "from ctor till GET"));
 			Watch.Restart();
 
 			if (Directory.Exists(_imageDirectory))
@@ -97,7 +97,7 @@ namespace DotnetPlayground.Models
 				}
 			}
 
-			_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("READY", Watch.ElapsedMilliseconds, "GET ready"));
+			_serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("READY", Watch.ElapsedMilliseconds, "GET ready"));
 		}
 	}
 }

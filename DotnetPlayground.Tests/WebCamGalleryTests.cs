@@ -126,10 +126,10 @@ namespace RazorPages
 		public void OnGetTest()
 		{
 			//Arrange
-			var serverTiming_mock = new Moq.Mock<Lib.AspNetCore.ServerTiming.IServerTiming>();
+			var serverTiming_mock = new Moq.Mock<Lib.ServerTiming.IServerTiming>();
 			serverTiming_mock.SetupGet(m => m.Metrics).Returns(() =>
 			{
-				return new List<Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric>();
+				return new List<Lib.ServerTiming.Http.Headers.ServerTimingMetric>();
 			});
 			WebCamGallery wcg = new WebCamGallery(base.Configuration, serverTiming_mock.Object)
 			{
@@ -167,10 +167,10 @@ namespace RazorPages
 		public void OnImageGetTest(string imageName)
 		{
 			//Arrange
-			var serverTiming_mock = new Moq.Mock<Lib.AspNetCore.ServerTiming.IServerTiming>();
+			var serverTiming_mock = new Moq.Mock<Lib.ServerTiming.IServerTiming>();
 			serverTiming_mock.SetupGet(m => m.Metrics).Returns(() =>
 			{
-				return new List<Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric>();
+				return new List<Lib.ServerTiming.Http.Headers.ServerTimingMetric>();
 			});
 			WebCamImagesModel wcim = new WebCamImagesModel()
 			{
@@ -233,10 +233,10 @@ namespace RazorPages
 		public void On_NonExisting_ImageGetTest(params string[] badImageNames)
 		{
 			//Arrange
-			var serverTiming_mock = new Moq.Mock<Lib.AspNetCore.ServerTiming.IServerTiming>();
+			var serverTiming_mock = new Moq.Mock<Lib.ServerTiming.IServerTiming>();
 			serverTiming_mock.SetupGet(m => m.Metrics).Returns(() =>
 			{
-				return new List<Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric>();
+				return new List<Lib.ServerTiming.Http.Headers.ServerTimingMetric>();
 			});
 			WebCamImagesModel wcim = new WebCamImagesModel()
 			{
@@ -261,10 +261,10 @@ namespace RazorPages
 		public async Task OnGetLiveAsyncTest()
 		{
 			//Arrange
-			var serverTiming_mock = new Moq.Mock<Lib.AspNetCore.ServerTiming.IServerTiming>();
+			var serverTiming_mock = new Moq.Mock<Lib.ServerTiming.IServerTiming>();
 			serverTiming_mock.SetupGet(m => m.Metrics).Returns(() =>
 			{
-				return new List<Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric>();
+				return new List<Lib.ServerTiming.Http.Headers.ServerTimingMetric>();
 			});
 			var environment_mock = new Moq.Mock<IWebHostEnvironment>();
 			environment_mock.SetupGet(m => m.WebRootPath).Returns(() =>

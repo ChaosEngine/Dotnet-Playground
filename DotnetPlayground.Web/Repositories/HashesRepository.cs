@@ -1,7 +1,7 @@
 ﻿using DotnetPlayground.Services;
 using DotnetPlayground;
 using DotnetPlayground.Models;
-using Lib.AspNetCore.ServerTiming;
+using Lib.ServerTiming;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
@@ -148,7 +148,7 @@ namespace DotnetPlayground.Repositories
 		/// <returns></returns>
 		public async Task<IEnumerable<ThinHashes>> AutoComplete(string text)
 		{
-			_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("ctor", Watch.ElapsedMilliseconds,
+			_serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("ctor", Watch.ElapsedMilliseconds,
 				"from ctor till AutoComplete"));
 
 			text = $"{text.Trim().ToLower()}%";
@@ -188,7 +188,7 @@ namespace DotnetPlayground.Repositories
 					throw new NotSupportedException($"Bad {nameof(BloggingContext.ConnectionTypeName)} name");
 			}
 
-			_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("READY",
+			_serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("READY",
 				Watch.ElapsedMilliseconds, "AutoComplete ready"));
 			return (await found).DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
 		}
@@ -835,7 +835,7 @@ OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 		public async Task<(IEnumerable<ThinHashes> Itemz, int Count)> PagedSearchAsync(string sortColumn, string sortOrderDirection, string searchText,
 			int offset, int limit, CancellationToken token)
 		{
-			_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("ctor", Watch.ElapsedMilliseconds,
+			_serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("ctor", Watch.ElapsedMilliseconds,
 				"from ctor till PagedSearchAsync"));
 
 			if (!string.IsNullOrEmpty(sortColumn) && !AllColumnNames.Contains(sortColumn))
@@ -880,7 +880,7 @@ OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 				}
 				finally
 				{
-					_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("READY",
+					_serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("READY",
 						Watch.ElapsedMilliseconds, $"PagedSearch{_entities.ConnectionTypeName}Async ready"));
 				}
 			}
@@ -921,7 +921,7 @@ OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 					}
 					var found = await PaginatedList<ThinHashes>.CreateAsync(hashes, offset, limit, token);
 
-					_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("READY",
+					_serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("READY",
 						Watch.ElapsedMilliseconds, "PagedSearchAsync ready"));
 					return (found, found.FoundCount);
 				}
@@ -1023,7 +1023,7 @@ OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 		/// <returns></returns>
 		public async Task<ThinHashes> SearchAsync(HashInput hi)
 		{
-			_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("ctor",
+			_serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("ctor",
 				Watch.ElapsedMilliseconds, "from ctor till SearchAsync"));
 
 			ThinHashes found;
@@ -1078,7 +1078,7 @@ OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 					throw new NotSupportedException($"Bad {nameof(BloggingContext.ConnectionTypeName)} name");
 			}
 
-			_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("READY",
+			_serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("READY",
 						Watch.ElapsedMilliseconds, "SearchAsync ready"));
 			return found;
 		}

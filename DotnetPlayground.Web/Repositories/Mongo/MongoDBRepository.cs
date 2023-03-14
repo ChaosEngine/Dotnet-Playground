@@ -1,7 +1,7 @@
 ﻿#if INCLUDE_MONGODB
 
 using DotnetPlayground.Models;
-using Lib.AspNetCore.ServerTiming;
+using Lib.ServerTiming;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -82,7 +82,7 @@ namespace DotnetPlayground.Repositories.Mongo
 
 		public async Task<IEnumerable<ThinHashes>> AutoComplete(string text)
 		{
-			_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("ctor", Watch.ElapsedMilliseconds,
+			_serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("ctor", Watch.ElapsedMilliseconds,
 				"from ctor till AutoComplete"));
 
 			text = text.Trim().ToLower();
@@ -91,7 +91,7 @@ namespace DotnetPlayground.Repositories.Mongo
 				p.HashSHA256.ToLower().StartsWith(text))
 				.Limit(20).ToListAsync();
 
-			_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("READY",
+			_serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("READY",
 				Watch.ElapsedMilliseconds, "AutoComplete ready"));
 			return (await found).DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
 		}
@@ -182,7 +182,7 @@ namespace DotnetPlayground.Repositories.Mongo
 
 			try
 			{
-				_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("ctor", Watch.ElapsedMilliseconds,
+				_serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("ctor", Watch.ElapsedMilliseconds,
 					"from ctor till PagedSearchAsync"));
 
 				Task<long> count_tsk;
@@ -228,14 +228,14 @@ namespace DotnetPlayground.Repositories.Mongo
 			}
 			finally
 			{
-				_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("READY",
+				_serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("READY",
 					Watch.ElapsedMilliseconds, $"PagedSearchMongoAsync ready"));
 			}
 		}
 
 		public async Task<ThinHashes> SearchAsync(HashInput input)
 		{
-			_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("ctor",
+			_serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("ctor",
 				Watch.ElapsedMilliseconds, "from ctor till SearchAsync"));
 
 			ThinHashes found;
@@ -251,7 +251,7 @@ namespace DotnetPlayground.Repositories.Mongo
 			}
 			found ??= new ThinHashes { Key = _NOTHING_FOUND_TEXT };
 
-			_serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("READY",
+			_serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("READY",
 						Watch.ElapsedMilliseconds, "SearchAsync ready"));
 			return found;
 		}

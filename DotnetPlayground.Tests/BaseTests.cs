@@ -1,5 +1,5 @@
 ﻿using DotnetPlayground.Models;
-using Lib.AspNetCore.ServerTiming;
+using Lib.ServerTiming;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -82,7 +82,7 @@ namespace DotnetPlayground.Tests
 			var serverTiming_mock = new Moq.Mock<IServerTiming>();
 			serverTiming_mock.SetupGet(m => m.Metrics).Returns(() =>
 			{
-				return new List<Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric>();
+				return new List<Lib.ServerTiming.Http.Headers.ServerTimingMetric>();
 			});
 
 			return (connection, options, config, cache, logger, serverTiming_mock.Object);

@@ -1,5 +1,5 @@
 ﻿@page
-@inject Lib.AspNetCore.ServerTiming.IServerTiming serverTiming
+@inject Lib.ServerTiming.IServerTiming serverTiming
 @model WebCamGallery
 @{
 	Model.Watch.Restart();
@@ -149,5 +149,5 @@
     </script>
 }
 @{ 
-	serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("view", Model.Watch.ElapsedMilliseconds, "after view is generated"));
+	serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("view", Model.Watch.ElapsedMilliseconds, "after view is generated"));
 }

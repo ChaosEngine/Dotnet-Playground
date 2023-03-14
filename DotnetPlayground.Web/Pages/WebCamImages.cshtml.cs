@@ -1,4 +1,4 @@
-﻿using Lib.AspNetCore.ServerTiming;
+﻿using Lib.ServerTiming;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -35,7 +35,7 @@ namespace DotnetPlayground.Models
 			string imageDirectory = configuration["ImageDirectory"];
 			if (string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(imageDirectory))
 			{
-				serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("GET", watch.ElapsedMilliseconds, "error"));
+				serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("GET", watch.ElapsedMilliseconds, "error"));
 				return NotFound("No image directory present");
 			}
 
@@ -67,7 +67,7 @@ namespace DotnetPlayground.Models
 					{
 						Response.Clear();
 						Response.StatusCode = (int)HttpStatusCode.NotModified;
-						serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("GET", watch.ElapsedMilliseconds, "NotModified GET"));
+						serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("GET", watch.ElapsedMilliseconds, "NotModified GET"));
 
 						return new StatusCodeResult((int)HttpStatusCode.NotModified);
 					}
@@ -77,12 +77,12 @@ namespace DotnetPlayground.Models
 					PhysicalFileResult pfr = base.PhysicalFile(path, content_type);
 					pfr.EntityTag = etag;
 					//pfr.LastModified = lastModified;
-					serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("GET", watch.ElapsedMilliseconds, "full file GET"));
+					serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("GET", watch.ElapsedMilliseconds, "full file GET"));
 
 					return pfr;
 				}
 			}
-			serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("GET", watch.ElapsedMilliseconds, "not found GET"));
+			serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("GET", watch.ElapsedMilliseconds, "not found GET"));
 			return NotFound();
 		}
 
@@ -110,7 +110,7 @@ namespace DotnetPlayground.Models
 			}
 			finally
 			{
-				serverTiming.Metrics.Add(new Lib.AspNetCore.ServerTiming.Http.Headers.ServerTimingMetric("GET", watch.ElapsedMilliseconds, "live image get"));
+				serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("GET", watch.ElapsedMilliseconds, "live image get"));
 			}
 		}
 	}
