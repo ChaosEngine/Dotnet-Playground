@@ -64,7 +64,7 @@
 		"gulp-header": "2.0.9",
 		"tiny-glob": "0.2.9",
 		"concaveman": "1.2.1",
-		"webpack": "5.78.0",
+		"webpack": "5.79.0",
 		"webpack-stream": "7.0.0",
 		"poly-decomp": "0.3.0",
 		"worker-plugin": "5.0.1",
@@ -80,10 +80,10 @@
 		"blueimp-gallery": "3.4.0",
 		"video.js": "8.0.4",
 		"qrcodejs": "1.0.0",
-		"@microsoft/signalr": "7.0.4",
-		"@microsoft/signalr-protocol-msgpack": "7.0.4",
+		"@microsoft/signalr": "7.0.5",
+		"@microsoft/signalr-protocol-msgpack": "7.0.5",
 		"msgpack5": "6.0.2",
-		"ace-builds": "1.16.0",
+		"ace-builds": "1.17.0",
 		"chance": "1.1.11"
 	},
 	"overrides": {
