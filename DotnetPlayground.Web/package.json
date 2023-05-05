@@ -51,7 +51,7 @@
 		"defaults"
 	],
 	"devDependencies": {
-		"eslint": "8.39.0",
+		"eslint": "8.40.0",
 		"fs-extra": "11.1.1",
 		"gulp": "4.0.2",
 		"gulp-terser": "2.1.0",
@@ -64,7 +64,7 @@
 		"gulp-header": "2.0.9",
 		"tiny-glob": "0.2.9",
 		"concaveman": "1.2.1",
-		"webpack": "5.81.0",
+		"webpack": "5.82.1",
 		"webpack-stream": "7.0.0",
 		"poly-decomp": "0.3.0",
 		"worker-plugin": "5.0.1",
@@ -83,7 +83,7 @@
 		"@microsoft/signalr": "7.0.5",
 		"@microsoft/signalr-protocol-msgpack": "7.0.5",
 		"msgpack5": "6.0.2",
-		"ace-builds": "1.18.0",
+		"ace-builds": "1.20.0",
 		"chance": "1.1.11"
 	},
 	"scripts": {
