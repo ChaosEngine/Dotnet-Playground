@@ -64,11 +64,11 @@
 		"gulp-header": "2.0.9",
 		"tiny-glob": "0.2.9",
 		"concaveman": "1.2.1",
-		"webpack": "5.83.1",
+		"webpack": "5.84.1",
 		"webpack-stream": "7.0.0",
 		"poly-decomp": "0.3.0",
 		"worker-plugin": "5.0.1",
-		"@playwright/test": "1.34.1"
+		"@playwright/test": "1.34.3"
 	},
 	"dependencies": {
 		"bootstrap": "5.2.3",
