@@ -60,15 +60,15 @@
 		"gulp-rename": "2.0.0",
 		"gulp-sass": "5.1.0",
 		"gulp-sourcemaps": "3.0.0",
-		"sass": "1.63.3",
+		"sass": "1.63.4",
 		"gulp-header": "2.0.9",
 		"tiny-glob": "0.2.9",
 		"concaveman": "1.2.1",
-		"webpack": "5.86.0",
+		"webpack": "5.87.0",
 		"webpack-stream": "7.0.0",
 		"poly-decomp": "0.3.0",
 		"worker-plugin": "5.0.1",
-		"@playwright/test": "1.35.0"
+		"@playwright/test": "1.35.1"
 	},
 	"dependencies": {
 		"bootstrap": "5.3.0",
