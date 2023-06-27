@@ -56,14 +56,14 @@ namespace DotnetPlayground.Services
 				var dest_dir = YouTubeUploadOperation.GetSharedKeysDir(conf);
 				var lst = await ExecuteYouTubeDataApiV3(conf.GetSection("YouTubeAPI"), context, env, token);
 
-				var query = lst.OrderBy(o => o.Snippet.PublishedAt);
+				var query = lst.OrderBy(o => o.Snippet.PublishedAtDateTimeOffset);
 				Product = query.Select(item => new object[] {
 						item.Snippet.Position,
 						item.Snippet.Title,
 						item.Snippet.ResourceId.VideoId,
-						item.Snippet.PublishedAt.GetValueOrDefault()
+						item.Snippet.PublishedAtDateTimeOffset.GetValueOrDefault()
 					})
-					.Where(tab => (DateTime)tab[3] >= year_ago_date);
+					.Where(tab => (DateTimeOffset)tab[3] >= year_ago_date);
 
 				if (!string.IsNullOrEmpty(dest_dir))
 				{
@@ -71,7 +71,7 @@ namespace DotnetPlayground.Services
 					{
 						foreach (var item in query)
 						{
-							var date = item.Snippet.PublishedAt.GetValueOrDefault();
+							var date = item.Snippet.PublishedAtDateTimeOffset.GetValueOrDefault();
 							bool is_to_be_deleted = date < year_ago_date;
 							if (!is_to_be_deleted)
 								await writer.WriteLineAsync($"youtube {item.Snippet.ResourceId.VideoId}");
