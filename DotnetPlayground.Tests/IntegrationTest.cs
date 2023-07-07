@@ -157,7 +157,7 @@ namespace Integration
 
 			//Arrange
 			//get number of all total rows from previous tests :-)
-			int total_hashes_count = await new HashesDataTablePage(_fixture).Load_Valid("Key", "asc", "aaa", 5, 0, "cached");
+			int total_hashes_count = await new HashesDataTablePage(_fixture).LoadValidImpl("Key", "asc", "aaa", 5, 0, "cached");
 
 
 			// Arrange
@@ -274,73 +274,78 @@ namespace Integration
 		[InlineData("Key", "asc", "awak", 5, 1, "refresh")]
 		[InlineData("Key", "asc", "none_existing", 5, 1, "cached")]
 		[InlineData("Key", "asc", "none_existing", 5, 1, "refresh")]
-		public async Task<int> Load_Valid(string sort, string order, string search, int limit, int offset, string extraParam)
-		{
-			//if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return 0;//pass on fake DB with no data
+		public async Task Load_Valid(string sort, string order, string search, int limit, int offset, string extraParam)
+        {
+            await LoadValidImpl(sort, order, search, limit, offset, extraParam);
+        }
+
+        protected internal async Task<int> LoadValidImpl(string sort, string order, string search, int limit, int offset, string extraParam)
+        {
+            //if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return 0;//pass on fake DB with no data
 
 
-			// Arrange
-			var query_input = new HashesDataTableLoadInput
-			{
-				Sort = sort,
-				Order = order,
-				Search = search,
-				Limit = limit,
-				Offset = offset,
-				ExtraParam = extraParam,
-			}.ToDictionary();
-			using (var content = new FormUrlEncodedContent(query_input))
-			{
-				var queryString = await content.ReadAsStringAsync();
-				// Act
-				using (HttpResponseMessage response = await _client.GetAsync($"{_client.BaseAddress}{VirtualScrollController.ASPX}/{nameof(HashesDataTableController.Load)}?{queryString}", HttpCompletionOption.ResponseContentRead))
-				{
-					// Assert
-					Assert.NotNull(response);
-					response.EnsureSuccessStatusCode();
-					Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            // Arrange
+            var query_input = new HashesDataTableLoadInput
+            {
+                Sort = sort,
+                Order = order,
+                Search = search,
+                Limit = limit,
+                Offset = offset,
+                ExtraParam = extraParam,
+            }.ToDictionary();
+            using (var content = new FormUrlEncodedContent(query_input))
+            {
+                var queryString = await content.ReadAsStringAsync();
+                // Act
+                using (HttpResponseMessage response = await _client.GetAsync($"{_client.BaseAddress}{VirtualScrollController.ASPX}/{nameof(HashesDataTableController.Load)}?{queryString}", HttpCompletionOption.ResponseContentRead))
+                {
+                    // Assert
+                    Assert.NotNull(response);
+                    response.EnsureSuccessStatusCode();
+                    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-					var jsonString = await response.Content.ReadAsStringAsync();
+                    var jsonString = await response.Content.ReadAsStringAsync();
 
-					var typed_result = new TypedResult
-					{
-						total = 1,
-						rows = new ThinHashes[] { }
-					};
+                    var typed_result = new TypedResult
+                    {
+                        total = 1,
+                        rows = new ThinHashes[] { }
+                    };
 
-					// Deserialize JSON String into concrete class
-					var data = JsonSerializer.Deserialize<TypedResult>(jsonString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-					Assert.IsType(typed_result.GetType(), data);
-					Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(data.rows);
+                    // Deserialize JSON String into concrete class
+                    var data = JsonSerializer.Deserialize<TypedResult>(jsonString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    Assert.IsType(typed_result.GetType(), data);
+                    Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(data.rows);
 
-					Assert.True(data.rows.Length == 5 || data.rows.Length == 0);
-					Assert.True(data.total >= 0);
+                    Assert.True(data.rows.Length == 5 || data.rows.Length == 0);
+                    Assert.True(data.total >= 0);
 
-					if (data.rows.Length > 0)
-					{
-						Assert.StartsWith(search, data.rows[0].Key);
+                    if (data.rows.Length > 0)
+                    {
+                        Assert.StartsWith(search, data.rows[0].Key);
 
-						if (query_input.TryGetValue("ExtraParam", out string value) && value == "cached")
-						{
-							Assert.True(response.Headers.CacheControl.Public &&
-								response.Headers.CacheControl.MaxAge == DotnetPlayground.Repositories.HashesRepository.HashesInfoExpirationInMinutes);
-						}
-						else
-						{
-							Assert.Null(response.Headers.CacheControl?.Public);
-						}
-					}
-					else
-					{
-						Assert.Null(response.Headers.CacheControl?.Public);
-					}
+                        if (query_input.TryGetValue("ExtraParam", out string value) && value == "cached")
+                        {
+                            Assert.True(response.Headers.CacheControl.Public &&
+                                response.Headers.CacheControl.MaxAge == DotnetPlayground.Repositories.HashesRepository.HashesInfoExpirationInMinutes);
+                        }
+                        else
+                        {
+                            Assert.Null(response.Headers.CacheControl?.Public);
+                        }
+                    }
+                    else
+                    {
+                        Assert.Null(response.Headers.CacheControl?.Public);
+                    }
 
-					return data.total;
-				}
-			}
-		}
+                    return data.total;
+                }
+            }
+        }
 
-		[Theory]
+        [Theory]
 		[InlineData("dead", "string", "is", 0xDEAD, 0xBEEF, "refresh")]
 		[InlineData("Key", "asc", "awak", 5, 1, "bad")]
 		public async Task Load_Invalid(string sort, string order, string search, int limit, int offset, string extraParam)
