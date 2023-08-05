@@ -41,13 +41,15 @@ namespace DotnetPlayground.Models
 
 	public partial class Blog
 	{
+		public const string UrlRegexString = @"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)";
+		
 		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 		[Required]
 		[Key]
 		public int BlogId { get; set; }
 
 		[Required]
-		[RegularExpression(@"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)")]
+		[RegularExpression(UrlRegexString)]
 		public string Url { get; set; }
 
 		public virtual ICollection<Post> Post { get; set; }
