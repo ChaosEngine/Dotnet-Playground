@@ -83,7 +83,7 @@
 		"@microsoft/signalr": "7.0.10",
 		"@microsoft/signalr-protocol-msgpack": "7.0.10",
 		"msgpack5": "6.0.2",
-		"ace-builds": "1.23.4",
+		"ace-builds": "1.24.0",
 		"chance": "1.1.11"
 	},
 	"scripts": {
