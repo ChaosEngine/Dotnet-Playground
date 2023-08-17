@@ -60,7 +60,7 @@
 		"gulp-rename": "2.0.0",
 		"gulp-sass": "5.1.0",
 		"gulp-sourcemaps": "3.0.0",
-		"sass": "1.65.1",
+		"sass": "1.66.0",
 		"gulp-header": "2.0.9",
 		"tiny-glob": "0.2.9",
 		"concaveman": "1.2.1",
@@ -68,7 +68,7 @@
 		"webpack-stream": "7.0.0",
 		"poly-decomp": "0.3.0",
 		"worker-plugin": "5.0.1",
-		"@playwright/test": "1.37.0"
+		"@playwright/test": "1.37.1"
 	},
 	"dependencies": {
 		"bootstrap": "5.3.1",
@@ -78,7 +78,7 @@
 		"jquery-validation": "1.19.5",
 		"jquery-validation-unobtrusive": "4.0.0",
 		"blueimp-gallery": "3.4.0",
-		"video.js": "8.3.0",
+		"video.js": "8.5.2",
 		"qrcodejs": "1.0.0",
 		"@microsoft/signalr": "7.0.10",
 		"@microsoft/signalr-protocol-msgpack": "7.0.10",
