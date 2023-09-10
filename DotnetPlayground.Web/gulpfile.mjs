@@ -223,21 +223,24 @@ const fileMinifySCSSFunction = function (src, dest) {
 		.pipe(gulp.dest("."));
 };
 
-const minInkball = gulp.parallel(function inkballJsAndCSS() {
-	return fileMinifyJSFunction(paths.inkBallJsRelative + "inkball.js",
-		paths.inkBallJsRelative + "inkball.min.js", true);
-},
+const minInkball = gulp.parallel(
+	function inkballJsAndCSS() {
+		return fileMinifyJSFunction(paths.inkBallJsRelative + "inkball.js",
+			paths.inkBallJsRelative + "inkball.min.js", true);
+	},
 	function inkballSharedJs() {
 		return fileMinifyJSFunction(paths.inkBallJsRelative + "shared.js",
 			paths.inkBallJsRelative + "shared.min.js", true);
 	},
-	gulp.series(function scssToCSS() {
-		return fileMinifySCSSFunction(paths.inkBallCssRelative + "inkball.scss", paths.inkBallCssRelative + "inkball.css");
-	},
+	gulp.series(
+		function scssToCSS() {
+			return fileMinifySCSSFunction(paths.inkBallCssRelative + "inkball.scss", paths.inkBallCssRelative + "inkball.css");
+		},
 		function cssToMinCSS() {
 			return minCSS(paths.inkBallCssRelative + "inkball.css", paths.inkBallCssRelative + "inkball.min.css",
 				paths.inkBallCssRelative + "inkball.min.css");
-		})
+		}
+	)
 );
 
 const cleanInkball = async function (cb) {
@@ -356,11 +359,13 @@ const processSCSS = function (sourcePattern, notPattern) {
 		.pipe(gulp.dest(notPattern));
 };
 
-const minScss = gulp.series(function scssToCss() {
-	return processSCSS(paths.scss, paths.destCSSDir);
-}, function runTaskMinCSS() {
-	return minCSS(paths.css, paths.minCss, paths.concatCssDestMin);
-});
+const minScss = gulp.series(
+	function scssToCss() {
+		return processSCSS(paths.scss, paths.destCSSDir);
+	}, function runTaskMinCSS() {
+		return minCSS(paths.css, paths.minCss, paths.concatCssDestMin);
+	}
+);
 
 const min = gulp.parallel(minJs, minInkball, minScss);
 
