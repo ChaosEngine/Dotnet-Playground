@@ -174,7 +174,7 @@ const inkballAIWorker = function (doPollyfill) {
 				}]
 			} : {},
 			optimization: {
-				minimize: true,
+				// minimize: true,
 				minimizer: [
 					new TerserPlugin({
 						extractComments: false
