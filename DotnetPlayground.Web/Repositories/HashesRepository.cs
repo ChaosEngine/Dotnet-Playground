@@ -367,8 +367,14 @@ FROM
 (
 	SELECT *
 	FROM `Hashes`
+		--The 'deferred join.' approach taken from https://aaronfrancis.com/2022/efficient-pagination-using-deferred-joins
+		inner join (                	-- The 'deferred join.'
+			select `Key` from `Hashes`  -- The pagination using a fast index.
+			order by `Key` 
+			LIMIT @limit OFFSET @offset
+		) as tmp using(`Key`)
 	{(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY `{sortColumn}` {sortOrderDirection}")}
-	LIMIT @limit OFFSET @offset
+
 ) A
 "
 :
@@ -482,9 +488,13 @@ LIMIT @limit OFFSET @offset
 ;
 SELECT [{col_names}]
 FROM Hashes
+	--The 'deferred join.' approach taken from https://aaronfrancis.com/2022/efficient-pagination-using-deferred-joins
+	inner join (                	-- The 'deferred join.'
+		select [Key] from Hashes  -- The pagination using a fast index.
+		LIMIT @limit OFFSET @offset
+	) as tmp using([Key])
 
 {(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY [{sortColumn}] {sortOrderDirection}")}
-LIMIT @limit OFFSET @offset
 ";
 			}
 			else
@@ -613,8 +623,14 @@ SELECT A.*, (SELECT count(*) FROM ""Hashes"") cnt
 FROM 
 (SELECT *
 FROM ""Hashes""
+	--The 'deferred join.' approach taken from https://aaronfrancis.com/2022/efficient-pagination-using-deferred-joins
+	inner join (                	-- The 'deferred join.'
+		select ""Key"" from ""Hashes""  -- The pagination using a fast index.
+		order by ""Key"" 
+		LIMIT @limit OFFSET @offset
+	) as tmp using(""Key"")
 {(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY \"{PostgresAllColumnNames.FirstOrDefault(x => string.Compare(x, sortColumn, StringComparison.CurrentCultureIgnoreCase) == 0)}\" {sortOrderDirection}")}
-LIMIT @limit OFFSET @offset) A
+) A
 "
 :
 $@"
@@ -727,8 +743,14 @@ SELECT A.*, (select num_rows from user_tables where table_name = 'Hashes') cnt
 FROM 
 (SELECT /*+ FIRST_ROWS({limit}) */ *
 FROM ""Hashes""
+	--The 'deferred join.' approach taken from https://aaronfrancis.com/2022/efficient-pagination-using-deferred-joins
+	inner join (                	-- The 'deferred join.'
+		select ""Key"" from ""Hashes""  -- The pagination using a fast index.
+		order by ""Key"" 
+		OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
+	) tmp using(""Key"")
 {(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY \"{PostgresAllColumnNames.FirstOrDefault(x => string.Compare(x, sortColumn, StringComparison.CurrentCultureIgnoreCase) == 0)}\" {sortOrderDirection}")}
-OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY) A
+) A
 "
 :
 $@"
