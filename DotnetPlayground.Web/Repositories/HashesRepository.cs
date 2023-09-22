@@ -367,7 +367,7 @@ FROM
 (
 	SELECT *
 	FROM `Hashes`
-		--The 'deferred join.' approach taken from https://aaronfrancis.com/2022/efficient-pagination-using-deferred-joins
+		-- The 'deferred join.' approach taken from https://aaronfrancis.com/2022/efficient-pagination-using-deferred-joins
 		inner join (                	-- The 'deferred join.'
 			select `Key` from `Hashes`  -- The pagination using a fast index.
 			order by `Key` 
