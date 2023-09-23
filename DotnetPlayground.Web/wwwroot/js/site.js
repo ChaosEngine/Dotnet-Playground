@@ -29,6 +29,12 @@ function clientValidate(button) {
 	td.eq(2).css("color", (sha === orig_sha ? "green" : "red")).css('font-weight', 'bold');
 }
 
+function clientValidateAll() {
+	$("button[value='Validate']").each( (_index, item) => {
+		clientValidate(item);
+	});
+}
+
 function handleAboutPageBranchHash() {
 	let anchor = document.querySelector('#branchHash > a:first-child');
 	if (anchor) {

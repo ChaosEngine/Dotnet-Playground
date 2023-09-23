@@ -223,25 +223,28 @@ const fileMinifySCSSFunction = function (src, dest) {
 		.pipe(gulp.dest("."));
 };
 
-const minInkball = gulp.parallel(
-	function inkballJsAndCSS() {
+const minInkballJs = gulp.parallel(
+	function inkballJs() {
 		return fileMinifyJSFunction(paths.inkBallJsRelative + "inkball.js",
 			paths.inkBallJsRelative + "inkball.min.js", true);
 	},
 	function inkballSharedJs() {
 		return fileMinifyJSFunction(paths.inkBallJsRelative + "shared.js",
 			paths.inkBallJsRelative + "shared.min.js", true);
-	},
-	gulp.series(
-		function scssToCSS() {
-			return fileMinifySCSSFunction(paths.inkBallCssRelative + "inkball.scss", paths.inkBallCssRelative + "inkball.css");
-		},
-		function cssToMinCSS() {
-			return minCSS(paths.inkBallCssRelative + "inkball.css", paths.inkBallCssRelative + "inkball.min.css",
-				paths.inkBallCssRelative + "inkball.min.css");
-		}
-	)
+	}
 );
+
+const minInkballCss = gulp.series(
+	function inkBallScssToCSS() {
+		return fileMinifySCSSFunction(paths.inkBallCssRelative + "inkball.scss", paths.inkBallCssRelative + "inkball.css");
+	},
+	function inkBallCssToMinCSS() {
+		return minCSS(paths.inkBallCssRelative + "inkball.css", paths.inkBallCssRelative + "inkball.min.css",
+			paths.inkBallCssRelative + "inkball.min.css");
+	}
+);
+
+const minInkball = gulp.parallel(minInkballJs, minInkballCss);
 
 const cleanInkball = async function (cb) {
 	await Promise.all([
@@ -369,6 +372,8 @@ const minScss = gulp.series(
 
 const min = gulp.parallel(minJs, minInkball, minScss);
 
+const cssRun = gulp.parallel(minInkballCss, minScss);
+
 ///
 /// postinstall entry point (npm i)
 ///
@@ -477,5 +482,6 @@ export {
 	clean,
 	webpackRun as webpack,
 	min,
+	cssRun as css,
 	postinstall
 };
