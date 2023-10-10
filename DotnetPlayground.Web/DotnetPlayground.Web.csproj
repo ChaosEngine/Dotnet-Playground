@@ -44,7 +44,7 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.11" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.11" Condition="$(DefineConstants.Contains('INCLUDE_POSTGRES'))" />
 		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="7.0.0" Condition="$(DefineConstants.Contains('INCLUDE_MYSQL'))" />
-		<PackageReference Include="Oracle.EntityFrameworkCore" Version="7.21.11" Condition="$(DefineConstants.Contains('INCLUDE_ORACLE'))" />
+		<PackageReference Include="Oracle.EntityFrameworkCore" Version="7.21.12" Condition="$(DefineConstants.Contains('INCLUDE_ORACLE'))" />
 		<PackageReference Include="IdentityManager2.AspNetIdentity" Version="1.0.0" />
 		<PackageReference Include="Lib.AspNetCore.ServerTiming" Version="6.0.0" />
 		<!--<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.16.2" Condition="$(DefineConstants.Contains('INCLUDE_COSMOSDB'))" />-->
