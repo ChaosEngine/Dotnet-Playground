@@ -6,14 +6,16 @@ let CACHE_NAME = 'cache';
 
 self.addEventListener('install', function (event) {
 	const swUrl = new URL(self.location);
-	const rootPath = swUrl.searchParams.get('path');
-	let isDev = swUrl.searchParams.get('isDev');
-	isDev = isDev === true || isDev === "true" || isDev === 1 || isDev === "1" ? true : false;
-	const suffix = isDev ? '.' : '.min.';
 	const version = swUrl.searchParams.get('version');
 	if (version !== "" && version !== "GIT_BRANCH_GIT_HASH") {
 		CACHE_NAME += '_' + version;
 	}
+
+/*
+	const rootPath = swUrl.searchParams.get('path');
+	let isDev = swUrl.searchParams.get('isDev');
+	isDev = isDev === true || isDev === "true" || isDev === 1 || isDev === "1" ? true : false;
+	const suffix = isDev ? '.' : '.min.';
 
 	let RESOURCES = [
 		//local pages to cache
@@ -62,7 +64,7 @@ self.addEventListener('install', function (event) {
 	];
 
 	if (isDev) {
-		//extrernal resources but installed locally
+		//external resources but installed locally
 		RESOURCES = RESOURCES.concat([
 			'lib/jquery/jquery.min.js',
 			'lib/bootstrap/css/bootstrap.min.css',
@@ -110,7 +112,7 @@ self.addEventListener('install', function (event) {
 
 	event.waitUntil(
 		caches.open(CACHE_NAME).then(async (cache) => {
-			//1st load cross-orign stuff with opaque response (risky but....)
+			//1st load cross-origin stuff with opaque response (risky but....)
 			RESOURCES.filter(res => res.indexOf("http") === 0).map(async (crossOriginUrl) => {
 				const crossRequest = new Request(crossOriginUrl, { mode: 'no-cors' });
 				const response = await fetch(crossRequest);
@@ -123,6 +125,8 @@ self.addEventListener('install', function (event) {
 			}));
 		})
 	);
+*/
+
 });
 
 self.addEventListener("activate", function (event) {
