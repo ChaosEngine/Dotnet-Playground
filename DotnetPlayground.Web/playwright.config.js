@@ -9,6 +9,7 @@ import { devices } from '@playwright/test';
  */
 // require('dotenv').config();
 
+const baseUrl = 'https://localhost:4553/dotnet/';
 
 /**
  * @see https://playwright.dev/docs/test-configuration
@@ -41,7 +42,7 @@ const config = {
 		/* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
 		actionTimeout: 0,
 		/* Base URL to use in actions like `await page.goto('/')`. */
-		baseURL: 'https://localhost:4553/dotnet/',
+		baseURL: baseUrl,
 
 		/* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
 		trace: 'on-first-retry',
@@ -105,7 +106,7 @@ const config = {
 	/* Run your local dev server before starting the tests */
 	webServer: {
 		command: 'dotnet run',
-		url: 'https://localhost:4553/dotnet/',
+		url: baseUrl,
 		timeout: 120 * 1000,
 		reuseExistingServer: true,
 		ignoreHTTPSErrors: true
