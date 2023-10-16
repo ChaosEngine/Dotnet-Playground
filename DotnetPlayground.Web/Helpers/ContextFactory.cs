@@ -192,30 +192,20 @@ namespace DotnetPlayground
 				using var userManager = scopedServices.GetRequiredService<UserManager<ApplicationUser>>();
 
 				// Seed the database with test data.
-				var user_pass_pairs = new (ApplicationUser user, string pass)[]
+				const int test_users_count = 4;
+				for (int i = 1; i <= test_users_count; i++)
 				{
-					(   new ApplicationUser
+					var pair = (user:
+						new ApplicationUser
 						{
-							UserName = "Playwright1@test.domain.com",
-							Email = "Playwright1@test.domain.com",
+							UserName = $"Playwright{i}@test.domain.com",
+							Email = $"Playwright{i}@test.domain.com",   //example email: Playwright1@test.domain.com
 							UserSettingsJSON = "{}",
-							Name = "Playwright1"
+							Name = $"Playwright{i}"
 						},
-						"Playwright1!"
-					),
-					(   new ApplicationUser
-						{
-							UserName = "Playwright2@test.domain.com",
-							Email = "Playwright2@test.domain.com",
-							UserSettingsJSON = "{}",
-							Name = "Playwright2"
-						},
-						"Playwright2!"
-					)
-				};
-
-				foreach (var pair in user_pass_pairs)
-				{
+						pass: $"Playwright{i}!" //example pass: Playwright1!, Playwright2!...
+					);
+				
 					var existing_usr = await userManager.FindByEmailAsync(pair.user.Email);
 					if (existing_usr == null)
 					{
