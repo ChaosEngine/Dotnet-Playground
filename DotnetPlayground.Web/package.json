@@ -51,7 +51,7 @@
 		"defaults"
 	],
 	"devDependencies": {
-		"eslint": "8.51.0",
+		"eslint": "8.52.0",
 		"fs-extra": "11.1.1",
 		"gulp": "4.0.2",
 		"gulp-terser": "2.1.0",
@@ -84,7 +84,7 @@
 		"@microsoft/signalr": "7.0.12",
 		"@microsoft/signalr-protocol-msgpack": "7.0.12",
 		"msgpack5": "6.0.2",
-		"ace-builds": "1.30.0",
+		"ace-builds": "1.31.0",
 		"chance": "1.1.11"
 	},
 	"scripts": {
