@@ -60,7 +60,7 @@
 		"gulp-rename": "2.0.0",
 		"gulp-sass": "5.1.0",
 		"gulp-sourcemaps": "3.0.0",
-		"sass": "1.69.4",
+		"sass": "1.69.5",
 		"gulp-header": "2.0.9",
 		"tiny-glob": "0.2.9",
 		"concaveman": "1.2.1",
@@ -79,12 +79,12 @@
 		"jquery-validation": "1.20.0",
 		"jquery-validation-unobtrusive": "4.0.0",
 		"blueimp-gallery": "3.4.0",
-		"video.js": "8.6.0",
+		"video.js": "8.6.1",
 		"qrcodejs": "1.0.0",
 		"@microsoft/signalr": "7.0.12",
 		"@microsoft/signalr-protocol-msgpack": "7.0.12",
 		"msgpack5": "6.0.2",
-		"ace-builds": "1.31.0",
+		"ace-builds": "1.31.1",
 		"chance": "1.1.11"
 	},
 	"scripts": {
