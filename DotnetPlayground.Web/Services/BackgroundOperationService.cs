@@ -53,7 +53,7 @@ namespace DotnetPlayground.Services
 					}
 					catch (Exception ex)
 					{
-						_logger.LogError(ex, "{0} : {1}", nameof(work_item), work_item.GetType().ToString());
+						_logger.LogError(ex, "{work_item} : {type}", nameof(work_item), work_item.GetType().ToString());
 						//throw;
 					}
 				}, _shutdown.Token).ConfigureAwait(false);
