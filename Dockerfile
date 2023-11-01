@@ -1,7 +1,7 @@
 # syntax = docker/dockerfile:experimental
 FROM mcr.microsoft.com/dotnet/sdk:7.0-bullseye-slim AS build
 RUN --mount=type=cache,target=/root/.nuget --mount=type=cache,target=/root/.local/share/NuGet --mount=type=cache,target=/root/.npm/ --mount=type=cache,target=./DotnetPlayground.Web/node_modules
-RUN curl -sL https://deb.nodesource.com/setup_18.x | bash - && apt-get install -y nodejs
+RUN curl -sL https://deb.nodesource.com/setup_20.x | bash - && apt-get install -y nodejs
 WORKDIR /build
 
 ENV DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/net7.0/Blogging.db"
