@@ -235,7 +235,11 @@ jobs:
       - run:
           name: Install node/npm
           # keep an eye on the node/npm version here
-          command: curl -sL https://deb.nodesource.com/setup_20.x | bash - && apt-get install -y nodejs
+          command: |
+            curl -SLO https://deb.nodesource.com/nsolid_setup_deb.sh
+            chmod 500 nsolid_setup_deb.sh
+            ./nsolid_setup_deb.sh 20
+            apt-get install -y nodejs
       - run:
           name: "Build Application according to some given configuration"
           command: dotnet publish -c Release --self-contained -r linux-x64 DotnetPlayground.Web
