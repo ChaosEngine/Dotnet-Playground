@@ -208,5 +208,14 @@ namespace DotnetPlayground.Controllers
 				throw;
 			}
 		}
+
+		[HttpPost("/CspReport")]
+		public async Task<IActionResult> CspReport([FromBody] CspReportRequest cspReportRequest)
+		{
+			_logger.LogWarning("CSP Violation -> documentUri: {documentUri}, blockedUri: {blockedUri}, sourceFile: {sourceFile}",
+				cspReportRequest.CspReport.DocumentUri, cspReportRequest.CspReport.BlockedUri, cspReportRequest.CspReport.SourceFile);
+
+			return await Task.FromResult(Ok());
+		}
 	}
 }

@@ -42,6 +42,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using MessagePack;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc.Formatters;
+
 #if INCLUDE_MONGODB
 using DotnetPlayground.Repositories.Mongo;
 #endif
@@ -418,8 +420,18 @@ namespace DotnetPlayground
 			// Add framework services.
 			services.AddControllersWithViews(options =>
 			{
+				//Add support route attribute for IdentityManager2 APIs
 				options.UseCentralRoutePrefix<PageController>(new RouteAttribute("idm"));
-			}).AddSessionStateTempDataProvider();
+
+
+				//Add support for CSP report content type
+				var jsonInputFormatter = options.InputFormatters
+					.OfType<SystemTextJsonInputFormatter>()
+					.Single();
+
+				jsonInputFormatter.SupportedMediaTypes.Add("application/csp-report");
+			})
+			.AddSessionStateTempDataProvider();
 			services.AddRazorPages();
 
 			var protection_builder = services.AddDataProtection()
