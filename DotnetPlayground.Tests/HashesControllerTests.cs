@@ -708,10 +708,10 @@ namespace Controllers
 				Assert.Empty(((IEnumerable<ThinHashes>)((JsonResult)result).Value.GetType().GetProperty("rows").GetValue(((JsonResult)result).Value)));
 
 				// Act - order by bad column - should raise an exception
-				var exception = Assert.ThrowsAnyAsync<Exception>((Func<ValueTask>)(async () =>
+				var exception = Assert.ThrowsAnyAsync<Exception>(async () =>
 				{
 					result = await controller.Load(new HashesDataTableLoadInput("badbad", "ASC", "dummy", 3, 3, "blah"));
-				}));
+				});
 
 
 				// Act - get all results no sorting or searching, verify count

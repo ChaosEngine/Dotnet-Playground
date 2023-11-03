@@ -433,11 +433,11 @@ quired to go through him to do anything, though."
 			using (IBlogsController controller = new BlogsController(repository, logger, Configuration, DataProtectionProvider))
 			{
 				// Act
-				var exception = await Assert.ThrowsAsync<NotSupportedException>((Func<ValueTask>)(async () =>
+				var exception = await Assert.ThrowsAsync<NotSupportedException>(async () =>
 				{
 					//no real action - should throw
 					result = await controller.PostAction(1, true, post);
-				}));
+				});
 				Assert.Equal("operation 'Unknown' is unknown", exception.Message);
 
 
