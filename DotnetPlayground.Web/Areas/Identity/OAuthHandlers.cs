@@ -22,8 +22,8 @@ namespace DotnetPlayground.Helpers
 	{
 		//private readonly IConfiguration _configuration;
 
-		public MyGoogleHandler(IOptionsMonitor<GoogleOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, IConfiguration configuration)
-			: base(options, logger, encoder, clock)
+		public MyGoogleHandler(IOptionsMonitor<GoogleOptions> options, ILoggerFactory logger, UrlEncoder encoder, IConfiguration configuration)
+			: base(options, logger, encoder)
 		{
 			//_configuration = configuration;
 		}
@@ -38,8 +38,8 @@ namespace DotnetPlayground.Helpers
 	{
 		//private readonly IConfiguration _configuration;
 
-		public MyTwitterHandler(IOptionsMonitor<TwitterOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, IConfiguration configuration)
-		   : base(options, logger, encoder, clock)
+		public MyTwitterHandler(IOptionsMonitor<TwitterOptions> options, ILoggerFactory logger, UrlEncoder encoder, IConfiguration configuration)
+		   : base(options, logger, encoder)
 		{
 			//_configuration = configuration;
 		}
@@ -72,8 +72,8 @@ namespace DotnetPlayground.Helpers
 			}
 		}
 
-		public MyGithubHandler(IOptionsMonitor<GitHubOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, IConfiguration configuration)
-		   : base(options, logger, encoder, clock)
+		public MyGithubHandler(IOptionsMonitor<GitHubOptions> options, ILoggerFactory logger, UrlEncoder encoder, IConfiguration configuration)
+		   : base(options, logger, encoder)
 		{
 			//_configuration = configuration;
 		}

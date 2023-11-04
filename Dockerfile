@@ -1,5 +1,5 @@
 # syntax = docker/dockerfile:experimental
-FROM mcr.microsoft.com/dotnet/sdk:7.0-bullseye-slim AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0-bullseye-slim AS build
 RUN --mount=type=cache,target=/root/.nuget --mount=type=cache,target=/root/.local/share/NuGet --mount=type=cache,target=/root/.npm/ --mount=type=cache,target=./DotnetPlayground.Web/node_modules
 RUN curl -SLO https://deb.nodesource.com/nsolid_setup_deb.sh && \
     chmod 500 nsolid_setup_deb.sh && \
@@ -35,7 +35,7 @@ RUN dotnet publish --no-restore -c $BUILD_CONFIG --self-contained -r linux-x64 \
 
 
 
-FROM mcr.microsoft.com/dotnet/runtime-deps:7.0-bullseye-slim
+FROM mcr.microsoft.com/dotnet/runtime-deps:8.0-bullseye-slim
 WORKDIR /app
 ENV USER=nobody TZ=Europe/Warsaw ASPNETCORE_URLS=http://+:5000
 ARG BUILD_CONFIG=${BUILD_CONFIG:-Release}

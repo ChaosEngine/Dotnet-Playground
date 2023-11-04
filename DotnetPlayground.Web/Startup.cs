@@ -431,6 +431,15 @@ namespace DotnetPlayground
 				jsonInputFormatter.SupportedMediaTypes.Add(CspReportRequest.ContentType);
 
 			})
+			//.AddRazorRuntimeCompilation(options =>
+			//{
+			//	//options.AdditionalReferencePaths.Add(Path.Combine(
+			//	//        env.ContentRootPath, "../InkBall/src/InkBall.Module"
+			//	//	));
+
+			//	var libPath = Path.GetFullPath(Path.Combine(env.ContentRootPath, "../InkBall/src/InkBall.Module"));
+			//	options.FileProviders.Add(new PhysicalFileProvider(libPath));
+			//})
 			.AddSessionStateTempDataProvider();
 			services.AddRazorPages();
 

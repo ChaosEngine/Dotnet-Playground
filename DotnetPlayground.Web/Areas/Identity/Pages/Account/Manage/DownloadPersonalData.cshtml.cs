@@ -10,10 +10,12 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using DotnetPlayground.Models;
 using DotnetPlayground.Web.Helpers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
 
 namespace IdentitySample.DefaultUI
 {
@@ -83,7 +85,7 @@ namespace IdentitySample.DefaultUI
 
 			personalData.Add($"Authenticator Key", await _userManager.GetAuthenticatorKeyAsync(user));
 
-			Response.Headers.Add("Content-Disposition", "attachment; filename=PersonalData.json");
+			Response.Headers.Append("Content-Disposition", "attachment; filename=PersonalData.json");
 			return new FileContentResult(Encoding.UTF8.GetBytes(
 				JsonSerializer.Serialize(personalData, DictStringString_Context.Default.DictionaryStringString)),
 				"text/json");
