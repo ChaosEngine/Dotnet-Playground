@@ -10,7 +10,9 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Mime;
+using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -136,6 +138,56 @@ namespace Integration
 				}
 			}
 		}
+
+		[Fact]
+		public async Task CspReport()
+		{
+			// Arrange
+			var payload = new CspReportRequest
+			{
+				CspReport = new CspReport
+				{
+					DocumentUri = "https://some-domain.com/dotnet/WebCamGallery",
+					Referrer = "https://some-domain.com/dotnet/PuzzleGenerator",
+					ViolatedDirective = "img-src",
+					EffectiveDirective = "img-src",
+					OriginalPolicy = """
+				base-uri 'self'; report-uri /dotnet/CspPeport; default-src 'self'; 
+				manifest-src 'self'; upgrade-insecure-requests; block-all-mixed-content; 
+				script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://vjs.zencdn.net; 
+				style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; 
+				img-src 'self' data: blob: https://i.ytimg.com; 
+				font-src 'self' data:; 
+				connect-src 'self'; 
+				media-src 'self' data: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; 
+				frame-src 'self' https://www.youtube.com; 
+				child-src 'self'; 
+				form-action 'self' https://accounts.google.com https://github.com https://www.facebook.com; 
+				frame-ancestors 'none';
+				""",
+					// disposition = "enforce",
+					BlockedUri = "https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.4.0/img/next.svg",
+					LineNumber = 1,
+					ColumnNumber = 19546,
+					SourceFile = "https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.4.0/js/blueimp-gallery.min.js",
+					StatusCode = 200,
+					// "script-sample": ""
+				}
+			};
+			using var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8,
+				CspReportRequest.ContentType);
+
+			// Act
+			using (var response = await _client.PostAsync($"{_client.BaseAddress}{nameof(HomeController.CspReport)}",
+				content))
+			{
+				// Assert
+				Assert.NotNull(response);
+				response.EnsureSuccessStatusCode();
+				Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+			}
+
+		}
 	}
 
 	[Collection(nameof(TestServerCollection))]
@@ -194,8 +246,8 @@ namespace Integration
 				is_HashesInfo_table_empty = empty_hashes_response_match.Count > 0 && hashes_not_empty_response_match.Count <= 0;
 			}
 
-			//if not yet calculated, we wait until it finaly is calculated and assert new page content
-			//only hapening if we are sure there are _any records_ inside table hashes
+			//if not yet calculated, we wait until it finally is calculated and assert new page content
+			//only happening if we are sure there are _any records_ inside table hashes
 			if (is_HashesInfo_table_empty.HasValue && total_hashes_count > 0)
 			{
 				// Arrange
@@ -275,77 +327,77 @@ namespace Integration
 		[InlineData("Key", "asc", "none_existing", 5, 1, "cached")]
 		[InlineData("Key", "asc", "none_existing", 5, 1, "refresh")]
 		public async Task Load_Valid(string sort, string order, string search, int limit, int offset, string extraParam)
-        {
-            await LoadValidImpl(sort, order, search, limit, offset, extraParam);
-        }
+		{
+			await LoadValidImpl(sort, order, search, limit, offset, extraParam);
+		}
 
-        protected internal async Task<int> LoadValidImpl(string sort, string order, string search, int limit, int offset, string extraParam)
-        {
-            //if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return 0;//pass on fake DB with no data
+		protected internal async Task<int> LoadValidImpl(string sort, string order, string search, int limit, int offset, string extraParam)
+		{
+			//if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return 0;//pass on fake DB with no data
 
 
-            // Arrange
-            var query_input = new HashesDataTableLoadInput
-            {
-                Sort = sort,
-                Order = order,
-                Search = search,
-                Limit = limit,
-                Offset = offset,
-                ExtraParam = extraParam,
-            }.ToDictionary();
-            using (var content = new FormUrlEncodedContent(query_input))
-            {
-                var queryString = await content.ReadAsStringAsync();
-                // Act
-                using (HttpResponseMessage response = await _client.GetAsync($"{_client.BaseAddress}{VirtualScrollController.ASPX}/{nameof(HashesDataTableController.Load)}?{queryString}", HttpCompletionOption.ResponseContentRead))
-                {
-                    // Assert
-                    Assert.NotNull(response);
-                    response.EnsureSuccessStatusCode();
-                    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+			// Arrange
+			var query_input = new HashesDataTableLoadInput
+			{
+				Sort = sort,
+				Order = order,
+				Search = search,
+				Limit = limit,
+				Offset = offset,
+				ExtraParam = extraParam,
+			}.ToDictionary();
+			using (var content = new FormUrlEncodedContent(query_input))
+			{
+				var queryString = await content.ReadAsStringAsync();
+				// Act
+				using (HttpResponseMessage response = await _client.GetAsync($"{_client.BaseAddress}{VirtualScrollController.ASPX}/{nameof(HashesDataTableController.Load)}?{queryString}", HttpCompletionOption.ResponseContentRead))
+				{
+					// Assert
+					Assert.NotNull(response);
+					response.EnsureSuccessStatusCode();
+					Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-                    var jsonString = await response.Content.ReadAsStringAsync();
+					var jsonString = await response.Content.ReadAsStringAsync();
 
-                    var typed_result = new TypedResult
-                    {
-                        total = 1,
-                        rows = new ThinHashes[] { }
-                    };
+					var typed_result = new TypedResult
+					{
+						total = 1,
+						rows = new ThinHashes[] { }
+					};
 
-                    // Deserialize JSON String into concrete class
-                    var data = JsonSerializer.Deserialize<TypedResult>(jsonString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                    Assert.IsType(typed_result.GetType(), data);
-                    Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(data.rows);
+					// Deserialize JSON String into concrete class
+					var data = JsonSerializer.Deserialize<TypedResult>(jsonString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+					Assert.IsType(typed_result.GetType(), data);
+					Assert.IsAssignableFrom<IEnumerable<ThinHashes>>(data.rows);
 
-                    Assert.True(data.rows.Length == 5 || data.rows.Length == 0);
-                    Assert.True(data.total >= 0);
+					Assert.True(data.rows.Length == 5 || data.rows.Length == 0);
+					Assert.True(data.total >= 0);
 
-                    if (data.rows.Length > 0)
-                    {
-                        Assert.StartsWith(search, data.rows[0].Key);
+					if (data.rows.Length > 0)
+					{
+						Assert.StartsWith(search, data.rows[0].Key);
 
-                        if (query_input.TryGetValue("ExtraParam", out string value) && value == "cached")
-                        {
-                            Assert.True(response.Headers.CacheControl.Public &&
-                                response.Headers.CacheControl.MaxAge == DotnetPlayground.Repositories.HashesRepository.HashesInfoExpirationInMinutes);
-                        }
-                        else
-                        {
-                            Assert.Null(response.Headers.CacheControl?.Public);
-                        }
-                    }
-                    else
-                    {
-                        Assert.Null(response.Headers.CacheControl?.Public);
-                    }
+						if (query_input.TryGetValue("ExtraParam", out string value) && value == "cached")
+						{
+							Assert.True(response.Headers.CacheControl.Public &&
+								response.Headers.CacheControl.MaxAge == DotnetPlayground.Repositories.HashesRepository.HashesInfoExpirationInMinutes);
+						}
+						else
+						{
+							Assert.Null(response.Headers.CacheControl?.Public);
+						}
+					}
+					else
+					{
+						Assert.Null(response.Headers.CacheControl?.Public);
+					}
 
-                    return data.total;
-                }
-            }
-        }
+					return data.total;
+				}
+			}
+		}
 
-        [Theory]
+		[Theory]
 		[InlineData("dead", "string", "is", 0xDEAD, 0xBEEF, "refresh")]
 		[InlineData("Key", "asc", "awak", 5, 1, "bad")]
 		public async Task Load_Invalid(string sort, string order, string search, int limit, int offset, string extraParam)
@@ -638,8 +690,7 @@ namespace Integration
 
 				//verify with getting all post for blog
 				// Arrange
-				data = new List<KeyValuePair<string, string>>(/*empty*/);
-				data.Add(new KeyValuePair<string, string>("__RequestVerificationToken", antiforgery_token));
+				data = new List<KeyValuePair<string, string>> { new KeyValuePair<string, string>("__RequestVerificationToken", antiforgery_token) };
 
 				using (var formPostBodyData = new FormUrlEncodedContent(data))
 				{
@@ -738,8 +789,7 @@ namespace Integration
 
 					//verify with getting all post for blog
 					// Arrange
-					data = new List<KeyValuePair<string, string>>(/*empty*/);
-					data.Add(new KeyValuePair<string, string>("__RequestVerificationToken", antiforgery_token));
+					data = new List<KeyValuePair<string, string>> { new KeyValuePair<string, string>("__RequestVerificationToken", antiforgery_token) };
 
 					using (var formPostBodyData = new FormUrlEncodedContent(data))
 					{

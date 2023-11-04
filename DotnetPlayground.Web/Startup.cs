@@ -428,8 +428,8 @@ namespace DotnetPlayground
 				var jsonInputFormatter = options.InputFormatters
 					.OfType<SystemTextJsonInputFormatter>()
 					.Single();
+				jsonInputFormatter.SupportedMediaTypes.Add(CspReportRequest.ContentType);
 
-				jsonInputFormatter.SupportedMediaTypes.Add("application/csp-report");
 			})
 			.AddSessionStateTempDataProvider();
 			services.AddRazorPages();
