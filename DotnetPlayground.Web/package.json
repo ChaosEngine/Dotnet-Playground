@@ -51,7 +51,7 @@
 		"defaults"
 	],
 	"devDependencies": {
-		"eslint": "8.52.0",
+		"eslint": "8.53.0",
 		"fs-extra": "11.1.1",
 		"gulp": "4.0.2",
 		"gulp-terser": "2.1.0",
