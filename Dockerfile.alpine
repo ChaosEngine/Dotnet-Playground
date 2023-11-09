@@ -4,7 +4,7 @@ RUN --mount=type=cache,target=/root/.nuget --mount=type=cache,target=/root/.loca
 RUN apk add --update nodejs npm
 WORKDIR /build
 
-ENV DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/net7.0/Blogging.db"
+ENV DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/net8.0/Blogging.db"
 ARG SOURCE_COMMIT
 ARG SOURCE_BRANCH
 ARG BUILD_CONFIG=${BUILD_CONFIG:-Release}
@@ -19,13 +19,13 @@ COPY ./IdentityManager2/src/IdentityManager2/IdentityManager2.csproj ./IdentityM
 COPY ./IdentityManager2/src/IdentityManager2/Assets/ ./IdentityManager2/src/IdentityManager2/Assets/
 COPY ./DotnetPlayground.Web/DotnetPlayground.Web.csproj ./DotnetPlayground.Web/DotnetPlayground.Web.csproj
 COPY ./*.sln ./NuGet.config ./
-RUN dotnet restore -r alpine-x64
+RUN dotnet restore -r linux-x64
 
 COPY . .
 RUN sed -i -e "s/GIT_HASH/$SOURCE_COMMIT/g" -e "s/GIT_BRANCH/$SOURCE_BRANCH/g" DotnetPlayground.Web/wwwroot/js/site.js
 RUN dotnet test --no-restore -v m
-RUN dotnet publish --no-restore -c $BUILD_CONFIG --self-contained -r alpine-x64 \
-    -p:PublishTrimmed=true \
+RUN dotnet publish --no-restore -c $BUILD_CONFIG --self-contained -r linux-x64 \
+    #-p:PublishTrimmed=true \
     DotnetPlayground.Web
 
 
@@ -37,7 +37,7 @@ RUN apk add tzdata
 WORKDIR /app
 ENV USER=nobody TZ=Europe/Warsaw ASPNETCORE_URLS=http://+:5000
 ARG BUILD_CONFIG=${BUILD_CONFIG:-Release}
-COPY --from=build --chown="$USER":"$USER" /build/DotnetPlayground.Web/bin/$BUILD_CONFIG/net7.0/alpine-x64/publish/ /build/startApp.sh ./
+COPY --from=build --chown="$USER":"$USER" /build/DotnetPlayground.Web/bin/$BUILD_CONFIG/net8.0/linux-x64/publish/ /build/startApp.sh ./
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 

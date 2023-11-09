@@ -10,6 +10,7 @@
 		<UserSecretsId>aspnet-DotnetPlayground-20161230022416</UserSecretsId>
 		<TypeScriptToolsVersion>2.8</TypeScriptToolsVersion>
 		<TieredCompilation>true</TieredCompilation>
+		<PublishTrimmed>true</PublishTrimmed>
 		<TrimMode>partial</TrimMode>
 		<SuppressTrimAnalysisWarnings>false</SuppressTrimAnalysisWarnings>
 		<Configurations>Debug;Release;Oracle</Configurations>
@@ -37,7 +38,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0-rc.2.23480.2" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.0-rc.1.23421.29" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.0-rc.2.23480.2" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.0-rc.2.23480.1" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0-rc.2.23480.1" Condition="$(DefineConstants.Contains('INCLUDE_SQLSERVER'))" />
 		<PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="8.0.0-rc.2.23480.2" Condition="$(DefineConstants.Contains('INCLUDE_SQLSERVER'))" />
