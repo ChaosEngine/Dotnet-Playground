@@ -3,16 +3,20 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace DotnetPlayground.Models
 {
+    [JsonConverter(typeof(JsonStringEnumConverter<BlogActionEnum>))]
 	public enum BlogActionEnum
-	{
+    {
 		Unknown = -1,
 		Edit = 0,
 		Delete = 1
 	}
-	public enum PostActionEnum
+
+    [JsonConverter(typeof(JsonStringEnumConverter<PostActionEnum>))]
+    public enum PostActionEnum
 	{
 		Unknown = -1,
 		EditPost = 0,

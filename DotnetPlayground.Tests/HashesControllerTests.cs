@@ -101,7 +101,7 @@ namespace Controllers
 			{
 				var found = hashes.Where(h =>
 					h.HashMD5.ToLowerInvariant().StartsWith(s) || h.HashSHA256.ToLowerInvariant().StartsWith(s) || h.Key.ToLowerInvariant().StartsWith(s))
-					.DefaultIfEmpty(new ThinHashes { Key = "nothing found" });
+					.DefaultIfEmpty(new ThinHashes { Key = "nothing found" }).ToList();
 
 				return Task.FromResult(found);
 			});

@@ -222,11 +222,11 @@ namespace DotnetPlayground.Repositories
 			return jsonDocumentArray.ToString();
 		}
 
-		public async Task<IEnumerable<ThinHashes>> AutoComplete(string text)
+		public async Task<List<ThinHashes>> AutoComplete(string text)
 		{
 			text = text.Trim();
 			IEnumerable<DocumentDBHash> docs = await base.GetItemsAsync(d => d.HashMD5.StartsWith(text) || d.HashSHA256.StartsWith(text), 20);
-			return docs.DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
+			return docs.DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT }).ToList();
 		}
 
 		/// <summary>

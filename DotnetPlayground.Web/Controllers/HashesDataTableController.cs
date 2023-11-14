@@ -75,7 +75,7 @@ namespace DotnetPlayground.Controllers
 					found = await _repo.PagedSearchAsync(input.Sort, input.Order, input.Search, input.Offset, input.Limit, token);
 				}
 
-				var result = new
+				var result = new HashesLoadResult
 				{
 					total = found.Count,
 					rows = found.Itemz//.Select(x => new string[] { x.Key, x.HashMD5, x.HashSHA256 })
@@ -91,7 +91,7 @@ namespace DotnetPlayground.Controllers
 						};
 				}
 
-				return Json(result/*, _serializationSettings*/);
+				return Json(result, DotnetPlayground.Web.Helpers.HashesLoadResult_Context.Default.Options);
 			}
 			catch (OperationCanceledException ex)
 			{

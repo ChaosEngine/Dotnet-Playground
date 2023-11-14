@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using DotnetPlayground.Web.Helpers;
 
 namespace DotnetPlayground.Controllers
 {
@@ -30,10 +31,10 @@ namespace DotnetPlayground.Controllers
 	public class BlogsController : Controller, IBlogsController
 	{
 		public const string ASPX = "Blogs";
-		private static readonly JsonSerializerOptions _serializationOpts = new JsonSerializerOptions
-		{
-			DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-		};
+		//private static readonly JsonSerializerOptions _serializationOpts = new JsonSerializerOptions
+		//{
+		//	DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+		//};
 
 		private readonly ILogger<BlogsController> _logger;
 		private readonly IConfiguration _configuration;
@@ -79,7 +80,7 @@ namespace DotnetPlayground.Controllers
 			if (!ModelState.IsValid)
 			{
 				if (ajax)
-					return Json("error");
+					return Json("error", String_Context.Default.Options);
 				else
 				{
 					IEnumerable<DecoratedBlog> lst = await GetBlogs();
@@ -117,7 +118,7 @@ namespace DotnetPlayground.Controllers
 		{
 			var lst = await _repo.GetPostsFromBlogAsync(blogId);
 
-			return Json(lst, _serializationOpts);
+			return Json(lst, ListPost_Context.Default.Options);
 		}
 
 		[Route(@"{operation:regex(^(" +
@@ -137,7 +138,7 @@ namespace DotnetPlayground.Controllers
 			if (!ModelState.IsValid)
 			{
 				if (ajax)
-					return Json("error");
+					return Json("error", String_Context.Default.Options);
 				else
 				{
 					IEnumerable<DecoratedBlog> lst = await GetBlogs();
@@ -192,7 +193,7 @@ namespace DotnetPlayground.Controllers
 					BlogId = post.BlogId,
 					Title = post.Title,
 					Content = post.Content
-				}, _serializationOpts);
+				}, Post_Context.Default.Options);
 			}
 
 			return NotFound();
@@ -210,7 +211,7 @@ namespace DotnetPlayground.Controllers
 			var deleted = await _repo.DeletePostAsync(p => p.BlogId == blogId && p.PostId == postId);
 			if (deleted)
 			{
-				return Json("deleted post");
+				return Json("deleted post", String_Context.Default.Options);
 			}
 			else
 				return NotFound();
@@ -239,7 +240,7 @@ namespace DotnetPlayground.Controllers
 					BlogId = post.BlogId,
 					Title = post.Title,
 					Content = post.Content
-				}, _serializationOpts);
+				}, Post_Context.Default.Options);
 			}
 
 			return NotFound();
@@ -263,7 +264,7 @@ namespace DotnetPlayground.Controllers
 				{
 					BlogId = blogId,
 					Url = url,
-				});
+				}, Blog_Context.Default.Options);
 			else
 				return NotFound();
 		}
@@ -279,7 +280,7 @@ namespace DotnetPlayground.Controllers
 
 			if ((await _repo.Delete(b => b.BlogId == blogId)) == true)
 			{
-				return Json("deleted");
+				return Json("deleted", String_Context.Default.Options);
 			}
 			else
 				return NotFound();

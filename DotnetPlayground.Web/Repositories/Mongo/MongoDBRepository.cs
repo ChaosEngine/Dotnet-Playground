@@ -80,7 +80,7 @@ namespace DotnetPlayground.Repositories.Mongo
 			return hashesInfoStatic;
 		}
 
-		public async Task<IEnumerable<ThinHashes>> AutoComplete(string text)
+		public async Task<List<ThinHashes>> AutoComplete(string text)
 		{
 			_serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("ctor", Watch.ElapsedMilliseconds,
 				"from ctor till AutoComplete"));
@@ -93,7 +93,7 @@ namespace DotnetPlayground.Repositories.Mongo
 
 			_serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("READY",
 				Watch.ElapsedMilliseconds, "AutoComplete ready"));
-			return (await found).DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
+			return (await found).DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT }).ToList();
 		}
 
 		public async Task<HashesInfo> CalculateHashesInfo(ILogger logger, DbContextOptions<BloggingContext> dbContextOptions, CancellationToken token = default)

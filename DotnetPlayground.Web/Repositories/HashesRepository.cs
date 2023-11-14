@@ -35,7 +35,7 @@ namespace DotnetPlayground.Repositories
 
 		void SetReadOnly(bool value);
 
-		Task<IEnumerable<ThinHashes>> AutoComplete(string text);
+		Task<List<ThinHashes>> AutoComplete(string text);
 
 		Task<(IEnumerable<ThinHashes> Itemz, int Count)> PagedSearchAsync(string sortColumn, string sortOrderDirection, string searchText,
 			int offset, int limit, CancellationToken token);
@@ -146,7 +146,7 @@ namespace DotnetPlayground.Repositories
 		/// </summary>
 		/// <param name="text">The text.</param>
 		/// <returns></returns>
-		public async Task<IEnumerable<ThinHashes>> AutoComplete(string text)
+		public async Task<List<ThinHashes>> AutoComplete(string text)
 		{
 			_serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("ctor", Watch.ElapsedMilliseconds,
 				"from ctor till AutoComplete"));
@@ -190,7 +190,7 @@ namespace DotnetPlayground.Repositories
 
 			_serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("READY",
 				Watch.ElapsedMilliseconds, "AutoComplete ready"));
-			return (await found).DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
+			return (await found).DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT }).ToList();
 		}
 
 		/// <summary>

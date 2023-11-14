@@ -43,6 +43,7 @@ using MessagePack;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using DotnetPlayground.Web.Helpers;
 
 #if INCLUDE_MONGODB
 using DotnetPlayground.Repositories.Mongo;
@@ -256,6 +257,7 @@ namespace DotnetPlayground
 				.ConfigurePrimaryHttpMessageHandler<MjpgStreamerHttpClientHandler>();
 		}
 
+		[RequiresUnreferencedCode("Calls Microsoft.Extensions.DependencyInjection.IdentityServiceCollectionExtensions.AddIdentity<TUser, TRole>()")]
 		private void ConfigureAuthenticationAuthorizationHelper(IServiceCollection services, IWebHostEnvironment env)
 		{
 			services.AddTransient<IEmailSender, AuthMessageSender>();
@@ -388,6 +390,7 @@ namespace DotnetPlayground
 		}
 
 		// This method gets called by the runtime. Use this method to add services to the container.
+		[RequiresUnreferencedCode("Contains trimming unsafe calls")]
 		public void ConfigureServices(IServiceCollection services)
 		{
 			var env = services.FirstOrDefault(x => x.ServiceType == typeof(IWebHostEnvironment)).ImplementationInstance as IWebHostEnvironment;
@@ -431,15 +434,11 @@ namespace DotnetPlayground
 				jsonInputFormatter.SupportedMediaTypes.Add(CspReportRequest.ContentType);
 
 			})
-			//.AddRazorRuntimeCompilation(options =>
-			//{
-			//	//options.AdditionalReferencePaths.Add(Path.Combine(
-			//	//        env.ContentRootPath, "../InkBall/src/InkBall.Module"
-			//	//	));
-
-			//	var libPath = Path.GetFullPath(Path.Combine(env.ContentRootPath, "../InkBall/src/InkBall.Module"));
-			//	options.FileProviders.Add(new PhysicalFileProvider(libPath));
-			//})
+			.AddJsonOptions(static options =>
+			{
+				options.JsonSerializerOptions.TypeInfoResolverChain.Add(CspReportRequest_Context.Default);
+				options.JsonSerializerOptions.TypeInfoResolverChain.Add(AnnualTimelapseBag_Context.Default);
+			})
 			.AddSessionStateTempDataProvider();
 			services.AddRazorPages();
 
