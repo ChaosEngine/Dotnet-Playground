@@ -28,13 +28,13 @@ namespace DotnetPlayground.Models
 				return await Task.FromResult<IActionResult>(new JsonResult(new AnnualTimelapseBag { Result = "Error0" }));
 
 
-			// var operation = new YouTubePlaylistDumpOperation();
-			// await operation.DoWorkAsync(services, Request.HttpContext.RequestAborted);
-			// var product = operation.Product;
-			var product = new List<object[]>
-            {
-                new object[] { "aaa", "bbbb", "ccccc", "dddd" }
-            };
+			var operation = new YouTubePlaylistDumpOperation();
+			await operation.DoWorkAsync(services, Request.HttpContext.RequestAborted);
+			var product = operation.Product;
+			//var product = new List<object[]>
+			//         {
+			//             new object[] { "aaa", "bbbb", "ccccc", "dddd" }
+			//         };
 
 			var result = new AnnualTimelapseBag { Result = "Ok", Product = product };
 
