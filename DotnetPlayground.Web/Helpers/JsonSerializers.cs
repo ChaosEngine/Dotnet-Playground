@@ -29,7 +29,10 @@ namespace DotnetPlayground.Web.Helpers
 
     /// Blogs
 
-    [JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonSourceGenerationOptions(
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        // PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase
+    )]
     [JsonSerializable(typeof(List<Post>))]
     public partial class ListPost_Context : JsonSerializerContext { }
 
@@ -76,7 +79,11 @@ namespace DotnetPlayground.Web.Helpers
 
     // WebcamGallery
 
+    [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
+    [JsonSerializable(typeof(long?))]
+    [JsonSerializable(typeof(string))]
+    [JsonSerializable(typeof(DateTimeOffset))]
     [JsonSerializable(typeof(AnnualTimelapseBag))]
-    public partial class AnnualTimelapseBag_Context : JsonSerializerContext { }
+	public partial class AnnualTimelapseBag_Context : JsonSerializerContext { }
 
 }

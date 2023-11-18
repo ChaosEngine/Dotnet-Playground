@@ -44,6 +44,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using DotnetPlayground.Web.Helpers;
+using System.Text.Json;
+
 
 #if INCLUDE_MONGODB
 using DotnetPlayground.Repositories.Mongo;
@@ -58,6 +60,7 @@ namespace DotnetPlayground
 
 		#region Main
 
+		[RequiresUnreferencedCode("Contains trimming unsafe calls")]
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
 			.ConfigureWebHostDefaults(webBuilder =>
@@ -72,17 +75,16 @@ namespace DotnetPlayground
 						opts.ListenUnixSocket("/sockets/www.sock");
 					}
 				})
-				//.UseLibuv()
 				.UseSockets()
 				/*.UseLinuxTransport(async opts =>
 				{
 					await Console.Out.WriteLineAsync("Using Linux Transport");
 				})*/
 				.UseContentRoot(Directory.GetCurrentDirectory())
-				//.UseIISIntegration()
 				.UseStartup<Startup>();
 			});
 
+		[RequiresUnreferencedCode("Contains trimming unsafe calls")]
 		static async Task Main(string[] args)
 		{
 			//// Adding following lines in order to mitigate:
@@ -116,13 +118,11 @@ namespace DotnetPlayground
 							opts.ListenUnixSocket("/sockets/www.sock");
 						}
 					})
-					//.UseLibuv()
 					.UseSockets()
 					/*.UseLinuxTransport(async opts =>
 					{
 						await Console.Out.WriteLineAsync("Using Linux Transport");
 					})*/
-					//.UseIISIntegration()
 					.UseStartup<Startup>();
 				})
 				.Build();
@@ -438,6 +438,10 @@ namespace DotnetPlayground
 			{
 				options.JsonSerializerOptions.TypeInfoResolverChain.Add(CspReportRequest_Context.Default);
 				options.JsonSerializerOptions.TypeInfoResolverChain.Add(AnnualTimelapseBag_Context.Default);
+				options.JsonSerializerOptions.TypeInfoResolverChain.Add(String_Context.Default);
+				options.JsonSerializerOptions.TypeInfoResolverChain.Add(ListPost_Context.Default);
+				options.JsonSerializerOptions.TypeInfoResolverChain.Add(Post_Context.Default);
+				options.JsonSerializerOptions.TypeInfoResolverChain.Add(Blog_Context.Default);
 			})
 			.AddSessionStateTempDataProvider();
 			services.AddRazorPages();
@@ -460,7 +464,7 @@ namespace DotnetPlayground
 			})
 			.AddJsonProtocol(options =>
 			{
-				//options.PayloadSerializerSettings.ContractResolver = new DefaultContractResolver();
+				// options.PayloadSerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.General);
 			})
 			.AddMessagePackProtocol(options =>
 			{
