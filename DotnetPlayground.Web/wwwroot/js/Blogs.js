@@ -14,7 +14,7 @@ function BlogsOnLoad() {
 		}
 
 		resultArr.forEach(function (p) {
-			const postId = p.PostId, title = p.Title, content = p.Content;
+			const postId = p.postId, title = p.title, content = p.content;
 			const heading = collapsible.querySelector("#heading_" + blogId + '_' + postId);
 			if (!heading) {
 				const card = document.createElement('div');

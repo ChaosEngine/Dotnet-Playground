@@ -80,7 +80,7 @@ namespace DotnetPlayground.Controllers
 			if (!ModelState.IsValid)
 			{
 				if (ajax)
-					return Json("error", String_Context.Default.Options);
+					return Json("error");
 				else
 				{
 					IEnumerable<DecoratedBlog> lst = await GetBlogs();
@@ -118,7 +118,7 @@ namespace DotnetPlayground.Controllers
 		{
 			var lst = await _repo.GetPostsFromBlogAsync(blogId);
 
-			return Json(lst, ListPost_Context.Default.Options);
+			return Json(lst);
 		}
 
 		[Route(@"{operation:regex(^(" +
@@ -138,7 +138,7 @@ namespace DotnetPlayground.Controllers
 			if (!ModelState.IsValid)
 			{
 				if (ajax)
-					return Json("error", String_Context.Default.Options);
+					return Json("error");
 				else
 				{
 					IEnumerable<DecoratedBlog> lst = await GetBlogs();
@@ -193,7 +193,7 @@ namespace DotnetPlayground.Controllers
 					BlogId = post.BlogId,
 					Title = post.Title,
 					Content = post.Content
-				}, Post_Context.Default.Options);
+				});
 			}
 
 			return NotFound();
@@ -211,7 +211,7 @@ namespace DotnetPlayground.Controllers
 			var deleted = await _repo.DeletePostAsync(p => p.BlogId == blogId && p.PostId == postId);
 			if (deleted)
 			{
-				return Json("deleted post", String_Context.Default.Options);
+				return Json("deleted post");
 			}
 			else
 				return NotFound();
@@ -240,7 +240,7 @@ namespace DotnetPlayground.Controllers
 					BlogId = post.BlogId,
 					Title = post.Title,
 					Content = post.Content
-				}, Post_Context.Default.Options);
+				});
 			}
 
 			return NotFound();
@@ -264,7 +264,7 @@ namespace DotnetPlayground.Controllers
 				{
 					BlogId = blogId,
 					Url = url,
-				}, Blog_Context.Default.Options);
+				});
 			else
 				return NotFound();
 		}
@@ -280,7 +280,7 @@ namespace DotnetPlayground.Controllers
 
 			if ((await _repo.Delete(b => b.BlogId == blogId)) == true)
 			{
-				return Json("deleted", String_Context.Default.Options);
+				return Json("deleted");
 			}
 			else
 				return NotFound();

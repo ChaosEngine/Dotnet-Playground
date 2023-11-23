@@ -2,6 +2,7 @@
 using DotnetPlayground.Controllers;
 using DotnetPlayground.Models;
 using DotnetPlayground.Tests;
+using DotnetPlayground.Web.Helpers;
 using InkBall.IntegrationTests;
 using Microsoft.Extensions.Logging;
 using System;
@@ -679,7 +680,7 @@ namespace Integration
 							responseString, StringComparison.InvariantCultureIgnoreCase);
 
 						// Deserialize JSON String into concrete class
-						deserialized = JsonSerializer.Deserialize<Post>(responseString);
+						deserialized = JsonSerializer.Deserialize<Post>(responseString, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 						Assert.IsType<Post>(deserialized);
 						Assert.Equal(last_inserted_blog_id, deserialized.BlogId);
 						Assert.True(deserialized.PostId > 0);
@@ -711,7 +712,7 @@ namespace Integration
 							responseString, StringComparison.InvariantCultureIgnoreCase);
 
 						// Deserialize JSON String into concrete class
-						var posts = JsonSerializer.Deserialize<List<Post>>(responseString);
+						var posts = JsonSerializer.Deserialize<List<Post>>(responseString, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 						//there should be ONE post
 						Assert.NotEmpty(posts);
 						deserialized = posts.FirstOrDefault();
@@ -751,7 +752,7 @@ namespace Integration
 							responseString, StringComparison.InvariantCultureIgnoreCase);
 
 						// Deserialize JSON String into concrete class
-						deserialized = JsonSerializer.Deserialize<Post>(responseString);
+						deserialized = JsonSerializer.Deserialize<Post>(responseString, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 						Assert.IsType<Post>(deserialized);
 						Assert.Equal(last_inserted_blog_id, deserialized.BlogId);
 						Assert.True(deserialized.PostId > 0);
@@ -805,7 +806,7 @@ namespace Integration
 							var responseString = await response.Content.ReadAsStringAsync();
 
 							// Deserialize JSON String into concrete class
-							var posts = JsonSerializer.Deserialize<List<Post>>(responseString);
+							var posts = JsonSerializer.Deserialize<List<Post>>(responseString, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 							//there should be NO post
 							Assert.Empty(posts);
 						}

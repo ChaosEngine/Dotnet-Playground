@@ -91,7 +91,7 @@ namespace DotnetPlayground.Controllers
 						};
 				}
 
-				return Json(result, DotnetPlayground.Web.Helpers.HashesLoadResult_Context.Default.Options);
+				return Json(result);
 			}
 			catch (OperationCanceledException ex)
 			{

@@ -54,153 +54,153 @@ using DotnetPlayground.Repositories.Mongo;
 
 namespace DotnetPlayground
 {
-	public class Startup
-	{
-		public IConfiguration Configuration { get; }
+    public class Startup
+    {
+        public IConfiguration Configuration { get; }
 
-		#region Main
+        #region Main
 
-		[RequiresUnreferencedCode("Contains trimming unsafe calls")]
-		public static IHostBuilder CreateHostBuilder(string[] args) =>
-			Host.CreateDefaultBuilder(args)
-			.ConfigureWebHostDefaults(webBuilder =>
-			{
-				webBuilder
-				.UseKestrel(opts =>
-				{
-					opts.AddServerHeader = false;
-					string ASPNETCORE_URLS = Environment.GetEnvironmentVariable("ASPNETCORE_URLS");
-					if (!string.IsNullOrEmpty(ASPNETCORE_URLS) && ASPNETCORE_URLS.Contains("unix:/"))
-					{
-						opts.ListenUnixSocket("/sockets/www.sock");
-					}
-				})
-				.UseSockets()
-				/*.UseLinuxTransport(async opts =>
+        [RequiresUnreferencedCode("Contains trimming unsafe calls")]
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                webBuilder
+                .UseKestrel(opts =>
+                {
+                    opts.AddServerHeader = false;
+                    string ASPNETCORE_URLS = Environment.GetEnvironmentVariable("ASPNETCORE_URLS");
+                    if (!string.IsNullOrEmpty(ASPNETCORE_URLS) && ASPNETCORE_URLS.Contains("unix:/"))
+                    {
+                        opts.ListenUnixSocket("/sockets/www.sock");
+                    }
+                })
+                .UseSockets()
+                /*.UseLinuxTransport(async opts =>
 				{
 					await Console.Out.WriteLineAsync("Using Linux Transport");
 				})*/
-				.UseContentRoot(Directory.GetCurrentDirectory())
-				.UseStartup<Startup>();
-			});
+                .UseContentRoot(Directory.GetCurrentDirectory())
+                .UseStartup<Startup>();
+            });
 
-		[RequiresUnreferencedCode("Contains trimming unsafe calls")]
-		static async Task Main(string[] args)
-		{
-			//// Adding following lines in order to mitigate:
-			//// https://github.com/aspnet/Announcements/issues/405
-			//// https://github.com/neuecc/MessagePack-CSharp/security/advisories/GHSA-7q36-4xx7-xcxf
-			//// Enable additional security in MessagePack to handle untrusted data.
-			//MessagePackSecurity.Active = MessagePackSecurity.UntrustedData;
+        [RequiresUnreferencedCode("Contains trimming unsafe calls")]
+        static async Task Main(string[] args)
+        {
+            //// Adding following lines in order to mitigate:
+            //// https://github.com/aspnet/Announcements/issues/405
+            //// https://github.com/neuecc/MessagePack-CSharp/security/advisories/GHSA-7q36-4xx7-xcxf
+            //// Enable additional security in MessagePack to handle untrusted data.
+            //MessagePackSecurity.Active = MessagePackSecurity.UntrustedData;
 
 
-			//await CreateHostBuilder(args).Build().RunAsync();
-			var host = new HostBuilder()
-				.UseContentRoot(Directory.GetCurrentDirectory())
-				.ConfigureAppConfiguration((hostingContext, config) =>
-				{
-					config.SetBasePath(hostingContext.HostingEnvironment.ContentRootPath)
-						.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-						.AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true)
-						.AddEnvironmentVariables();
-					if (hostingContext.HostingEnvironment.IsDevelopment())
-						config.AddUserSecrets<Startup>(optional: true);
-				})
-				.ConfigureWebHost(webBuilder =>
-				{
-					webBuilder
-					.UseKestrel(opts =>
-					{
-						opts.AddServerHeader = false;
-						string ASPNETCORE_URLS = Environment.GetEnvironmentVariable("ASPNETCORE_URLS");
-						if (!string.IsNullOrEmpty(ASPNETCORE_URLS) && ASPNETCORE_URLS.Contains("unix:/"))
-						{
-							opts.ListenUnixSocket("/sockets/www.sock");
-						}
-					})
-					.UseSockets()
-					/*.UseLinuxTransport(async opts =>
+            //await CreateHostBuilder(args).Build().RunAsync();
+            var host = new HostBuilder()
+                .UseContentRoot(Directory.GetCurrentDirectory())
+                .ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    config.SetBasePath(hostingContext.HostingEnvironment.ContentRootPath)
+                        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                        .AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true)
+                        .AddEnvironmentVariables();
+                    if (hostingContext.HostingEnvironment.IsDevelopment())
+                        config.AddUserSecrets<Startup>(optional: true);
+                })
+                .ConfigureWebHost(webBuilder =>
+                {
+                    webBuilder
+                    .UseKestrel(opts =>
+                    {
+                        opts.AddServerHeader = false;
+                        string ASPNETCORE_URLS = Environment.GetEnvironmentVariable("ASPNETCORE_URLS");
+                        if (!string.IsNullOrEmpty(ASPNETCORE_URLS) && ASPNETCORE_URLS.Contains("unix:/"))
+                        {
+                            opts.ListenUnixSocket("/sockets/www.sock");
+                        }
+                    })
+                    .UseSockets()
+                    /*.UseLinuxTransport(async opts =>
 					{
 						await Console.Out.WriteLineAsync("Using Linux Transport");
 					})*/
-					.UseStartup<Startup>();
-				})
-				.Build();
+                    .UseStartup<Startup>();
+                })
+                .Build();
 
 #if DEBUG
-			await ContextFactory.CreateDBApplyMigrationsAndSeedDebugUsers(host);
+            await ContextFactory.CreateDBApplyMigrationsAndSeedDebugUsers(host);
 #endif
-			await host.RunAsync();
-		}
+            await host.RunAsync();
+        }
 
-		#endregion Main
+        #endregion Main
 
-		public Startup(IConfiguration configuration)
-		{
-			Configuration = configuration;
-		}
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
 
-		void ConfigureDistributedCache(IConfiguration configuration, IServiceCollection services)
-		{
-			ContextFactory.ConfigureDBKind(null, configuration, services);
-		}
+        void ConfigureDistributedCache(IConfiguration configuration, IServiceCollection services)
+        {
+            ContextFactory.ConfigureDBKind(null, configuration, services);
+        }
 
-		private BackgroundTaskQueue CreateBackgroundTaskQueue(IServiceProvider serv)
-		{
-			var btq = new BackgroundTaskQueue();
+        private BackgroundTaskQueue CreateBackgroundTaskQueue(IServiceProvider serv)
+        {
+            var btq = new BackgroundTaskQueue();
 
-			//Initially add and start file watching task for watching video file change
-			//inside image directory
-			btq.QueueBackgroundWorkItem(new FileWatcherBackgroundOperation(
-				directoryToWatch: Configuration["ImageDirectory"],
-				filterGlobing: "*.webm",
-				initialDelay: TimeSpan.FromSeconds(3),
-				onChangeFunction: (counter, dirToWatch, filter) =>
-				{
-					string found = Directory.EnumerateFiles(dirToWatch, filter, SearchOption.TopDirectoryOnly)
-						.FirstOrDefault(f => Path.GetFileName(f) == "video.webm");
-					if (found == null)
-						return (int)YouTubeUploadOperation.ErrorCodes.NO_VIDEO_FILE;
-					else if (string.IsNullOrEmpty(Configuration["YouTubeAPI:ClientSecretsFileName"]) ||
-						!File.Exists(Configuration["YouTubeAPI:ClientSecretsFileName"]))
-					{
-						return (int)YouTubeUploadOperation.ErrorCodes.CLIENT_SECRETS_NOT_EXISTING;
-					}
-					else if (!File.Exists(found))
-						return (int)YouTubeUploadOperation.ErrorCodes.VIDEO_FILE_NOT_EXISTING;
-					else
-					{
-						//Console.Out.WriteLine($"found = {found}");
-						//btq.QueueBackgroundWorkItem(new BeepBackgroundOperation(500, 250));
-						btq.QueueBackgroundWorkItem(new YouTubeUploadOperation(found));
-						return (int)YouTubeUploadOperation.ErrorCodes.OK;
-					}
-				},
-				failRetryCount: 5)
-			);
+            //Initially add and start file watching task for watching video file change
+            //inside image directory
+            btq.QueueBackgroundWorkItem(new FileWatcherBackgroundOperation(
+                directoryToWatch: Configuration["ImageDirectory"],
+                filterGlobing: "*.webm",
+                initialDelay: TimeSpan.FromSeconds(3),
+                onChangeFunction: (counter, dirToWatch, filter) =>
+                {
+                    string found = Directory.EnumerateFiles(dirToWatch, filter, SearchOption.TopDirectoryOnly)
+                        .FirstOrDefault(f => Path.GetFileName(f) == "video.webm");
+                    if (found == null)
+                        return (int)YouTubeUploadOperation.ErrorCodes.NO_VIDEO_FILE;
+                    else if (string.IsNullOrEmpty(Configuration["YouTubeAPI:ClientSecretsFileName"]) ||
+                        !File.Exists(Configuration["YouTubeAPI:ClientSecretsFileName"]))
+                    {
+                        return (int)YouTubeUploadOperation.ErrorCodes.CLIENT_SECRETS_NOT_EXISTING;
+                    }
+                    else if (!File.Exists(found))
+                        return (int)YouTubeUploadOperation.ErrorCodes.VIDEO_FILE_NOT_EXISTING;
+                    else
+                    {
+                        //Console.Out.WriteLine($"found = {found}");
+                        //btq.QueueBackgroundWorkItem(new BeepBackgroundOperation(500, 250));
+                        btq.QueueBackgroundWorkItem(new YouTubeUploadOperation(found));
+                        return (int)YouTubeUploadOperation.ErrorCodes.OK;
+                    }
+                },
+                failRetryCount: 5)
+            );
 
-			return btq;
-		}
+            return btq;
+        }
 
-		[UnconditionalSuppressMessage("Trimming",
-			"IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code",
-			Justification = "Types are referenced further in code")]
-		void ConfigureDependencyInjection(IServiceCollection services, IWebHostEnvironment env)
-		{
-			services.AddLogging(loggingBuilder =>
-			{
-				loggingBuilder.AddConfiguration(Configuration.GetSection("Logging"));
-				loggingBuilder.AddConsole();
+        [UnconditionalSuppressMessage("Trimming",
+            "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code",
+            Justification = "Types are referenced further in code")]
+        void ConfigureDependencyInjection(IServiceCollection services, IWebHostEnvironment env)
+        {
+            services.AddLogging(loggingBuilder =>
+            {
+                loggingBuilder.AddConfiguration(Configuration.GetSection("Logging"));
+                loggingBuilder.AddConsole();
 
-				if (env.IsDevelopment())
-					loggingBuilder.AddDebug();
-			});
+                if (env.IsDevelopment())
+                    loggingBuilder.AddDebug();
+            });
 #if DEBUG
-			//services.AddApplicationInsightsTelemetry();
+            //services.AddApplicationInsightsTelemetry();
 #endif
-			services.AddScoped<IBloggingRepository, BloggingRepository>();
+            services.AddScoped<IBloggingRepository, BloggingRepository>();
 
-			string dbs_config;
+            string dbs_config;
 #if INCLUDE_COSMOSDB
 			if (Configuration.GetSection("CosmosDB")?["enabled"] == true.ToString())
 			{
@@ -221,154 +221,154 @@ namespace DotnetPlayground
 			}
 			else 
 #elif INCLUDE_MONGODB
-			if (Configuration.GetSection("MongoDB")?["enabled"] == true.ToString())
-			{
-				services.Configure<MongoDBSettings>(Configuration.GetSection("MongoDB"));
+            if (Configuration.GetSection("MongoDB")?["enabled"] == true.ToString())
+            {
+                services.Configure<MongoDBSettings>(Configuration.GetSection("MongoDB"));
 
-				services.AddSingleton<IMongoDBSettings>(sp => sp.GetRequiredService<IOptions<MongoDBSettings>>().Value);
+                services.AddSingleton<IMongoDBSettings>(sp => sp.GetRequiredService<IOptions<MongoDBSettings>>().Value);
 
-				services.AddSingleton<MongoService>();
-				dbs_config = Configuration["DBKind"]?.ToLower() + "+MongoDB";
+                services.AddSingleton<MongoService>();
+                dbs_config = Configuration["DBKind"]?.ToLower() + "+MongoDB";
 
-				services.AddScoped<IHashesRepositoryPure, MongoDBRepository>();
-			}
-			else
+                services.AddScoped<IHashesRepositoryPure, MongoDBRepository>();
+            }
+            else
 #endif
-			{
-				services.AddScoped<IHashesRepositoryPure, HashesRepository>();
-				dbs_config = Configuration["DBKind"]?.ToLower();
-			}
-			services.Configure<DBConfigShower>(options =>
-			{
-				options.DBConfig = dbs_config;
-			});
-			services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
+            {
+                services.AddScoped<IHashesRepositoryPure, HashesRepository>();
+                dbs_config = Configuration["DBKind"]?.ToLower();
+            }
+            services.Configure<DBConfigShower>(options =>
+            {
+                options.DBConfig = dbs_config;
+            });
+            services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
 
-			//1st time init of static vars
-			HashesRepository.HashesInfoExpirationInMinutes = TimeSpan.FromMinutes(Configuration.GetValue<int>(nameof(HashesRepository.HashesInfoExpirationInMinutes)));
+            //1st time init of static vars
+            HashesRepository.HashesInfoExpirationInMinutes = TimeSpan.FromMinutes(Configuration.GetValue<int>(nameof(HashesRepository.HashesInfoExpirationInMinutes)));
 
-			//services.AddSingleton<IUrlHelperFactory, DomainUrlHelperFactory>();
-			services.AddHostedService<BackgroundOperationService>();
-			services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>(CreateBackgroundTaskQueue);
-			services.AddServerTiming();
+            //services.AddSingleton<IUrlHelperFactory, DomainUrlHelperFactory>();
+            services.AddHostedService<BackgroundOperationService>();
+            services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>(CreateBackgroundTaskQueue);
+            services.AddServerTiming();
 
-			services.AddTransient<MjpgStreamerHttpClientHandler>()
-				.AddHttpClient<IMjpgStreamerHttpClient, MjpgStreamerHttpClient>()
-				.ConfigurePrimaryHttpMessageHandler<MjpgStreamerHttpClientHandler>();
-		}
+            services.AddTransient<MjpgStreamerHttpClientHandler>()
+                .AddHttpClient<IMjpgStreamerHttpClient, MjpgStreamerHttpClient>()
+                .ConfigurePrimaryHttpMessageHandler<MjpgStreamerHttpClientHandler>();
+        }
 
-		[RequiresUnreferencedCode("Calls Microsoft.Extensions.DependencyInjection.IdentityServiceCollectionExtensions.AddIdentity<TUser, TRole>()")]
-		private void ConfigureAuthenticationAuthorizationHelper(IServiceCollection services, IWebHostEnvironment env)
-		{
-			services.AddTransient<IEmailSender, AuthMessageSender>();
-			//services.AddTransient<ISmsSender, AuthMessageSender>();
-
-
-			services.AddIdentity<ApplicationUser, IdentityRole>()
-				.AddEntityFrameworkStores<BloggingContext>()
-				.AddDefaultTokenProviders().AddSignInManager<MySignInManager>();
-
-			var builder = services.AddAuthentication();
-			if (!string.IsNullOrEmpty(Configuration["Authentication:Google:ClientId"]))
-			{
-				builder.AddGoogle(googleOptions =>
-				{
-					googleOptions.ClientId = Configuration["Authentication:Google:ClientId"];
-					googleOptions.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
-					googleOptions.CallbackPath = Configuration["Authentication:Google:CallbackPath"];
-
-					//googleOptions.UserInformationEndpoint = "https://www.googleapis.com/oauth2/v2/userinfo";
-					//googleOptions.ClaimActions.Clear();
-					//googleOptions.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
-					//googleOptions.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
-					//googleOptions.ClaimActions.MapJsonKey(ClaimTypes.GivenName, "given_name");
-					//googleOptions.ClaimActions.MapJsonKey(ClaimTypes.Surname, "family_name");
-					//googleOptions.ClaimActions.MapJsonKey("urn:google:profile", "link");
-					//googleOptions.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
-				});
-			}
-			if (!string.IsNullOrEmpty(Configuration["Authentication:Facebook:AppId"]))
-			{
-				builder.AddFacebook(facebookOptions =>
-				{
-					facebookOptions.AppId = Configuration["Authentication:Facebook:AppId"];
-					facebookOptions.AppSecret = Configuration["Authentication:Facebook:AppSecret"];
-				});
-			}
-			if (!string.IsNullOrEmpty(Configuration["Authentication:Twitter:ConsumerKey"]))
-			{
-				//builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<TwitterOptions>, TwitterPostConfigureOptions>());
-				builder.AddTwitter(twitterOptions =>
-				{
-					twitterOptions.ConsumerKey = Configuration["Authentication:Twitter:ConsumerKey"];
-					twitterOptions.ConsumerSecret = Configuration["Authentication:Twitter:ConsumerSecret"];
-					twitterOptions.CallbackPath = Configuration["Authentication:Twitter:CallbackPath"];
-				});
-			}
-			if (!string.IsNullOrEmpty(Configuration[$"Authentication:GitHub:{env.EnvironmentName}-ClientID"]))
-			{
-				builder.AddOAuth<MyGithubHandler.GitHubOptions, MyGithubHandler>("GitHub", "GitHub", gitHubOptions =>
-				{
-					gitHubOptions.ClientId = Configuration[$"Authentication:GitHub:{env.EnvironmentName}-ClientID"];
-					gitHubOptions.ClientSecret = Configuration[$"Authentication:GitHub:{env.EnvironmentName}-ClientSecret"];
-					gitHubOptions.CallbackPath = Configuration["Authentication:GitHub:CallbackPath"];
-				});
-			}
-
-			services.ConfigureApplicationCookie(options =>
-			{
-				options.LoginPath = "/Identity/Account/Login";
-				options.AccessDeniedPath = "/Identity/Account/AccessDenied";
-				options.Cookie.HttpOnly = true;
-				options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-				options.Cookie.SameSite = SameSiteMode.Strict;
-			});
+        [RequiresUnreferencedCode("Calls Microsoft.Extensions.DependencyInjection.IdentityServiceCollectionExtensions.AddIdentity<TUser, TRole>()")]
+        private void ConfigureAuthenticationAuthorizationHelper(IServiceCollection services, IWebHostEnvironment env)
+        {
+            services.AddTransient<IEmailSender, AuthMessageSender>();
+            //services.AddTransient<ISmsSender, AuthMessageSender>();
 
 
+            services.AddIdentity<ApplicationUser, IdentityRole>()
+                .AddEntityFrameworkStores<BloggingContext>()
+                .AddDefaultTokenProviders().AddSignInManager<MySignInManager>();
 
-			services.AddAuthorization(options =>
-			{
-				options.AddPolicy("RequireAdministratorRole",
-					policy => policy.RequireRole("Administrator"));
-			})
-			.AddInkBallCommonUI<InkBall.Module.Model.GamesContext, ApplicationUser>(env.WebRootFileProvider, options =>
-			{
-				// options.WwwRoot = "wrongwrongwrong";
-				// options.HeadElementsSectionName = "head-head-head-Elements";
-				// options.ScriptsSectionName = "Script_Injection";
-				options.AppRootPath = Configuration["AppRootPath"];
-				options.UseMessagePackBinaryTransport = true;
-				// options.CustomAuthorizationPolicyBuilder = (policy) =>
-				// {
-				// 	policy.RequireAuthenticatedUser();
-				// };
-				options.LoginPath = Configuration["AppRootPath"] + "Identity/Account/Login";
-				options.LogoutPath = Configuration["AppRootPath"] + "Identity/Account/Logout";
-				options.RegisterPath = Configuration["AppRootPath"] + "Identity/Account/Register";
-			});
+            var builder = services.AddAuthentication();
+            if (!string.IsNullOrEmpty(Configuration["Authentication:Google:ClientId"]))
+            {
+                builder.AddGoogle(googleOptions =>
+                {
+                    googleOptions.ClientId = Configuration["Authentication:Google:ClientId"];
+                    googleOptions.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
+                    googleOptions.CallbackPath = Configuration["Authentication:Google:CallbackPath"];
+
+                    //googleOptions.UserInformationEndpoint = "https://www.googleapis.com/oauth2/v2/userinfo";
+                    //googleOptions.ClaimActions.Clear();
+                    //googleOptions.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
+                    //googleOptions.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
+                    //googleOptions.ClaimActions.MapJsonKey(ClaimTypes.GivenName, "given_name");
+                    //googleOptions.ClaimActions.MapJsonKey(ClaimTypes.Surname, "family_name");
+                    //googleOptions.ClaimActions.MapJsonKey("urn:google:profile", "link");
+                    //googleOptions.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
+                });
+            }
+            if (!string.IsNullOrEmpty(Configuration["Authentication:Facebook:AppId"]))
+            {
+                builder.AddFacebook(facebookOptions =>
+                {
+                    facebookOptions.AppId = Configuration["Authentication:Facebook:AppId"];
+                    facebookOptions.AppSecret = Configuration["Authentication:Facebook:AppSecret"];
+                });
+            }
+            if (!string.IsNullOrEmpty(Configuration["Authentication:Twitter:ConsumerKey"]))
+            {
+                //builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<TwitterOptions>, TwitterPostConfigureOptions>());
+                builder.AddTwitter(twitterOptions =>
+                {
+                    twitterOptions.ConsumerKey = Configuration["Authentication:Twitter:ConsumerKey"];
+                    twitterOptions.ConsumerSecret = Configuration["Authentication:Twitter:ConsumerSecret"];
+                    twitterOptions.CallbackPath = Configuration["Authentication:Twitter:CallbackPath"];
+                });
+            }
+            if (!string.IsNullOrEmpty(Configuration[$"Authentication:GitHub:{env.EnvironmentName}-ClientID"]))
+            {
+                builder.AddOAuth<MyGithubHandler.GitHubOptions, MyGithubHandler>("GitHub", "GitHub", gitHubOptions =>
+                {
+                    gitHubOptions.ClientId = Configuration[$"Authentication:GitHub:{env.EnvironmentName}-ClientID"];
+                    gitHubOptions.ClientSecret = Configuration[$"Authentication:GitHub:{env.EnvironmentName}-ClientSecret"];
+                    gitHubOptions.CallbackPath = Configuration["Authentication:GitHub:CallbackPath"];
+                });
+            }
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Identity/Account/Login";
+                options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+                options.Cookie.HttpOnly = true;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.Cookie.SameSite = SameSiteMode.Strict;
+            });
 
 
-			services.AddIdentityManager(options =>
-			{
-				options.SecurityConfiguration.RoleClaimType = "role";
-				options.SecurityConfiguration.AdminRoleName = "IdentityManagerAdministrator";
-				options.SecurityConfiguration.AuthenticationScheme = null;
-				//options.SecurityConfiguration.ShowLoginButton = false;
-				options.SecurityConfiguration.HostAuthenticationType = IdentityConstants.ApplicationScheme;
-				//options.SecurityConfiguration.HostChallengeType = "Identity.Application";
-				options.SecurityConfiguration.LoginPath = "/Identity/Account/Login";
-				options.SecurityConfiguration.LogoutPath = "/Identity/Account/Logout";
-				//options.SecurityConfiguration.PageRouteAttribute = "idm";
-				//options.RootPathBase = Configuration["AppRootPath"].TrimEnd('/');
-				options.TitleNavBarLinkTarget = Configuration["AppRootPath"];
-			})
-			.AddIdentityMangerService<AspNetCoreIdentityManagerService<ApplicationUser, string, IdentityRole, string>>();
-		}
 
-		private void UseProxyForwardingAndDomainPathHelper(IApplicationBuilder app)
-		{
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("RequireAdministratorRole",
+                    policy => policy.RequireRole("Administrator"));
+            })
+            .AddInkBallCommonUI<InkBall.Module.Model.GamesContext, ApplicationUser>(env.WebRootFileProvider, options =>
+            {
+                // options.WwwRoot = "wrongwrongwrong";
+                // options.HeadElementsSectionName = "head-head-head-Elements";
+                // options.ScriptsSectionName = "Script_Injection";
+                options.AppRootPath = Configuration["AppRootPath"];
+                options.UseMessagePackBinaryTransport = true;
+                // options.CustomAuthorizationPolicyBuilder = (policy) =>
+                // {
+                // 	policy.RequireAuthenticatedUser();
+                // };
+                options.LoginPath = Configuration["AppRootPath"] + "Identity/Account/Login";
+                options.LogoutPath = Configuration["AppRootPath"] + "Identity/Account/Logout";
+                options.RegisterPath = Configuration["AppRootPath"] + "Identity/Account/Register";
+            });
+
+
+            services.AddIdentityManager(options =>
+            {
+                options.SecurityConfiguration.RoleClaimType = "role";
+                options.SecurityConfiguration.AdminRoleName = "IdentityManagerAdministrator";
+                options.SecurityConfiguration.AuthenticationScheme = null;
+                //options.SecurityConfiguration.ShowLoginButton = false;
+                options.SecurityConfiguration.HostAuthenticationType = IdentityConstants.ApplicationScheme;
+                //options.SecurityConfiguration.HostChallengeType = "Identity.Application";
+                options.SecurityConfiguration.LoginPath = "/Identity/Account/Login";
+                options.SecurityConfiguration.LogoutPath = "/Identity/Account/Logout";
+                //options.SecurityConfiguration.PageRouteAttribute = "idm";
+                //options.RootPathBase = Configuration["AppRootPath"].TrimEnd('/');
+                options.TitleNavBarLinkTarget = Configuration["AppRootPath"];
+            })
+            .AddIdentityMangerService<AspNetCoreIdentityManagerService<ApplicationUser, string, IdentityRole, string>>();
+        }
+
+        private void UseProxyForwardingAndDomainPathHelper(IApplicationBuilder app)
+        {
 #if DEBUG
-			/*string path_to_replace = Configuration["AppRootPath"].TrimEnd('/');
+            /*string path_to_replace = Configuration["AppRootPath"].TrimEnd('/');
 
 			//Check for reverse proxing and bump HTTP scheme to https
 			app.Use((context, next) =>
@@ -387,135 +387,139 @@ namespace DotnetPlayground
 				ForwardedHeaders = /*ForwardedHeaders.XForwardedHost | */ForwardedHeaders.XForwardedProto
 			});
 #endif
-		}
+        }
 
-		// This method gets called by the runtime. Use this method to add services to the container.
-		[RequiresUnreferencedCode("Contains trimming unsafe calls")]
-		public void ConfigureServices(IServiceCollection services)
-		{
-			var env = services.FirstOrDefault(x => x.ServiceType == typeof(IWebHostEnvironment)).ImplementationInstance as IWebHostEnvironment;
+        // This method gets called by the runtime. Use this method to add services to the container.
+        [RequiresUnreferencedCode("Contains trimming unsafe calls")]
+        public void ConfigureServices(IServiceCollection services)
+        {
+            var env = services.FirstOrDefault(x => x.ServiceType == typeof(IWebHostEnvironment)).ImplementationInstance as IWebHostEnvironment;
 
-			ConfigureDependencyInjection(services, env);
+            ConfigureDependencyInjection(services, env);
 
-			services.AddDbContextPool<BloggingContext>(options =>
-			{
-				ContextFactory.ConfigureDBKind(options, Configuration);
-			});
-			services.AddDbContextPool<InkBall.Module.Model.GamesContext>(options =>
-			{
-				ContextFactory.ConfigureDBKind(options, Configuration);
-			});
+            services.AddDbContextPool<BloggingContext>(options =>
+            {
+                ContextFactory.ConfigureDBKind(options, Configuration);
+            });
+            services.AddDbContextPool<InkBall.Module.Model.GamesContext>(options =>
+            {
+                ContextFactory.ConfigureDBKind(options, Configuration);
+            });
 
-			ConfigureAuthenticationAuthorizationHelper(services, env);
+            ConfigureAuthenticationAuthorizationHelper(services, env);
 
-			ConfigureDistributedCache(Configuration, services);
+            ConfigureDistributedCache(Configuration, services);
 
-			services.AddSession(options =>
-			{
-				// Set a short timeout for easy testing.
-				options.IdleTimeout = TimeSpan.FromMinutes(60);
-				options.Cookie.Path = Configuration["AppRootPath"].TrimEnd('/');
-				options.Cookie.HttpOnly = true;
-				options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-				options.Cookie.SameSite = SameSiteMode.Strict;
-			});
+            services.AddSession(options =>
+            {
+                // Set a short timeout for easy testing.
+                options.IdleTimeout = TimeSpan.FromMinutes(60);
+                options.Cookie.Path = Configuration["AppRootPath"].TrimEnd('/');
+                options.Cookie.HttpOnly = true;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.Cookie.SameSite = SameSiteMode.Strict;
+            });
 
-			// Add framework services.
-			services.AddControllersWithViews(options =>
-			{
-				//Add support route attribute for IdentityManager2 APIs
-				options.UseCentralRoutePrefix<PageController>(new RouteAttribute("idm"));
-
-
-				//Add support for CSP report content type
-				var jsonInputFormatter = options.InputFormatters
-					.OfType<SystemTextJsonInputFormatter>()
-					.Single();
-				jsonInputFormatter.SupportedMediaTypes.Add(CspReportRequest.ContentType);
-
-			})
-			.AddJsonOptions(static options =>
-			{
-				options.JsonSerializerOptions.TypeInfoResolverChain.Add(CspReportRequest_Context.Default);
-				options.JsonSerializerOptions.TypeInfoResolverChain.Add(AnnualTimelapseBag_Context.Default);
-				options.JsonSerializerOptions.TypeInfoResolverChain.Add(String_Context.Default);
-				options.JsonSerializerOptions.TypeInfoResolverChain.Add(ListPost_Context.Default);
-				options.JsonSerializerOptions.TypeInfoResolverChain.Add(Post_Context.Default);
-				options.JsonSerializerOptions.TypeInfoResolverChain.Add(Blog_Context.Default);
-			})
-			.AddSessionStateTempDataProvider();
-			services.AddRazorPages();
-
-			var protection_builder = services.AddDataProtection()
-				//.SetDefaultKeyLifetime(TimeSpan.FromDays(14))	//the default id 90 days - enough
-				.PersistKeysToDbContext<BloggingContext>();
-			if (!string.IsNullOrEmpty(Configuration["DataProtection:CertFile"]))
-				protection_builder.ProtectKeysWithCertificate(new X509Certificate2(Configuration["DataProtection:CertFile"], Configuration["DataProtection:CertPassword"]));
+            // Add framework services.
+            services.AddControllersWithViews(options =>
+            {
+                //Add support route attribute for IdentityManager2 APIs
+                options.UseCentralRoutePrefix<PageController>(new RouteAttribute("idm"));
 
 
-			services.AddSignalR(options =>
-			{
-				options.EnableDetailedErrors = true;
-				//options.SupportedProtocols = new System.Collections.Generic.List<string>(new[] { "websocket" });
+                //Add support for CSP report content type
+                var jsonInputFormatter = options.InputFormatters
+                    .OfType<SystemTextJsonInputFormatter>()
+                    .Single();
+                jsonInputFormatter.SupportedMediaTypes.Add(CspReportRequest.ContentType);
+
+            })
+            .AddJsonOptions(static options =>
+            {
+                options.JsonSerializerOptions.TypeInfoResolverChain.Add(CspReportRequest_Context.Default);
+                options.JsonSerializerOptions.TypeInfoResolverChain.Add(AnnualTimelapseBag_Context.Default);
+                options.JsonSerializerOptions.TypeInfoResolverChain.Add(String_Context.Default);
+                options.JsonSerializerOptions.TypeInfoResolverChain.Add(ListPost_Context.Default);
+                options.JsonSerializerOptions.TypeInfoResolverChain.Add(Post_Context.Default);
+                options.JsonSerializerOptions.TypeInfoResolverChain.Add(Blog_Context.Default);
+                options.JsonSerializerOptions.TypeInfoResolverChain.Add(HashesLoadResult_Context.Default);
+                options.JsonSerializerOptions.TypeInfoResolverChain.Add(ThinHashes_Context.Default);
+                options.JsonSerializerOptions.TypeInfoResolverChain.Add(IEnumerableThinHashes_Context.Default);
+                options.JsonSerializerOptions.TypeInfoResolverChain.Add(AnnualTimelapseBag_Context.Default);
+            })
+            .AddSessionStateTempDataProvider();
+            services.AddRazorPages();
+
+            var protection_builder = services.AddDataProtection()
+                //.SetDefaultKeyLifetime(TimeSpan.FromDays(14))	//the default id 90 days - enough
+                .PersistKeysToDbContext<BloggingContext>();
+            if (!string.IsNullOrEmpty(Configuration["DataProtection:CertFile"]))
+                protection_builder.ProtectKeysWithCertificate(new X509Certificate2(Configuration["DataProtection:CertFile"], Configuration["DataProtection:CertPassword"]));
+
+
+            services.AddSignalR(options =>
+            {
+                options.EnableDetailedErrors = true;
+                //options.SupportedProtocols = new System.Collections.Generic.List<string>(new[] { "websocket" });
 #if DEBUG
-				options.KeepAliveInterval = TimeSpan.FromSeconds(30);
-				options.ClientTimeoutInterval = options.KeepAliveInterval * 2;
+                options.KeepAliveInterval = TimeSpan.FromSeconds(30);
+                options.ClientTimeoutInterval = options.KeepAliveInterval * 2;
 #endif
-			})
-			.AddJsonProtocol(options =>
-			{
-				// options.PayloadSerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.General);
-			})
-			.AddMessagePackProtocol(options =>
-			{
-				//options.SerializerOptions.WithResolver(MessagePack.Resolvers.StandardResolver.Instance);
-				options.SerializerOptions = MessagePackSerializerOptions
-					.Standard
-					.WithResolver(MessagePack.Resolvers.StandardResolver.Instance)
-					.WithSecurity(MessagePackSecurity.UntrustedData);
-			});
-		}
+            })
+            .AddJsonProtocol(options =>
+            {
+                // options.PayloadSerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.General);
+            })
+            .AddMessagePackProtocol(options =>
+            {
+                //options.SerializerOptions.WithResolver(MessagePack.Resolvers.StandardResolver.Instance);
+                options.SerializerOptions = MessagePackSerializerOptions
+                    .Standard
+                    .WithResolver(MessagePack.Resolvers.StandardResolver.Instance)
+                    .WithSecurity(MessagePackSecurity.UntrustedData);
+            });
+        }
 
-		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-		{
-			UseProxyForwardingAndDomainPathHelper(app);
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            UseProxyForwardingAndDomainPathHelper(app);
 
-			if (env.IsDevelopment())
-			{
-				app.UseDeveloperExceptionPage();
-				//app.UseExceptionHandler(Configuration["AppRootPath"] + "Home/Error");
-				//app.UseBrowserLink();
-			}
-			else
-			{
-				app.UseExceptionHandler(Configuration["AppRootPath"] + "Home/Error");
-			}
-			app.UseStatusCodePagesWithReExecute(Configuration["AppRootPath"] + "Home/Error/{0}");
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+                //app.UseExceptionHandler(Configuration["AppRootPath"] + "Home/Error");
+                //app.UseBrowserLink();
+            }
+            else
+            {
+                app.UseExceptionHandler(Configuration["AppRootPath"] + "Home/Error");
+            }
+            app.UseStatusCodePagesWithReExecute(Configuration["AppRootPath"] + "Home/Error/{0}");
 #if DEBUG
-			if (env.IsDevelopment())
-				app.UseHttpsRedirection();
+            if (env.IsDevelopment())
+                app.UseHttpsRedirection();
 #endif
 
-			app.Map("/dotnet", main =>
-			{
-				main.UseStaticFiles();
-				main.UseStaticFilesForInkBall();
-				main.UseRouting();
-				main.UseServerTiming();
-				main.UseSession();
-				main.UseAuthentication();
-				main.UseAuthorization();
+            app.Map("/dotnet", main =>
+            {
+                main.UseStaticFiles();
+                main.UseStaticFilesForInkBall();
+                main.UseRouting();
+                main.UseServerTiming();
+                main.UseSession();
+                main.UseAuthentication();
+                main.UseAuthorization();
 
-				main.UseEndpoints(endpoints =>
-				{
-					endpoints.PrepareSignalRForInkBall("/");
-					endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
-					endpoints.MapRazorPages();
-				});
+                main.UseEndpoints(endpoints =>
+                {
+                    endpoints.PrepareSignalRForInkBall("/");
+                    endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+                    endpoints.MapRazorPages();
+                });
 
-				main.UseIdentityManager();
-			});
-		}
-	}
+                main.UseIdentityManager();
+            });
+        }
+    }
 }

@@ -62,7 +62,7 @@ namespace DotnetPlayground.Controllers
 			if (!ModelState.IsValid)
 			{
 				if (ajax)
-					return Json("error", String_Context.Default.Options);
+					return Json("error");
 				else
 				{
 					ViewBag.Info = await _repo.CurrentHashesInfo;
@@ -81,7 +81,7 @@ namespace DotnetPlayground.Controllers
 			var found = await _repo.SearchAsync(hi);
 
 			if (ajax)
-				return Json(new Hashes(found, hi), Hashes_Context.Default.Options);
+				return Json(new Hashes(found, hi));
 			else
 			{
 				ViewBag.Info = await _repo.CurrentHashesInfo;
@@ -97,7 +97,7 @@ namespace DotnetPlayground.Controllers
 			if (!ModelState.IsValid)
 			{
 				if (ajax)
-					return Json("error", String_Context.Default.Options);
+					return Json("error");
 				else
 				{
 					ViewBag.Info = await _repo.CurrentHashesInfo;
@@ -114,7 +114,7 @@ namespace DotnetPlayground.Controllers
 			var found = await _repo.AutoComplete(text);
 
 			if (ajax)
-				return Json(found, IEnumerableThinHashes_Context.Default.Options);
+				return Json(found);
 			else
 			{
 				ViewBag.Info = await _repo.CurrentHashesInfo;

@@ -27,7 +27,7 @@ namespace DotnetPlayground.Models
 
 			if (services == null)
 				return await Task.FromResult<IActionResult>(new JsonResult(
-					new AnnualTimelapseBag { Result = "Error0" }, AnnualTimelapseBag_Context.Default.Options)
+					new AnnualTimelapseBag { Result = "Error0" })
 				);
 
 
@@ -41,7 +41,7 @@ namespace DotnetPlayground.Models
 
 			var result = new AnnualTimelapseBag { Result = "Ok", Product = product };
 
-			return await Task.FromResult<IActionResult>(new JsonResult(result, AnnualTimelapseBag_Context.Default.Options));
+			return await Task.FromResult<IActionResult>(new JsonResult(result));
 		}
 	}
 }
