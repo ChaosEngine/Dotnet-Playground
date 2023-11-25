@@ -37,7 +37,7 @@ RUN dotnet publish --no-restore -c $BUILD_CONFIG --self-contained -r linux-x64 \
 
 FROM mcr.microsoft.com/dotnet/runtime-deps:8.0-bookworm-slim
 WORKDIR /app
-ENV USER=nobody TZ=Europe/Warsaw ASPNETCORE_URLS=http://+:5000
+ENV USER=nobody TZ=Europe/Warsaw
 ARG BUILD_CONFIG=${BUILD_CONFIG:-Release}
 COPY --from=build --chown="$USER":"$USER" /build/DotnetPlayground.Web/bin/$BUILD_CONFIG/net8.0/linux-x64/publish/ /build/startApp.sh ./
 
@@ -46,6 +46,6 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 USER "$USER"
 
 VOLUME /shared
-EXPOSE 5000
+EXPOSE 8080
 
 ENTRYPOINT ["./DotnetPlayground.Web"]
