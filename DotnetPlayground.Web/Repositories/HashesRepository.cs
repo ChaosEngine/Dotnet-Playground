@@ -26,6 +26,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 namespace DotnetPlayground.Repositories
 {
@@ -55,6 +57,7 @@ namespace DotnetPlayground.Repositories
 	/// </summary>
 	/// <seealso cref="DotnetPlayground.Repositories.GenericRepository{DotnetPlayground.Models.BloggingContext, DotnetPlayground.Models.ThinHashes}" />
 	/// <seealso cref="DotnetPlayground.Repositories.IHashesRepository" />
+	[RequiresUnreferencedCode("Contains trimming unsafe calls")]
 	public class HashesRepository : GenericRepository<BloggingContext, ThinHashes>, IHashesRepository
 	{
 		private const string _NOTHING_FOUND_TEXT = "nothing found";
@@ -74,9 +77,10 @@ namespace DotnetPlayground.Repositories
 		private readonly IServerTiming _serverTiming;
 		public Stopwatch Watch { get; private set; }
 
-		private static IEnumerable<String> PostgresAllColumnNames
+        private static IEnumerable<string> PostgresAllColumnNames
 		{
-			get
+			[RequiresUnreferencedCode("Using EF with _entities.Set<Ent> generic method")]
+            get
 			{
 				if (_postgresAllColumnNames == null)
 					_postgresAllColumnNames = AllColumnNames.Select(x => x.Replace("Hash", "hash"));
@@ -119,12 +123,12 @@ namespace DotnetPlayground.Repositories
 			return hashesInfoStatic;
 		}
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="HashesRepository" /> class.
-		/// </summary>
-		/// <param name="context">The context.</param>
-		/// <param name="configuration">The configuration.</param>
-		public HashesRepository(BloggingContext context, IConfiguration configuration, IMemoryCache memoryCache,
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HashesRepository" /> class.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <param name="configuration">The configuration.</param>
+        public HashesRepository(BloggingContext context, IConfiguration configuration, IMemoryCache memoryCache,
 			ILogger<HashesRepository> logger, IServerTiming serverTiming) : base(context)
 		{
 			_configuration = configuration;

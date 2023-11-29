@@ -108,21 +108,18 @@ namespace DotnetPlayground
 						if (string.IsNullOrEmpty(OracleConfiguration.TnsAdmin))
 						{
 							//WALLET_LOCATION=(SOURCE=(METHOD=file)(METHOD_DATA=(DIRECTORY=c:\\Users\\user\\.blablabla\\wallet)))
-							string[] tab = conn_str
-								.Replace("\r", string.Empty)
-								.Replace("\n", string.Empty)
-								.Replace(")", string.Empty)
-								.Replace(" =", "=")
-								.Split("WALLET_LOCATION=", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-							if (tab.Length > 1)
+							ReadOnlySpan<char> tab = conn_str;
+							int start = tab.IndexOf("DIRECTORY=");
+							if (start != -1)
 							{
-								tab = tab[1].Split("DIRECTORY=", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-								if (tab.Length > 0)
+								start = start + "DIRECTORY=".Length;
+                                int end = tab.Slice(start).IndexOf(")");
+								if (end != -1)
 								{
-									string directory = tab[1];
-									if (!string.IsNullOrEmpty(directory))
+									var directory = tab.Slice(start, end);
+									if (!directory.IsEmpty)
 									{
-										OracleConfiguration.TnsAdmin = directory;
+										OracleConfiguration.TnsAdmin = directory.ToString();
 										OracleConfiguration.WalletLocation = OracleConfiguration.TnsAdmin;
 									}
 								}
@@ -138,15 +135,6 @@ namespace DotnetPlayground
 					throw new NotSupportedException($"Bad DBKind name {configuration["DBKind"]?.ToLower()}");
 			}
 			return conn_str;
-		}
-
-		protected Dictionary<string, string> GetConnStringAsDictionary(string connectionString)
-		{
-			Dictionary<string, string> dict =
-				Regex.Matches(connectionString, @"\s*(?<key>[^;=]+)\s*=\s*((?<value>[^'][^;]*)|'(?<value>[^']*)')")
-				.Cast<Match>()
-				.ToDictionary(m => m.Groups["key"].Value, m => m.Groups["value"].Value);
-			return dict;
 		}
 
 		internal static void MyProvideClientCertificatesCallback(X509CertificateCollection clientCerts)

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -26,7 +27,7 @@ namespace IdentitySample.DefaultUI
 		public virtual Task<IActionResult> OnPostAsync() => throw new NotImplementedException();
 	}
 
-	public class DownloadPersonalDataModel<TUser> : DownloadPersonalDataModelBase where TUser : class
+	public class DownloadPersonalDataModel<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TUser> : DownloadPersonalDataModelBase where TUser : class
 	{
 		private readonly UserManager<TUser> _userManager;
 		private readonly ILogger<DownloadPersonalDataModel<TUser>> _logger;

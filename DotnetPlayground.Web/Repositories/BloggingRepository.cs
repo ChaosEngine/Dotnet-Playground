@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DotnetPlayground.Repositories
 {
@@ -19,6 +20,7 @@ namespace DotnetPlayground.Repositories
 			Expression<Func<SetPropertyCalls<Post>, SetPropertyCalls<Post>>> setPropertyCalls);
 	}
 
+	[RequiresUnreferencedCode("Using EF with _entities.Set<Ent> generic method")]
 	public class BloggingRepository : GenericRepository<BloggingContext, Blog>, IBloggingRepository
 	{
 		public BloggingRepository(BloggingContext context) : base(context)
