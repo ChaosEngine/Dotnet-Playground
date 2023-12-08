@@ -45,7 +45,7 @@ namespace IdentitySample.DefaultUI
 		public virtual Task<IActionResult> OnPostConfirmationAsync(string returnUrl = null) => throw new NotImplementedException();
 	}
 
-	public class ExternalLoginModel<TUser> : ExternalLoginModelBase where TUser : class
+	public class ExternalLoginModel<TUser> : ExternalLoginModelBase where TUser : class, new()
 	{
 		private readonly SignInManager<TUser> _signInManager;
 		private readonly UserManager<TUser> _userManager;

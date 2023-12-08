@@ -3,6 +3,7 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using DotnetPlayground.Helpers;
 using DotnetPlayground.Models;
@@ -23,6 +24,7 @@ namespace IdentitySample.DefaultUI
 		[TempData]
 		public string StatusMessage { get; set; }
 
+        [RequiresUnreferencedCode("The property referenced by 'NewPassword' may be trimmed. Ensure it is preserved.")]
 		public class InputModel
 		{
 			[Required]
