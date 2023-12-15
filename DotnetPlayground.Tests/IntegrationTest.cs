@@ -162,7 +162,7 @@ namespace Integration
 				media-src 'self' data: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; 
 				frame-src 'self' https://www.youtube.com; 
 				child-src 'self'; 
-				form-action 'self' https://accounts.google.com https://github.com https://www.facebook.com; 
+				form-action 'self' https://accounts.google.com https://github.com https://api.twitter.com https://www.facebook.com;
 				frame-ancestors 'none';
 				""",
 					// disposition = "enforce",
