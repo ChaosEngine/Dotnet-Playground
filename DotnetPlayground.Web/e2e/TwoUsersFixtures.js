@@ -9,7 +9,7 @@ export const FixtureUsers = [
 
 // Page Object Model for the "PlaywrightUserX" page.
 // Here you can add locators and helper methods specific to the admin page.
-class PlaywrightUser {
+export class PlaywrightUser {
 	// Page signed in as "PlaywrightX".
 
 	constructor(page, userName) {

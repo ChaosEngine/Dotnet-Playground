@@ -1,6 +1,8 @@
 /* eslint-disable no-unused-vars */
 // Import test with our new fixtures.
-import { test, expect } from './TwoUsersFixtures';
+// import { test, expect } from './TwoUsersFixtures';
+import { test, expect } from '@playwright/test';
+import { FixtureUsers, PlaywrightUser } from './TwoUsersFixtures';
 
 
 //////handy helper functions - START//////
@@ -131,10 +133,16 @@ async function chatPlayerToPlayer(fromPlayer, toPlayer, message) {
 //////handy helper functions - END//////
 
 
+//init
+let Playwright1, Playwright2;
+test.beforeAll(async ({ browser }) => {
+	Playwright1 = await PlaywrightUser.create(browser, FixtureUsers[0].userName);
+	Playwright2 = await PlaywrightUser.create(browser, FixtureUsers[1].userName);
+});
 
 
 //////Tests//////
-test('Playwright1 and Playwright2 - no games created', async ({ Playwright1, Playwright2 }) => {
+test('Playwright1 and Playwright2 - no games created', async () => {
 	// ... interact with Playwright1 and/or Playwright2 ...
 
 	await testLoggedInAndNoGameAlert(Playwright1.page, Playwright1.userName);
@@ -142,13 +150,14 @@ test('Playwright1 and Playwright2 - no games created', async ({ Playwright1, Pla
 	await testLoggedInAndNoGameAlert(Playwright2.page, Playwright2.userName);
 });
 
-test('Playwright1 and Playwright2 - GamesList', async ({ Playwright1, Playwright2 }) => {
+test('Playwright1 and Playwright2 - GamesList', async () => {
 	// ... interact with Playwright1 and/or Playwright2 ...
 
 	await testLoggedInGamesList(Playwright1.page);
 });
 
-test('P1 create game, P2 joins, P2 wins', async ({ Playwright1: p1, Playwright2: p2 }) => {
+test('P1 create game, P2 joins, P2 wins', async () => {
+	const p1 = Playwright1, p2 = Playwright2;
 	// ... interact with Playwright1 and/or Playwright2 ...
 	//create new game as p1
 	await createGameFromHome(p1);
