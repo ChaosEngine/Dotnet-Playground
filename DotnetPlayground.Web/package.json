@@ -60,7 +60,7 @@
 		"gulp-rename": "2.0.0",
 		"gulp-sass": "5.1.0",
 		"gulp-sourcemaps": "3.0.0",
-		"sass": "1.69.5",
+		"sass": "1.69.6",
 		"gulp-header": "2.0.9",
 		"tiny-glob": "0.2.9",
 		"concaveman": "1.2.1",
@@ -84,7 +84,7 @@
 		"@microsoft/signalr": "7.0.14",
 		"@microsoft/signalr-protocol-msgpack": "7.0.14",
 		"msgpack5": "6.0.2",
-		"ace-builds": "1.32.2",
+		"ace-builds": "1.32.3",
 		"chance": "1.1.11"
 	},
 	"scripts": {
