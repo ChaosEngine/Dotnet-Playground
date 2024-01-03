@@ -23,13 +23,31 @@ async function globalSetup(config) {
 	const use = config.projects.at(0).use;
 	const loginURL = use.baseURL + 'Identity/Account/Login';
 
+	const now_date = new Date();
+
 	for (const user of FixtureUsers) {
 		const storageFile = `${use.storageState}${user.userName}-storageState.json`;
+		let signInFreshUser = false;
 		if (!fs.existsSync(storageFile)) {
+			signInFreshUser = true;
+		} else {
+			const file_date = new Date(fs.statSync(storageFile).mtime);
+			//
+			// Taken from https://www.geeksforgeeks.org/how-to-calculate-the-number-of-days-between-two-dates-in-javascript/
+			// Thanks
+			// To calculate the time difference of two dates
+			const Difference_In_Time = now_date.getTime() - file_date.getTime();
 
-			// const stats = fs.statSync(storageFile);
-			// const date = new Date(stats.mtime);
+			// To calculate the no. of days between two dates
+			const Difference_In_Days = Math.round(Difference_In_Time / (1000 * 3600 * 24));
+			if (Difference_In_Days > 10) {
+				// eslint-disable-next-line no-console
+				console.log("Storage cookie created more than 10 days");
+				signInFreshUser = true;
+			}
+		}
 
+		if (signInFreshUser === true) {
 			if (!browser && chromium)
 				browser = await chromium.launch();
 			if (!browser && firefox)
