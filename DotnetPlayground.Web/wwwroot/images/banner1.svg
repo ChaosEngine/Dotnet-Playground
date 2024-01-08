@@ -4,28 +4,33 @@
 			from { transform: rotateZ(-10deg) }
 			to { transform: rotateZ(10deg) }
 		}
-
 		g {
 			animation: swing 1s infinite;
 			animation-direction: alternate;
-			fill: #000
+			fill: #000;
+		}
+		#vid path {
+			transform-origin: 20px 20px;
+			transform: scale(4);
+		}
+		#img path {
+			transform-origin: 10px 15px;
+			transform: scale(8);
 		}
 	</style>
 	<defs>
 		<g id="img">
-			<path transform="scale(8)" transform-origin="10 15" d="M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" />
-			<path transform="scale(8)" transform-origin="10 15" d="M14.002 13a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2V5A2 2 0 0 1 2 3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-1.998 2zM14 2H4a1 1 0 0 0-1 1h9.002a2 2 0 0 1 2 2v7A1 1 0 0 0 15 11V3a1 1 0 0 0-1-1zM2.002 4a1 1 0 0 0-1 1v8l2.646-2.354a.5.5 0 0 1 .63-.062l2.66 1.773 3.71-3.71a.5.5 0 0 1 .577-.094l1.777 1.947V5a1 1 0 0 0-1-1h-10z"/>
+			<path d="M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM14.002 13a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2V5A2 2 0 0 1 2 3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-1.998 2zM14 2H4a1 1 0 0 0-1 1h9.002a2 2 0 0 1 2 2v7A1 1 0 0 0 15 11V3a1 1 0 0 0-1-1zM2.002 4a1 1 0 0 0-1 1v8l2.646-2.354a.5.5 0 0 1 .63-.062l2.66 1.773 3.71-3.71a.5.5 0 0 1 .577-.094l1.777 1.947V5a1 1 0 0 0-1-1h-10z"/>
 		</g>
 		<g id="vid">
-			<path transform="scale(4)" transform-origin="20 20" d="M11 13v10l10-5z"/>
-			<path transform="scale(4)" transform-origin="20 20" d="M1 4v24h30V4H1zm28 22H3V10h26v16z"/>
+			<path d="M11 13v10l10-5zM1 4v24h30V4H1zm28 22H3V10h26v16z"/>
 		</g>
 	</defs>
 
-	<path fill="#56B4D9" d="M0 0h1140v360h-1140v-360z"/>
+	<rect fill="#56B4D9" width='100%' height='100%'/>
 
-	<use xlink:href="#img" class="g0" x="310" y="140" />
-	<use xlink:href="#vid" class="g1" x="510" y="100" />
-	<use xlink:href="#img" class="g2" x="710" y="140" />
-	<use xlink:href="#vid" class="g3" x="910" y="100" />
+	<use xlink:href="#img" x="310" y="140" />
+	<use xlink:href="#vid" x="510" y="100" />
+	<use xlink:href="#img" x="710" y="140" />
+	<use xlink:href="#vid" x="910" y="100" />
 </svg>
