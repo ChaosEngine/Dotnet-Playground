@@ -124,7 +124,7 @@ footer.container > noscript {
 }
 
 #spVersion::after {
-	content: $projectVersion /*$projectVersion is an injectted variable on gulp build pipeline by gulp-sass, gulp-header */
+	content: $projectVersion /*$projectVersion is an injected variable on gulp build pipeline by gulp-sass, gulp-header */
 }
 
 /***************VirtualScroll start***************/
