@@ -216,7 +216,7 @@ namespace RazorPages
 				long etagHash = new DateTimeOffset(last.Year, last.Month, last.Day, last.Hour, last.Minute, last.Second, last.Offset)
 					.ToUniversalTime().ToFileTime() ^ fi.Length;
 				var etag_str = '\"' + Convert.ToString(etagHash, 16) + '\"';
-				wcim.Request.Headers.Add(HeaderNames.IfNoneMatch, new StringValues(etag_str));
+				wcim.Request.Headers.Append(HeaderNames.IfNoneMatch, new StringValues(etag_str));
 
 				//Act
 				result = wcim.OnGet(base.Configuration, serverTiming_mock.Object, imageName);

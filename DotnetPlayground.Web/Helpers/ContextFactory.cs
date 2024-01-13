@@ -108,21 +108,18 @@ namespace DotnetPlayground
 						if (string.IsNullOrEmpty(OracleConfiguration.TnsAdmin))
 						{
 							//WALLET_LOCATION=(SOURCE=(METHOD=file)(METHOD_DATA=(DIRECTORY=c:\\Users\\user\\.blablabla\\wallet)))
-							string[] tab = conn_str
-								.Replace("\r", string.Empty)
-								.Replace("\n", string.Empty)
-								.Replace(")", string.Empty)
-								.Replace(" =", "=")
-								.Split("WALLET_LOCATION=", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-							if (tab.Length > 1)
+							ReadOnlySpan<char> tab = conn_str;
+							int start = tab.IndexOf("DIRECTORY=");
+							if (start != -1)
 							{
-								tab = tab[1].Split("DIRECTORY=", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-								if (tab.Length > 0)
+								start = start + "DIRECTORY=".Length;
+                                int end = tab.Slice(start).IndexOf(")");
+								if (end != -1)
 								{
-									string directory = tab[1];
-									if (!string.IsNullOrEmpty(directory))
+									var directory = tab.Slice(start, end);
+									if (!directory.IsEmpty)
 									{
-										OracleConfiguration.TnsAdmin = directory;
+										OracleConfiguration.TnsAdmin = directory.ToString();
 										OracleConfiguration.WalletLocation = OracleConfiguration.TnsAdmin;
 									}
 								}
@@ -138,15 +135,6 @@ namespace DotnetPlayground
 					throw new NotSupportedException($"Bad DBKind name {configuration["DBKind"]?.ToLower()}");
 			}
 			return conn_str;
-		}
-
-		protected Dictionary<string, string> GetConnStringAsDictionary(string connectionString)
-		{
-			Dictionary<string, string> dict =
-				Regex.Matches(connectionString, @"\s*(?<key>[^;=]+)\s*=\s*((?<value>[^'][^;]*)|'(?<value>[^']*)')")
-				.Cast<Match>()
-				.ToDictionary(m => m.Groups["key"].Value, m => m.Groups["value"].Value);
-			return dict;
 		}
 
 		internal static void MyProvideClientCertificatesCallback(X509CertificateCollection clientCerts)
@@ -192,30 +180,20 @@ namespace DotnetPlayground
 				using var userManager = scopedServices.GetRequiredService<UserManager<ApplicationUser>>();
 
 				// Seed the database with test data.
-				var user_pass_pairs = new (ApplicationUser user, string pass)[]
+				const int test_users_count = 4;
+				for (int i = 1; i <= test_users_count; i++)
 				{
-					(   new ApplicationUser
+					var pair = (user:
+						new ApplicationUser
 						{
-							UserName = "Playwright1@test.domain.com",
-							Email = "Playwright1@test.domain.com",
+							UserName = $"Playwright{i}@test.domain.com",
+							Email = $"Playwright{i}@test.domain.com",   //example email: Playwright1@test.domain.com
 							UserSettingsJSON = "{}",
-							Name = "Playwright1"
+							Name = $"Playwright{i}"
 						},
-						"Playwright1!"
-					),
-					(   new ApplicationUser
-						{
-							UserName = "Playwright2@test.domain.com",
-							Email = "Playwright2@test.domain.com",
-							UserSettingsJSON = "{}",
-							Name = "Playwright2"
-						},
-						"Playwright2!"
-					)
-				};
-
-				foreach (var pair in user_pass_pairs)
-				{
+						pass: $"Playwright{i}!" //example pass: Playwright1!, Playwright2!...
+					);
+				
 					var existing_usr = await userManager.FindByEmailAsync(pair.user.Email);
 					if (existing_usr == null)
 					{

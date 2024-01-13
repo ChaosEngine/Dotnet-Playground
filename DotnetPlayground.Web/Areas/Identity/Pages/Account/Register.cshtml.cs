@@ -3,6 +3,7 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text.Encodings.Web;
 using System.Threading;
@@ -40,7 +41,7 @@ namespace IdentitySample.DefaultUI
 	}
 
 	public class RegisterModel<TUser, TInp> : RegisterModelBase<TInp>
-		where TUser : class
+		where TUser : class, new()
 		where TInp : IInputModel
 	{
 		protected readonly SignInManager<TUser> _signInManager;
@@ -107,6 +108,7 @@ namespace IdentitySample.DefaultUI
 		{
 		}
 
+        [RequiresUnreferencedCode("The property referenced by 'Password' may be trimmed. Ensure it is preserved.")]
 		public class InputModel : IInputModel
 		{
 			[Required]

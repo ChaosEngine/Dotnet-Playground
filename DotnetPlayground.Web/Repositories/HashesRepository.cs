@@ -26,6 +26,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 namespace DotnetPlayground.Repositories
 {
@@ -35,7 +37,7 @@ namespace DotnetPlayground.Repositories
 
 		void SetReadOnly(bool value);
 
-		Task<IEnumerable<ThinHashes>> AutoComplete(string text);
+		Task<List<ThinHashes>> AutoComplete(string text);
 
 		Task<(IEnumerable<ThinHashes> Itemz, int Count)> PagedSearchAsync(string sortColumn, string sortOrderDirection, string searchText,
 			int offset, int limit, CancellationToken token);
@@ -55,6 +57,7 @@ namespace DotnetPlayground.Repositories
 	/// </summary>
 	/// <seealso cref="DotnetPlayground.Repositories.GenericRepository{DotnetPlayground.Models.BloggingContext, DotnetPlayground.Models.ThinHashes}" />
 	/// <seealso cref="DotnetPlayground.Repositories.IHashesRepository" />
+	[RequiresUnreferencedCode("Contains trimming unsafe calls")]
 	public class HashesRepository : GenericRepository<BloggingContext, ThinHashes>, IHashesRepository
 	{
 		private const string _NOTHING_FOUND_TEXT = "nothing found";
@@ -74,9 +77,10 @@ namespace DotnetPlayground.Repositories
 		private readonly IServerTiming _serverTiming;
 		public Stopwatch Watch { get; private set; }
 
-		private static IEnumerable<String> PostgresAllColumnNames
+        private static IEnumerable<string> PostgresAllColumnNames
 		{
-			get
+			[RequiresUnreferencedCode("Using EF with _entities.Set<Ent> generic method")]
+            get
 			{
 				if (_postgresAllColumnNames == null)
 					_postgresAllColumnNames = AllColumnNames.Select(x => x.Replace("Hash", "hash"));
@@ -119,12 +123,12 @@ namespace DotnetPlayground.Repositories
 			return hashesInfoStatic;
 		}
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="HashesRepository" /> class.
-		/// </summary>
-		/// <param name="context">The context.</param>
-		/// <param name="configuration">The configuration.</param>
-		public HashesRepository(BloggingContext context, IConfiguration configuration, IMemoryCache memoryCache,
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HashesRepository" /> class.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        /// <param name="configuration">The configuration.</param>
+        public HashesRepository(BloggingContext context, IConfiguration configuration, IMemoryCache memoryCache,
 			ILogger<HashesRepository> logger, IServerTiming serverTiming) : base(context)
 		{
 			_configuration = configuration;
@@ -146,7 +150,7 @@ namespace DotnetPlayground.Repositories
 		/// </summary>
 		/// <param name="text">The text.</param>
 		/// <returns></returns>
-		public async Task<IEnumerable<ThinHashes>> AutoComplete(string text)
+		public async Task<List<ThinHashes>> AutoComplete(string text)
 		{
 			_serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("ctor", Watch.ElapsedMilliseconds,
 				"from ctor till AutoComplete"));
@@ -190,7 +194,7 @@ namespace DotnetPlayground.Repositories
 
 			_serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("READY",
 				Watch.ElapsedMilliseconds, "AutoComplete ready"));
-			return (await found).DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT });
+			return (await found).DefaultIfEmpty(new ThinHashes { Key = _NOTHING_FOUND_TEXT }).ToList();
 		}
 
 		/// <summary>
@@ -274,7 +278,7 @@ OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY
 				using (var cmd = conn.CreateCommand())
 				{
 					cmd.CommandText = sql;
-					_logger.LogInformation("sql => {0}", sql);
+					_logger.LogInformation("sql => {sql}", sql);
 					cmd.CommandTimeout = 240;
 					DbParameter parameter;
 
@@ -367,8 +371,14 @@ FROM
 (
 	SELECT *
 	FROM `Hashes`
+		-- The 'deferred join.' approach taken from https://aaronfrancis.com/2022/efficient-pagination-using-deferred-joins
+		inner join (                	-- The 'deferred join.'
+			select `Key` from `Hashes`  -- The pagination using a fast index.
+			order by `Key` 
+			LIMIT @limit OFFSET @offset
+		) as tmp using(`Key`)
 	{(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY `{sortColumn}` {sortOrderDirection}")}
-	LIMIT @limit OFFSET @offset
+
 ) A
 "
 :
@@ -395,7 +405,7 @@ LIMIT @limit OFFSET @offset
 				using (var cmd = new MySqlCommand(sql, conn))
 				{
 					cmd.CommandText = sql;
-					_logger.LogInformation("sql => {0}", sql);
+					_logger.LogInformation("sql => {sql}", sql);
 					cmd.CommandTimeout = 240;
 					DbParameter parameter;
 
@@ -482,9 +492,13 @@ LIMIT @limit OFFSET @offset
 ;
 SELECT [{col_names}]
 FROM Hashes
+	--The 'deferred join.' approach taken from https://aaronfrancis.com/2022/efficient-pagination-using-deferred-joins
+	inner join (                	-- The 'deferred join.'
+		select [Key] from Hashes  -- The pagination using a fast index.
+		LIMIT @limit OFFSET @offset
+	) as tmp using([Key])
 
 {(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY [{sortColumn}] {sortOrderDirection}")}
-LIMIT @limit OFFSET @offset
 ";
 			}
 			else
@@ -516,7 +530,7 @@ LIMIT @limit OFFSET @offset
 				using (var cmd = conn.CreateCommand())
 				{
 					cmd.CommandText = sql;
-					_logger.LogInformation("sql => {0}", sql);
+					_logger.LogInformation("sql => {sql}", sql);
 					cmd.CommandTimeout = 240;
 					DbParameter parameter;
 
@@ -613,8 +627,14 @@ SELECT A.*, (SELECT count(*) FROM ""Hashes"") cnt
 FROM 
 (SELECT *
 FROM ""Hashes""
+	--The 'deferred join.' approach taken from https://aaronfrancis.com/2022/efficient-pagination-using-deferred-joins
+	inner join (                	-- The 'deferred join.'
+		select ""Key"" from ""Hashes""  -- The pagination using a fast index.
+		order by ""Key"" 
+		LIMIT @limit OFFSET @offset
+	) as tmp using(""Key"")
 {(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY \"{PostgresAllColumnNames.FirstOrDefault(x => string.Compare(x, sortColumn, StringComparison.CurrentCultureIgnoreCase) == 0)}\" {sortOrderDirection}")}
-LIMIT @limit OFFSET @offset) A
+) A
 "
 :
 $@"
@@ -641,7 +661,7 @@ LIMIT @limit OFFSET @offset
 				using (var cmd = new NpgsqlCommand(sql, conn))
 				{
 					cmd.CommandText = sql;
-					_logger.LogInformation("sql => {0}", sql);
+					_logger.LogInformation("sql => {sql}", sql);
 					cmd.CommandTimeout = 240;
 					DbParameter parameter;
 
@@ -727,8 +747,14 @@ SELECT A.*, (select num_rows from user_tables where table_name = 'Hashes') cnt
 FROM 
 (SELECT /*+ FIRST_ROWS({limit}) */ *
 FROM ""Hashes""
+	--The 'deferred join.' approach taken from https://aaronfrancis.com/2022/efficient-pagination-using-deferred-joins
+	inner join (                	-- The 'deferred join.'
+		select ""Key"" from ""Hashes""  -- The pagination using a fast index.
+		order by ""Key"" 
+		OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
+	) tmp using(""Key"")
 {(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY \"{PostgresAllColumnNames.FirstOrDefault(x => string.Compare(x, sortColumn, StringComparison.CurrentCultureIgnoreCase) == 0)}\" {sortOrderDirection}")}
-OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY) A
+) A
 "
 :
 $@"
@@ -757,7 +783,7 @@ OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY
 				{
 					cmd.BindByName = true;
 					cmd.CommandText = sql;
-					_logger.LogInformation("sql => {0}", sql);
+					_logger.LogInformation("sql => {sql}", sql);
 					cmd.CommandTimeout = 240;
 					DbParameter parameter;
 

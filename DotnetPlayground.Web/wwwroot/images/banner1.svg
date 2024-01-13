@@ -1,42 +1,36 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1140 360">
 	<style>
-		@keyframes col {
-		from { fill: #fff }
-		to { fill: #000 }
+		@keyframes swing {
+			from { transform: rotateZ(-10deg) }
+			to { transform: rotateZ(10deg) }
 		}
-
-		.g0,.g1,.g2,.g3 {
-		fill:#fff
+		g {
+			animation: swing 1s infinite;
+			animation-direction: alternate;
+			fill: #000;
 		}
-
-		.g0 {
-		animation: col 2s ease-in-out infinite;
+		#vid path {
+			transform-origin: 20px 20px;
+			transform: scale(4);
 		}
-		.g1 {
-		animation: col 4s ease-in-out infinite;
-		}
-		.g2 {
-		animation: col 6s ease-in-out infinite;
-		}
-		.g3 {
-		animation: col 8s ease-in-out infinite;
+		#img path {
+			transform-origin: 10px 15px;
+			transform: scale(8);
 		}
 	</style>
 	<defs>
-		<g id="img" transform="translate(0 40) scale(8)">
-			<path d="M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" />
-			<path d="M14.002 13a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2V5A2 2 0 0 1 2 3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-1.998 2zM14 2H4a1 1 0 0 0-1 1h9.002a2 2 0 0 1 2 2v7A1 1 0 0 0 15 11V3a1 1 0 0 0-1-1zM2.002 4a1 1 0 0 0-1 1v8l2.646-2.354a.5.5 0 0 1 .63-.062l2.66 1.773 3.71-3.71a.5.5 0 0 1 .577-.094l1.777 1.947V5a1 1 0 0 0-1-1h-10z"/>
+		<g id="img">
+			<path d="M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM14.002 13a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2V5A2 2 0 0 1 2 3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-1.998 2zM14 2H4a1 1 0 0 0-1 1h9.002a2 2 0 0 1 2 2v7A1 1 0 0 0 15 11V3a1 1 0 0 0-1-1zM2.002 4a1 1 0 0 0-1 1v8l2.646-2.354a.5.5 0 0 1 .63-.062l2.66 1.773 3.71-3.71a.5.5 0 0 1 .577-.094l1.777 1.947V5a1 1 0 0 0-1-1h-10z"/>
 		</g>
-    <g id="vid" transform="translate(0 40) scale(4)">
-      <path d="M11 13v10l10-5z"/>
-			<path d="M1 4v24h30V4H1zm28 22H3V10h26v16z"/>
-    </g>
+		<g id="vid">
+			<path d="M11 13v10l10-5zM1 4v24h30V4H1zm28 22H3V10h26v16z"/>
+		</g>
 	</defs>
 
-	<path fill="#56B4D9" d="M0 0h1140v360h-1140v-360z"/>
+	<rect fill="#56B4D9" width='100%' height='100%'/>
 
-	<use xlink:href="#img" class="g0" x="250" />
-	<use xlink:href="#vid" class="g1" x="450" />
-	<use xlink:href="#img" class="g2" x="650" />
-	<use xlink:href="#vid" class="g3" x="850" />
+	<use xlink:href="#img" x="310" y="140" />
+	<use xlink:href="#vid" x="510" y="100" />
+	<use xlink:href="#img" x="710" y="140" />
+	<use xlink:href="#vid" x="910" y="100" />
 </svg>

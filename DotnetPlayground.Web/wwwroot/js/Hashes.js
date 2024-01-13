@@ -1,12 +1,5 @@
-/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "HashesOnLoad|clientValidateAll" }]*/
-/*global clientValidate*/
+/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "HashesOnLoad" }]*/
 "use strict";
-
-function clientValidateAll() {
-	$("button[value='Validate']").each(function (index, item) {
-		clientValidate(item);
-	});
-}
 
 function HashesOnLoad() {
 

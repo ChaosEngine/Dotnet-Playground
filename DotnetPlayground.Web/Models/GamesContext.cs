@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
@@ -17,6 +18,10 @@ namespace DotnetPlayground.Models
 		/// </summary>
 		/// <param name="args"></param>
 		/// <returns></returns>
+		[UnconditionalSuppressMessage( "Trimming", 
+			"IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise " +
+			"can break functionality when trimming application code",
+			Justification = "GamesContext uses EFCore which is not yet triming ready")]
 		public InkBall.Module.Model.GamesContext CreateDbContext(string[] args)
 		{
 			var configuration = GetConfiguration(args);

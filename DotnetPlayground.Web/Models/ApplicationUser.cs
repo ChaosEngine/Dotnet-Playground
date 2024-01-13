@@ -25,12 +25,12 @@ namespace DotnetPlayground.Models
 			get
 			{
 				return JsonSerializer.Deserialize(UserSettingsJSON ?? "{}",
-					ApplicationUserSettingsContext.Default.ApplicationUserSettings);
+					ApplicationUserSettings_Context.Default.ApplicationUserSettings);
 			}
 			set
 			{
 				UserSettingsJSON = JsonSerializer.Serialize(value,
-					ApplicationUserSettingsContext.Default.ApplicationUserSettings);
+					ApplicationUserSettings_Context.Default.ApplicationUserSettings);
 			}
 		}
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DotnetPlayground.Services;
+using DotnetPlayground.Web.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -25,14 +26,18 @@ namespace DotnetPlayground.Models
 				return await Task.FromResult<IActionResult>(base.Forbid());
 
 			if (services == null)
-				return await Task.FromResult<IActionResult>(new JsonResult(new AnnualTimelapseBag { Result = "Error0" }));
+				return await Task.FromResult<IActionResult>(new JsonResult(
+					new AnnualTimelapseBag { Result = "Error0" })
+				);
 
 
 			var operation = new YouTubePlaylistDumpOperation();
 			await operation.DoWorkAsync(services, Request.HttpContext.RequestAborted);
 			var product = operation.Product;
-			// var product = new List<object[]>();
-			// product.Add(new object[]{"aaa","bbbb","ccccc","dddd"});
+			//var product = new List<object[]>
+			//{
+			//	new object[] { "aaa", "bbbb", "ccccc", "dddd" }
+			//};
 
 			var result = new AnnualTimelapseBag { Result = "Ok", Product = product };
 

@@ -2,6 +2,7 @@
 using DotnetPlayground.Controllers;
 using DotnetPlayground.Models;
 using DotnetPlayground.Tests;
+using DotnetPlayground.Web.Helpers;
 using InkBall.IntegrationTests;
 using Microsoft.Extensions.Logging;
 using System;
@@ -10,7 +11,9 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Mime;
+using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -136,6 +139,56 @@ namespace Integration
 				}
 			}
 		}
+
+		[Fact]
+		public async Task CspReport()
+		{
+			// Arrange
+			var payload = new CspReportRequest
+			{
+				CspReport = new CspReport
+				{
+					DocumentUri = "https://some-domain.com/dotnet/WebCamGallery",
+					Referrer = "https://some-domain.com/dotnet/PuzzleGenerator",
+					ViolatedDirective = "img-src",
+					EffectiveDirective = "img-src",
+					OriginalPolicy = """
+				base-uri 'self'; report-uri /dotnet/CspPeport; default-src 'self'; 
+				manifest-src 'self'; upgrade-insecure-requests; block-all-mixed-content; 
+				script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://vjs.zencdn.net; 
+				style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; 
+				img-src 'self' data: blob: https://i.ytimg.com; 
+				font-src 'self' data:; 
+				connect-src 'self'; 
+				media-src 'self' data: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; 
+				frame-src 'self' https://www.youtube.com; 
+				child-src 'self'; 
+				form-action 'self' https://accounts.google.com https://github.com https://api.twitter.com https://www.facebook.com;
+				frame-ancestors 'none';
+				""",
+					// disposition = "enforce",
+					BlockedUri = "https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.4.0/img/next.svg",
+					LineNumber = 1,
+					ColumnNumber = 19546,
+					SourceFile = "https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.4.0/js/blueimp-gallery.min.js",
+					StatusCode = 200,
+					// "script-sample": ""
+				}
+			};
+			using var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8,
+				CspReportRequest.ContentType);
+
+			// Act
+			using (var response = await _client.PostAsync($"{_client.BaseAddress}{nameof(HomeController.CspReport)}",
+				content))
+			{
+				// Assert
+				Assert.NotNull(response);
+				response.EnsureSuccessStatusCode();
+				Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+			}
+
+		}
 	}
 
 	[Collection(nameof(TestServerCollection))]
@@ -157,7 +210,7 @@ namespace Integration
 
 			//Arrange
 			//get number of all total rows from previous tests :-)
-			int total_hashes_count = await new HashesDataTablePage(_fixture).Load_Valid("Key", "asc", "aaa", 5, 0, "cached");
+			int total_hashes_count = await new HashesDataTablePage(_fixture).LoadValidImpl("Key", "asc", "aaa", 5, 0, "cached");
 
 
 			// Arrange
@@ -194,8 +247,8 @@ namespace Integration
 				is_HashesInfo_table_empty = empty_hashes_response_match.Count > 0 && hashes_not_empty_response_match.Count <= 0;
 			}
 
-			//if not yet calculated, we wait until it finaly is calculated and assert new page content
-			//only hapening if we are sure there are _any records_ inside table hashes
+			//if not yet calculated, we wait until it finally is calculated and assert new page content
+			//only happening if we are sure there are _any records_ inside table hashes
 			if (is_HashesInfo_table_empty.HasValue && total_hashes_count > 0)
 			{
 				// Arrange
@@ -274,7 +327,12 @@ namespace Integration
 		[InlineData("Key", "asc", "awak", 5, 1, "refresh")]
 		[InlineData("Key", "asc", "none_existing", 5, 1, "cached")]
 		[InlineData("Key", "asc", "none_existing", 5, 1, "refresh")]
-		public async Task<int> Load_Valid(string sort, string order, string search, int limit, int offset, string extraParam)
+		public async Task Load_Valid(string sort, string order, string search, int limit, int offset, string extraParam)
+		{
+			await LoadValidImpl(sort, order, search, limit, offset, extraParam);
+		}
+
+		protected internal async Task<int> LoadValidImpl(string sort, string order, string search, int limit, int offset, string extraParam)
 		{
 			//if (_fixture.DOTNET_RUNNING_IN_CONTAINER) return 0;//pass on fake DB with no data
 
@@ -622,7 +680,7 @@ namespace Integration
 							responseString, StringComparison.InvariantCultureIgnoreCase);
 
 						// Deserialize JSON String into concrete class
-						deserialized = JsonSerializer.Deserialize<Post>(responseString);
+						deserialized = JsonSerializer.Deserialize<Post>(responseString, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 						Assert.IsType<Post>(deserialized);
 						Assert.Equal(last_inserted_blog_id, deserialized.BlogId);
 						Assert.True(deserialized.PostId > 0);
@@ -633,8 +691,7 @@ namespace Integration
 
 				//verify with getting all post for blog
 				// Arrange
-				data = new List<KeyValuePair<string, string>>(/*empty*/);
-				data.Add(new KeyValuePair<string, string>("__RequestVerificationToken", antiforgery_token));
+				data = new List<KeyValuePair<string, string>> { new KeyValuePair<string, string>("__RequestVerificationToken", antiforgery_token) };
 
 				using (var formPostBodyData = new FormUrlEncodedContent(data))
 				{
@@ -655,7 +712,7 @@ namespace Integration
 							responseString, StringComparison.InvariantCultureIgnoreCase);
 
 						// Deserialize JSON String into concrete class
-						var posts = JsonSerializer.Deserialize<List<Post>>(responseString);
+						var posts = JsonSerializer.Deserialize<List<Post>>(responseString, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 						//there should be ONE post
 						Assert.NotEmpty(posts);
 						deserialized = posts.FirstOrDefault();
@@ -695,7 +752,7 @@ namespace Integration
 							responseString, StringComparison.InvariantCultureIgnoreCase);
 
 						// Deserialize JSON String into concrete class
-						deserialized = JsonSerializer.Deserialize<Post>(responseString);
+						deserialized = JsonSerializer.Deserialize<Post>(responseString, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 						Assert.IsType<Post>(deserialized);
 						Assert.Equal(last_inserted_blog_id, deserialized.BlogId);
 						Assert.True(deserialized.PostId > 0);
@@ -733,8 +790,7 @@ namespace Integration
 
 					//verify with getting all post for blog
 					// Arrange
-					data = new List<KeyValuePair<string, string>>(/*empty*/);
-					data.Add(new KeyValuePair<string, string>("__RequestVerificationToken", antiforgery_token));
+					data = new List<KeyValuePair<string, string>> { new KeyValuePair<string, string>("__RequestVerificationToken", antiforgery_token) };
 
 					using (var formPostBodyData = new FormUrlEncodedContent(data))
 					{
@@ -750,7 +806,7 @@ namespace Integration
 							var responseString = await response.Content.ReadAsStringAsync();
 
 							// Deserialize JSON String into concrete class
-							var posts = JsonSerializer.Deserialize<List<Post>>(responseString);
+							var posts = JsonSerializer.Deserialize<List<Post>>(responseString, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 							//there should be NO post
 							Assert.Empty(posts);
 						}

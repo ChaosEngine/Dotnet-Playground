@@ -5,7 +5,7 @@ on:
     branches: 
       - master
       - dev
-      - dotnet-7
+      - dotnet-8
 
 jobs:
   build:
@@ -19,7 +19,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 7.0.x
+        dotnet-version: 8.0.x
     - name: Build with dotnet
       env:
         DOTNET_ROLL_FORWARD_ON_NO_CANDIDATE_FX: 2
@@ -27,6 +27,6 @@ jobs:
     - name: Test with dotnet
       env:
         DBKind: "sqlite"
-        ConnectionStrings__Sqlite: "Filename=./bin/Debug/net7.0/Blogging.db"
+        ConnectionStrings__Sqlite: "Filename=./bin/Debug/net8.0/Blogging.db"
         DOTNET_ROLL_FORWARD_ON_NO_CANDIDATE_FX: 2
       run: dotnet test -v m --configuration Debug

@@ -3,6 +3,7 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using DotnetPlayground.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -18,6 +19,7 @@ namespace IdentitySample.DefaultUI
 		[BindProperty]
 		public InputModel Input { get; set; }
 
+        [RequiresUnreferencedCode("The property referenced by 'Password' may be trimmed. Ensure it is preserved.")]
 		public class InputModel
 		{
 			[Required]
@@ -38,6 +40,7 @@ namespace IdentitySample.DefaultUI
 			public string Code { get; set; }
 
 		}
+        [RequiresUnreferencedCode("Referencing not fully trimming compat code inside InputModel")]
 		public virtual IActionResult OnGet(string code = null) => throw new NotImplementedException();
 
 		public virtual Task<IActionResult> OnPostAsync() => throw new NotImplementedException();
@@ -52,7 +55,8 @@ namespace IdentitySample.DefaultUI
 			_userManager = userManager;
 		}
 
-		public override IActionResult OnGet(string code = null)
+        [RequiresUnreferencedCode("Referencing not fully trimming compat code inside InputModel")]
+        public override IActionResult OnGet(string code = null)
 		{
 			if (code == null)
 			{

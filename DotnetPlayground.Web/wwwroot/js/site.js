@@ -29,6 +29,12 @@ function clientValidate(button) {
 	td.eq(2).css("color", (sha === orig_sha ? "green" : "red")).css('font-weight', 'bold');
 }
 
+function clientValidateAll() {
+	$("button[value='Validate']").each( (_index, item) => {
+		clientValidate(item);
+	});
+}
+
 function handleAboutPageBranchHash() {
 	let anchor = document.querySelector('#branchHash > a:first-child');
 	if (anchor) {
@@ -132,41 +138,13 @@ $(function () {
 		const initDarkTheme = function () {
 			if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
 				// dark mode
-				$('.navbar-light').addClass('navbar-dark').removeClass('navbar-light');
-				$('body').addClass('bg-dark').css('color', 'white');
-				$('.modal-content').addClass('bg-dark').css('color', 'white');
-				// $('.container-fluid').addClass('bg-dark').css('color', 'white');
-				// $('.form-control').css('color', 'white').css('background-color', 'rgb(33, 37, 41)');
-				// $('.form-select').addClass('bg-dark text-white').removeClass('bg-light text-black');
-				$('.list-group-item').addClass('bg-dark').css('color', 'white');
-				$('.content-wrapper').addClass('bg-dark');
-				$('.card').addClass('bg-dark');
-				$('.card-body').css('border', '1px solid rgba(255,255,255,.125)');
-				$('.bg-light').addClass('bg-dark').removeClass('bg-light');
-				$('.bg-white').addClass('bg-dark').removeClass('bg-white');
-				$('.bd-footer').addClass('bg-dark');
-				$('table').addClass('table-dark').removeClass('table-light');
-				$('#editor.ace_editor').addClass('ace-chaos ace_dark').removeClass('ace-tm');
+				$('html').attr("data-bs-theme", "dark");
 			}
 		};
 		const initLightTheme = function () {
 			if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
 				// light mode
-				// $('.navbar-dark').addClass('navbar-light').removeClass('navbar-dark');
-				$('body').removeClass('bg-dark').css('color', 'black');
-				$('.modal-content').addClass('bg-light').css('color', 'rgb(33, 37, 41)');
-				// $('.container-fluid').addClass('bg-light').css('color', 'rgb(33, 37, 41)');
-				// $('.form-control').css('color', 'rgb(33, 37, 41)').css('background-color', 'white');
-				// $('.form-select').addClass('bg-light text-black').removeClass('bg-dark text-white');
-				$('.list-group-item').addClass('bg-light').css('color', 'rgb(33, 37, 41)');
-				$('.content-wrapper').addClass('bg-light');
-				$('.card').removeClass('bg-dark');
-				$('.card-body').css('border', '1px solid rgba(0,0,0,.175)');
-				$('.bg-light').addClass('bg-light').removeClass('bg-dark');
-				$('.bg-white').addClass('bg-light').removeClass('bg-black');
-				$('.bd-footer').addClass('bg-light');
-				$('table')/* .addClass('table-light') */.removeClass('table-dark');
-				$('#editor.ace_editor').removeClass('ace-chaos ace_dark').addClass('ace-tm');
+				$('html').attr("data-bs-theme", "light");
 			}
 		};
 		initDarkTheme();

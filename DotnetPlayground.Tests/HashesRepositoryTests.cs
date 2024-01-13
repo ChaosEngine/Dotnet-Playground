@@ -241,7 +241,7 @@ namespace Repositories
 							}
 						}));
 					}
-					Task.WaitAll(tasks.ToArray());
+                    await Task.WhenAll(tasks.ToArray());
 					await repository.SaveAsync();
 				}
 
@@ -293,7 +293,7 @@ namespace Repositories
 							}
 						}));
 					}
-					Task.WaitAll(tasks.ToArray());
+					await Task.WhenAll(tasks.ToArray());
 					await repository.SaveAsync();
 				}
 
@@ -350,7 +350,7 @@ namespace Repositories
 
 						}));
 					}
-					Task.WaitAll(tasks.ToArray());
+					await Task.WhenAll(tasks.ToArray());
 					await repository.SaveAsync();
 				}
 

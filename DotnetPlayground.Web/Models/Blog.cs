@@ -3,16 +3,20 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace DotnetPlayground.Models
 {
+    [JsonConverter(typeof(JsonStringEnumConverter<BlogActionEnum>))]
 	public enum BlogActionEnum
-	{
+    {
 		Unknown = -1,
 		Edit = 0,
 		Delete = 1
 	}
-	public enum PostActionEnum
+
+    [JsonConverter(typeof(JsonStringEnumConverter<PostActionEnum>))]
+    public enum PostActionEnum
 	{
 		Unknown = -1,
 		EditPost = 0,
@@ -41,13 +45,15 @@ namespace DotnetPlayground.Models
 
 	public partial class Blog
 	{
+		public const string UrlRegexString = @"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)";
+		
 		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 		[Required]
 		[Key]
 		public int BlogId { get; set; }
 
 		[Required]
-		[RegularExpression(@"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)")]
+		[RegularExpression(UrlRegexString)]
 		public string Url { get; set; }
 
 		public virtual ICollection<Post> Post { get; set; }

@@ -11,12 +11,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DotnetPlayground.Controllers
 {
 	public interface IHashesDataTableController : IDisposable
 	{
 		IActionResult Index();
+	
+		[RequiresUnreferencedCode("Contains trimming unsafe calls")]
 		Task<IActionResult> Load(HashesDataTableLoadInput input);
 	}
 
@@ -40,6 +43,7 @@ namespace DotnetPlayground.Controllers
 		public abstract IActionResult Index();
 
 		[HttpGet]
+		[RequiresUnreferencedCode("Contains trimming unsafe calls")]
 		public async Task<IActionResult> Load(HashesDataTableLoadInput input)
 		{
 			if (!ModelState.IsValid)
@@ -75,7 +79,7 @@ namespace DotnetPlayground.Controllers
 					found = await _repo.PagedSearchAsync(input.Sort, input.Order, input.Search, input.Offset, input.Limit, token);
 				}
 
-				var result = new
+				var result = new HashesLoadResult
 				{
 					total = found.Count,
 					rows = found.Itemz//.Select(x => new string[] { x.Key, x.HashMD5, x.HashSHA256 })
@@ -91,7 +95,7 @@ namespace DotnetPlayground.Controllers
 						};
 				}
 
-				return Json(result/*, _serializationSettings*/);
+				return Json(result);
 			}
 			catch (OperationCanceledException ex)
 			{
@@ -107,7 +111,8 @@ namespace DotnetPlayground.Controllers
 		}
 
 		[HttpGet]
-		public async Task<IActionResult> Stream(HashesDataTableLoadInput input)
+		[RequiresUnreferencedCode("Contains trimming unsafe calls")]
+        public async Task<IActionResult> Stream(HashesDataTableLoadInput input)
 		{
 			if (!ModelState.IsValid)
 			{

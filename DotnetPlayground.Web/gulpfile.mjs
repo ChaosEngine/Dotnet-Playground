@@ -1,26 +1,35 @@
-﻿/*global require, __dirname, process, exports*/
-"use strict";
+﻿"use strict";
 
-const gulp = require("gulp"),
-	fs = require('fs-extra'),
-	sass = require('gulp-sass')(require('sass')),
-	header = require('gulp-header'),
-	glob = require("tiny-glob"),
-	concat = require("gulp-concat"),
-	cleanCSS = require("gulp-clean-css"),
-	terser = require("gulp-terser"),
-	//babel = require("gulp-babel"),
-	rename = require("gulp-rename"),
-	sourcemaps = require('gulp-sourcemaps'),
-	path = require('path'),
-	webpack = require('webpack-stream'),
-	//esmWebpackPlugin = require("@purtuga/esm-webpack-plugin"),
-	workerPlugin = require('worker-plugin'),
-	TerserPlugin = require('terser-webpack-plugin');
+import gulp from 'gulp';
+// const { series, parallel, src, dest, task } = gulp;
 
-var webroot = "./wwwroot/";
+import process from 'node:process';
+import fs from 'fs-extra';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-var paths = {
+import * as dartSass from 'sass';
+import gulpSass from 'gulp-sass';
+const sass = gulpSass(dartSass);
+
+import header from 'gulp-header';
+import glob from "tiny-glob";
+import concat from "gulp-concat";
+import cleanCSS from "@aptuitiv/gulp-clean-css";
+import terser from "gulp-terser";
+//import babel from "gulp-babel",
+import rename from "gulp-rename";
+import sourcemaps from 'gulp-sourcemaps';
+import path from 'path';
+import webpack from 'webpack-stream';
+// import esmWebpackPlugin from '@purtuga/esm-webpack-plugin';
+import workerPlugin from 'worker-plugin';
+import TerserPlugin from 'terser-webpack-plugin';
+
+const webroot = "./wwwroot/";
+
+const paths = {
 	js: webroot + "js/**/*.js",
 	minJs: webroot + "js/**/*.min.js",
 	css: webroot + "css/**/*.css",
@@ -165,7 +174,7 @@ const inkballAIWorker = function (doPollyfill) {
 				}]
 			} : {},
 			optimization: {
-				minimize: true,
+				// minimize: true,
 				minimizer: [
 					new TerserPlugin({
 						extractComments: false
@@ -182,7 +191,7 @@ const inkballAIWorker = function (doPollyfill) {
 		.pipe(gulp.dest(paths.inkBallJsRelative));
 };
 
-exports.webpack = gulp.parallel(function inkballWebWorkerEntryPoint(cb) {
+const webpackRun = gulp.parallel(function inkballWebWorkerEntryPoint(cb) {
 	// inkballAIWorker(true);
 	inkballAIWorker(false);
 	return cb();
@@ -214,27 +223,34 @@ const fileMinifySCSSFunction = function (src, dest) {
 		.pipe(gulp.dest("."));
 };
 
-const minInkball = gulp.parallel(function inkballJsAndCSS() {
-	return fileMinifyJSFunction(paths.inkBallJsRelative + "inkball.js",
-		paths.inkBallJsRelative + "inkball.min.js", true);
-},
+const minInkballJs = gulp.parallel(
+	function inkballJs() {
+		return fileMinifyJSFunction(paths.inkBallJsRelative + "inkball.js",
+			paths.inkBallJsRelative + "inkball.min.js", true);
+	},
 	function inkballSharedJs() {
 		return fileMinifyJSFunction(paths.inkBallJsRelative + "shared.js",
 			paths.inkBallJsRelative + "shared.min.js", true);
-	},
-	gulp.series(function scssToCSS() {
+	}
+);
+
+const minInkballCss = gulp.series(
+	function inkBallScssToCSS() {
 		return fileMinifySCSSFunction(paths.inkBallCssRelative + "inkball.scss", paths.inkBallCssRelative + "inkball.css");
 	},
-		function cssToMinCSS() {
-			return minCSS(paths.inkBallCssRelative + "inkball.css", paths.inkBallCssRelative + "inkball.min.css",
-				paths.inkBallCssRelative + "inkball.min.css");
-		})
+	function inkBallCssToMinCSS() {
+		return minCSS(paths.inkBallCssRelative + "inkball.css", paths.inkBallCssRelative + "inkball.min.css",
+			paths.inkBallCssRelative + "inkball.min.css");
+	}
 );
+
+const minInkball = gulp.parallel(minInkballJs, minInkballCss);
 
 const cleanInkball = async function (cb) {
 	await Promise.all([
 		rimraf(paths.inkBallJsRelative + "*.min.js"),
 		rimraf(paths.inkBallCssRelative + "*.css"),
+		rimraf(paths.inkBallCssRelative + "*.map"),
 		rimraf(paths.inkBallJsRelative + "*Bundle.js"),
 		rimraf(paths.inkBallJsRelative + "*.map")
 	]);
@@ -260,11 +276,11 @@ const cleanCss = async function (cb) {
 		rimraf(paths.concatCssDestMin),
 		rimraf(webroot + "css/*.map")
 	]);
-	
+
 	cb();
 };
 
-exports.clean = gulp.series(cleanJs, cleanCss);
+const clean = gulp.series(cleanJs, cleanCss);
 
 const minSWJsJs = function () {
 	return fileMinifyJSFunction(paths.SWJs, paths.SWJsDest);
@@ -346,18 +362,22 @@ const processSCSS = function (sourcePattern, notPattern) {
 		.pipe(gulp.dest(notPattern));
 };
 
-const minScss = gulp.series(function scssToCss() {
-	return processSCSS(paths.scss, paths.destCSSDir);
-}, function runTaskMinCSS() {
-	return minCSS(paths.css, paths.minCss, paths.concatCssDestMin);
-});
+const minScss = gulp.series(
+	function scssToCss() {
+		return processSCSS(paths.scss, paths.destCSSDir);
+	}, function runTaskMinCSS() {
+		return minCSS(paths.css, paths.minCss, paths.concatCssDestMin);
+	}
+);
 
-exports.min = gulp.parallel(minJs, minInkball, minScss);
+const min = gulp.parallel(minJs, minInkball, minScss);
+
+const cssRun = gulp.parallel(minInkballCss, minScss);
 
 ///
 /// postinstall entry point (npm i)
 ///
-exports.postinstall = async (cb) => {
+const postinstall = async (cb) => {
 	const copy_promises = [];
 	const file_copy = (src, dst) => copy_promises.push(fs.copy(src, dst));
 	const dir_copy = (src, dst, filter = undefined) => copy_promises.push(fs.copy(src, dst, { filter }));
@@ -449,8 +469,19 @@ exports.postinstall = async (cb) => {
 ///
 /// Main entry point
 ///
-exports.default = gulp.series(
-	exports.clean,
-	exports.webpack,
-	exports.min
+const main = gulp.series(
+	clean,
+	webpackRun,
+	min
 );
+///
+/// Exports
+///
+export {
+	main as default,
+	clean,
+	webpackRun as webpack,
+	min,
+	cssRun as css,
+	postinstall
+};

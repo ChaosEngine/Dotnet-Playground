@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Query;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -14,8 +15,6 @@ namespace DotnetPlayground.Repositories
 		where Ent : class
 		where Cont : DbContext
 	{
-		//Cont Context { get; }
-
 		Ent Add(Ent entity);
 		Task<Ent> AddAsync(Ent entity);
 		Task AddRangeAsync(IEnumerable<Ent> entities);
@@ -34,16 +33,12 @@ namespace DotnetPlayground.Repositories
 		Task<int> SaveAsync();
 	}
 
+	[RequiresUnreferencedCode("Contains trimming unsafe calls")]
 	public abstract class GenericRepository<Cont, Ent> : IGenericRepository<Cont, Ent>
 		where Ent : class
 		where Cont : DbContext
 	{
 		protected Cont _entities;
-
-		/*public Cont Context
-		{
-			get { return _entities; }
-		}*/
 
 		protected static IEnumerable<string> AllColumnNames
 		{

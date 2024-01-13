@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using DotnetPlayground.Web.Helpers;
 
 namespace DotnetPlayground.Controllers
 {
@@ -30,10 +31,10 @@ namespace DotnetPlayground.Controllers
 	public class BlogsController : Controller, IBlogsController
 	{
 		public const string ASPX = "Blogs";
-		private static readonly JsonSerializerOptions _serializationOpts = new JsonSerializerOptions
-		{
-			DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-		};
+		//private static readonly JsonSerializerOptions _serializationOpts = new JsonSerializerOptions
+		//{
+		//	DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+		//};
 
 		private readonly ILogger<BlogsController> _logger;
 		private readonly IConfiguration _configuration;
@@ -117,7 +118,7 @@ namespace DotnetPlayground.Controllers
 		{
 			var lst = await _repo.GetPostsFromBlogAsync(blogId);
 
-			return Json(lst, _serializationOpts);
+			return Json(lst);
 		}
 
 		[Route(@"{operation:regex(^(" +
@@ -192,7 +193,7 @@ namespace DotnetPlayground.Controllers
 					BlogId = post.BlogId,
 					Title = post.Title,
 					Content = post.Content
-				}, _serializationOpts);
+				});
 			}
 
 			return NotFound();
@@ -239,7 +240,7 @@ namespace DotnetPlayground.Controllers
 					BlogId = post.BlogId,
 					Title = post.Title,
 					Content = post.Content
-				}, _serializationOpts);
+				});
 			}
 
 			return NotFound();

@@ -8,6 +8,8 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using DotnetPlayground.Web.Helpers;
+using System.Collections.Generic;
 
 namespace DotnetPlayground.Controllers
 {
@@ -109,14 +111,14 @@ namespace DotnetPlayground.Controllers
 
 			text = text.Trim().ToLower();
 
-			var found = _repo.AutoComplete(text);
+			var found = await _repo.AutoComplete(text);
 
 			if (ajax)
-				return Json(await found);
+				return Json(found);
 			else
 			{
 				ViewBag.Info = await _repo.CurrentHashesInfo;
-				return View(nameof(Index), await found);
+				return View(nameof(Index), found);
 			}
 		}
 	}

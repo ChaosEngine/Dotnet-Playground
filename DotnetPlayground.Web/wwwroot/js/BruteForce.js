@@ -113,7 +113,7 @@ function BruteForceOnLoad() {
 							e.classList.add('done');
 						});
 
-						if (foundAction !== null && typeof (foundAction) !== undefined) {
+						if (foundAction !== null && typeof (foundAction) !== "undefined") {
 							foundAction(data.found.passphrase);
 						}
 					}

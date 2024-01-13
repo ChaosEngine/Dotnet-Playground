@@ -30,7 +30,9 @@
 				<th data-field="key" data-sortable="true" data-halign="center" data-align="center">Key</th>
 				<th data-field="hashMD5" data-sortable="true">HashMD5</th>
 				<th data-field="hashSHA256" data-sortable="true">HashSHA256</th>
-				<th data-field="Validate" data-sortable="false" data-halign="center" data-align="center">Validate</th>
+				<th data-field="Validate" data-sortable="false" data-halign="center" data-align="center">
+					<button class="btn btn-success fw-bold text-nowrap pe-3" title="ValidateAll" value="ValidateAll" onclick="clientValidateAll()">ALL ⇩</button>
+				</th>
 			</tr>
 		</thead>
 	</table>
@@ -42,7 +44,7 @@
 		<link rel="stylesheet" href="~/lib/bootstrap-table/bootstrap-table.min.css" />
 	</environment>
 	<environment exclude="Development">
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.21.4/bootstrap-table.min.css" integrity="sha512-vaPSEKPBIWEWK+pGIwdLnPzw7S2Tr6rYVT05v+KN89YVpEJavFiY1dPzT+e1ZeyizjEPBicVxJ5QixXZw0Nopw==" crossorigin="anonymous" referrerpolicy="no-referrer"
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.22.2/bootstrap-table.min.css" integrity="sha512-vFkhu2Ld9ZS0m+X4R3vefws1NlSdKAlhnqsGDL31gmyWHfw+OphvQFKI/ttDQj5dB5/5xIQBj3zJyDge4zf5tw==" crossorigin="anonymous" referrerpolicy="no-referrer"
 			asp-fallback-href="~/lib/bootstrap-table/bootstrap-table.min.css"
 			asp-fallback-test-class="bootstrap-table fullscreen" asp-fallback-test-property="position" asp-fallback-test-value="fixed" />
 	</environment>
@@ -54,7 +56,7 @@
 		<script src="~/js/VirtualScroll.js"></script>
 	</environment>
 	<environment exclude="Development">
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.21.4/bootstrap-table.min.js" integrity="sha512-rZAhvMayqW5e/N+xdp011tYAIdxgMMJtKxUXx7scO4iBPSUXAKdkrKIPRu6tLr0O9V6Bs9QujJF3MqmgSNfYPA==" crossorigin="anonymous" referrerpolicy="no-referrer"
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.22.2/bootstrap-table.min.js" integrity="sha512-G+yKiJBT1fGJEfud/Xymw9yLnZcxHEMAyjWoNQxTHTlnCYszXGtoLbMiFKQktjjag7+PyDfwWjOxlnH/yoBd7A==" crossorigin="anonymous" referrerpolicy="no-referrer"
 				asp-fallback-src="~/lib/bootstrap-table/bootstrap-table.min.js"
 				asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.bootstrapTable">
 		</script>

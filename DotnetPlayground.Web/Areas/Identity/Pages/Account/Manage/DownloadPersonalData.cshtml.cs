@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -10,10 +11,12 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using DotnetPlayground.Models;
 using DotnetPlayground.Web.Helpers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
 
 namespace IdentitySample.DefaultUI
 {
@@ -24,7 +27,7 @@ namespace IdentitySample.DefaultUI
 		public virtual Task<IActionResult> OnPostAsync() => throw new NotImplementedException();
 	}
 
-	public class DownloadPersonalDataModel<TUser> : DownloadPersonalDataModelBase where TUser : class
+	public class DownloadPersonalDataModel<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] TUser> : DownloadPersonalDataModelBase where TUser : class
 	{
 		private readonly UserManager<TUser> _userManager;
 		private readonly ILogger<DownloadPersonalDataModel<TUser>> _logger;
@@ -83,7 +86,7 @@ namespace IdentitySample.DefaultUI
 
 			personalData.Add($"Authenticator Key", await _userManager.GetAuthenticatorKeyAsync(user));
 
-			Response.Headers.Add("Content-Disposition", "attachment; filename=PersonalData.json");
+			Response.Headers.Append("Content-Disposition", "attachment; filename=PersonalData.json");
 			return new FileContentResult(Encoding.UTF8.GetBytes(
 				JsonSerializer.Serialize(personalData, DictStringString_Context.Default.DictionaryStringString)),
 				"text/json");

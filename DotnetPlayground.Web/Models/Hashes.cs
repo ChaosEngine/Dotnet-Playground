@@ -2,6 +2,7 @@
 using MongoDB.Bson.Serialization.Attributes;
 #endif
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -114,5 +115,12 @@ namespace DotnetPlayground.Models
 			Offset = offset;
 			ExtraParam = extraParam;
 		}
+	}
+
+	public sealed class HashesLoadResult
+	{
+		public int total { get; set; }
+
+		public IEnumerable<ThinHashes> rows { get; set; }
 	}
 }

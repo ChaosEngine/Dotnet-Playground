@@ -127,7 +127,7 @@ namespace DotnetPlayground.Services
 				int delete_count = 10;
 				foreach (var item in lst)
 				{
-					var date = item.Snippet.PublishedAt.GetValueOrDefault();
+					var date = item.Snippet.PublishedAtDateTimeOffset.GetValueOrDefault();
 					bool is_to_be_deleted = date < year_ago_date;
 					if (!is_to_be_deleted)
 					{

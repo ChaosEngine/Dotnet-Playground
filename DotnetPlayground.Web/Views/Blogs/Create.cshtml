@@ -15,7 +15,8 @@
     <div asp-validation-summary="All" class="text-danger"></div>
     <div class="col-12">
         <label asp-for="Url" class="form-label"></label>
-        <input asp-for="Url" class="form-control" />
+        <input asp-for="Url" class="form-control" type="url" placeholder="https://www.some-example.com/path"
+            required pattern="@Blog.UrlRegexString" title="Provide valid URL." />
         <span asp-validation-for="Url" class="text-danger"></span>
     </div>
     <div class="col-12">

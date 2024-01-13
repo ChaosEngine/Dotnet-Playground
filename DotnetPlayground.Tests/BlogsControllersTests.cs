@@ -424,7 +424,7 @@ namespace Controllers
 				BlogId = 1,
 				Title = "Ok, here's one...",
 				Content = @"At a company that I used to work for, the CEO's brother  was  the
-""system  operator"".It was his job to do backups, maintentance,
+""system  operator"".It was his job to do backups, maintenance,
 etc.Problem was, he didn't have a clue about Unix.  We were re-
 quired to go through him to do anything, though."
 			};
