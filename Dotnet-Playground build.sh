@@ -9,12 +9,12 @@ dockerfile_args=''
 
 case $1 in
     "latest"|"ubuntu"|"default"|"debian")
-				image="latest-8";
+				image="latest";
 				dockerfile_name="Dockerfile";
 				echo "image would be $image";
 			;;
     "" | "alpine")
-				image="alpine-8";
+				image="alpine";
 				dockerfile_name="Dockerfile.alpine";
 				echo "image would be $image";
 			;;
