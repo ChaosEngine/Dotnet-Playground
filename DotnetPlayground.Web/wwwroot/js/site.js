@@ -58,7 +58,7 @@ function handleAboutPageBranchHash() {
  * @param {string} title of the dialog
  * @param {function} onCloseCallback callback executed on close
  */
-function myAlert(msg, title = 'Alert', onCloseCallback = undefined) {
+function myAlert(msg = 'Content', title = 'Modal title', onCloseCallback = undefined) {
 	const myModalEl = document.getElementById('divModal');
 	const myModal = bootstrap.Modal.getOrCreateInstance(myModalEl, { keyboard: true, backdrop: true });
 
@@ -205,13 +205,8 @@ $(function () {
 		ajaxLog(logLevel.Error, msg, url, line, col, error);
 		org_error.call(this, arguments);
 	};
-	//overriding window.alert with proxy pattern
-	(function () {
-		window.alert = function (arg0) {
-			// execute my handler
-			myAlert(arg0);
-		};
-	})(window.alert);
+	//overriding window.alert with own implementation
+	window.alert = myAlert;
 
 	registerServiceWorker(g_AppRootPath, g_IsDevelopment);
 

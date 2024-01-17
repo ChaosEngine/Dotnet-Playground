@@ -141,6 +141,7 @@ window.addEventListener('load', function () {
 		const msg = (id === undefined || id === "") ? 'No row selected' : 'Key selected: ' + id;
 
 		const modal = $(this);
+		modal.find('#divModalLabel').text('Selection');
 		modal.find('.modal-body').text(msg);
 	});
 
