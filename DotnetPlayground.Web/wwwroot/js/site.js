@@ -4,8 +4,6 @@
 "use strict";
 
 var g_AppRootPath = location.pathname.match(/\/([^/]+)\//)[0],
-	g_LogPath = g_AppRootPath + "Home/ClientsideLog",
-	g_IsDevelopment = window.location.host.match(/:\d+/) !== null,
 	g_gitBranch = "GIT_BRANCH", g_gitHash = "GIT_HASH";
 
 function clientValidate(button) {
@@ -30,9 +28,7 @@ function clientValidate(button) {
 }
 
 function clientValidateAll() {
-	$("button[value='Validate']").each( (_index, item) => {
-		clientValidate(item);
-	});
+	$("button[value='Validate']").each( (_index, item) => clientValidate(item));
 }
 
 function handleAboutPageBranchHash() {
@@ -84,7 +80,9 @@ function myAlert(msg = 'Content', title = 'Modal title', onCloseCallback = undef
 $(function () {
 
 	function ajaxLog(level, message, url, line, col, error) {
-		$.post(g_LogPath, {
+		const logPath = g_AppRootPath + "Home/ClientsideLog";
+
+		$.post(logPath , {
 			level: level, message: message, url: url, line: line, col: col, error: error
 		});
 	}
@@ -131,6 +129,30 @@ $(function () {
 					console.log('Service Worker Ready');
 				});
 		}
+	}
+
+	function registerAlertModalContent() {
+		const divModal = document.createElement('div');
+		divModal.id = "divModal";
+		divModal.classList.add("modal");
+		divModal.classList.add("fade");
+		divModal.setAttribute("tabindex", "-1");
+		divModal.setAttribute("aria-labelledby", "divModalLabel");
+		divModal.setAttribute("aria-hidden", "true");
+		divModal.innerHTML =
+			'<div class="modal-dialog">' +
+				'<div class="modal-content">' +
+					'<div class="modal-header">' +
+						'<h5 class="modal-title text-break" id="divModalLabel"></h5>' +
+						'<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
+					'</div>' +
+					'<div class="modal-body text-break"></div>' +
+					'<div class="modal-footer">' +
+						'<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>' +
+					'</div>' +
+				'</div>' +
+			'</div>';
+		document.body.appendChild(divModal);
 	}
 
 	function registerThemeChangeHandler() {
@@ -205,10 +227,9 @@ $(function () {
 		ajaxLog(logLevel.Error, msg, url, line, col, error);
 		org_error.call(this, arguments);
 	};
-	//overriding window.alert with own implementation
-	window.alert = myAlert;
 
-	registerServiceWorker(g_AppRootPath, g_IsDevelopment);
+	const isDevelopment = window.location.host.match(/:\d+/) !== null;
+	registerServiceWorker(g_AppRootPath, isDevelopment);
 
 	handleLogoutForm();
 
@@ -219,6 +240,9 @@ $(function () {
 
 	registerThemeChangeHandler();
 
+	registerAlertModalContent();
+	//overriding window.alert with own implementation
+	window.alert = myAlert;
 });
 
 window.onerror = function (msg, url, line, col, error) {
