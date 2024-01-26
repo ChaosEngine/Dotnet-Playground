@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+/*global myAlert*/
 
 window.addEventListener('load', function () {
 	////////////methods start/////////////
@@ -135,14 +136,12 @@ window.addEventListener('load', function () {
 	const table = jqTable.bootstrapTable();
 	let lastScroll = false;
 
-	$('#divModal').on('show.bs.modal', function () {
+	$('#btninfo').on('click', function () {
 		const tr = table.find('tr.highlight');
 		const id = getIdFromRowElement(tr);
 		const msg = (id === undefined || id === "") ? 'No row selected' : 'Key selected: ' + id;
-
-		const modal = $(this);
-		modal.find('#divModalLabel').text('Selection');
-		modal.find('.modal-body').text(msg);
+		
+		myAlert(msg, 'Selection');
 	});
 
 	//click-bind button event, but first in line and indicate some variable
