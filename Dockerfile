@@ -22,12 +22,12 @@ COPY ./IdentityManager2/src/IdentityManager2/IdentityManager2.csproj ./IdentityM
 COPY ./IdentityManager2/src/IdentityManager2/Assets/ ./IdentityManager2/src/IdentityManager2/Assets/
 COPY ./DotnetPlayground.Web/DotnetPlayground.Web.csproj ./DotnetPlayground.Web/DotnetPlayground.Web.csproj
 COPY ./*.sln ./NuGet.config ./
-RUN dotnet restore -r linux-x64
+RUN dotnet restore -r linux-x64 /p:Configuration=Release
 
 COPY . .
 RUN sed -i -e "s/GIT_HASH/$SOURCE_COMMIT/g" -e "s/GIT_BRANCH/$SOURCE_BRANCH/g" DotnetPlayground.Web/wwwroot/js/site.js
-RUN dotnet test --no-restore -v m
-RUN dotnet publish --no-restore -c $BUILD_CONFIG --self-contained -r linux-x64 \
+RUN dotnet test -v m
+RUN dotnet publish -c $BUILD_CONFIG --self-contained -r linux-x64 \
     #-p:PublishTrimmed=true \
     DotnetPlayground.Web
 
