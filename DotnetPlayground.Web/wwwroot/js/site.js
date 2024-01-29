@@ -115,19 +115,17 @@ $(function () {
 			//&& (navigator.serviceWorker.controller === null || navigator.serviceWorker.controller.state !== "activated")
 		) {
 			const version = encodeURIComponent(g_gitBranch + '_' + g_gitHash);
-			const swUrl = rootPath + 'sw' + (isDev === true ? '' : '.min') + '.js?path=' + encodeURIComponent(rootPath) +
-				'&isDev=' + encodeURIComponent(isDev) + '&version=' + version;
+			const swUrl = rootPath + 'sw' + (isDev === true ? '' : '.min') + '.js?' +
+				// '?path=' + encodeURIComponent(rootPath) +
+				// '&isDev=' + encodeURIComponent(isDev) +
+				'version=' + version;
 
 			navigator.serviceWorker
 				.register(swUrl, { scope: rootPath })
-				.then(function () {
-					console.log("Service Worker Registered");
-				});
+				.then(() => console.log("Service Worker Registered"));
 
 			navigator.serviceWorker
-				.ready.then(function () {
-					console.log('Service Worker Ready');
-				});
+				.ready.then(() => console.log('Service Worker Ready'));
 		}
 	}
 
