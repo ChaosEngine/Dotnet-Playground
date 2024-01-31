@@ -104,7 +104,7 @@ namespace DotnetPlayground
                         .AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true)
                         .AddEnvironmentVariables();
                     if (hostingContext.HostingEnvironment.IsDevelopment())
-                        config.AddUserSecrets<Startup>(optional: true);
+                        config.AddUserSecrets<Startup>(optional: true, reloadOnChange: true);
                 })
                 .ConfigureWebHost(webBuilder =>
                 {

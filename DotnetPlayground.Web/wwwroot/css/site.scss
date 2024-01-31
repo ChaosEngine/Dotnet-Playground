@@ -100,11 +100,17 @@ main.container > hr {
 }*/
 
 .bg-my-theme {
-	background-color: $themeColor; /*$themeColor is an injectted variable on gulp build pipeline by gulp-sass, gulp-header */
+	background-color: $themeColor; /*$themeColor is an injected variable on gulp build pipeline by gulp-sass, gulp-header */
 }
 
 .navbar-dark .navbar-nav .nav-link {
 	color: #fff;
+}
+
+.nav-link:focus-visible {
+	// box-shadow: 0 0 0 0.125rem #fff;
+	outline-offset: 1px;
+	outline: 0.8px auto rgb(16, 16, 16);
 }
 
 #offlineIndicator {

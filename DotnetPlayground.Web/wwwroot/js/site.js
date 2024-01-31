@@ -4,8 +4,6 @@
 "use strict";
 
 var g_AppRootPath = location.pathname.match(/\/([^/]+)\//)[0],
-	g_LogPath = g_AppRootPath + "Home/ClientsideLog",
-	g_IsDevelopment = window.location.host.match(/:\d+/) !== null,
 	g_gitBranch = "GIT_BRANCH", g_gitHash = "GIT_HASH";
 
 function clientValidate(button) {
@@ -30,9 +28,7 @@ function clientValidate(button) {
 }
 
 function clientValidateAll() {
-	$("button[value='Validate']").each( (_index, item) => {
-		clientValidate(item);
-	});
+	$("button[value='Validate']").each( (_index, item) => clientValidate(item));
 }
 
 function handleAboutPageBranchHash() {
@@ -58,7 +54,7 @@ function handleAboutPageBranchHash() {
  * @param {string} title of the dialog
  * @param {function} onCloseCallback callback executed on close
  */
-function myAlert(msg, title = 'Alert', onCloseCallback = undefined) {
+function myAlert(msg = 'Content', title = 'Modal title', onCloseCallback = undefined) {
 	const myModalEl = document.getElementById('divModal');
 	const myModal = bootstrap.Modal.getOrCreateInstance(myModalEl, { keyboard: true, backdrop: true });
 
@@ -84,7 +80,9 @@ function myAlert(msg, title = 'Alert', onCloseCallback = undefined) {
 $(function () {
 
 	function ajaxLog(level, message, url, line, col, error) {
-		$.post(g_LogPath, {
+		const logPath = g_AppRootPath + "Home/ClientsideLog";
+
+		$.post(logPath , {
 			level: level, message: message, url: url, line: line, col: col, error: error
 		});
 	}
@@ -117,20 +115,42 @@ $(function () {
 			//&& (navigator.serviceWorker.controller === null || navigator.serviceWorker.controller.state !== "activated")
 		) {
 			const version = encodeURIComponent(g_gitBranch + '_' + g_gitHash);
-			const swUrl = rootPath + 'sw' + (isDev === true ? '' : '.min') + '.js?path=' + encodeURIComponent(rootPath) +
-				'&isDev=' + encodeURIComponent(isDev) + '&version=' + version;
+			const swUrl = rootPath + 'sw' + (isDev === true ? '' : '.min') + '.js?' +
+				// '?path=' + encodeURIComponent(rootPath) +
+				// '&isDev=' + encodeURIComponent(isDev) +
+				'version=' + version;
 
 			navigator.serviceWorker
 				.register(swUrl, { scope: rootPath })
-				.then(function () {
-					console.log("Service Worker Registered");
-				});
+				.then(() => console.log("Service Worker Registered"));
 
 			navigator.serviceWorker
-				.ready.then(function () {
-					console.log('Service Worker Ready');
-				});
+				.ready.then(() => console.log('Service Worker Ready'));
 		}
+	}
+
+	function registerAlertModalContent(msg = 'Content', title = 'Modal title') {
+		const divModal = document.createElement('div');
+		divModal.id = "divModal";
+		divModal.classList.add("modal");
+		divModal.classList.add("fade");
+		divModal.setAttribute("tabindex", "-1");
+		divModal.setAttribute("aria-labelledby", "divModalLabel");
+		divModal.setAttribute("aria-hidden", "true");
+		divModal.innerHTML =
+			'<div class="modal-dialog">' +
+				'<div class="modal-content">' +
+					'<div class="modal-header">' +
+						`<h5 class="modal-title text-break" id="divModalLabel">${title}</h5>` +
+						'<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
+					'</div>' +
+					`<div class="modal-body text-break">${msg}</div>` +
+					'<div class="modal-footer">' +
+						'<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>' +
+					'</div>' +
+				'</div>' +
+			'</div>';
+		document.body.appendChild(divModal);
 	}
 
 	function registerThemeChangeHandler() {
@@ -205,15 +225,9 @@ $(function () {
 		ajaxLog(logLevel.Error, msg, url, line, col, error);
 		org_error.call(this, arguments);
 	};
-	//overriding window.alert with proxy pattern
-	(function () {
-		window.alert = function (arg0) {
-			// execute my handler
-			myAlert(arg0);
-		};
-	})(window.alert);
 
-	registerServiceWorker(g_AppRootPath, g_IsDevelopment);
+	const isDevelopment = window.location.host.match(/:\d+/) !== null;
+	registerServiceWorker(g_AppRootPath, isDevelopment);
 
 	handleLogoutForm();
 
@@ -224,6 +238,9 @@ $(function () {
 
 	registerThemeChangeHandler();
 
+	registerAlertModalContent();
+	//overriding window.alert with own implementation
+	window.alert = myAlert;
 });
 
 window.onerror = function (msg, url, line, col, error) {

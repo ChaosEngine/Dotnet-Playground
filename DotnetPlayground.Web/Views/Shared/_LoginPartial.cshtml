@@ -2,6 +2,8 @@
 @using DotnetPlayground.Helpers
 @using Microsoft.AspNetCore.Identity
 
+<cache vary-by-user="true">
+
 @inject UserManager<ApplicationUser> UserManager
 
 <ul class="navbar-nav ms-auto">
@@ -28,3 +30,4 @@
         }
     </li>
 </ul>
+</cache>
