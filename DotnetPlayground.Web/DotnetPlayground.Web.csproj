@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
-    <Version>1.0.26-dotnet8</Version>
+    <Version>1.0.27-dotnet8</Version>
 		<TargetFramework>net8.0</TargetFramework>
 		<LangVersion>latest</LangVersion>
 		<AssemblyName>DotnetPlayground.Web</AssemblyName>
