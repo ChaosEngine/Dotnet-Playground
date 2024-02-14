@@ -44,7 +44,7 @@
 		<PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="8.0.1" Condition="$(DefineConstants.Contains('INCLUDE_SQLSERVER'))" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.1" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" Condition="$(DefineConstants.Contains('INCLUDE_POSTGRES'))" />
-		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.0-silver.1.ci.20231204170005" Condition="$(DefineConstants.Contains('INCLUDE_MYSQL'))" />
+		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.0" Condition="$(DefineConstants.Contains('INCLUDE_MYSQL'))" />
 		<PackageReference Include="Oracle.EntityFrameworkCore" Version="8.21.121" Condition="$(DefineConstants.Contains('INCLUDE_ORACLE'))" />
 		<PackageReference Include="IdentityManager2.AspNetIdentity" Version="1.0.0" />
 		<PackageReference Include="Lib.AspNetCore.ServerTiming" Version="6.0.0" />
