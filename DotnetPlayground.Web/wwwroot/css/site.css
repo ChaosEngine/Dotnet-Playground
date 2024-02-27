@@ -94,11 +94,10 @@ footer.container > noscript {
 }
 
 /***************VirtualScroll start***************/
-.bootstrap-table button.btn .bi-arrow-clockwise:after {
+.bootstrap-table button.btn .fa-sync:after {
   content: "↻";
   display: block;
   font-style: normal;
-  font-weight: bold;
 }
 .bootstrap-table table tr.highlight {
   border-top: groove;
