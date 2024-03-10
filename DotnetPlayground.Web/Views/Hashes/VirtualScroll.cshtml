@@ -53,14 +53,14 @@
 {
 	<environment include="Development">
 		<script src="~/lib/bootstrap-table/bootstrap-table.min.js"></script>
-		<script src="~/js/VirtualScroll.js"></script>
+		<script src="~/js/VirtualScroll.js" asp-append-version="true"></script>
 	</environment>
 	<environment exclude="Development">
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.22.3/bootstrap-table.min.js" integrity="sha512-f2OMpo2JFybKK+N7+xdO8tE0go+0qXKM+NEQVMpZ0M6vl/BT86BM9uZTHcGin7je3g7xUHJWnq6x0ja2oa2RWQ==" crossorigin="anonymous" referrerpolicy="no-referrer"
 				asp-fallback-src="~/lib/bootstrap-table/bootstrap-table.min.js"
 				asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.bootstrapTable">
 		</script>
-		<script src="~/js/VirtualScroll.min.js"></script>
+		<script src="~/js/VirtualScroll.min.js" asp-append-version="true"></script>
 	</environment>
 
 	@await Html.PartialAsync("_CryptoJSScriptsPartial")

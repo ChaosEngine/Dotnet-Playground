@@ -74,10 +74,10 @@
 	@await Html.PartialAsync("_CryptoJSScriptsPartial")
 
 	<environment include="Development">
-		<script type="text/javascript" src="~/js/Hashes.js"></script>
+		<script type="text/javascript" src="~/js/Hashes.js" asp-append-version="true"></script>
 	</environment>
 	<environment exclude="Development">
-		<script type="text/javascript" src="~/js/Hashes.min.js"></script>
+		<script type="text/javascript" src="~/js/Hashes.min.js" asp-append-version="true"></script>
 	</environment>
 	<script type="text/javascript">
 		window.addEventListener('load', HashesOnLoad);
