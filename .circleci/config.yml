@@ -19,18 +19,19 @@ jobs:
             curl -O https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb
             dpkg -i packages-microsoft-prod.deb && rm packages-microsoft-prod.deb
             apt update && apt install -y dotnet-sdk-8.0
+            corepack enable
       - run:
           name: Show versions
           command: |
             dotnet --info
             node --version
-            npm --version
+            pnpm --version
       - run:
           name: Install project dependencies
           command: |
             dotnet restore
             cd DotnetPlayground.Web
-            npm i
+            pnpm i
             npx playwright install
             cd ..
       - run:
@@ -197,18 +198,19 @@ jobs:
             curl -O https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb
             dpkg -i packages-microsoft-prod.deb && rm packages-microsoft-prod.deb
             apt update && apt install -y dotnet-sdk-8.0
+            corepack enable
       - run:
           name: Show versions
           command: |
             dotnet --info
             node --version
-            npm --version
+            pnpm --version
       - run:
           name: Install project dependencies
           command: |
             dotnet restore
             cd DotnetPlayground.Web
-            npm i
+            pnpm i
             npx playwright install chromium
             cd ..
       - run:
@@ -240,6 +242,7 @@ jobs:
             chmod 500 nsolid_setup_deb.sh
             ./nsolid_setup_deb.sh 20
             apt-get install -y nodejs
+            corepack enable
       - run:
           name: "Build Application according to some given configuration"
           command: dotnet publish -c Release --self-contained -r linux-x64 DotnetPlayground.Web
