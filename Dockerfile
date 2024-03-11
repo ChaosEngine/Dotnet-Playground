@@ -4,7 +4,7 @@ RUN --mount=type=cache,target=/root/.nuget --mount=type=cache,target=/root/.loca
 RUN curl -SLO https://deb.nodesource.com/nsolid_setup_deb.sh && \
     chmod 500 nsolid_setup_deb.sh && \
     ./nsolid_setup_deb.sh 20 && \
-    apt-get install -y nodejs
+    apt-get install -y nodejs && npm install -g pnpm
 WORKDIR /build
 
 ENV DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/net8.0/Blogging.db"
