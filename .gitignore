@@ -216,3 +216,4 @@ DotnetPlayground.Web/wwwroot/**/*.min.js
 DotnetPlayground.Web/wwwroot/**/*.map
 docker-*.env
 DotnetPlayground.Web/package-lock.json
+DotnetPlayground.Web/pnpm-lock.yaml
