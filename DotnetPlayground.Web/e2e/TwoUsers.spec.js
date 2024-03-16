@@ -166,7 +166,7 @@ test('P1 create game, P2 joins, P2 wins', async () => {
 	await joinCreatedGame(p2, p1.userName);
 
 	const randX = getRandomInt(0, 8), randY = getRandomInt(0, 19);
-	await delay(4 * 1000);//wait for signalR to settle in (?)
+	await delay(3 * 1000);//wait for signalR to settle in (?)
 
 	//put 5x p1 points and 5x p2 point interchangeably and verify existence
 	await putPointForPlayer(p1, randX + 11, randY + 3, p2);
@@ -208,6 +208,9 @@ test('P1 create game, P2 joins, P2 wins', async () => {
 	await putPointForPlayer(p2, randX + 6, randY + 5);
 	await putPointForPlayer(p2, randX + 5, randY + 4);
 	await putPointForPlayer(p2, randX + 6, randY + 3);
+	
+	await delay(4 * 1000);//wait for signalR to settle in (?)
+	
 	await verifyWin(p1, 'And the winner is... blue.');
 	await verifyWin(p2, 'And the winner is... blue.');
 
