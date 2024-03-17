@@ -208,9 +208,9 @@ test('P1 create game, P2 joins, P2 wins', async () => {
 	await putPointForPlayer(p2, randX + 6, randY + 5);
 	await putPointForPlayer(p2, randX + 5, randY + 4);
 	await putPointForPlayer(p2, randX + 6, randY + 3);
-	
+
 	await delay(4 * 1000);//wait for signalR to settle in (?)
-	
+
 	await verifyWin(p1, 'And the winner is... blue.');
 	await verifyWin(p2, 'And the winner is... blue.');
 
