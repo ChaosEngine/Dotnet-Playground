@@ -1,0 +1,59 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <!-- <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest> -->
+    <LangVersion>latest</LangVersion>
+    <Version>1.0.1.23</Version>
+    <Configurations>Debug;Release;Oracle</Configurations>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>partial</TrimMode>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;INCLUDE_ORACLE;INCLUDE_SQLSERVER;INCLUDE_POSTGRES;INCLUDE_MYSQL</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Oracle|AnyCPU'">
+    <DefineConstants>INCLUDE_ORACLE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>INCLUDE_MYSQL</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.4" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="8.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.4" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2" Condition="$(DefineConstants.Contains('INCLUDE_POSTGRES'))" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" Condition="$(DefineConstants.Contains('INCLUDE_MYSQL'))" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.4" Condition="$(DefineConstants.Contains('INCLUDE_SQLSERVER'))" />
+    <PackageReference Include="Oracle.EntityFrameworkCore" Version="8.21.140" Condition="$(DefineConstants.Contains('INCLUDE_ORACLE'))" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="8.0.4" />
+    <PackageReference Include="MessagePack" Version="2.5.140" />
+  </ItemGroup>
+<!--
+  <ItemGroup Condition="'$(Configuration)'=='Debug'">
+    <EmbeddedResource Include="wwwroot\css\*.css" />
+    <EmbeddedResource Include="wwwroot\img\homescreen*" />
+    <EmbeddedResource Include="wwwroot\js\*.js" />
+    <EmbeddedResource Include="wwwroot\js\*.map" />
+    <EmbeddedResource Include="wwwroot\css\*.map" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)'!='Debug'">
+    <EmbeddedResource Include="wwwroot\css\*.css" />
+    <EmbeddedResource Include="wwwroot\img\homescreen*" />
+    <EmbeddedResource Include="wwwroot\js\*.js" />
+    <EmbeddedResource Include="wwwroot\js\*.map" />
+    <EmbeddedResource Include="wwwroot\css\*.map" />
+  </ItemGroup>
+-->
+  <ItemGroup>
+    <Content Include="IBwwwroot\css\*.css*" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="IBwwwroot\img\homescreen.*" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="IBwwwroot\js\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>
