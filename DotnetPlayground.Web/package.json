@@ -91,10 +91,5 @@
 	"scripts": {
 		"postinstall": "npx gulp postinstall",
 		"gulp": "npx gulp"
-	},
-	"pnpm": {
-		"overrides": {
-			"glob-stream": "7.0.0"
-		}
 	}
 }
