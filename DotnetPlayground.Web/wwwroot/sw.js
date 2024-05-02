@@ -89,11 +89,11 @@ self.addEventListener('install', function (/* event */) {
 		//cdn resources
 		RESOURCES = RESOURCES.concat([
 			'https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.4.0/css/blueimp-gallery.min.css',
-			'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.11.0/video-js.min.css',
+			'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.12.0/video-js.min.css',
 			'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.22.5/bootstrap-table.min.css',
 			'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
 			'https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.4.0/js/blueimp-gallery.min.js',
-			'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.11.0/alt/video.core.novtt.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.12.0/alt/video.core.novtt.min.js',
 			'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.22.5/bootstrap-table.min.js',
 			//'https://cdn.jsdelivr.net/npm/chance@1.1.11/dist/chance.min.js',
 			'https://cdn.jsdelivr.net/npm/node-forge@1.3.1/dist/forge.min.js',
