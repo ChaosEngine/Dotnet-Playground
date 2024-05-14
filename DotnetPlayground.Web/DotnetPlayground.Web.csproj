@@ -37,13 +37,13 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.4" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.4" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.4" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.4" Condition="$(DefineConstants.Contains('INCLUDE_SQLSERVER'))" />
-		<PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="8.0.4" Condition="$(DefineConstants.Contains('INCLUDE_SQLSERVER'))" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.4" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2" Condition="$(DefineConstants.Contains('INCLUDE_POSTGRES'))" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.5" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.5" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.5" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.5" Condition="$(DefineConstants.Contains('INCLUDE_SQLSERVER'))" />
+		<PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="8.0.5" Condition="$(DefineConstants.Contains('INCLUDE_SQLSERVER'))" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.5" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" Condition="$(DefineConstants.Contains('INCLUDE_POSTGRES'))" />
 		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" Condition="$(DefineConstants.Contains('INCLUDE_MYSQL'))" />
 		<PackageReference Include="Oracle.EntityFrameworkCore" Version="8.23.40" Condition="$(DefineConstants.Contains('INCLUDE_ORACLE'))" />
 		<PackageReference Include="IdentityManager2.AspNetIdentity" Version="1.0.0" />
@@ -51,10 +51,10 @@
 		<!--<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.16.2" Condition="$(DefineConstants.Contains('INCLUDE_COSMOSDB'))" />-->
 		<PackageReference Include="MongoDB.Driver" Version="2.25.0" Condition="$(DefineConstants.Contains('INCLUDE_MONGODB'))" />
 		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.68.0.3414" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="8.0.4" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.4" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="8.0.4" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="8.0.4" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="8.0.5" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.5" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="8.0.5" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="8.0.5" />
 		<PackageReference Include="MessagePack" Version="2.5.140" />
 	</ItemGroup>
 
@@ -77,9 +77,9 @@
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(Configuration)'=='Debug'">
-		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.4" />
-		<PackageReference Include="Microsoft.AspNetCore.Razor.Language" Version="6.0.29" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.4">
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.5" />
+		<PackageReference Include="Microsoft.AspNetCore.Razor.Language" Version="6.0.30" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.5">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
