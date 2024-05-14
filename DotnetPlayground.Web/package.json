@@ -65,7 +65,7 @@
 		"gulp-sourcemaps": "3.0.0",
 		"gulp-terser": "2.1.0",
 		"javascript-astar": "0.4.1",
-		"sass": "1.77.0",
+		"sass": "1.77.1",
 		"terser-webpack-plugin": "5.3.10",
 		"tiny-glob": "0.2.9",
 		"webpack": "5.91.0",
@@ -75,7 +75,7 @@
 	"dependencies": {
 		"@microsoft/signalr": "8.0.0",
 		"@microsoft/signalr-protocol-msgpack": "8.0.0",
-		"ace-builds": "1.33.1",
+		"ace-builds": "1.33.2",
 		"blueimp-gallery": "3.4.0",
 		"bootstrap": "5.3.3",
 		"bootstrap-table": "1.22.5",
