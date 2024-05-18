@@ -55,7 +55,7 @@
 		"@playwright/test": "1.44.0",
 		"concaveman": "1.2.1",
 		"density-clustering": "1.3.0",
-		"eslint": "9.2.0",
+		"eslint": "9.3.0",
 		"fs-extra": "11.2.0",
 		"gulp": "5.0.0",
 		"gulp-concat": "2.6.1",
