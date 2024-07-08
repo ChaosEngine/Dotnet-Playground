@@ -87,11 +87,8 @@ namespace DotnetPlayground
         [RequiresUnreferencedCode("Contains trimming unsafe calls")]
         static async Task Main(string[] args)
         {
-            //// Adding following lines in order to mitigate:
-            //// https://github.com/aspnet/Announcements/issues/405
-            //// https://github.com/neuecc/MessagePack-CSharp/security/advisories/GHSA-7q36-4xx7-xcxf
-            //// Enable additional security in MessagePack to handle untrusted data.
-            //MessagePackSecurity.Active = MessagePackSecurity.UntrustedData;
+            //Populate inkball resource cache early
+            var dummy = Constants.WwwIncludeInkballJS;
 
 
             //await CreateHostBuilder(args).Build().RunAsync();

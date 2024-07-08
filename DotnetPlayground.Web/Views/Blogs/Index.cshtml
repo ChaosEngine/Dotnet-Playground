@@ -27,10 +27,10 @@
 @section scripts
 {
     <environment include="Development">
-        <script type="text/javascript" src="~/js/Blogs.js"></script>
+        <script type="text/javascript" src="~/js/Blogs.js" asp-append-version="true"></script>
     </environment>
     <environment exclude="Development">
-        <script type="text/javascript" src="~/js/Blogs.min.js"></script>
+        <script type="text/javascript" src="~/js/Blogs.min.js" asp-append-version="true"></script>
     </environment>
     <script type="text/javascript">
         window.addEventListener('DOMContentLoaded', function () {

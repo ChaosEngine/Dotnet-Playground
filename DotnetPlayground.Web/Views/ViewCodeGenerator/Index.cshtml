@@ -13,17 +13,17 @@
 @section Scripts
 {
     <environment include="Development">
-        <script src="~/lib/ace-builds/ace.js" type="text/javascript" charset="utf-8"></script>
-        <script src="~/lib/ace-builds/mode-csharp.js" type="text/javascript" charset="utf-8"></script>
+        <script src="~/lib/ace-builds/ace.js" type="text/javascript"></script>
+        <script src="~/lib/ace-builds/mode-csharp.js" type="text/javascript"></script>
     </environment>
     <environment exclude="Development">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.5/ace.min.js" integrity="sha512-4jIkBpqqFqGrEbYKdA9em7OdCGyPlaximONDoUQ18wjw84zv7sUAqWLVb7pRjP5YyrWk0MDGFfom1zPUd6K+ng==" crossorigin="anonymous" referrerpolicy="no-referrer"
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.35.2/ace.min.js" integrity="sha512-yAnvECNg9QuDHCVysxX2c3yFOs9HtBfmnHpVLxGtg7DWYN9dYzEMjZm1GnBF4t60I6ny1xW1Al8owfna4QdGtQ==" crossorigin="anonymous" referrerpolicy="no-referrer"
                 asp-fallback-src="~/lib/ace-builds/ace.js"
                 asp-fallback-test="window.ace"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.5/mode-csharp.min.js" integrity="sha512-bpUtjuiLuiWrGs59SuLfrRn83dkGQUS9zExE9Ejp2qphmI0Qg5C+iaP8Isz9uDGhNkqvDL91GSrTLJZjAX82Pw==" crossorigin="anonymous" referrerpolicy="no-referrer"
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.35.2/mode-csharp.min.js" integrity="sha512-ya/ADmkcbeLr+IaTFiwHdgvcdV44bf0j2sbFq2jZOs81rc+mFpUlUywkE7FHC30mwplVjx2fe5jlauke4LSunw==" crossorigin="anonymous" referrerpolicy="no-referrer"
                 asp-fallback-src="~/lib/ace-builds/mode-csharp.js"
                 asp-fallback-test="(window.ace && window.ace.require('ace/mode/csharp') !== undefined)"></script>
-        <script async src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.5/theme-chaos.min.js" integrity="sha512-UKt6dcPMJtmddFb7cmXrwCGhGpvMC7Q+x4C2bQix7E30llOPEVZ638nQ0jcbfHQ9sDgVUwdXUbItJutpkgooSg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.35.2/theme-chaos.min.js" integrity="sha512-UKt6dcPMJtmddFb7cmXrwCGhGpvMC7Q+x4C2bQix7E30llOPEVZ638nQ0jcbfHQ9sDgVUwdXUbItJutpkgooSg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     </environment>
     <script type="text/javascript">
         function AceSetCommandEnabled(ed, name, enabled) {

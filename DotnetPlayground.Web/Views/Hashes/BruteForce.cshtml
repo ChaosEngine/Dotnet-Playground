@@ -40,17 +40,15 @@
 	@await Html.PartialAsync("_CryptoJSScriptsPartial")
 
 	<environment include="Development">
-		<script src="~/js/workers/shared.js"></script>
-		<script src="~/js/BruteForce.js"></script>
+		<script src="~/js/workers/shared.js" asp-append-version="true"></script>
+		<script src="~/js/BruteForce.js" asp-append-version="true"></script>
 	</environment>
 	<environment exclude="Development">
-		<script src="~/js/workers/shared.min.js"></script>
-		<script src="~/js/BruteForce.min.js"></script>
+		<script src="~/js/workers/shared.min.js" asp-append-version="true"></script>
+		<script src="~/js/BruteForce.min.js" asp-append-version="true"></script>
 	</environment>
 
 	<script type="text/javascript">
-        window.addEventListener('load', function () {
-			BruteForceOnLoad();
-		});
+        window.addEventListener('load', BruteForceOnLoad);
 	</script>
 }

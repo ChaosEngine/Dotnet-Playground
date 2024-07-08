@@ -126,7 +126,10 @@ namespace DotnetPlayground
 							}
 						}
 
-						dbContextOpts.UseOracle(conn_str);
+						dbContextOpts.UseOracle(conn_str, builder =>
+							//enable compatibility with old bool and json handling: https://docs.oracle.com/en/database/oracle/oracle-database/21/odpnt/EFCoreAPI.html#GUID-41786CF0-11E3-4AD2-8ED1-3D31D5FE2082
+							builder .UseOracleSQLCompatibility(OracleSQLCompatibility.DatabaseVersion19)
+						);
 					}
 					break;
 #endif

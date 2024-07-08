@@ -44,7 +44,7 @@
 		<link rel="stylesheet" href="~/lib/bootstrap-table/bootstrap-table.min.css" />
 	</environment>
 	<environment exclude="Development">
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.22.2/bootstrap-table.min.css" integrity="sha512-vFkhu2Ld9ZS0m+X4R3vefws1NlSdKAlhnqsGDL31gmyWHfw+OphvQFKI/ttDQj5dB5/5xIQBj3zJyDge4zf5tw==" crossorigin="anonymous" referrerpolicy="no-referrer"
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.23.0/bootstrap-table.min.css" integrity="sha512-pipgbnEeqbV1palK8tQa01GGrlxB6p/x2R3zhijtN3sVZ8FQj+dUgTlmFVcpdXYmnjoa5Y8aANuiP7x/mb4DKA==" crossorigin="anonymous" referrerpolicy="no-referrer"
 			asp-fallback-href="~/lib/bootstrap-table/bootstrap-table.min.css"
 			asp-fallback-test-class="bootstrap-table fullscreen" asp-fallback-test-property="position" asp-fallback-test-value="fixed" />
 	</environment>
@@ -53,14 +53,14 @@
 {
 	<environment include="Development">
 		<script src="~/lib/bootstrap-table/bootstrap-table.min.js"></script>
-		<script src="~/js/VirtualScroll.js"></script>
+		<script src="~/js/VirtualScroll.js" asp-append-version="true"></script>
 	</environment>
 	<environment exclude="Development">
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.22.2/bootstrap-table.min.js" integrity="sha512-G+yKiJBT1fGJEfud/Xymw9yLnZcxHEMAyjWoNQxTHTlnCYszXGtoLbMiFKQktjjag7+PyDfwWjOxlnH/yoBd7A==" crossorigin="anonymous" referrerpolicy="no-referrer"
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.23.0/bootstrap-table.min.js" integrity="sha512-6h9xN7Sj/Mk5HLFz2wNJFfvOYtzSNqzAR0t/cwYFbAL2/pmgQF8XWIlfjJNolpRolqjG4+0Yu/mFXUqmDEF96Q==" crossorigin="anonymous" referrerpolicy="no-referrer"
 				asp-fallback-src="~/lib/bootstrap-table/bootstrap-table.min.js"
 				asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.bootstrapTable">
 		</script>
-		<script src="~/js/VirtualScroll.min.js"></script>
+		<script src="~/js/VirtualScroll.min.js" asp-append-version="true"></script>
 	</environment>
 
 	@await Html.PartialAsync("_CryptoJSScriptsPartial")

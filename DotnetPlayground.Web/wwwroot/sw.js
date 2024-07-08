@@ -4,7 +4,7 @@
 
 let CACHE_NAME = 'cache';
 
-self.addEventListener('install', function (event) {
+self.addEventListener('install', function (/* event */) {
 	const swUrl = new URL(self.location);
 	const version = swUrl.searchParams.get('version');
 	if (version !== "" && version !== "GIT_BRANCH_GIT_HASH") {
@@ -89,20 +89,20 @@ self.addEventListener('install', function (event) {
 		//cdn resources
 		RESOURCES = RESOURCES.concat([
 			'https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.4.0/css/blueimp-gallery.min.css',
-			'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.11.0/video-js.min.css',
-			'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.22.2/bootstrap-table.min.css',
-			'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css',
+			'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.12.0/video-js.min.css',
+			'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.23.0/bootstrap-table.min.css',
+			'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
 			'https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.4.0/js/blueimp-gallery.min.js',
-			'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.11.0/alt/video.core.novtt.min.js',
-			'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.22.2/bootstrap-table.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.12.0/alt/video.core.novtt.min.js',
+			'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.23.0/bootstrap-table.min.js',
 			//'https://cdn.jsdelivr.net/npm/chance@1.1.11/dist/chance.min.js',
 			'https://cdn.jsdelivr.net/npm/node-forge@1.3.1/dist/forge.min.js',
 			'https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js',
-			'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js',
+			'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js',
 			'https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.20.0/jquery.validate.min.js',
 			'https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@4.0.0/dist/jquery.validate.unobtrusive.min.js'
-			//'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js',//questionable, only dev ?
-			//'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/mode-csharp.min.js',//questionable, only dev ?
+			//'https://cdnjs.cloudflare.com/ajax/libs/ace/1.35.2/ace.js',//questionable, only dev ?
+			//'https://cdnjs.cloudflare.com/ajax/libs/ace/1.35.2/mode-csharp.min.js',//questionable, only dev ?
 			//'https://cdn.jsdelivr.net/npm/@microsoft/signalr@7.0.10/dist/browser/signalr.min.js',//questionable, inkball ?
 			//'https://cdn.jsdelivr.net/npm/msgpack5@6.0.2/dist/msgpack5.min.js',//questionable, inkball ?
 			//'https://cdn.jsdelivr.net/npm/@microsoft/signalr-protocol-msgpack@7.0.10/dist/browser/signalr-protocol-msgpack.min.js'//questionable, inkball ?

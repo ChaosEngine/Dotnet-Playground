@@ -3,6 +3,10 @@
 function BruteForceOnLoad() {
 	let instance = null;
 
+	const thisScriptSrc = [...document.scripts].find(s => s.src.indexOf('BruteForce') !== -1)?.src;
+	const versionSearch = thisScriptSrc ? new URL(thisScriptSrc).search : "";
+
+
 	////////////functions start/////////////
 	function BruteForce(d, workerCount, updateRate, alphabet, hashToCrack, passCharacterLength, foundAction) {
 
@@ -68,14 +72,17 @@ function BruteForceOnLoad() {
 		}
 
 		this.run = function () {
-			updateTextContent('.global-message', 'Starting ' + workerCount +
-				' workers to brute force the SHA256 hash ' + hashToCrack + '.');
+			updateTextContent('.global-message',
+				`Starting ${workerCount} workers to brute force the SHA256 hash ${hashToCrack}.`);
+
+			const suffix = libs2Load.indexOf("shared.js") === -1 ? '.min' : '';
+			const ind = libs2Load.findIndex(el => el.indexOf('shared.') !== -1);
+			libs2Load[ind] += versionSearch;
 
 			// Splitting the limit number into pieces and distribute equally along the
 			// workers.
 			splitNumIntoRanges(passphraseLimit, workerCount).forEach(function (range, index) {
-				const suffix = libs2Load.indexOf("shared.js") === -1 ? '.min' : '';
-				const worker = new Worker('../js/workers/BruteForceWorker' + suffix + '.js');
+				const worker = new Worker(`../js/workers/BruteForceWorker${suffix}.js${versionSearch}`);
 
 				createWorkerMonitor(index);
 
@@ -145,7 +152,7 @@ function BruteForceOnLoad() {
 
 				// Start the worker with a postMessage and pass the parameters
 				const cmd = {
-					libs2Load: libs2Load,
+					libs2Load,
 					hash: hashToCrack,
 					range: range,
 					alphabet: alphabet,
@@ -155,7 +162,7 @@ function BruteForceOnLoad() {
 				const buff = binaryStringToArrayBufferExp(JSON.stringify(cmd));
 				worker.postMessage(buff, [buff]);
 
-				// Push into the global workers array so we have controll later on
+				// Push into the global workers array so we have control later on
 				workers.push(worker);
 			});
 

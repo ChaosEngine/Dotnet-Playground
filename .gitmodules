@@ -1,6 +1,6 @@
 [submodule "Caching-MySQL"]
 	path = Caching-MySQL
-	url = https://github.com/ChaosEngine/Caching-MySQL.git
+	url = https://github.com/PomeloFoundation/Caching-MySQL.git
 [submodule "InkBall"]
 	path = InkBall
 	url = https://github.com/ChaosEngine/InkBall.git
