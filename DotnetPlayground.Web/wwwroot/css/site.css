@@ -136,15 +136,15 @@ footer.container > noscript {
   }
 }
 /***************BruteForce start*************/
-.workers .worker {
-  opacity: 1;
-  transition: opacity 0.3s ease-out;
-}
 .workers .worker.found .title {
   background-color: rgba(0, 114, 0, 0.5);
 }
 .workers .worker.failed .title {
   background-color: lightgray;
+}
+.workers .worker {
+  opacity: 1;
+  transition: opacity 0.3s ease-out;
 }
 .workers .worker .done:not(.found) {
   opacity: 0.4;
@@ -213,22 +213,6 @@ footer.container > noscript {
   border: none;
   width: 80px;
   height: 72px;
-}
-
-#link-login-button-Facebook, #login-provider-Facebook {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cpath d='M54.8 0H3.2A3.2 3.2 0 0 0 0 3.2v51.6A3.2 3.2 0 0 0 3.2 58H31V35.57h-7.55v-8.78H31v-6.46c0-7.49 4.58-11.57 11.26-11.57A64.2 64.2 0 0 1 49 9.1v7.83h-4.6c-3.64 0-4.35 1.72-4.35 4.26v5.59h8.7l-1.13 8.78H40V58h14.8a3.2 3.2 0 0 0 3.2-3.2V3.2A3.2 3.2 0 0 0 54.8 0Z' fill='%234267b2'/%3E%3Cpath d='M40 58V35.57h7.57l1.13-8.78H40V21.2c0-2.54.71-4.26 4.35-4.26H49V9.1a64.2 64.2 0 0 0-6.75-.34C35.56 8.76 31 12.84 31 20.33v6.46h-7.55v8.78H31V58Z' fill='%23fff'/%3E%3C/svg%3E");
-}
-
-#link-login-button-Google, #login-provider-Google {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%234285F4' d='M14.9 8.161c0-.476-.039-.954-.121-1.422h-6.64v2.695h3.802a3.24 3.24 0 0 1-1.407 2.127v1.75h2.269c1.332-1.22 2.097-3.02 2.097-5.15z'/%3E%3Cpath fill='%2334A853' d='M8.14 15c1.898 0 3.499-.62 4.665-1.69l-2.268-1.749c-.631.427-1.446.669-2.395.669-1.836 0-3.393-1.232-3.952-2.888H1.85v1.803A7.044 7.044 0 0 0 8.14 15z'/%3E%3Cpath fill='%23FBBC04' d='M4.187 9.342a4.17 4.17 0 0 1 0-2.68V4.859H1.849a6.97 6.97 0 0 0 0 6.286l2.338-1.803z'/%3E%3Cpath fill='%23EA4335' d='M8.14 3.77a3.837 3.837 0 0 1 2.7 1.05l2.01-1.999a6.786 6.786 0 0 0-4.71-1.82 7.042 7.042 0 0 0-6.29 3.858L4.186 6.66c.556-1.658 2.116-2.89 3.952-2.89z'/%3E%3C/svg%3E");
-}
-
-#link-login-button-Twitter, #login-provider-Twitter {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%231D9BF0' d='M13.567 5.144c.008.123.008.247.008.371 0 3.796-2.889 8.173-8.172 8.173v-.002A8.131 8.131 0 0 1 1 12.398a5.768 5.768 0 0 0 4.25-1.19 2.876 2.876 0 0 1-2.683-1.995c.431.083.875.066 1.297-.05A2.873 2.873 0 0 1 1.56 6.348v-.036c.4.222.847.345 1.304.36a2.876 2.876 0 0 1-.89-3.836 8.152 8.152 0 0 0 5.92 3 2.874 2.874 0 0 1 4.895-2.619 5.763 5.763 0 0 0 1.824-.697 2.883 2.883 0 0 1-1.262 1.588A5.712 5.712 0 0 0 15 3.656a5.834 5.834 0 0 1-1.433 1.488z'/%3E%3C/svg%3E");
-}
-
-#link-login-button-GitHub, #login-provider-GitHub {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cstyle%3E@media (prefers-color-scheme:dark)%7Bpath%7Bfill:%23fff%7D%7D%3C/style%3E%3Cpath d='M8 0C3.58 0 0 3.58 0 8C0 11.54 2.29 14.53 5.47 15.59C5.87 15.66 6.02 15.42 6.02 15.21C6.02 15.02 6.01 14.39 6.01 13.72C4 14.09 3.48 13.23 3.32 12.78C3.23 12.55 2.84 11.84 2.5 11.65C2.22 11.5 1.82 11.13 2.49 11.12C3.12 11.11 3.57 11.7 3.72 11.94C4.44 13.15 5.59 12.81 6.05 12.6C6.12 12.08 6.33 11.73 6.56 11.53C4.78 11.33 2.92 10.64 2.92 7.58C2.92 6.71 3.23 5.99 3.74 5.43C3.66 5.23 3.38 4.41 3.82 3.31C3.82 3.31 4.49 3.1 6.02 4.13C6.66 3.95 7.34 3.86 8.02 3.86C8.7 3.86 9.38 3.95 10.02 4.13C11.55 3.09 12.22 3.31 12.22 3.31C12.66 4.41 12.38 5.23 12.3 5.43C12.81 5.99 13.12 6.7 13.12 7.58C13.12 10.65 11.25 11.33 9.47 11.53C9.76 11.78 10.01 12.26 10.01 13.01C10.01 14.08 10 14.94 10 15.21C10 15.42 10.15 15.67 10.55 15.59C13.71 14.53 16 11.53 16 8C16 3.58 12.42 0 8 0Z'/%3E%3C/svg%3E");
 }
 
 .warn-icon::before {

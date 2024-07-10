@@ -55,6 +55,7 @@ self.addEventListener('install', function (/* event */) {
 		`js/workers/BruteForceWorker${suffix}js`,
 		`js/BruteForce${suffix}js`,
 		`css/site${suffix}css`,
+		`css/icons${suffix}css`,
 		`js/site${suffix}js`,
 		`js/Blogs${suffix}js`,
 		`js/WebCamGallery${suffix}js`,

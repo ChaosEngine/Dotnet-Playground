@@ -5,6 +5,16 @@
 	ViewData["ActivePage"] = ManageNavPages.ExternalLogins;
 }
 
+@section headElements
+{
+	<environment include="Development">
+        <link rel="stylesheet" href="~/css/icons.css" asp-append-version="true" />
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="~/css/icons.min.css" asp-append-version="true" />
+    </environment>
+}
+
 <partial name="_StatusMessage" for="StatusMessage" />
 @if (Model.CurrentLogins?.Count > 0)
 {
