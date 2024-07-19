@@ -75,7 +75,7 @@
 	"dependencies": {
 		"@microsoft/signalr": "8.0.7",
 		"@microsoft/signalr-protocol-msgpack": "8.0.7",
-		"ace-builds": "1.35.2",
+		"ace-builds": "1.35.3",
 		"blueimp-gallery": "3.4.0",
 		"bootstrap": "5.3.3",
 		"bootstrap-table": "1.23.1",
