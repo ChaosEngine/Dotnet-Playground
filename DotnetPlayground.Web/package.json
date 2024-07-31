@@ -79,7 +79,7 @@
 		"blueimp-gallery": "3.4.0",
 		"bootstrap": "5.3.3",
 		"bootstrap-table": "1.23.0",
-		"chance": "1.1.11",
+		"chance": "1.1.12",
 		"jquery": "3.7.1",
 		"jquery-validation": "1.20.1",
 		"jquery-validation-unobtrusive": "4.0.0",
