@@ -73,7 +73,7 @@
 		"worker-plugin": "5.0.1"
 	},
 	"dependencies": {
-		"@microsoft/signalr": "8.0.0",
+		"@microsoft/signalr": "8.0.7",
 		"@microsoft/signalr-protocol-msgpack": "8.0.0",
 		"ace-builds": "1.35.2",
 		"blueimp-gallery": "3.4.0",
