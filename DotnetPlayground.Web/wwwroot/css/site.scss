@@ -16,7 +16,7 @@ body {
         background-color: rgb(33, 37, 41);
     }
 	// More styles (colors-only)
-	.form-select, .form-control, .accordion-item, .accordion-button, .fixed-table-loading, a.nav-link.active {
+	.form-select, .form-control, .accordion-item, .accordion-button, .fixed-table-loading {
         color: white !important;
 		//same as above main dark background
         background-color: rgb(33, 37, 41) !important;
@@ -107,10 +107,17 @@ main.container > hr {
 	color: #fff;
 }
 
-.nav-link:focus-visible {
-	// box-shadow: 0 0 0 0.125rem #fff;
-	outline-offset: 1px;
-	outline: 0.8px auto rgb(16, 16, 16);
+.nav-link {
+	
+	&.show {
+		background-color: gray;
+	}
+
+	&:focus-visible, &:hover {
+		// box-shadow: 0 0 0 0.125rem #fff;
+		outline-offset: 1px;
+		outline: 0.8px auto rgb(16, 16, 16);
+	}
 }
 
 #offlineIndicator {
