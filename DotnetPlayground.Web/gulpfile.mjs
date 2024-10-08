@@ -36,8 +36,6 @@ const paths = {
 	scss: webroot + "css/**/*.scss",
 	minCss: webroot + "css/**/*.min.css",
 	destCSSDir: webroot + "css/",
-	concatCssDest: webroot + "css/site.css",
-	concatCssDestMin: webroot + "css/site.min.css",
 	concatJsDest: webroot + "js/site.min.js",
 	//<ServiceWorker>
 	SWJs: webroot + "sw.js",
@@ -272,8 +270,7 @@ const cleanJs = gulp.series(cleanInkball, async function cleanMinJs(cb) {
 
 const cleanCss = async function (cb) {
 	await Promise.all([
-		rimraf(paths.concatCssDest),
-		rimraf(paths.concatCssDestMin),
+		rimraf(webroot + "css/*.css*"),
 		rimraf(webroot + "css/*.map")
 	]);
 
@@ -365,8 +362,12 @@ const processSCSS = function (sourcePattern, notPattern) {
 const minScss = gulp.series(
 	function scssToCss() {
 		return processSCSS(paths.scss, paths.destCSSDir);
-	}, function runTaskMinCSS() {
-		return minCSS(paths.css, paths.minCss, paths.concatCssDestMin);
+	},
+	function runTaskMinSiteCSS() {
+		return minCSS(webroot + "css/site.css", webroot + "css/site.min.css", webroot + "css/site.min.css");
+	},
+	function runTaskMinIconsCSS() {
+		return minCSS(webroot + "css/icons.css", webroot + "css/icons.min.css", webroot + "css/icons.min.css");
 	}
 );
 

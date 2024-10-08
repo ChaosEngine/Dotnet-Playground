@@ -8,7 +8,10 @@
         Layout = "/Areas/Identity/Pages/_Layout.cshtml";
     }
 }
-
+@section headElements
+{
+    @RenderSection("headElements", required: false)
+}
 <h2>Manage your account</h2>
 
 <div>
