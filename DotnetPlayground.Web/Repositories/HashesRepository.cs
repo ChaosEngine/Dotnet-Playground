@@ -621,34 +621,34 @@ LIMIT @limit OFFSET @offset
 		{
 			// string col_names = string.Join("\",\"", PostgresAllColumnNames);
 			string sql =
-(string.IsNullOrEmpty(searchText) ?
-$@"
-SELECT A.*, (SELECT count(*) FROM ""Hashes"") cnt
-FROM 
-(SELECT *
-FROM ""Hashes""
-	--The 'deferred join.' approach taken from https://aaronfrancis.com/2022/efficient-pagination-using-deferred-joins
-	inner join (                	-- The 'deferred join.'
-		select ""Key"" from ""Hashes""  -- The pagination using a fast index.
-		order by ""Key"" 
-		LIMIT @limit OFFSET @offset
-	) as tmp using(""Key"")
-{(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY \"{PostgresAllColumnNames.FirstOrDefault(x => string.Compare(x, sortColumn, StringComparison.CurrentCultureIgnoreCase) == 0)}\" {sortOrderDirection}")}
-) A
-"
-:
-$@"
-WITH RowAndWhere AS
-(
-	SELECT *
-	FROM ""Hashes""
-    WHERE {WhereColumnCondition('"', '"', PostgresAllColumnNames)}
-)
-SELECT B.*, (SELECT COUNT(*) FROM RowAndWhere) cnt
-FROM RowAndWhere B
-{(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY B.\"{PostgresAllColumnNames.FirstOrDefault(x => string.Compare(x, sortColumn, StringComparison.CurrentCultureIgnoreCase) == 0)}\" {sortOrderDirection}")}
-LIMIT @limit OFFSET @offset
-");
+			(string.IsNullOrEmpty(searchText) ?
+			$@"
+			SELECT A.*, (SELECT count(*) FROM ""Hashes"") cnt
+			FROM 
+			(SELECT *
+			FROM ""Hashes""
+				--The 'deferred join.' approach taken from https://aaronfrancis.com/2022/efficient-pagination-using-deferred-joins
+				inner join (                	-- The 'deferred join.'
+					select ""Key"" from ""Hashes""  -- The pagination using a fast index.
+					order by ""Key"" 
+					LIMIT @limit OFFSET @offset
+				) as tmp using(""Key"")
+			{(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY @sortColumn @sortOrderDirection")}
+			) A
+			"
+			:
+			$@"
+			WITH RowAndWhere AS
+			(
+				SELECT *
+				FROM ""Hashes""
+			    WHERE {WhereColumnCondition('"', '"', PostgresAllColumnNames)}
+			)
+			SELECT B.*, (SELECT COUNT(*) FROM RowAndWhere) cnt
+			FROM RowAndWhere B
+			{(string.IsNullOrEmpty(sortColumn) ? "" : $"ORDER BY B.@sortColumn @sortOrderDirection")}
+			LIMIT @limit OFFSET @offset
+			");
 
 			using (var conn = new NpgsqlConnection(_configuration.GetConnectionString("PostgreSql")))
 			{
@@ -675,6 +675,18 @@ LIMIT @limit OFFSET @offset
 					parameter.ParameterName = "@limit";
 					parameter.DbType = DbType.Int32;
 					parameter.Value = limit;
+					cmd.Parameters.Add(parameter);
+
+					parameter = cmd.CreateParameter();
+					parameter.ParameterName = "@sortColumn";
+					parameter.DbType = DbType.String;
+					parameter.Value = sortColumn;
+					cmd.Parameters.Add(parameter);
+
+					parameter = cmd.CreateParameter();
+					parameter.ParameterName = "@sortOrderDirection";
+					parameter.DbType = DbType.String;
+					parameter.Value = sortOrderDirection;
 					cmd.Parameters.Add(parameter);
 
 					if (!string.IsNullOrEmpty(searchText))
