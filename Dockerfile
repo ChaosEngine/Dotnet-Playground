@@ -37,7 +37,7 @@ RUN dotnet publish -c $BUILD_CONFIG --self-contained -r linux-x64 \
 
 FROM mcr.microsoft.com/dotnet/runtime-deps:8.0-bookworm-slim
 WORKDIR /app
-ENV USER=nobody TZ=Europe/Warsaw
+ENV USER=nobody
 ARG BUILD_CONFIG=${BUILD_CONFIG:-Release}
 COPY --from=build --chown="$USER":"$USER" /build/DotnetPlayground.Web/bin/$BUILD_CONFIG/net8.0/linux-x64/publish/ /build/startApp.sh ./
 
