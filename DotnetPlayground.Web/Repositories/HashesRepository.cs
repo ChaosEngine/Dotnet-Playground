@@ -661,7 +661,7 @@ LIMIT @limit OFFSET @offset
 				using (var cmd = new NpgsqlCommand(sql, conn))
 				{
 					cmd.CommandText = sql;
-					_logger.LogInformation("sql => {sql}", sql);
+					_logger.LogInformation("sql => {sql}", sql.Replace(Environment.NewLine, "").Replace("\n", "").Replace("\r", ""));
 					cmd.CommandTimeout = 240;
 					DbParameter parameter;
 
