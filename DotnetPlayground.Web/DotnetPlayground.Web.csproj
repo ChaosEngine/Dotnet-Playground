@@ -51,7 +51,7 @@
 		<PackageReference Include="IdentityManager2.AspNetIdentity" Version="1.0.0" />
 		<PackageReference Include="Lib.AspNetCore.ServerTiming" Version="6.0.0" />
 		<!--<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.16.2" Condition="$(DefineConstants.Contains('INCLUDE_COSMOSDB'))" />-->
-		<PackageReference Include="MongoDB.Driver" Version="2.29.0" Condition="$(DefineConstants.Contains('INCLUDE_MONGODB'))" />
+		<PackageReference Include="MongoDB.Driver" Version="2.30.0" Condition="$(DefineConstants.Contains('INCLUDE_MONGODB'))" />
 		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.68.0.3556" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="8.0.10" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.10" />
