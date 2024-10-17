@@ -65,7 +65,7 @@
 		"gulp-sourcemaps": "3.0.0",
 		"gulp-terser": "2.1.0",
 		"javascript-astar": "0.4.1",
-		"sass": "1.79.5",
+		"sass": "1.80.2",
 		"terser-webpack-plugin": "5.3.10",
 		"tiny-glob": "0.2.9",
 		"webpack": "5.95.0",

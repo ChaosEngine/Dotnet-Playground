@@ -45,7 +45,7 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.10" Condition="$(DefineConstants.Contains('INCLUDE_SQLSERVER'))" />
 		<PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="8.0.10" Condition="$(DefineConstants.Contains('INCLUDE_SQLSERVER'))" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.10" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.8" Condition="$(DefineConstants.Contains('INCLUDE_POSTGRES'))" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.10" Condition="$(DefineConstants.Contains('INCLUDE_POSTGRES'))" />
 		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" Condition="$(DefineConstants.Contains('INCLUDE_MYSQL'))" />
 		<PackageReference Include="Oracle.EntityFrameworkCore" Version="8.23.60" Condition="$(DefineConstants.Contains('INCLUDE_ORACLE'))" />
 		<PackageReference Include="IdentityManager2.AspNetIdentity" Version="1.0.0" />
@@ -57,7 +57,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.10" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="8.0.10" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="8.0.10" />
-		<PackageReference Include="MessagePack" Version="2.5.172" />
+		<PackageReference Include="MessagePack" Version="2.5.187" />
 	</ItemGroup>
 
 	<Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
