@@ -100,7 +100,7 @@ main.container > hr {
 }*/
 
 .bg-my-theme {
-	background-color: $themeColor; /*$themeColor is an injected variable on gulp build pipeline by gulp-sass, gulp-header */
+	background-color: $themeColor; /* injected variable on gulp build pipeline by gulp-replace */
 }
 
 .navbar-dark .navbar-nav .nav-link {
@@ -137,7 +137,7 @@ footer.container > noscript {
 }
 
 #spVersion::after {
-	content: $projectVersion /*$projectVersion is an injected variable on gulp build pipeline by gulp-sass, gulp-header */
+	content: $projectVersion; /* injected variable on gulp build pipeline by gulp-replace */
 }
 
 /***************VirtualScroll start***************/

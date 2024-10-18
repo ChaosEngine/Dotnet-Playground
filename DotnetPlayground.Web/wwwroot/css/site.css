@@ -61,7 +61,7 @@ main.container > hr {
 	background-color: darkred;
 }*/
 .bg-my-theme {
-  background-color: darkslateblue; /*$themeColor is an injected variable on gulp build pipeline by gulp-sass, gulp-header */
+  background-color: darkslateblue; /* injected variable on gulp build pipeline by gulp-replace */
 }
 
 .navbar-dark .navbar-nav .nav-link {
@@ -93,7 +93,7 @@ footer.container > noscript {
 }
 
 #spVersion::after {
-  content: ", Debug: xx.yy.zz-ssss";
+  content: ", Debug: xx.yy.zz-ssss"; /* injected variable on gulp build pipeline by gulp-replace */
 }
 
 /***************VirtualScroll start***************/

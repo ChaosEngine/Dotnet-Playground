@@ -13,7 +13,7 @@ import * as dartSass from 'sass';
 import gulpSass from 'gulp-sass';
 const sass = gulpSass(dartSass);
 
-import header from 'gulp-header';
+import replace from 'gulp-replace';
 import glob from "tiny-glob";
 import concat from "gulp-concat";
 import cleanCSS from "@aptuitiv/gulp-clean-css";
@@ -354,7 +354,9 @@ const processSCSS = function (sourcePattern, notPattern) {
 	const { colorTheme, projectVersion } = processInputArgs();
 
 	return gulp.src([sourcePattern, "!" + notPattern])
-		.pipe(header('$themeColor: ${color};\n$projectVersion: ${version};\n', { color: colorTheme, version: `'${projectVersion}'` }))
+		// .pipe(header('$themeColor: ${color};\n$projectVersion: ${version};\n', { color: colorTheme, version: `'${projectVersion}'` }))
+		.pipe(replace('$themeColor', colorTheme))
+    	.pipe(replace('$projectVersion', `'${projectVersion}'`))
 		.pipe(sass().on('error', sass.logError))
 		.pipe(gulp.dest(notPattern));
 };
