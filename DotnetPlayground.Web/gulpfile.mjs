@@ -268,7 +268,7 @@ const cleanJs = gulp.series(cleanInkball, async function cleanMinJs(cb) {
 	cb();
 });
 
-const cleanCss = async function (cb) {
+const runCleanCss = async function (cb) {
 	await Promise.all([
 		rimraf(webroot + "css/*.css*"),
 		rimraf(webroot + "css/*.map")
@@ -277,7 +277,7 @@ const cleanCss = async function (cb) {
 	cb();
 };
 
-const clean = gulp.series(cleanJs, cleanCss);
+const clean = gulp.series(cleanJs, runCleanCss);
 
 const minSWJsJs = function () {
 	return fileMinifyJSFunction(paths.SWJs, paths.SWJsDest);
