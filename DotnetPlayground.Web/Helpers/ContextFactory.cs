@@ -80,7 +80,12 @@ namespace DotnetPlayground
 				case "sqlite":
 					conn_str = configuration.GetConnectionString("Sqlite");
 					if (dbContextOpts != null)
+					{
 						dbContextOpts.UseSqlite(conn_str);
+						dbContextOpts.ConfigureWarnings(b =>
+							b.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)
+						);
+					}
 					break;
 
 #if INCLUDE_POSTGRES

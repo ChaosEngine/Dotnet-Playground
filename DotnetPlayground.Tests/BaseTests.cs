@@ -60,6 +60,9 @@ namespace DotnetPlayground.Tests
 
 			var options = new DbContextOptionsBuilder<BloggingContext>()
 				.UseSqlite(connection)
+				.ConfigureWarnings(b =>
+					b.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)
+				)
 				.Options;
 
 			// Create the schema in the database
