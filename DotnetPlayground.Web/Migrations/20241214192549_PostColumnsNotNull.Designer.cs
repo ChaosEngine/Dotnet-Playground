@@ -4,6 +4,7 @@ using DotnetPlayground.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 #if INCLUDE_POSTGRES
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -17,9 +18,11 @@ using Oracle.EntityFrameworkCore.Metadata;
 namespace DotnetPlayground.Migrations
 {
     [DbContext(typeof(BloggingContext))]
-    partial class BloggingContextModelSnapshot : ModelSnapshot
+    [Migration("20241214192549_PostColumnsNotNull")]
+    partial class PostColumnsNotNull
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -95,7 +98,8 @@ namespace DotnetPlayground.Migrations
 
                 b.Property<string>("Environment").HasMaxLength(100);
 
-                b.Property<string>("Json");
+                b.Property<string>("Json")
+                    .HasColumnType(BloggingContext.JsonColumnTypeFromProvider(this.ActiveProvider));
 
                 b.HasKey("Id", "Environment");
 
@@ -202,7 +206,8 @@ namespace DotnetPlayground.Migrations
                     .HasMaxLength(256);
 
                 b.Property<string>("UserSettingsJSON")
-                    .HasColumnName("UserSettings");
+                    .HasColumnName("UserSettings")
+                    .HasColumnType(BloggingContext.JsonColumnTypeFromProvider(this.ActiveProvider));
 
                 b.HasKey("Id");
 
@@ -333,7 +338,7 @@ namespace DotnetPlayground.Migrations
                     .WithMany("Post")
                     .HasForeignKey("BlogId")
                     .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired();
+                        .IsRequired();
 
                 b.Navigation("Blog");
             });
@@ -373,7 +378,7 @@ namespace DotnetPlayground.Migrations
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired();
 
-                b.HasOne("IdentitySample.DefaultUI.Data.ApplicationUser", null)
+                b.HasOne("IdentitySample.DefaultUI.Data.ApplicationUser")
                     .WithMany()
                     .HasForeignKey("UserId")
                     .OnDelete(DeleteBehavior.Cascade)
