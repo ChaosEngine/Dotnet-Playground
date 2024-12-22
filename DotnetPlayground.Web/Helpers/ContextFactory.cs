@@ -83,9 +83,9 @@ namespace DotnetPlayground
 					if (dbContextOpts != null)
 					{
 						dbContextOpts.UseSqlite(conn_str);
-						dbContextOpts.ConfigureWarnings(b =>
-							b.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)
-						);
+						// dbContextOpts.ConfigureWarnings(b =>
+						// 	b.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)
+						// );
 					}
 					break;
 
@@ -154,7 +154,7 @@ namespace DotnetPlayground
 			}
 			return conn_str;
 		}
-		
+
 		internal static void MyProvideClientCertificatesCallback(X509CertificateCollection clientCerts)
 		{
 			using (X509Store store = new X509Store(StoreLocation.CurrentUser))
@@ -266,19 +266,28 @@ namespace DotnetPlayground
 			{
 				//main app context - blogging
 				using var blogging_ctx = scope.ServiceProvider.GetRequiredService<BloggingContext>();
-				//check if any migrations applied, if not - do that
-				var migrations_applied = await blogging_ctx.Database.GetAppliedMigrationsAsync(token);
-				if (!migrations_applied.Any())
+
+				//check if any migrations pending, if not - do that
+				var migrations_pending = await blogging_ctx.Database.GetPendingMigrationsAsync(token);
+				if (migrations_pending.Any())
+				{
+					InkBall.Module.ContextSnapshotHelper.DBKind = blogging_ctx.Database.ProviderName;
+
 					await blogging_ctx.Database.MigrateAsync(token);
+				}
 
 
 				//blogging db created now apply migration to games context
 				using var games_ctx = scope.ServiceProvider.GetRequiredService<InkBall.Module.Model.GamesContext>();
-				migrations_applied = await games_ctx.Database.GetAppliedMigrationsAsync(token);
-				//check if games related context migrations applied, if not - do that
-				if (!migrations_applied.Any(m => m.Contains(nameof(InkBall.Module.Migrations.InitialInkBall))))
-					await games_ctx.Database.MigrateAsync(token);
 
+				migrations_pending = await games_ctx.Database.GetPendingMigrationsAsync(token);
+				//check if games related context migrations pending, if not - do that
+				if (migrations_pending.Any(m => m.Contains(nameof(InkBall.Module.Migrations.InitialInkBall))))
+				{
+					InkBall.Module.ContextSnapshotHelper.DBKind = blogging_ctx.Database.ProviderName;
+
+					await games_ctx.Database.MigrateAsync(token);
+				}
 
 				//seed debug/test users if not present already
 				await SeedUsers(scope.ServiceProvider);

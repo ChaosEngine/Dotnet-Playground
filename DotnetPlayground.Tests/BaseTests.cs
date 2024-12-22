@@ -1,4 +1,5 @@
 ﻿using DotnetPlayground.Models;
+using InkBall.Module;
 using Lib.ServerTiming;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Data.Sqlite;
@@ -51,6 +52,7 @@ namespace DotnetPlayground.Tests
 					{ "ConnectionStrings:Sqlite", "DataSource=:memory:" },
 					{ "DBKind", "sqlite" }
 				});
+			ContextSnapshotHelper.DBKind = "sqlite";
 			var config = builder.Build();
 
 			var connection = new SqliteConnection(config.GetConnectionString("Sqlite"));
@@ -60,9 +62,9 @@ namespace DotnetPlayground.Tests
 
 			var options = new DbContextOptionsBuilder<BloggingContext>()
 				.UseSqlite(connection)
-				.ConfigureWarnings(b =>
-					b.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)
-				)
+				// .ConfigureWarnings(b =>
+				// 	b.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)
+				// )
 				.Options;
 
 			// Create the schema in the database
