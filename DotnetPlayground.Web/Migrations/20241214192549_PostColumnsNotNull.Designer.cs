@@ -401,7 +401,7 @@ namespace DotnetPlayground.Migrations
                     .WithMany("Post")
                     .HasForeignKey("BlogId")
                     .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    .IsRequired();
 
                 b.Navigation("Blog");
             });

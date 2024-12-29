@@ -114,7 +114,7 @@ namespace DotnetPlayground.Migrations
 
                 b.Property<string>("Json")
 					.HasColumnType(BloggingContext.JsonColumnTypeFromProvider(ContextSnapshotHelper.DBKind));
-                
+
                 b.HasKey("Id", "Environment");
 
                 b.ToTable("GoogleProtectionKeys");
@@ -174,19 +174,24 @@ namespace DotnetPlayground.Migrations
 
             modelBuilder.Entity("DotnetPlayground.Models.ThinHashes", b =>
             {
-                if (new string[]{ "npgsql.entityframeworkcore.postgresql", "postgresql" }.Contains(ContextSnapshotHelper.DBKind.ToLowerInvariant()))
-                {
-                    b.Property<string>("Key").IsRequired().HasColumnType("varchar(20)");
-                    b.Property<string>("HashMD5").IsRequired().HasColumnType("character(32)").HasColumnName("hashMD5");
-                    b.Property<string>("HashSHA256").IsRequired().HasColumnType("character(64)").HasColumnName("hashSHA256");
-                }
-                else
-                {
-                    b.Property<string>("Key").IsRequired().HasColumnType("varchar(20)");
-                    b.Property<string>("HashMD5").IsRequired().HasColumnType("char(32)").HasColumnName("hashMD5");
-                    b.Property<string>("HashSHA256").IsRequired().HasColumnType("char(64)").HasColumnName("hashSHA256");
-                }
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .HasColumnType("varchar(20)");
 
+                b.Property<string>("HashMD5")
+                    .IsRequired()
+                    .HasColumnName("hashMD5")
+                    .HasColumnType(GamesContext.CharColumnTypeFromProvider(ContextSnapshotHelper.DBKind,
+                        "char(32)", "char(32)", "character(32)", "char(32)", "char(32)"
+                    ));
+
+                b.Property<string>("HashSHA256")
+                    .IsRequired()
+                    .HasColumnName("hashSHA256")
+                    .HasColumnType(GamesContext.CharColumnTypeFromProvider(ContextSnapshotHelper.DBKind,
+                        "char(64)", "char(64)", "character(64)", "char(64)", "char(64)"
+                    ));
+            
                 b.HasKey("Key");
 
                 b.ToTable("Hashes");
