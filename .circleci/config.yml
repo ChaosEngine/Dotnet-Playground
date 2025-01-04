@@ -32,7 +32,7 @@ jobs:
             dotnet restore
             cd DotnetPlayground.Web
             pnpm i
-            npx playwright install
+            npx playwright install --only-shell chromium
             cd ..
       - run:
           name: Run Unit and Integration Tests
@@ -211,7 +211,7 @@ jobs:
             dotnet restore
             cd DotnetPlayground.Web
             pnpm i
-            npx playwright install chromium
+            npx playwright install --only-shell chromium
             cd ..
       - run:
           name: End-2-End Playwright browser tests
