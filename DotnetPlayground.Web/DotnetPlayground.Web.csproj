@@ -47,7 +47,7 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.11" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" Condition="$(DefineConstants.Contains('INCLUDE_POSTGRES'))" />
 		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" Condition="$(DefineConstants.Contains('INCLUDE_MYSQL'))" />
-		<PackageReference Include="Oracle.EntityFrameworkCore" Version="8.23.60" Condition="$(DefineConstants.Contains('INCLUDE_ORACLE'))" />
+		<PackageReference Include="Oracle.EntityFrameworkCore" Version="8.23.70" Condition="$(DefineConstants.Contains('INCLUDE_ORACLE'))" />
 		<PackageReference Include="IdentityManager2.AspNetIdentity" Version="1.0.0" />
 		<PackageReference Include="Lib.AspNetCore.ServerTiming" Version="6.0.0" />
 		<!--<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.16.2" Condition="$(DefineConstants.Contains('INCLUDE_COSMOSDB'))" />-->
@@ -57,7 +57,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.11" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="8.0.11" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="8.0.11" />
-		<PackageReference Include="MessagePack" Version="3.1.0" />
+		<PackageReference Include="MessagePack" Version="3.1.1" />
 	</ItemGroup>
 
 	<Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
