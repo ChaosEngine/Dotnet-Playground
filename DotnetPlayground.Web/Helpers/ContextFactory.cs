@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
+using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -80,7 +81,12 @@ namespace DotnetPlayground
 				case "sqlite":
 					conn_str = configuration.GetConnectionString("Sqlite");
 					if (dbContextOpts != null)
+					{
 						dbContextOpts.UseSqlite(conn_str);
+						// dbContextOpts.ConfigureWarnings(b =>
+						// 	b.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)
+						// );
+					}
 					break;
 
 #if INCLUDE_POSTGRES
@@ -93,7 +99,16 @@ namespace DotnetPlayground
 					{
 						dbContextOpts.UseNpgsql(conn_str, (connBuilder) =>
 						{
-							connBuilder.ProvideClientCertificatesCallback(MyProvideClientCertificatesCallback);
+							// connBuilder.ProvideClientCertificatesCallback(MyProvideClientCertificatesCallback);
+							// connBuilder.RemoteCertificateValidationCallback(MyRemoteCertificateValidationCallback);
+							connBuilder.ConfigureDataSource(dsBuilder =>
+							{
+								dsBuilder.UseSslClientAuthenticationOptionsCallback(authenticationOptions =>
+								{
+									authenticationOptions.LocalCertificateSelectionCallback = MyLocalCertificateSelectionCallback;
+									//authenticationOptions.RemoteCertificateValidationCallback = MyRemoteCertificateValidationCallback;
+								});
+							});
 						});
 					}
 					break;
@@ -113,7 +128,7 @@ namespace DotnetPlayground
 							if (start != -1)
 							{
 								start = start + "DIRECTORY=".Length;
-                                int end = tab.Slice(start).IndexOf(")");
+								int end = tab.Slice(start).IndexOf(")");
 								if (end != -1)
 								{
 									var directory = tab.Slice(start, end);
@@ -128,7 +143,7 @@ namespace DotnetPlayground
 
 						dbContextOpts.UseOracle(conn_str, builder =>
 							//enable compatibility with old bool and json handling: https://docs.oracle.com/en/database/oracle/oracle-database/21/odpnt/EFCoreAPI.html#GUID-41786CF0-11E3-4AD2-8ED1-3D31D5FE2082
-							builder .UseOracleSQLCompatibility(OracleSQLCompatibility.DatabaseVersion19)
+							builder.UseOracleSQLCompatibility(OracleSQLCompatibility.DatabaseVersion19)
 						);
 					}
 					break;
@@ -156,6 +171,33 @@ namespace DotnetPlayground
 					clientCerts.Add(cert);
 				}
 			}
+		}
+
+		internal static X509Certificate MyLocalCertificateSelectionCallback(object sender, string targetHost,
+			X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers)
+		{
+			using (X509Store store = new X509Store(StoreLocation.CurrentUser))
+			{
+				store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);
+
+				var currentCerts = store.Certificates;
+				currentCerts = currentCerts.Find(X509FindType.FindByTimeValid, DateTime.Now, false);
+				currentCerts = currentCerts.Find(X509FindType.FindByIssuerName, "theBrain.ca", false);
+				currentCerts = currentCerts.Find(X509FindType.FindBySubjectName, Environment.MachineName, false);
+				if (currentCerts != null && currentCerts.Count > 0)
+				{
+					X509Certificate2 cert = currentCerts[0];
+					return cert;
+				}
+			}
+
+			return null;
+		}
+
+		internal static bool MyRemoteCertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain,
+			SslPolicyErrors sslPolicyErrors)
+		{
+			return true;
 		}
 
 		public IConfiguration GetConfiguration(string[] args)
@@ -196,7 +238,7 @@ namespace DotnetPlayground
 						},
 						pass: $"Playwright{i}!" //example pass: Playwright1!, Playwright2!...
 					);
-				
+
 					var existing_usr = await userManager.FindByEmailAsync(pair.user.Email);
 					if (existing_usr == null)
 					{
@@ -224,19 +266,28 @@ namespace DotnetPlayground
 			{
 				//main app context - blogging
 				using var blogging_ctx = scope.ServiceProvider.GetRequiredService<BloggingContext>();
-				//check if any migrations applied, if not - do that
-				var migrations_applied = await blogging_ctx.Database.GetAppliedMigrationsAsync(token);
-				if (!migrations_applied.Any())
+
+				//check if any migrations pending, if not - do that
+				var migrations_pending = await blogging_ctx.Database.GetPendingMigrationsAsync(token);
+				if (migrations_pending.Any())
+				{
+					InkBall.Module.ContextSnapshotHelper.DBKind = blogging_ctx.Database.ProviderName;
+
 					await blogging_ctx.Database.MigrateAsync(token);
+				}
 
 
 				//blogging db created now apply migration to games context
 				using var games_ctx = scope.ServiceProvider.GetRequiredService<InkBall.Module.Model.GamesContext>();
-				migrations_applied = await games_ctx.Database.GetAppliedMigrationsAsync(token);
-				//check if games related context migrations applied, if not - do that
-				if (!migrations_applied.Any(m => m.Contains(nameof(InkBall.Module.Migrations.InitialInkBall))))
-					await games_ctx.Database.MigrateAsync(token);
 
+				migrations_pending = await games_ctx.Database.GetPendingMigrationsAsync(token);
+				//check if games related context migrations pending, if not - do that
+				if (migrations_pending.Any(m => m.Contains(nameof(InkBall.Module.Migrations.InitialInkBall))))
+				{
+					InkBall.Module.ContextSnapshotHelper.DBKind = blogging_ctx.Database.ProviderName;
+
+					await games_ctx.Database.MigrateAsync(token);
+				}
 
 				//seed debug/test users if not present already
 				await SeedUsers(scope.ServiceProvider);

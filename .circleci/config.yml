@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   all-tests:
     docker:
-      - image: mcr.microsoft.com/playwright:next
+      - image: mcr.microsoft.com/playwright:latest
     # Steps to the job
     steps:
       - checkout
@@ -14,12 +14,11 @@ jobs:
             git submodule update --init --recursive --jobs 8
       - run:
           name: Install framework
-          # should be 20.04 but...whatever
           command: |
-            curl -O https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb
-            dpkg -i packages-microsoft-prod.deb && rm packages-microsoft-prod.deb
-            apt update && apt install -y dotnet-sdk-8.0
-            corepack enable
+            apt update; apt install software-properties-common -y
+            add-apt-repository ppa:dotnet/backports -y
+            apt update && apt install -y dotnet-sdk-9.0
+            corepack enable; corepack install -g pnpm
       - run:
           name: Show versions
           command: |
@@ -32,7 +31,7 @@ jobs:
             dotnet restore
             cd DotnetPlayground.Web
             pnpm i
-            npx playwright install
+            npx playwright install --only-shell chromium
             cd ..
       - run:
           name: Run Unit and Integration Tests
@@ -62,7 +61,7 @@ jobs:
 
   Pomelo-tests:
     docker:
-      - image: mcr.microsoft.com/dotnet/sdk:8.0
+      - image: mcr.microsoft.com/dotnet/sdk:9.0
     # Steps to the job
     steps:
       - checkout
@@ -102,7 +101,7 @@ jobs:
 
   InkBall-tests:
     docker:
-      - image: mcr.microsoft.com/dotnet/sdk:8.0
+      - image: mcr.microsoft.com/dotnet/sdk:9.0
     # Steps to the job
     steps:
       - checkout
@@ -142,7 +141,7 @@ jobs:
 
   DotnetPlayground-tests:
     docker:
-      - image: mcr.microsoft.com/dotnet/sdk:8.0
+      - image: mcr.microsoft.com/dotnet/sdk:9.0
     # Steps to the job
     steps:
       - checkout
@@ -182,7 +181,7 @@ jobs:
 
   Playwright-tests:
     docker:
-      - image: mcr.microsoft.com/playwright:next
+      - image: mcr.microsoft.com/playwright:latest
     # Steps to the job
     steps:
       - checkout
@@ -193,12 +192,11 @@ jobs:
             git submodule update --init --recursive --jobs 8
       - run:
           name: Install framework
-          # should be 20.04 but...whatever
           command: |
-            curl -O https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb
-            dpkg -i packages-microsoft-prod.deb && rm packages-microsoft-prod.deb
-            apt update && apt install -y dotnet-sdk-8.0
-            corepack enable
+            apt update; apt install software-properties-common -y
+            add-apt-repository ppa:dotnet/backports -y
+            apt update && apt install -y dotnet-sdk-9.0
+            corepack enable; corepack install -g pnpm
       - run:
           name: Show versions
           command: |
@@ -211,7 +209,7 @@ jobs:
             dotnet restore
             cd DotnetPlayground.Web
             pnpm i
-            npx playwright install chromium
+            npx playwright install --only-shell chromium
             cd ..
       - run:
           name: End-2-End Playwright browser tests
@@ -225,7 +223,7 @@ jobs:
 
   build:
     docker:
-      - image: mcr.microsoft.com/dotnet/sdk:8.0
+      - image: mcr.microsoft.com/dotnet/sdk:9.0
     # Steps to the job
     steps:
       - checkout
@@ -240,9 +238,9 @@ jobs:
           command: |
             curl -SLO https://deb.nodesource.com/nsolid_setup_deb.sh
             chmod 500 nsolid_setup_deb.sh
-            ./nsolid_setup_deb.sh 20
+            ./nsolid_setup_deb.sh 21
             apt-get install -y nodejs
-            corepack enable
+            corepack enable; corepack install -g pnpm
       - run:
           name: "Build Application according to some given configuration"
           command: dotnet publish -c Release --self-contained -r linux-x64 DotnetPlayground.Web

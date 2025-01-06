@@ -451,7 +451,7 @@ namespace DotnetPlayground
                 //.SetDefaultKeyLifetime(TimeSpan.FromDays(14))	//the default id 90 days - enough
                 .PersistKeysToDbContext<BloggingContext>();
             if (!string.IsNullOrEmpty(Configuration["DataProtection:CertFile"]))
-                protection_builder.ProtectKeysWithCertificate(new X509Certificate2(Configuration["DataProtection:CertFile"], Configuration["DataProtection:CertPassword"]));
+                protection_builder.ProtectKeysWithCertificate(X509CertificateLoader.LoadPkcs12FromFile(Configuration["DataProtection:CertFile"], Configuration["DataProtection:CertPassword"]));
 
 
             services.AddSignalR(options =>

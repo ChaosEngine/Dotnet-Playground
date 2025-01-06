@@ -4,8 +4,16 @@ using InkBall.Module.Model;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.Extensions.Configuration;
 using System;
+#if INCLUDE_POSTGRES
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+#endif
+#if INCLUDE_ORACLE
+using Oracle.EntityFrameworkCore.Metadata;
+#endif
 
 namespace DotnetPlayground.Models
 {
@@ -25,6 +33,9 @@ namespace DotnetPlayground.Models
 		public BloggingContext CreateDbContext(string[] args)
 		{
 			var configuration = GetConfiguration(args);
+
+			InkBall.Module.ContextSnapshotHelper.DBKind = configuration.GetValue<string>("DBKind");
+            //Console.WriteLine($"DBKind = {configuration.GetValue<string>("DBKind")}");
 
 			var optionsBuilder = new DbContextOptionsBuilder<BloggingContext>();
 
@@ -66,7 +77,9 @@ namespace DotnetPlayground.Models
 		}
 
 		internal static string JsonColumnTypeFromProvider(string activeProvider) =>
-			GamesContext.JsonColumnTypeFromProvider(activeProvider);
+			GamesContext.JsonColumnTypeFromProvider(activeProvider,
+				"TEXT", "json", "jsonb", "VARCHAR2(4000)", "NVARCHAR(1000)"
+			);
 
 		public BloggingContext(DbContextOptions<BloggingContext> options)
 			: base(options)
@@ -82,7 +95,23 @@ namespace DotnetPlayground.Models
 
 			modelBuilder.Entity<Blog>(entity =>
 			{
-				entity.Property(e => e.BlogId).ValueGeneratedOnAdd();
+				entity.Property(e => e.BlogId)
+					.ValueGeneratedOnAdd()
+					.HasAnnotation("Sqlite:Autoincrement", true)
+#if INCLUDE_MYSQL
+					.HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
+#endif
+#if INCLUDE_SQLSERVER
+					.HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
+#endif
+#if INCLUDE_ORACLE
+					.HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn)
+#endif
+#if INCLUDE_POSTGRES
+					.HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
+#endif
+					;
+
 				entity.Property(e => e.Url).IsRequired();
 				entity.ToTable("Blog");
 			});
@@ -93,7 +122,24 @@ namespace DotnetPlayground.Models
 					.WithMany(p => p.Post)
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasForeignKey(d => d.BlogId);
-				entity.Property(e => e.PostId).ValueGeneratedOnAdd();
+
+				entity.Property(e => e.PostId)
+					.ValueGeneratedOnAdd()
+					.HasAnnotation("Sqlite:Autoincrement", true)
+#if INCLUDE_MYSQL
+					.HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
+#endif
+#if INCLUDE_SQLSERVER
+					.HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
+#endif
+#if INCLUDE_ORACLE
+					.HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn)
+#endif
+#if INCLUDE_POSTGRES
+					.HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
+#endif
+					;
+
 				entity.ToTable("Post");
 			});
 
@@ -111,9 +157,6 @@ namespace DotnetPlayground.Models
 					entity.Property(e => e.HashMD5).IsRequired().HasColumnType("char(32)").HasColumnName("hashMD5");
 					entity.Property(e => e.HashSHA256).IsRequired().HasColumnType("char(64)").HasColumnName("hashSHA256");
 				}
-
-				//modelBuilder.Entity<ThinHashes>().HasIndex(e => e.HashMD5);
-				//modelBuilder.Entity<ThinHashes>().HasIndex(e => e.HashSHA256);
 
 				modelBuilder.Entity<ThinHashes>().ToTable("Hashes");
 			});
@@ -156,11 +199,10 @@ namespace DotnetPlayground.Models
 				entity.HasKey(e => new { e.Id, e.Environment });
 
 				entity.Property(e => e.Environment)
-					//.HasConversion(new EnumToNumberConverter<EnvEnum, int>())
 					.HasMaxLength(100);
 
 				entity.Property(e => e.Json)
-					.HasColumnType(JsonColumnTypeFromProvider(Database.ProviderName));
+					.HasColumnType(BloggingContext.JsonColumnTypeFromProvider(Database.ProviderName));
 
 				entity.ToTable("GoogleProtectionKeys");
 			});
@@ -174,8 +216,144 @@ namespace DotnetPlayground.Models
 					// 	v => JsonConvert.DeserializeObject<ApplicationUserSettings>(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore })
 					// )
 					.HasColumnName("UserSettings")
-					.HasColumnType(JsonColumnTypeFromProvider(Database.ProviderName));
+					.HasColumnType(BloggingContext.JsonColumnTypeFromProvider(Database.ProviderName));
+
+				entity.HasIndex("NormalizedUserName")
+                    .IsUnique()
+                    .HasDatabaseName("UserNameIndex")
+                    .HasFilter(GamesContext.HasIndexFilterFromProvider(Database.ProviderName,
+						null, null, null,null, "[NormalizedUserName] IS NOT NULL")
+					);
 			});
+
+			modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+            {
+                b.Property<string>("UserId");
+
+                b.Property<string>("LoginProvider")
+                    .HasMaxLength(128);
+
+                b.Property<string>("Name")
+                    .HasMaxLength(128);
+
+                b.Property<string>("Value");
+
+                b.HasKey("UserId", "LoginProvider", "Name");
+
+                b.ToTable("AspNetUserTokens");
+            });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+					.HasAnnotation("Sqlite:Autoincrement", true)
+#if INCLUDE_MYSQL
+					.HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
+#endif
+#if INCLUDE_SQLSERVER
+					.HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
+#endif
+#if INCLUDE_ORACLE
+					.HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn)
+#endif
+#if INCLUDE_POSTGRES
+					.HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
+#endif
+					;
+
+                b.Property<string>("ClaimType");
+
+                b.Property<string>("ClaimValue");
+
+                b.Property<string>("UserId")
+                    .IsRequired();
+
+                b.HasKey("Id");
+
+                b.HasIndex("UserId");
+
+                b.ToTable("AspNetUserClaims");
+            });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+            {
+                b.Property<string>("LoginProvider")
+                    .HasMaxLength(128);
+
+                b.Property<string>("ProviderKey")
+                    .HasMaxLength(128);
+
+                b.Property<string>("ProviderDisplayName");
+
+                b.Property<string>("UserId")
+                    .IsRequired();
+
+                b.HasKey("LoginProvider", "ProviderKey");
+
+                b.HasIndex("UserId");
+
+                b.ToTable("AspNetUserLogins");
+            });
+
+			modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+					.HasAnnotation("Sqlite:Autoincrement", true)
+#if INCLUDE_MYSQL
+					.HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
+#endif
+#if INCLUDE_SQLSERVER
+					.HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
+#endif
+#if INCLUDE_ORACLE
+					.HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn)
+#endif
+#if INCLUDE_POSTGRES
+					.HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
+#endif
+					;
+
+                b.Property<string>("ClaimType");
+
+                b.Property<string>("ClaimValue");
+
+                b.Property<string>("RoleId")
+                    .IsRequired();
+
+                b.HasKey("Id");
+
+                b.HasIndex("RoleId");
+
+                b.ToTable("AspNetRoleClaims");
+            });
+
+			modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+            {
+                b.Property<string>("Id")
+                    .ValueGeneratedOnAdd();
+
+                b.Property<string>("ConcurrencyStamp")
+                    .IsConcurrencyToken();
+
+                b.Property<string>("Name")
+                    .HasMaxLength(256);
+
+                b.Property<string>("NormalizedName")
+                    .HasMaxLength(256);
+
+                b.HasKey("Id");
+
+                b.HasIndex("NormalizedName")
+                    .IsUnique()
+                    .HasDatabaseName("RoleNameIndex")
+                    .HasFilter(GamesContext.HasIndexFilterFromProvider(Database.ProviderName,
+						null, null, null,null, "[NormalizedName] IS NOT NULL")
+					);
+
+                b.ToTable("AspNetRoles");
+            });
 		}
 	}
 }

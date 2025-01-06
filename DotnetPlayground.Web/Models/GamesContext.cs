@@ -1,7 +1,9 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using InkBall.Module;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Configuration;
 
 namespace DotnetPlayground.Models
 {
@@ -26,7 +28,10 @@ namespace DotnetPlayground.Models
 		{
 			var configuration = GetConfiguration(args);
 
-			var optionsBuilder = new DbContextOptionsBuilder<InkBall.Module.Model.GamesContext>();
+			ContextSnapshotHelper.DBKind = configuration.GetValue<string>("DBKind");
+            //Console.WriteLine($"DBKind = {configuration.GetValue<string>("DBKind")}");
+
+            var optionsBuilder = new DbContextOptionsBuilder<InkBall.Module.Model.GamesContext>();
 
 			ConfigureDBKind(optionsBuilder, configuration, null);
 

@@ -650,15 +650,15 @@ FROM RowAndWhere B
 LIMIT @limit OFFSET @offset
 ");
 
-			using (var conn = new NpgsqlConnection(_configuration.GetConnectionString("PostgreSql")))
+			var conn = _entities.Database.GetDbConnection();
 			{
-				conn.ProvideClientCertificatesCallback = ContextFactory.MyProvideClientCertificatesCallback;
+				// conn.ProvideClientCertificatesCallback = ContextFactory.MyProvideClientCertificatesCallback;
 
 				var found = new List<ThinHashes>(limit);
 				int count = 0;
 
 				await conn.OpenAsync(token);
-				using (var cmd = new NpgsqlCommand(sql, conn))
+				using (var cmd = new NpgsqlCommand(sql, (NpgsqlConnection)conn))
 				{
 					cmd.CommandText = sql;
 					_logger.LogInformation("sql => {sql}", sql);
