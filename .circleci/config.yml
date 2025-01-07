@@ -1,68 +1,10 @@
 version: 2.1
 
 jobs:
-  all-tests:
-    docker:
-      - image: mcr.microsoft.com/playwright:latest
-    # Steps to the job
-    steps:
-      - checkout
-      - run:
-          name: Update submodules
-          command: |
-            git submodule sync
-            git submodule update --init --recursive --jobs 8
-      - run:
-          name: Install framework
-          command: |
-            apt update; apt install software-properties-common -y
-            add-apt-repository ppa:dotnet/backports -y
-            apt update && apt install -y dotnet-sdk-9.0
-            corepack enable; corepack install -g pnpm
-      - run:
-          name: Show versions
-          command: |
-            dotnet --info
-            node --version
-            pnpm --version
-      - run:
-          name: Install project dependencies
-          command: |
-            dotnet restore
-            cd DotnetPlayground.Web
-            pnpm i
-            npx playwright install --only-shell chromium
-            cd ..
-      - run:
-          name: Run Unit and Integration Tests
-          command: |
-            export DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/Blogging.db"
-            dotnet test -v n --results-directory:"./test_coverage" --collect:"Code Coverage" --logger "trx"
-      - run:
-          name: End-2-End Playwright browser tests
-          command: |
-            cd DotnetPlayground.Web
-            export DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/Blogging.db"
-            npx playwright test
-      - store_artifacts:
-          path: ./test_coverage
-      - store_artifacts:
-          path: DotnetPlayground.Web/e2e/playwright-report
-      - run:
-          name: test results
-          when: always
-          command: |
-              dotnet tool install -g trx2junit
-              export PATH="$PATH:$HOME/.dotnet/tools"
-              trx2junit ./test_coverage/*.trx
-      - store_test_results:
-          path: ./test_coverage/
-
-
   Pomelo-tests:
     docker:
       - image: mcr.microsoft.com/dotnet/sdk:9.0
-    # Steps to the job
+    # Steps for the job
     steps:
       - checkout
       - run:
@@ -102,7 +44,7 @@ jobs:
   InkBall-tests:
     docker:
       - image: mcr.microsoft.com/dotnet/sdk:9.0
-    # Steps to the job
+    # Steps for the job
     steps:
       - checkout
       - run:
@@ -142,7 +84,7 @@ jobs:
   DotnetPlayground-tests:
     docker:
       - image: mcr.microsoft.com/dotnet/sdk:9.0
-    # Steps to the job
+    # Steps for the job
     steps:
       - checkout
       - run:
@@ -182,7 +124,7 @@ jobs:
   Playwright-tests:
     docker:
       - image: mcr.microsoft.com/playwright:latest
-    # Steps to the job
+    # Steps for the job
     steps:
       - checkout
       - run:
@@ -195,7 +137,7 @@ jobs:
           command: |
             apt update; apt install software-properties-common -y
             add-apt-repository ppa:dotnet/backports -y
-            apt update && apt install -y dotnet-sdk-9.0
+            apt install -y dotnet-sdk-9.0
             corepack enable; corepack install -g pnpm
       - run:
           name: Show versions
@@ -224,7 +166,7 @@ jobs:
   build:
     docker:
       - image: mcr.microsoft.com/dotnet/sdk:9.0
-    # Steps to the job
+    # Steps for the job
     steps:
       - checkout
       - run:
@@ -251,13 +193,6 @@ workflows:
   version: 2
   test_and_build:
     jobs:
-      # - all-tests:
-      #     filters:
-      #       branches:
-      #         only:
-      #           - master
-      #           - dev
-      #           - circleci-project-setup
       - Pomelo-tests:
           filters:
             branches:
@@ -294,7 +229,6 @@ workflows:
                 - dev
                 - circleci-project-setup
           requires:
-            # - all-tests
             - Pomelo-tests
             - InkBall-tests
             - DotnetPlayground-tests

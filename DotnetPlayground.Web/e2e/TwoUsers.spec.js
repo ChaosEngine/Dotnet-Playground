@@ -166,7 +166,7 @@ test('P1 create game, P2 joins, P2 wins', async () => {
 	await joinCreatedGame(p2, p1.userName);
 
 	const randX = getRandomInt(0, 8), randY = getRandomInt(0, 19);
-	// await delay(4 * 1000);//wait for signalR to settle in (?)
+	await delay(2 * 1000);//wait for signalR to settle in (?)
 	await expect(p1.page.getByText(`Player ${Playwright2.userName} joining`)).toBeVisible();
 
 
