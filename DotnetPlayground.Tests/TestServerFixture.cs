@@ -206,6 +206,7 @@ namespace Integration
 					//string temp = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER");
 					//DOTNET_RUNNING_IN_CONTAINER = !string.IsNullOrEmpty(temp) && temp.Equals(true.ToString(), StringComparison.InvariantCultureIgnoreCase);
 
+					InkBall.Module.ContextSnapshotHelper.DBKind = DBKind;
 					var db = scopedServices.GetRequiredService<DotnetPlayground.Models.BloggingContext>();
 					if (DBKind.Equals("sqlite", StringComparison.InvariantCultureIgnoreCase))
 						db.Database.Migrate();
