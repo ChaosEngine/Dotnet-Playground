@@ -53,7 +53,7 @@ function BruteForceOnLoad() {
 
 			element.innerHTML =
 			'<div class="card m-2">' +
-				'<h5 class="card-header title">WORKER ' + index + '</h5>' +
+				`<h5 class="card-header title">WORKER ${index}</h5>` +
 				'<div class="card-body">' +
 					'<h5 class="card-title passphrase">Passphrase</h5>' +
 					'<p class="card-text value"></p>' +
@@ -91,21 +91,21 @@ function BruteForceOnLoad() {
 
 					if (data.update) {
 						// On a update we update the data of the specific worker
-						updateTextContent('#worker-' + index + ' .passphrase + .value', data.update.passphrase);
-						updateTextContent('#worker-' + index + ' .hash + .value', data.update.hash);
-						updateTextContent('#worker-' + index + ' .remaining + .value', data.update.remaining);
+						updateTextContent(`#worker-${index} .passphrase + .value`, data.update.passphrase);
+						updateTextContent(`#worker-${index} .hash + .value`, data.update.hash);
+						updateTextContent(`#worker-${index} .remaining + .value`, data.update.remaining);
 					}
 					else if (data.found) {
 						// If a worker found the correct hash we will set the global message and
 						// terminate all workers.
-						updateTextContent('#worker-' + index + ' .passphrase + .value', data.found.passphrase);
-						updateTextContent('#worker-' + index + ' .hash + .value', data.found.hash);
-						updateTextContent('#worker-' + index + ' .remaining + .value', data.found.remaining);
+						updateTextContent(`#worker-${index} .passphrase + .value`, data.found.passphrase);
+						updateTextContent(`#worker-${index} .hash + .value`, data.found.hash);
+						updateTextContent(`#worker-${index} .remaining + .value`, data.found.remaining);
 
 						d.querySelector('#worker-' + index).classList.add('found');
-						updateTextContent('.global-message', 'Worker ' + index +
-							' found the passphrase ' + data.found.passphrase + ' within ' +
-							(new Date().getTime() - startTime.getTime()) + 'ms!');
+						updateTextContent('.global-message',
+							`Worker ${index} found the passphrase ${data.found.passphrase} within ${(new Date().getTime() - startTime.getTime())}ms!`
+						);
 
 						// Terminate all workers
 						workers.forEach(function (w) {
@@ -127,10 +127,10 @@ function BruteForceOnLoad() {
 					else if (data.done) {
 						// If a worker is done before we found a result lets update the data and
 						// style.
-						updateTextContent('#worker-' + index + ' .passphrase + .value', data.done.passphrase);
-						updateTextContent('#worker-' + index + ' .hash + .value', data.done.hash);
-						updateTextContent('#worker-' + index + ' .remaining + .value', '0');
-						d.querySelector('#worker-' + index).classList.add('done');
+						updateTextContent(`#worker-${index} .passphrase + .value`, data.done.passphrase);
+						updateTextContent(`#worker-${index} .hash + .value`, data.done.hash);
+						updateTextContent(`#worker-${index} .remaining + .value`, '0');
+						d.querySelector(`#worker-${index}`).classList.add('done');
 
 						workers[index].terminate();
 						workers[index] = null;
