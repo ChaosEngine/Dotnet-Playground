@@ -473,6 +473,7 @@ namespace DotnetPlayground
                 protection_builder.ProtectKeysWithCertificate(X509CertificateLoader.LoadPkcs12FromFile(Configuration["DataProtection:CertFile"], Configuration["DataProtection:CertPassword"]));
 
 			services.AddGraphQLServer()
+                .RegisterDbContextFactory<BloggingContext>()
 				.AddQueryType<Query>()
 				.AddMutationType<Mutation>()
 				.AddDataLoader<BlogByIdDataLoader>()

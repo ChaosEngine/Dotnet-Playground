@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+/* 
 namespace DotnetPlayground.GraphQL.Extensions
 {
     public static class ObjectFieldDescriptorExtensions
@@ -19,3 +20,5 @@ namespace DotnetPlayground.GraphQL.Extensions
         }
     }
 }
+ */
+ 
