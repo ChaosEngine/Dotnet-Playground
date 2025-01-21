@@ -15,8 +15,9 @@ namespace DotnetPlayground.Web.GraphQL.DataLoader
 
 		public BlogByIdDataLoader(
 			IBatchScheduler batchScheduler,
+			DataLoaderOptions options,
 			IDbContextFactory<BloggingContext> dbContextFactory)
-			: base(batchScheduler)
+			: base(batchScheduler, options)
 		{
 			_dbContextFactory = dbContextFactory ??
 				throw new ArgumentNullException(nameof(dbContextFactory));
