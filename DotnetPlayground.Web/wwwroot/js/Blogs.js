@@ -81,6 +81,10 @@ ${title}
 		});
 	}
 
+	/**
+	 * Post submit form
+	 * @param {HTMLFormElement} form 
+	 */
 	function PostFormSubmit(form) {
 		const blog_id = $(form).data("id");
 		const post_id = $(form).find("input[name='PostId']").val();
@@ -122,6 +126,11 @@ ${title}
 		});
 	}
 
+	/**
+	 * Blog submit form
+	 * @param {HTMLFormElement} form 
+	 * @returns 
+	 */
 	function BlogFormSubmit(form) {
 		let tr = $(form).parents('tr:first');
 		const id = $(form).data('id');
