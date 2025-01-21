@@ -23,7 +23,7 @@ namespace DotnetPlayground.GraphQL.Extensions
 			IObjectFieldDescriptor descriptor,
 			MemberInfo member)
 		{
-			descriptor.UseDbContext<BloggingContext>();
+			//descriptor.UseDbContext<BloggingContext>();
 		}
 	}
 }
