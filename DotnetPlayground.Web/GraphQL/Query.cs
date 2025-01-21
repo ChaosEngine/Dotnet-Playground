@@ -18,7 +18,7 @@ namespace DotnetPlayground.GraphQL
 		[HotChocolate.Data.UseProjection]
 		[HotChocolate.Data.UseFiltering]
 		[HotChocolate.Data.UseSorting]
-		public IQueryable<Blog> GetBlogs([Service(ServiceKind.Resolver)] BloggingContext db)
+		public IQueryable<Blog> GetBlogs(BloggingContext db)
 		{
 			return db.Blogs;
 		}
@@ -33,7 +33,7 @@ namespace DotnetPlayground.GraphQL
 		[HotChocolate.Data.UseProjection]
 		[HotChocolate.Data.UseFiltering]
 		[HotChocolate.Data.UseSorting]
-		public IQueryable<ThinHashes> GetHashes([Service(ServiceKind.Resolver)] BloggingContext db)
+		public IQueryable<ThinHashes> GetHashes(BloggingContext db)
 		{
 			return db.ThinHashes;
 		}
