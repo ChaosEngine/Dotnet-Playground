@@ -29,7 +29,7 @@ namespace DotnetPlayground.GraphQL
 		[UseBloggingContext]
 		public async Task<AddBlogPayload> AddBlogAsync(
 			AddBlogInput input,
-			[Service(ServiceKind.Resolver)] BloggingContext context,
+			BloggingContext context,
 			CancellationToken cancellationToken
 			)
 		{
@@ -48,7 +48,7 @@ namespace DotnetPlayground.GraphQL
 		[UseBloggingContext]
 		public async Task<DeletePayload> DeleteBlogAsync(
 			IReadOnlyList<int> ids,
-			[Service(ServiceKind.Resolver)] BloggingContext context,
+			BloggingContext context,
 			CancellationToken cancellationToken
 		)
 		{
