@@ -138,7 +138,7 @@ jobs:
             apt update; apt install software-properties-common -y
             add-apt-repository ppa:dotnet/backports -y
             apt install -y dotnet-sdk-9.0
-            corepack enable; corepack install -g pnpm
+            corepack enable; corepack install -g pnpm@latest
       - run:
           name: Show versions
           command: |
@@ -182,7 +182,7 @@ jobs:
             chmod 500 nsolid_setup_deb.sh
             ./nsolid_setup_deb.sh 21
             apt-get install -y nodejs
-            corepack enable; corepack install -g pnpm
+            corepack enable; corepack install -g pnpm@latest
       - run:
           name: "Build Application according to some given configuration"
           command: dotnet publish -c Release --self-contained -r linux-x64 DotnetPlayground.Web
