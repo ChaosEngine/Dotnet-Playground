@@ -53,6 +53,7 @@ namespace DotnetPlayground.Models
 		public virtual DbSet<HashesInfo> HashesInfo { get; set; }
 		public virtual DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
 		public virtual DbSet<GoogleProtectionKey> GoogleProtectionKeys { get; set; }
+		public virtual DbSet<ErrorLog> ErrorLogs { get; set; }
 
 		public string ConnectionTypeName
 		{
@@ -224,6 +225,47 @@ namespace DotnetPlayground.Models
                     .HasFilter(GamesContext.HasIndexFilterFromProvider(Database.ProviderName,
 						null, null, null,null, "[NormalizedUserName] IS NOT NULL")
 					);
+			});
+
+			modelBuilder.Entity<ErrorLog>(entity =>
+			{
+				entity.Property(e => e.Id)
+					.ValueGeneratedOnAdd()
+					.HasAnnotation("Sqlite:Autoincrement", true)
+#if INCLUDE_MYSQL
+					.HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
+#endif
+#if INCLUDE_SQLSERVER
+					.HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
+#endif
+#if INCLUDE_ORACLE
+					.HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn)
+#endif
+#if INCLUDE_POSTGRES
+					.HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
+#endif
+					;
+				entity.HasKey(e => e.Id);
+
+
+				entity.Property(e => e.HttpStatus)
+					.HasColumnName("HttpStatus");
+
+				entity.Property(e => e.Url)
+					.HasColumnName("Url")
+					.HasMaxLength(1000);
+
+				entity.Property(e => e.Message)
+					.HasColumnName("Message")
+					.HasMaxLength(4000);
+					
+				entity.Property(e => e.Line)
+					.HasColumnName("Line");
+					
+				entity.Property(e => e.Column)
+					.HasColumnName("Column");
+
+				entity.ToTable("ErrorLog");
 			});
 
 			modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
