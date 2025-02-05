@@ -436,6 +436,18 @@ namespace DotnetPlayground.Migrations
 				entity.Property<int?>("Column")
 					.HasColumnName("Column");
 
+				entity.Property<DateTime>("Created")
+					.ValueGeneratedOnAddOrUpdate()
+					.HasColumnType(GamesContext.TimeStampColumnTypeFromProvider(ContextSnapshotHelper.DBKind,
+                        "TEXT", "timestamp", "timestamp without time zone", "TIMESTAMP(7)", "datetime2"
+					))
+					.HasDefaultValueSql(GamesContext.TimeStampDefaultValueFromProvider(ContextSnapshotHelper.DBKind,
+						"datetime('now','localtime')",
+						"CURRENT_TIMESTAMP",
+						"CURRENT_TIMESTAMP",
+						"CURRENT_TIMESTAMP",
+						"GETDATE()"));
+
 				entity.ToTable("ErrorLog");
 			});
 

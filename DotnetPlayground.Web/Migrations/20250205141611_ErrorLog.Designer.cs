@@ -422,6 +422,8 @@ namespace DotnetPlayground.Migrations
 					.HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
 #endif
 					;
+                b.HasKey("Id");
+
 
                 b.Property<int?>("Column")
                     .HasColumnName("Column");
@@ -439,8 +441,18 @@ namespace DotnetPlayground.Migrations
                 b.Property<string>("Url")
                     .HasMaxLength(1000)
                     .HasColumnName("Url");
-
-                b.HasKey("Id");
+                
+                b.Property<DateTime>("Created")
+					.ValueGeneratedOnAddOrUpdate()
+					.HasColumnType(GamesContext.TimeStampColumnTypeFromProvider(ActiveProvider,
+                        "TEXT", "timestamp", "timestamp without time zone", "TIMESTAMP(7)", "datetime2"
+					))
+					.HasDefaultValueSql(GamesContext.TimeStampDefaultValueFromProvider(ActiveProvider,
+						"datetime('now','localtime')",
+						"CURRENT_TIMESTAMP",
+						"CURRENT_TIMESTAMP",
+						"CURRENT_TIMESTAMP",
+						"GETDATE()"));
 
                 b.ToTable("ErrorLog");
             });

@@ -1,3 +1,5 @@
+using System;
+
 namespace DotnetPlayground.Models;
 
 public sealed class ErrorLog
@@ -8,4 +10,5 @@ public sealed class ErrorLog
 	public string Message { get; set; }
 	public int? Line { get; set; }
 	public int? Column { get; set; }
+	public DateTime Created { get; set; }
 }

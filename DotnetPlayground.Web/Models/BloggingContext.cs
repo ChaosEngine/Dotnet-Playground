@@ -265,6 +265,18 @@ namespace DotnetPlayground.Models
 				entity.Property(e => e.Column)
 					.HasColumnName("Column");
 
+				entity.Property(e => e.Created)
+					.ValueGeneratedOnAddOrUpdate()
+					.HasColumnType(GamesContext.TimeStampColumnTypeFromProvider(Database.ProviderName,
+						"TEXT", "timestamp", "timestamp without time zone", "TIMESTAMP(7)", "datetime2"
+					))
+					.HasDefaultValueSql(GamesContext.TimeStampDefaultValueFromProvider(Database.ProviderName,
+						"datetime('now','localtime')",
+						"CURRENT_TIMESTAMP",
+						"CURRENT_TIMESTAMP",
+						"CURRENT_TIMESTAMP",
+						"GETDATE()"));
+
 				entity.ToTable("ErrorLog");
 			});
 

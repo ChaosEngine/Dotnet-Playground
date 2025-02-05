@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
+﻿using System;
+using InkBall.Module.Model;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 #if INCLUDE_POSTGRES
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -40,7 +42,18 @@ namespace DotnetPlayground.Migrations
                     Url = table.Column<string>(maxLength: 1000, nullable: true),
                     Message = table.Column<string>(maxLength: 4000, nullable: true),
                     Line = table.Column<int>(nullable: true),
-                    Column = table.Column<int>(nullable: true)
+                    Column = table.Column<int>(nullable: true),
+                    Created = table.Column<DateTime>(
+                        type: GamesContext.TimeStampColumnTypeFromProvider(ActiveProvider,
+                        "TEXT", "timestamp", "timestamp without time zone", "TIMESTAMP(7)", "datetime2"),
+                        nullable: false,
+						defaultValueSql: GamesContext.TimeStampDefaultValueFromProvider(ActiveProvider,
+							"datetime('now','localtime')",
+							"CURRENT_TIMESTAMP",
+							"CURRENT_TIMESTAMP",
+							"CURRENT_TIMESTAMP",
+							"GETDATE()")
+                        )
                 },
                 constraints: table =>
                 {
