@@ -226,3 +226,32 @@ footer.container > noscript {
   height: 24px;
   padding-right: 2rem !important;
 }
+
+/***************Error handler page start***************/
+/*
+Http status codes:
+ - Client error responses (400 – 499)
+ - Server error responses (500 – 599)
+*/
+.error > h1 .status-400,
+.status-401, .status-402, .status-403, .status-404, .status-405, .status-406, .status-407, .status-408, .status-409, .status-410, .status-411, .status-412, .status-413, .status-414, .status-415, .status-416, .status-417, .status-418, .status-421, .status-422, .status-423, .status-424, .status-425, .status-426, .status-428, .status-429, .status-431, .status-451 {
+  color: orange;
+}
+
+.error > h1 .status-500,
+.status-501, .status-502, .status-503, .status-504, .status-505, .status-506, .status-507, .status-508, .status-510, .status-511 {
+  color: red;
+  animation: blinkMe 1s linear infinite;
+}
+
+@keyframes blinkMe {
+  0% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.2;
+  }
+}
