@@ -233,13 +233,13 @@ Http status codes:
  - Client error responses (400 – 499)
  - Server error responses (500 – 599)
 */
-.error > h1 .status-400,
-.status-401, .status-402, .status-403, .status-404, .status-405, .status-406, .status-407, .status-408, .status-409, .status-410, .status-411, .status-412, .status-413, .status-414, .status-415, .status-416, .status-417, .status-418, .status-421, .status-422, .status-423, .status-424, .status-425, .status-426, .status-428, .status-429, .status-431, .status-451 {
+.error > h1 .s-400,
+.s-401, .s-402, .s-403, .s-404, .s-405, .s-406, .s-407, .s-408, .s-409, .s-410, .s-411, .s-412, .s-413, .s-414, .s-415, .s-416, .s-417, .s-418, .s-421, .s-422, .s-423, .s-424, .s-425, .s-426, .s-428, .s-429, .s-431, .s-451 {
   color: orange;
 }
 
-.error > h1 .status-500,
-.status-501, .status-502, .status-503, .status-504, .status-505, .status-506, .status-507, .status-508, .status-510, .status-511 {
+.error > h1 .s-500,
+.s-501, .s-502, .s-503, .s-504, .s-505, .s-506, .s-507, .s-508, .s-510, .s-511 {
   color: red;
   animation: blinkMe 1s linear infinite;
 }
