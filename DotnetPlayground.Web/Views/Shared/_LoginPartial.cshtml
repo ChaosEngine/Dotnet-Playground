@@ -6,28 +6,26 @@
 
 @inject UserManager<ApplicationUser> UserManager
 
-<ul class="navbar-nav ms-auto">
-	<li class="nav-item dropdown">
-		@if (User.Identity.IsAuthenticated)
-		{
-			var user = await UserManager.GetUserAsync(User);
+<li class="nav-item dropdown">
+	@if (User.Identity.IsAuthenticated)
+	{
+		var user = await UserManager.GetUserAsync(User);
 
-			<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Hello @user.Name!</a>
-			<div class="dropdown-menu">
-				<a class="dropdown-item" href="~/Identity/Account/Manage/Index" title="Manage">Manage profile</a>
-				<form action="~/Identity/Account/Logout" method="post" id="logoutForm">
-					<button type="submit" class="btn btn-link dropdown-item text-warning">Logout</button>
-				</form>
-			</div>
-		}
-		else
-		{
-			<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Profile</a>
-			<div class="dropdown-menu">
-				<a class="dropdown-item" href="~/Identity/Account/Register">Register</a>
-				<a class="dropdown-item" href="~/Identity/Account/Login">Login</a>
-			</div>
-		}
-	</li>
-</ul>
+		<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"><span data-i18n="nav.loginPartial.hello">Hello</span>, @user.Name!</a>
+		<div class="dropdown-menu">
+			<a class="dropdown-item" href="~/Identity/Account/Manage/Index" title="Manage" data-i18n="[title]nav.loginPartial.manage.title;nav.loginPartial.manage.manageProfile">Manage profile</a>
+			<form action="~/Identity/Account/Logout" method="post" id="logoutForm">
+				<button type="submit" class="btn btn-link dropdown-item text-warning" data-i18n="nav.loginPartial.logout">Logout</button>
+			</form>
+		</div>
+	}
+	else
+	{
+		<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false" data-i18n="nav.loginPartial.profile">Profile</a>
+		<div class="dropdown-menu">
+			<a class="dropdown-item" href="~/Identity/Account/Register" data-i18n="nav.loginPartial.register">Register</a>
+			<a class="dropdown-item" href="~/Identity/Account/Login" data-i18n="nav.loginPartial.login">Login</a>
+		</div>
+	}
+</li>
 </cache>

@@ -1,4 +1,4 @@
-﻿/*eslint-disable no-console*/
+/*eslint-disable no-console*/
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate|handleAboutPageBranchHash" }]*/
 /*global forge, bootstrap*/
 "use strict";
@@ -28,7 +28,7 @@ function clientValidate(button) {
 }
 
 function clientValidateAll() {
-	$("button[value='Validate']").each( (_index, item) => clientValidate(item));
+	$("button[value='Validate']").each((_index, item) => clientValidate(item));
 }
 
 function handleAboutPageBranchHash() {
@@ -82,7 +82,7 @@ $(function () {
 	function ajaxLog(level, message, url, line, col, error) {
 		const logPath = g_AppRootPath + "Home/ClientsideLog";
 
-		$.post(logPath , {
+		$.post(logPath, {
 			level: level, message: message, url: url, line: line, col: col, error: error
 		});
 	}
@@ -182,6 +182,54 @@ $(function () {
 		}
 	}
 
+	function handleLocalization(isDev) {
+
+		function renderLocalize(translateFunc, lang = 'en') {
+			$('head').localize();
+			$('body').localize();
+
+			const img = $('#langDropdown button.nav-link > img');
+			img.attr('src', `${g_AppRootPath}images/flag_${lang}.svg`);
+			img.attr('alt', lang === 'en' ? translateFunc('nav.langDropdown.en') : translateFunc('nav.langDropdown.pl'));
+		}
+
+		// use plugins and options as needed, for options, detail see
+		// http://i18next.com/docs/
+		i18next
+			// detect user language
+			// learn more: https://github.com/i18next/i18next-browser-languageDetector
+			.use(i18nextBrowserLanguageDetector)
+			.use(i18nextHttpBackend)
+			.init({
+				debug: isDev,
+				fallbackLng: false, // default language if nothing found by detector or disable loading fallback
+				supportedLngs: ['en', 'pl'], // array of supported languages
+				
+				backend: {
+					loadPath: `${g_AppRootPath}locales/{{lng}}/{{ns}}.json`
+				}
+			}, function (err, t) {
+				// for options see
+				// https://github.com/i18next/jquery-i18next#initialize-the-plugin
+				jqueryI18next.init(i18next, $, { useOptionsAttr: true });
+
+				// start localizing, details:
+				// https://github.com/i18next/jquery-i18next#usage-of-selector-function
+				renderLocalize(t, i18next.language);
+			});
+
+		// Language switcher
+		$('#langDropdown button[data-lang]').on('click', function () {
+			const lang = $(this).data('lang');
+
+			i18next.changeLanguage(lang, function (err, t) {
+				// Update the content after language change
+				renderLocalize(i18next.t, lang);
+			});
+		});
+	}
+
+
 	/**
 	 * Mapped after Microsoft.Extensions.Logging
 	 * */
@@ -241,6 +289,8 @@ $(function () {
 	registerAlertModalContent();
 	//overriding window.alert with own implementation
 	window.alert = myAlert;
+
+	handleLocalization(isDevelopment);
 });
 
 window.onerror = function (msg, url, line, col, error) {
