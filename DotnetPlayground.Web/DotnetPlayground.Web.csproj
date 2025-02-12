@@ -53,7 +53,7 @@
 		<!--<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.16.2" Condition="$(DefineConstants.Contains('INCLUDE_COSMOSDB'))" />-->
 		<PackageReference Include="MongoDB.Driver" Version="3.1.0" Condition="$(DefineConstants.Contains('INCLUDE_MONGODB'))" />
 		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.69.0.3680" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="9.0.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="9.0.2" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="9.0.1" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="9.0.1" />
