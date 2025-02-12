@@ -1,0 +1,69 @@
+{
+	"head": {
+		"meta": {
+			"desc": "Dotnet core examples, tests and experiments pages"
+		}
+	},
+	"nav": {
+		"langDropdown": {
+			"en": "English",
+			"pl": "Polish",
+			"changeLang": "Change language"
+		},
+		"loginPartial": {
+			"hello": "Hello",
+			"manage": {
+				"title": "manage",
+				"manageProfile": "Manage profile"
+			},
+			"logout": "Logout",
+			"profile": "Profile",
+			"register": "Register",
+			"login": "Login"
+		},
+		"items": {
+			"main": "Main",
+			"home": "Home",
+			"unintentional": "Unintentional Error",
+			"codeGenerator": "View Code Generator",
+			"about": "About",
+			"contact": "Contact",
+			"blogs": {
+				"name": "Blogs",
+				"list": "List",
+				"create": "Create"
+			},
+			"myRainbow": {
+				"name": "My Rainbow",
+				"hashes": "Hashes",
+				"bruteForce": "Brute Force",
+				"virtualScroll": "Virtual Scroll"
+			},
+			"webCam": {
+				"name": "WebCam",
+				"live": "Live",
+				"dailyVideo": "Daily video",
+				"youtube": "Youtube videos",
+				"gallery": "Gallery"
+			},
+			"inkBall": {
+				"name": "InkBall",
+				"home": "Home",
+				"gameList": "Game list",
+				"game": "Game",
+				"highscores": "Highscores",
+				"register": "Register",
+				"Rules": "Rules"
+			},
+			"wip": {
+				"long": "Work in progress",
+				"short": "WIP...",
+				"puzzle": "Puzzle Generator",
+				"beep": "Beep Experiment"
+			}
+		}
+	},
+	"footer": {
+		"noscript": "Your browser does not support JavaScript! REALLY?!"
+	}
+}
