@@ -1,0 +1,69 @@
+{
+	"head": {
+		"meta": {
+			"desc": "Przykłady Dotnet core, testy i strony eksperymentalne"
+		}
+	},
+	"nav": {
+		"langDropdown": {
+			"en": "Angielski",
+			"pl": "Polski",
+			"changeLang": "Zmień język"
+		},
+		"loginPartial": {
+			"hello": "Witaj",
+			"manage": {
+				"title": "Zarządzaj",
+				"manageProfile": "Zarządzaj profilem"
+			},
+			"logout": "Wyloguj",
+			"profile": "Profil",
+			"register": "Zarejestruj",
+			"login": "Loguj"
+		},
+		"items": {
+			"main": "Główna",
+			"home": "Domowa",
+			"unintentional": "Niewymuszony błąd",
+			"codeGenerator": "Generator View Code",
+			"about": "O...",
+			"contact": "Kontakt",
+			"blogs": {
+				"name": "Blogi",
+				"list": "Lista",
+				"create": "Utwórz"
+			},
+			"myRainbow": {
+				"name": "Moja tęcza",
+				"hashes": "Hasze",
+				"bruteForce": "Siłowe łamanie",
+				"virtualScroll": "Wirtualne przewijanie"
+			},
+			"webCam": {
+				"name": "Kamerka",
+				"live": "Na żywo",
+				"dailyVideo": "Codzienne wideo",
+				"youtube": "Youtube wideo",
+				"gallery": "Galeria"
+			},
+			"inkBall": {
+				"name": "InkBall",
+				"home": "Domowa",
+				"gameList": "Lista gier",
+				"game": "Gra",
+				"highscores": "Ranking",
+				"register": "Zarejestruj",
+				"Rules": "Reguły"
+			},
+			"wip": {
+				"long": "Praca w toku",
+				"short": "WIP...",
+				"puzzle": "Generator puzzli",
+				"beep": "Eksperyment dźwiękowy"
+			}
+		}
+	},
+	"footer": {
+		"noscript": "Twoja przeglądarka nie wspiera JavaScriptu! SERIO?!"
+	}
+}
