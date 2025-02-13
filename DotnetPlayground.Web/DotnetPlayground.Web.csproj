@@ -32,8 +32,6 @@
 		</None>
 		<Content Update="wwwroot\css\*.scss" CopyToPublishDirectory="Never" />
 	  <Content Update="wwwroot\images\*.xcf" CopyToPublishDirectory="Never" />
-	  <Content Update="package-lock.json" CopyToPublishDirectory="Never" />
-	  <Content Update="package.json" CopyToPublishDirectory="Never" />
   </ItemGroup>
 
 	<ItemGroup>

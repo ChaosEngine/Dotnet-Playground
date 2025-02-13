@@ -149,18 +149,15 @@ jobs:
           name: Install project dependencies
           command: |
             dotnet restore
-            cd DotnetPlayground.Web
             pnpm i
             npx playwright install --only-shell chromium
-            cd ..
       - run:
           name: End-2-End Playwright browser tests
           command: |
-            cd DotnetPlayground.Web
             export DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/Blogging.db"
             npx playwright test
       - store_artifacts:
-          path: DotnetPlayground.Web/e2e/playwright-report
+          path: e2e/playwright-report
 
 
   build:

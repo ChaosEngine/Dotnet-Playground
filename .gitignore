@@ -41,10 +41,10 @@ log/
 TestResult.xml
 
 # Playwright test results and reports
-DotnetPlayground.Web/e2e/test-results/
-DotnetPlayground.Web/e2e/playwright-report/
-DotnetPlayground.Web/e2e/storageStates/
-DotnetPlayground.Web/playwright/.cache/
+e2e/test-results/
+e2e/playwright-report/
+e2e/storageStates/
+playwright/.cache/
 
 # Build Results of an ATL Project
 [Dd]ebugPS/
@@ -215,5 +215,5 @@ DotnetPlayground.Web/wwwroot/**/*.min.css
 DotnetPlayground.Web/wwwroot/**/*.min.js
 DotnetPlayground.Web/wwwroot/**/*.map
 docker-*.env
-DotnetPlayground.Web/package-lock.json
-DotnetPlayground.Web/pnpm-lock.yaml
+package-lock.json
+pnpm-lock.yaml

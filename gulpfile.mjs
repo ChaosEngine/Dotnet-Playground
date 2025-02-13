@@ -5,9 +5,9 @@ import gulp from 'gulp';
 
 import process from 'node:process';
 import fs from 'fs-extra';
-import { fileURLToPath } from 'url';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// import { fileURLToPath } from 'url';
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
 import * as dartSass from 'sass';
 import gulpSass from 'gulp-sass';
@@ -27,7 +27,7 @@ import webpack from 'webpack-stream';
 import workerPlugin from 'worker-plugin';
 import TerserPlugin from 'terser-webpack-plugin';
 
-const webroot = "./wwwroot/";
+const webroot = "./DotnetPlayground.Web/wwwroot/";
 
 const paths = {
 	js: webroot + "js/**/*.js",
@@ -47,8 +47,8 @@ const paths = {
 	SharedJs: webroot + "js/workers/shared.js",
 	SharedJsDest: webroot + "js/workers/shared.min.js",
 	//<WebWorkers/>
-	inkBallJsRelative: "../InkBall/src/InkBall.Module/IBwwwroot/js/",
-	inkBallCssRelative: "../InkBall/src/InkBall.Module/IBwwwroot/css/"
+	inkBallJsRelative: "./InkBall/src/InkBall.Module/IBwwwroot/js/",
+	inkBallCssRelative: "./InkBall/src/InkBall.Module/IBwwwroot/css/"
 };
 
 const minCSS = function (sourcePattern, notPattern, dest) {
@@ -81,9 +81,9 @@ const inkballEntryPoint = function (min) {
 		//paths.inkBallJsRelative + 'shared.js',
 		//paths.inkBallJsRelative + 'AISource.js'
 	]).pipe(webpack({
-		resolve: {
-			modules: ['node_modules', `../../../../../${path.basename(__dirname)}/node_modules`]
-		},
+		// resolve: {
+		// 	modules: ['node_modules', `../../../../../${path.basename(__dirname)}/node_modules`]
+		// },
 		entry: {
 			'inkball': [
 				//'@babel/polyfill',
@@ -134,9 +134,9 @@ const inkballEntryPoint = function (min) {
 const inkballAIWorker = function (doPollyfill) {
 	return gulp.src(paths.inkBallJsRelative + "AIWorker.js")
 		.pipe(webpack({
-			resolve: {
-				modules: ['node_modules', `../../../../../${path.basename(__dirname)}/node_modules`]
-			},
+			// resolve: {
+			// 	modules: ['node_modules', `../../../../../${path.basename(__dirname)}/node_modules`]
+			// },
 			entry: {
 				'AIWorker': doPollyfill === true ? [
 					'@babel/polyfill',
