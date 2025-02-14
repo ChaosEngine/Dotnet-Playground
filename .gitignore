@@ -211,9 +211,9 @@ FakesAssemblies/
 *.opt
 
 DotnetPlayground.Web/**/wwwroot/lib/
-DotnetPlayground.Web/wwwroot/**/*.min.css
-DotnetPlayground.Web/wwwroot/**/*.min.js
-DotnetPlayground.Web/wwwroot/**/*.map
+# DotnetPlayground.Web/wwwroot/**/*.min.css
+# DotnetPlayground.Web/wwwroot/**/*.min.js
+# DotnetPlayground.Web/wwwroot/**/*.map
 docker-*.env
 package-lock.json
 pnpm-lock.yaml
