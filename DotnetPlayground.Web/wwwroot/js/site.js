@@ -1,6 +1,6 @@
-/*eslint-disable no-console*/
+﻿/*eslint-disable no-console*/
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate|handleAboutPageBranchHash" }]*/
-/*global forge, bootstrap*/
+/*global forge, bootstrap, i18next, i18nextBrowserLanguageDetector, i18nextHttpBackend, jqueryI18next*/
 "use strict";
 
 var g_AppRootPath = location.pathname.match(/\/([^/]+)\//)[0],
@@ -129,7 +129,7 @@ $(function () {
 		}
 	}
 
-	function registerAlertModalContent(msg = 'Content', title = 'Modal title') {
+	function registerMyAlert(msg = 'Content', title = 'Modal title') {
 		const divModal = document.createElement('div');
 		divModal.id = "divModal";
 		divModal.classList.add("modal");
@@ -224,7 +224,7 @@ $(function () {
 
 			i18next.changeLanguage(lang, function (err, t) {
 				// Update the content after language change
-				renderLocalize(i18next.t, lang);
+				renderLocalize(t, lang);
 			});
 		});
 	}
@@ -232,7 +232,7 @@ $(function () {
 
 	/**
 	 * Mapped after Microsoft.Extensions.Logging
-	 * */
+	 */
 	const logLevel = {
 		Trace: 0,
 		Debug: 1,
@@ -286,7 +286,7 @@ $(function () {
 
 	registerThemeChangeHandler();
 
-	registerAlertModalContent();
+	registerMyAlert();
 	//overriding window.alert with own implementation
 	window.alert = myAlert;
 
