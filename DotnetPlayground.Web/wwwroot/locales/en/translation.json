@@ -1,14 +1,16 @@
 {
 	"head": {
 		"meta": {
-			"desc": "Dotnet core examples, tests and experiments pages"
+			"desc": "Dotnet Core examples, tests and experiments pages"
 		}
 	},
 	"nav": {
 		"langDropdown": {
 			"en": "English",
 			"pl": "Polish",
-			"changeLang": "Change language"
+			"changeLang": "Change language",
+			"flag_svg": "/dotnet/images/flag_en.svg",
+			"flag_alt": "English"
 		},
 		"loginPartial": {
 			"hello": "Hello",
@@ -22,12 +24,14 @@
 			"login": "Login"
 		},
 		"items": {
-			"main": "Main",
-			"home": "Home",
-			"unintentional": "Unintentional Error",
-			"codeGenerator": "View Code Generator",
-			"about": "About",
-			"contact": "Contact",
+			"main": {
+				"name": "Main",
+				"home": "Home",
+				"unintentional": "Unintentional Error",
+				"codeGenerator": "View Code Generator",
+				"about": "About",
+				"contact": "Contact"
+			},
 			"blogs": {
 				"name": "Blogs",
 				"list": "List",
@@ -56,12 +60,16 @@
 				"Rules": "Rules"
 			},
 			"wip": {
+				"name": "WIP...",
 				"long": "Work in progress",
-				"short": "WIP...",
 				"puzzle": "Puzzle Generator",
 				"beep": "Beep Experiment"
 			}
 		}
+	},
+	"common": {
+		"online": "Online",
+		"offline": "Offline"
 	},
 	"footer": {
 		"noscript": "Your browser does not support JavaScript! REALLY?!"

@@ -9,7 +9,7 @@
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-	<meta name="Description" content="Dotnet core examples, tests and experiments pages" data-i18n="[content]head.meta.desc" />
+	<meta name="Description" content="Dotnet Core examples, tests and experiments pages" data-i18n="[content]head.meta.desc" />
 	<link rel="manifest" href="~/manifest.json" />
 	<link rel="icon" type="image/x-icon" href="~/images/favicon.png" />
 	<link rel="apple-touch-icon" href="~/images/favicon.png" />
@@ -41,15 +41,15 @@
 					<ul class="navbar-nav me-auto">
 						<li class="nav-item dropdown">
 							<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#"
-								role="button" aria-haspopup="true" aria-expanded="false" data-i18n="nav.items.main">Main</a>
+								role="button" aria-haspopup="true" aria-expanded="false" data-i18n="nav.items.main.name">Main</a>
 							<div class="dropdown-menu">
-								<a class="dropdown-item" href="~/" data-i18n="nav.items.home">Home</a>
-								<a class="dropdown-item" href="~/Home/UnintentionalErr/" data-i18n="nav.items.unintentional">Unintentional Error</a>
+								<a class="dropdown-item" href="~/" data-i18n="nav.items.main.home">Home</a>
+								<a class="dropdown-item" href="~/Home/UnintentionalErr/" data-i18n="nav.items.main.unintentional">Unintentional Error</a>
 								<environment names="Development">
-								<a class="dropdown-item" href="~/ViewCodeGenerator" data-i18n="nav.items.codeGenerator">View Code Generator</a>
+								<a class="dropdown-item" href="~/ViewCodeGenerator" data-i18n="nav.items.main.codeGenerator">View Code Generator</a>
 								</environment>
-								<a class="dropdown-item" href="~/Home/About" data-i18n="nav.items.about">About</a>
-								<a class="dropdown-item" href="~/Home/Contact" data-i18n="nav.items.contact">Contact</a>
+								<a class="dropdown-item" href="~/Home/About" data-i18n="nav.items.main.about">About</a>
+								<a class="dropdown-item" href="~/Home/Contact" data-i18n="nav.items.main.contact">Contact</a>
 							</div>
 						</li>
 						<li class="nav-item dropdown">
@@ -107,7 +107,7 @@
 						</li>
 						<li class="nav-item dropdown">
 							<a class="nav-link dropdown-toggle" title="Work in progress" data-bs-toggle="dropdown" href="#"
-								role="button" aria-haspopup="true" aria-expanded="false" data-i18n="[title]nav.items.wip.long; nav.items.wip.short">WIP...</a>
+								role="button" aria-haspopup="true" aria-expanded="false" data-i18n="[title]nav.items.wip.long; nav.items.wip.name">WIP...</a>
 							<div class="dropdown-menu">
 								<a class="dropdown-item" href="~/PuzzleGenerator" data-i18n="nav.items.wip.puzzle">Puzzle Generator</a>
 								<a class="dropdown-item" href="~/BeepExperiment" data-i18n="nav.items.wip.beep">Beep Experiment</a>
@@ -119,7 +119,7 @@
 
 						<li class="nav-item dropdown" id="langDropdown" title="Change language" data-i18n="[title]nav.langDropdown.changeLang">
 							<button class="nav-link dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-								<img src="~/images/flag_en.svg" alt="English" width="32" height="16" />
+								<img src="~/images/flag_en.svg" alt="English" width="32" height="16" data-i18n="[src]nav.langDropdown.flag_svg;[alt]nav.langDropdown.flag_alt" />
 							</button>
 							<div class="dropdown-menu dropdown-menu-end dropdown-menu-start">
 								<button class="dropdown-item" type="button" data-lang="en">

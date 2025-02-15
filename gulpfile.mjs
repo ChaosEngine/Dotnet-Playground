@@ -26,6 +26,7 @@ import webpack from 'webpack-stream';
 // import esmWebpackPlugin from '@purtuga/esm-webpack-plugin';
 import workerPlugin from 'worker-plugin';
 import TerserPlugin from 'terser-webpack-plugin';
+import jsonMinify from 'gulp-json-minify';
 
 const webroot = "./DotnetPlayground.Web/wwwroot/";
 
@@ -35,6 +36,8 @@ const paths = {
 	css: webroot + "css/**/*.css",
 	scss: webroot + "css/**/*.scss",
 	minCss: webroot + "css/**/*.min.css",
+	translation: webroot + "locales/**/*.json",
+	minTranslation: webroot + "locales/**/*.min.json",
 	destCSSDir: webroot + "css/",
 	concatJsDest: webroot + "js/site.min.js",
 	//<ServiceWorker>
@@ -261,6 +264,7 @@ const cleanJs = gulp.series(cleanInkball, async function cleanMinJs(cb) {
 	await Promise.all([
 		rimraf(paths.minJs),
 		rimraf(paths.SWJsDest),
+		rimraf(paths.minTranslation),
 		rimraf(webroot + "js/**/*.map"),
 		rimraf(webroot + "*.map")
 	]);
@@ -298,6 +302,13 @@ const minJs = gulp.series(minSWJsJs,
 			.pipe(gulp.dest("."));
 	}
 );
+
+const minTranslations = function concatJsDest() {
+	return gulp.src([paths.translation, "!" + paths.minTranslation], { base: "." })
+		.pipe(jsonMinify())
+		.pipe(rename({ suffix: '.min' }))
+		.pipe(gulp.dest("."));
+};
 
 const processInputArgs = function () {
 	let colorTheme = undefined;//process.env.NODE_ENV === 'production' ? 'darkred' : 'darkslateblue';
@@ -373,7 +384,7 @@ const minScss = gulp.series(
 	}
 );
 
-const min = gulp.parallel(minJs, minInkball, minScss);
+const min = gulp.parallel(minJs, minInkball, minScss, minTranslations);
 
 const cssRun = gulp.parallel(minInkballCss, minScss);
 

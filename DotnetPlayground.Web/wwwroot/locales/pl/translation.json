@@ -1,14 +1,16 @@
 {
 	"head": {
 		"meta": {
-			"desc": "Przykłady Dotnet core, testy i strony eksperymentalne"
+			"desc": "Przykłady Dotnet Core, testy i strony eksperymentalne"
 		}
 	},
 	"nav": {
 		"langDropdown": {
 			"en": "Angielski",
 			"pl": "Polski",
-			"changeLang": "Zmień język"
+			"changeLang": "Zmień język",
+			"flag_svg": "/dotnet/images/flag_pl.svg",
+			"flag_alt": "Polski"
 		},
 		"loginPartial": {
 			"hello": "Witaj",
@@ -22,19 +24,21 @@
 			"login": "Loguj"
 		},
 		"items": {
-			"main": "Główna",
-			"home": "Domowa",
-			"unintentional": "Niewymuszony błąd",
-			"codeGenerator": "Generator View Code",
-			"about": "O...",
-			"contact": "Kontakt",
+			"main": {
+				"name": "Główna",
+				"home": "Domowa",
+				"unintentional": "Niewymuszony błąd",
+				"codeGenerator": "Generator View Code",
+				"about": "O...",
+				"contact": "Kontakt"
+			},
 			"blogs": {
 				"name": "Blogi",
 				"list": "Lista",
 				"create": "Utwórz"
 			},
 			"myRainbow": {
-				"name": "Moja tęcza",
+				"name": "Tęczowe tablice",
 				"hashes": "Hasze",
 				"bruteForce": "Siłowe łamanie",
 				"virtualScroll": "Wirtualne przewijanie"
@@ -43,12 +47,12 @@
 				"name": "Kamerka",
 				"live": "Na żywo",
 				"dailyVideo": "Codzienne wideo",
-				"youtube": "Youtube wideo",
+				"youtube": "Wideo Youtube",
 				"gallery": "Galeria"
 			},
 			"inkBall": {
 				"name": "InkBall",
-				"home": "Domowa",
+				"home": "Start",
 				"gameList": "Lista gier",
 				"game": "Gra",
 				"highscores": "Ranking",
@@ -56,12 +60,16 @@
 				"Rules": "Reguły"
 			},
 			"wip": {
+				"name": "WIP...",
 				"long": "Praca w toku",
-				"short": "WIP...",
 				"puzzle": "Generator puzzli",
 				"beep": "Eksperyment dźwiękowy"
 			}
 		}
+	},
+	"common": {
+		"online": "Połączony",
+		"offline": "Rozłączony"
 	},
 	"footer": {
 		"noscript": "Twoja przeglądarka nie wspiera JavaScriptu! SERIO?!"

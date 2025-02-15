@@ -115,10 +115,7 @@ $(function () {
 			//&& (navigator.serviceWorker.controller === null || navigator.serviceWorker.controller.state !== "activated")
 		) {
 			const version = encodeURIComponent(g_gitBranch + '_' + g_gitHash);
-			const swUrl = rootPath + 'sw' + (isDev === true ? '' : '.min') + '.js?' +
-				// '?path=' + encodeURIComponent(rootPath) +
-				// '&isDev=' + encodeURIComponent(isDev) +
-				'version=' + version;
+			const swUrl = `${rootPath}sw${(isDev === true ? '' : '.min')}.js?version=${version}`;
 
 			navigator.serviceWorker
 				.register(swUrl, { scope: rootPath })
@@ -176,7 +173,7 @@ $(function () {
 		const offlineIndicator = $("#offlineIndicator");
 
 		if (offlineIndicator !== undefined) {
-			const state = navigator.onLine ? "Online" : "Offline";
+			const state = navigator.onLine ? $.t("common.online") : $.t("common.offline");
 			offlineIndicator.html(state);
 			offlineIndicator.show();
 		}
@@ -184,20 +181,18 @@ $(function () {
 
 	function handleLocalization(isDev) {
 
-		function renderLocalize(translateFunc, lang = 'en') {
+		function renderLocalize() {
 			$('head').localize();
 			$('body').localize();
 
-			const img = $('#langDropdown button.nav-link > img');
-			img.attr('src', `${g_AppRootPath}images/flag_${lang}.svg`);
-			img.attr('alt', lang === 'en' ? translateFunc('nav.langDropdown.en') : translateFunc('nav.langDropdown.pl'));
+			// const img = $('#langDropdown button.nav-link > img');
+			// img.attr('src', `${g_AppRootPath}images/flag_${lang}.svg`);
+			// img.attr('alt', lang === 'en' ? translateFunc('nav.langDropdown.en') : translateFunc('nav.langDropdown.pl'));
 		}
 
-		// use plugins and options as needed, for options, detail see
-		// http://i18next.com/docs/
+		// use plugins and options as needed, for options, detail see: http://i18next.com/docs/
 		i18next
-			// detect user language
-			// learn more: https://github.com/i18next/i18next-browser-languageDetector
+			// detect user language. learn more: https://github.com/i18next/i18next-browser-languageDetector
 			.use(i18nextBrowserLanguageDetector)
 			.use(i18nextHttpBackend)
 			.init({
@@ -206,25 +201,23 @@ $(function () {
 				supportedLngs: ['en', 'pl'], // array of supported languages
 				
 				backend: {
-					loadPath: `${g_AppRootPath}locales/{{lng}}/{{ns}}.json`
+					loadPath: `${g_AppRootPath}locales/{{lng}}/{{ns}}${(isDev === true ? '' : '.min')}.json`
 				}
-			}, function (err, t) {
-				// for options see
-				// https://github.com/i18next/jquery-i18next#initialize-the-plugin
+			}, function (/* err, t */) {
+				// for options see: https://github.com/i18next/jquery-i18next#initialize-the-plugin
 				jqueryI18next.init(i18next, $, { useOptionsAttr: true });
 
-				// start localizing, details:
-				// https://github.com/i18next/jquery-i18next#usage-of-selector-function
-				renderLocalize(t, i18next.language);
+				// start localizing, details: https://github.com/i18next/jquery-i18next#usage-of-selector-function
+				renderLocalize();
 			});
 
 		// Language switcher
 		$('#langDropdown button[data-lang]').on('click', function () {
 			const lang = $(this).data('lang');
 
-			i18next.changeLanguage(lang, function (err, t) {
+			i18next.changeLanguage(lang, function (/* err, t */) {
 				// Update the content after language change
-				renderLocalize(t, lang);
+				renderLocalize();
 			});
 		});
 	}
