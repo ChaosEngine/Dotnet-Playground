@@ -8,7 +8,7 @@ window.addEventListener('load', function () {
 	/**
 	 * https://stackoverflow.com/a/2641047/4429828
 	 * @param {string} name of event
-	 * @param {function} fn is a handler function
+	 * @param {Function} fn is a handler function
 	 */
 	$.fn.bindFirst = function (name, fn) {
 		// Bind as you normally would. Don't want to miss out on any jQuery magic

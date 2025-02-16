@@ -1,5 +1,11 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "Exp" }]*/
 /*global forge*/
+
+/**
+ * Converts data buffer to string
+ * @param {ArrayBuffer} buffer of data
+ * @returns {string} converted string
+ */
 function arrayBufferToBinaryStringExp(buffer) {
 	let binary = "";
 	const bytes = new Uint8Array(buffer);
@@ -9,6 +15,11 @@ function arrayBufferToBinaryStringExp(buffer) {
 	return binary;
 }
 
+/**
+ * Converts string to data buffer
+ * @param {string} bin string representation
+ * @returns {ArrayBuffer} ArrayBuffer representation
+ */
 function binaryStringToArrayBufferExp(bin) {
 	const length = bin.length;
 	const buf = new ArrayBuffer(length);
@@ -22,7 +33,11 @@ function binaryStringToArrayBufferExp(bin) {
 // console.log(md.digest().toHex());
 // output: d7a8fbb307d7809469ca9abcb0082e4f8d5651e46d3cdb762d02d0bf37c9e592
 
-// Standard hashing function that uses SHA256
+/**
+ * Standard hashing function that uses SHA256
+ * @param {string} passphrase to hash
+ * @returns {string} hashed passphrase
+ */
 function hashExp(passphrase) {
 	//var hash = CryptoJS.SHA256(passphrase)
 	//return hash.toString();
@@ -32,6 +47,11 @@ function hashExp(passphrase) {
 	return md.digest().toHex();
 }
 
+/**
+ * LazyProductExp class
+ * @param {number} iCharNum number of characters
+ * @param {string} strAlphabet alphabet to use
+ */
 function LazyProductExp(iCharNum, strAlphabet) {
 	let len = strAlphabet.length;
 

@@ -5,7 +5,7 @@
 ///////////////////WebCamGallery functions start/////////////////
 /**
  * WebCamGallery onload event
- * @param {any} liveImageExpireTimeInSeconds - how often to allow refreshing of live image
+ * @param {number} liveImageExpireTimeInSeconds - how often to allow refreshing of live image
  */
 function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 	let last_refresh = new Date();

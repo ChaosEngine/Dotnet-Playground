@@ -1,6 +1,9 @@
 ﻿/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "BlogsOnLoad" }]*/
 "use strict";
 
+/**
+ * Blogs page onload event handler
+ */
 function BlogsOnLoad() {
 	////////////functions start/////////////
 	function CreateAccordionPostContent(blogId, collapsible, resultArr) {
@@ -83,7 +86,7 @@ ${title}
 
 	/**
 	 * Post submit form
-	 * @param {HTMLFormElement} form 
+	 * @param {HTMLFormElement} form html element
 	 */
 	function PostFormSubmit(form) {
 		const blog_id = $(form).data("id");
@@ -128,8 +131,7 @@ ${title}
 
 	/**
 	 * Blog submit form
-	 * @param {HTMLFormElement} form 
-	 * @returns 
+	 * @param {HTMLFormElement} form incoming form
 	 */
 	function BlogFormSubmit(form) {
 		let tr = $(form).parents('tr:first');

@@ -6,6 +6,10 @@
 var g_AppRootPath = location.pathname.match(/\/([^/]+)\//)[0],
 	g_gitBranch = "GIT_BRANCH", g_gitHash = "GIT_HASH";
 
+/**
+ * Client side hash validation of clicked single hash row
+ * @param {HTMLButtonElement} button triggering action
+ */
 function clientValidate(button) {
 	const td = $(button).parent().parent().find("td");
 
@@ -27,10 +31,16 @@ function clientValidate(button) {
 	td.eq(2).css("color", (sha === orig_sha ? "green" : "red")).css('font-weight', 'bold');
 }
 
+/**
+ * Client side hash validation of all hash rows
+ */
 function clientValidateAll() {
 	$("button[value='Validate']").each((_index, item) => clientValidate(item));
 }
 
+/**
+ * About page handling of various elements
+ */
 function handleAboutPageBranchHash() {
 	let anchor = document.querySelector('#branchHash > a:first-child');
 	if (anchor) {
@@ -52,7 +62,7 @@ function handleAboutPageBranchHash() {
  * Custom alert bootstrap modal
  * @param {string} msg content shown
  * @param {string} title of the dialog
- * @param {function} onCloseCallback callback executed on close
+ * @param {Function} onCloseCallback callback executed on close
  */
 function myAlert(msg = 'Content', title = 'Modal title', onCloseCallback = undefined) {
 	const myModalEl = document.getElementById('divModal');
@@ -199,7 +209,10 @@ $(function () {
 				debug: isDev,
 				fallbackLng: false, // default language if nothing found by detector or disable loading fallback
 				supportedLngs: ['en', 'pl'], // array of supported languages
-				
+
+				ns: ['translation', ...(location.pathname.match(/InkBall/) ? ['inkBall'] : '')],
+  				defaultNS: 'translation',
+
 				backend: {
 					loadPath: `${g_AppRootPath}locales/{{lng}}/{{ns}}${(isDev === true ? '' : '.min')}.json`
 				}

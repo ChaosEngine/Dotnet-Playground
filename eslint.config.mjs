@@ -1,6 +1,6 @@
 import globals from "globals";
 import path from "node:path";
-import jsdoc from 'eslint-plugin-jsdoc';
+import jsdoc from "eslint-plugin-jsdoc";
 import { fileURLToPath } from "node:url";
 import js from "@eslint/js";
 import { FlatCompat } from "@eslint/eslintrc";
@@ -16,7 +16,7 @@ const compat = new FlatCompat({
 });
 
 
-export default [...compat.extends("eslint:recommended"),// jsdoc.configs['flat/recommended'],
+export default [...compat.extends("eslint:recommended"), jsdoc.configs['flat/recommended'],
 {
     languageOptions: {
         globals: {
@@ -48,6 +48,13 @@ export default [...compat.extends("eslint:recommended"),// jsdoc.configs['flat/r
         "no-unused-vars": 1,
         "semi-spacing": 1,
 
-        "jsdoc/require-returns": "warn" // Recommended
+        "jsdoc/require-returns": "warn",
+        "jsdoc/require-jsdoc": ["error", {
+            checkConstructors: false,
+            publicOnly: true,
+            require: {
+                'MethodDefinition': true
+            }
+        }]
     }
 }];

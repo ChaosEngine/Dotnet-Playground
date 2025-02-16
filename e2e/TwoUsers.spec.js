@@ -32,7 +32,7 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
  * Gets random number in range: min(inclusive) - max (exclusive)
  * @param {any} min - from(inclusive)
  * @param {any} max - to (exclusive)
- * @returns {integer} random number
+ * @returns {number} random number
  */
 const getRandomInt = (min, max) => {
 	min = Math.max(0, Math.min(min, max));

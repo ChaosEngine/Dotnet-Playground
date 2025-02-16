@@ -3,6 +3,9 @@
 /*global myAlert*/
 "use strict";
 
+/**
+ * Puzzles page onload event handler
+ */
 function PuzzlesOnLoad() {
 	$('#customFile').on('change', function () {
 		const file = $(this)[0].files[0].name;

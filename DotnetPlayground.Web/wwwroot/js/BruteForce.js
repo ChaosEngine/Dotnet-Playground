@@ -1,5 +1,9 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "BruteForce" }]*/
 /*global binaryStringToArrayBufferExp arrayBufferToBinaryStringExp libs2Load hashExp*/
+
+/**
+ * BruteForce page on load event handler
+ */
 function BruteForceOnLoad() {
 	let instance = null;
 

@@ -17,6 +17,12 @@ export class PlaywrightUser {
 		this.userName = userName;
 	}
 
+	/**
+	 * Creates and logs user to browser with possible previous browser storageStare
+	 * @param {import('@playwright/test').Browser} browser browser object
+	 * @param {string} userName user name of logged on user
+	 * @returns {PlaywrightUser} created user class
+	 */
 	static async create(browser, userName) {
 		const context = await browser.newContext({
 			ignoreHTTPSErrors: true,
