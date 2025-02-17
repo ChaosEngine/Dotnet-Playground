@@ -16,45 +16,50 @@ const compat = new FlatCompat({
 });
 
 
-export default [...compat.extends("eslint:recommended"), jsdoc.configs['flat/recommended'],
-{
-    languageOptions: {
-        globals: {
-            ...globals.browser,
-            ...globals.jquery,
-            ...globals.worker
+export default [
+    {
+        ignores: ["**/bin", "**/obj", "**/wwwroot/lib", "**/*.min.js", "**/*Bundle.js"]
+    },
+    ...compat.extends("eslint:recommended"), jsdoc.configs['flat/recommended'],
+    {
+        languageOptions: {
+            globals: {
+                ...globals.browser,
+                ...globals.jquery,
+                ...globals.worker
+            },
+
+            ecmaVersion: 2022,
+            sourceType: "module"
+        },
+        plugins: {
+            jsdoc
         },
 
-        ecmaVersion: 2022,
-        sourceType: "module"
-    },
-    plugins: {
-        jsdoc
-    },
 
-    rules: {
-        indent: ["off", "tab"],
-        "linebreak-style": ["off", "unix"],
-        quotes: ["off", "double"],
-        semi: ["error", "always"],
-        eqeqeq: 2,
-        "comma-dangle": 1,
-        "no-console": 1,
-        "no-debugger": 1,
-        "no-extra-semi": 1,
-        "no-extra-parens": 0,
-        "no-irregular-whitespace": 1,
-        "no-undef": 2,
-        "no-unused-vars": 1,
-        "semi-spacing": 1,
+        rules: {
+            indent: ["off", "tab"],
+            "linebreak-style": ["off", "unix"],
+            quotes: ["off", "double"],
+            semi: ["error", "always"],
+            eqeqeq: "error",
+            "comma-dangle": "warn",
+            "no-console": "warn",
+            "no-debugger": "warn",
+            "no-extra-semi": "warn",
+            "no-extra-parens": "off",
+            "no-irregular-whitespace": "warn",
+            "no-undef": "error",
+            "no-unused-vars": "warn",
+            "semi-spacing": "warn",
 
-        "jsdoc/require-returns": "warn",
-        "jsdoc/require-jsdoc": ["error", {
-            checkConstructors: false,
-            publicOnly: true,
-            require: {
-                'MethodDefinition': true
-            }
-        }]
-    }
-}];
+            "jsdoc/require-returns": "warn",
+            "jsdoc/require-jsdoc": ["error", {
+                checkConstructors: false,
+                publicOnly: true,
+                require: {
+                    'MethodDefinition': true
+                }
+            }]
+        }
+    }];
