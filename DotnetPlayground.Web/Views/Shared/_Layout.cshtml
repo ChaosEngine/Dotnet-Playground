@@ -107,7 +107,7 @@
 						</li>
 						<li class="nav-item dropdown">
 							<a class="nav-link dropdown-toggle" title="Work in progress" data-bs-toggle="dropdown" href="#"
-								role="button" aria-haspopup="true" aria-expanded="false" data-i18n="[title]nav.items.wip.long; nav.items.wip.name">WIP...</a>
+								role="button" aria-haspopup="true" aria-expanded="false" data-i18n="nav.items.wip.name;[title]nav.items.wip.long">WIP...</a>
 							<div class="dropdown-menu">
 								<a class="dropdown-item" href="~/PuzzleGenerator" data-i18n="nav.items.wip.puzzle">Puzzle Generator</a>
 								<a class="dropdown-item" href="~/BeepExperiment" data-i18n="nav.items.wip.beep">Beep Experiment</a>
@@ -150,7 +150,8 @@
 		<script src="~/lib/jquery/jquery.min.js"></script>
 		<script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
 		<script src="~/lib/i18next/i18next.min.js"></script>
-		<script src="~/lib/jquery-i18next/jquery-i18next.min.js"></script>
+		@* <script src="~/lib/jquery-i18next/jquery-i18next.min.js"></script> *@
+		<script src="~/lib/loc-i18next/loc-i18next.min.js"></script>
 		<script src="~/lib/i18next-browser-languageDetector/i18nextBrowserLanguageDetector.min.js"></script>
 		<script src="~/lib/i18next-http-backend/i18nextHttpBackend.min.js"></script>
 		<script src="~/js/site.js" asp-append-version="true"></script>
@@ -170,10 +171,14 @@
 			asp-fallback-src="~/lib/i18next/i18next.min.js"
 			asp-fallback-test="window.i18next">
 		</script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-i18next/1.2.1/jquery-i18next.min.js" integrity="sha512-79RgNpOyaf8AvNEUdanuk1x6g53UPoB6Fh2uogMkOMGADBG6B0DCzxc+dDktXkVPg2rlxGvPeAFKoZxTycVooQ==" crossorigin="anonymous" referrerpolicy="no-referrer"
+		@* <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-i18next/1.2.1/jquery-i18next.min.js" integrity="sha512-79RgNpOyaf8AvNEUdanuk1x6g53UPoB6Fh2uogMkOMGADBG6B0DCzxc+dDktXkVPg2rlxGvPeAFKoZxTycVooQ==" crossorigin="anonymous" referrerpolicy="no-referrer"
 			asp-fallback-src="~/lib/jquery-i18next/jquery-i18next.min.js"
 			asp-fallback-test="window.jqueryI18next">
-		</script>
+		</script> *@
+		<script src="https://cdn.jsdelivr.net/npm/loc-i18next@0.1.6/dist/umd/loc-i18next.min.js" integrity="sha256-i/XkMNtFWXAgVw4xvk2Lx0SY+195DWTuHYBwYn4LXzo=" crossorigin="anonymous"
+			asp-fallback-src="~/lib/loc-i18next/loc-i18next.min.js"
+			asp-fallback-test="window.locI18next">
+		></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/i18next-browser-languagedetector/8.0.2/i18nextBrowserLanguageDetector.min.js" integrity="sha512-mGlmbZK2eNmR/VrBTpfhxbNQYPRsAqSdeg/wldttP+6EPqYBdY86/uVJY080JbNZBAVrHTUf7XEnJuplwkBr/w==" crossorigin="anonymous" referrerpolicy="no-referrer"
 			asp-fallback-src="~/lib/i18next-browser-languageDetector/i18nextBrowserLanguageDetector.min.js"
 			asp-fallback-test="window.i18nextBrowserLanguageDetector">

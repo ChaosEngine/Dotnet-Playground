@@ -49,6 +49,54 @@
 		"newGameLeg": "Tworzenie nowej gry",
 		"newGameOpts": "Opcje nowej gry"
 	},
+	"game": {
+		"name": "Gra w kropki",
+		"playingWith": "gra ",
+		"vs": "vs",
+		"red": "czerwonymi",
+		"blue": "niebieskimi",
+		"player1": "Gracz 1",
+		"player2": "Gracz 2",
+		"pause": "pauza",
+		"back2List": "powrót do Listy Gier",
+		"surrender": "poddaj się",
+		"drawLine": "Rysuj ścieżkę",
+		"drawDot": "Postaw kropkę",
+		"stopAndDraw": "Stop i Rysuj",
+		"cancelPath": "Anuluj ścieżkę",
+		"smTest": "Testy",
+		"testBuildGraph": "Zbuduj obecny graf",
+		"testConcaveman": "Concaveman",
+		"testMarkAllCycles": "Zaznacz wszystkie cykle",
+		"testGroupPoints": "Grupuj punkty rekursywnie",
+		"testFindSurroundablePoints": "Znajdź otaczalne punkty",
+		"testDFS2": "DFS 2",
+		"floodFill": "Wypełnienie powodziowe",
+		"aStar": "A-Star",
+		"clustering": "Klastrowanie",
+		"placeRed": "Postaw czerwony",
+		"placeBlue": "Postaw niebieski",
+		"message2Send": "Wiadomość do wysłania",
+		"messageDot3": "Wiadomość...",
+		"sendMessage": "Wyślij Wiadomość",
+		"waitingForOther": "Czekam na połączenie innego gracza",
+		"yourMove": "Twój ruch",
+		"waitingForOppo": "Czekam na ruch przeciwnika",
+		"oppMovedYou": "Przeciwnik wykonał ruch, Twoja kolej",
+		"serviceMenu": "Menu Serwisowe",
+		"gameIntrpt": "Przerwanie gry",
+		"gameIntrpt!":"Gra przerwana!",
+		"winSituation": "Sytuacja wygrana",
+		"gameWon!": "Gra wygrana!",
+		"usrXPoint": "{{sUser}} umieszcza {{msg}}) punkt",
+		"usrXPath": "{{sUser}} umieszcza {{msg}} ścieżkę ",
+		"plJoining": "Dołączenie gracza",
+
+		
+		"AI": {
+			"clustFirstClick": "!!!Najpierw musisz kliknąć myszką w jakimś punkcie, aby wybrać kolor!!!"
+		}
+	},
 	"err": {
 		"noActiveGame": "Brak aktywnej gry dla Ciebie",
 		"viewOnlyBadGameID": "Tylko podgląd: Zły GameID",
@@ -62,6 +110,18 @@
 		"couldNotCreate": "Nie można utworzyć nowej gry dla tego użytkownika",
 		"noGame": "Nie masz gry",
 		"notLoggedIn": "Nie jesteś zalogoway",
-		"haveToLogIn": "Musisz być zalogowany"
+		"haveToLogIn": "Musisz być zalogowany",
+		"noBoard": "brak tablicy",
+		"badPoint": "zły punkt",
+		"badPointT": "Zły typ punktu!",
+		"noSVG": "SVG jest niewspierane! 😢",
+		"kind": {
+			"misKind": "brak implementacji rodzaju!"
+		},
+
+
+
+
+		"err!": "Błąd!"
 	}
 }

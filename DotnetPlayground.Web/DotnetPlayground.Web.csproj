@@ -60,7 +60,7 @@
 
 	<Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
 		<Exec Command="pnpm install --prod --unsafe-perm" />
-		<Exec Command="pnpm run gulp -- --version=$(Version) --env=production" />
+		<Exec Command="pnpm run gulp --version=$(Version) --env=production" />
 	</Target>
 
 	<ItemGroup>

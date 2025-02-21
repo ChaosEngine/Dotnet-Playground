@@ -49,6 +49,78 @@
 		"newGameLeg": "New game creation",
 		"newGameOpts": "New game options"
 	},
+	"game": {
+		"name": "InkBall Game",
+		"playingWith": "playing with",
+		"vs": "vs",
+		"red": "red",
+		"blue": "blue",
+		"player1": "Player 1",
+		"player2": "Player 2",
+		"pause": "pause",
+		"back2List": "back to Game List",
+		"surrender": "surrender",
+		"drawLine": "Draw line",
+		"drawDot": "Draw dot",
+		"stopAndDraw": "Stop and Draw",
+		"cancelPath": "Cancel path",
+		"smTest": "Tests",
+		"testBuildGraph": "Build current graph",
+		"testConcaveman": "Concaveman",
+		"testMarkAllCycles": "Mark all cycles",
+		"testGroupPoints": "Group points recurse",
+		"testFindSurroundablePoints": "Find surroundable points",
+		"testDFS2": "DFS 2",
+		"floodFill": "Flood fill",
+		"aStar": "A-Star",
+		"clustering": "Clustering",
+		"placeRed": "Place Red",
+		"placeBlue": "Place Blue",
+		"message2Send": "Message to send",
+		"messageDot3": "Message...",
+		"sendMessage": "Send Message",
+		"waitingForOther": "Waiting for other player to connect",
+		"yourMove": "Your move",
+		"waitingForOppo": "Waiting for opponent move",
+		"oppMovedYou": "Opponent has moved, your turn",
+		"serviceMenu": "Service Menu",
+		"gameIntrpt": "Game interruption",
+		"gameIntrpt!":"Game interrupted!",
+		"winSituation": "Win situation",
+		"gameWon!": "Game won!",
+		"usrXPoint": "{{sUser}} places {{msg}}) point",
+		"usrXPath": "{{sUser}} places {{msg}} path",
+		"plJoining": "Player joining",
+		"andWinner":"And the winner is... {{msg}}",
+		"whoWins":{
+			"red":"red.",
+			"blue":"blue.",
+			"noOne":"no one!",
+			"draw":"draw!"
+		},
+		"usrStartedPath":"User {{other}} started to draw path",
+		"browsNoNotif":"Browser does not support notifications.",
+		"usrBlockNotif":"User blocked notifications.",
+		"weHaveWinner":"We have a winner",
+		"notifTitle":"Hi there!",
+		"notifBody":"How are you doing?",
+		"usrMsg":"User Message",
+		"usrDisc":"User disconnected",
+		"usrCon":"User connected",
+		"usrStrtDraw":"User {{user}} started drawing new path",
+		"stpSignRCon":"Stopped SignalR connection",
+		"somePlayer":"some player",
+		"closingPat":"Closing path",
+
+
+		
+		
+		"AI": {
+			"clustFirstClick": "!!!First you need to click some point with mouse to pick the color!!!",
+			"ptsNotUniq":"Points not unique",
+			"noSurrPts":"No surrounded points"
+		}
+	},
 	"err": {
 		"noActiveGame": "No active game for you",
 		"viewOnlyBadGameID": "View only: Bad GameID",
@@ -62,6 +134,24 @@
 		"couldNotCreate": "Could not create new game for this user",
 		"noGame": "You have no game",
 		"notLoggedIn": "You are not logged in",
-		"haveToLogIn": "You have to be logged in"
+		"haveToLogIn": "You have to be logged in",
+		"noBoard": "no board",
+		"badPoint": "bad point",
+		"badPointT": "Bad point type!",
+		"noSVG": "SVG is not supported! 😢",
+		"kind": {
+			"misImpl": "missing Kind implementation!",
+			"serv2Cl": "ServerToClientPath bad Kind!",
+			"cl2Srv": "ClientToServerPath bad Kind!"
+		},
+		"signalrNull":"signalr conn is null",
+		"newPoint":"New Point",
+		"newPath":"New Path",
+		"unkwnObj":"unknown object",
+		"wrongPath":"Wrong path",
+		"pathDrawErrorDesc":"{{errDesc}} cancel it or refresh page",
+
+		
+		"err!": "Error!"
 	}
 }

@@ -1,6 +1,6 @@
 ﻿/*eslint-disable no-console*/
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate|handleAboutPageBranchHash" }]*/
-/*global forge, bootstrap, i18next, i18nextBrowserLanguageDetector, i18nextHttpBackend, jqueryI18next*/
+/*global forge, bootstrap, i18next, i18nextBrowserLanguageDetector, i18nextHttpBackend, locI18next*/
 "use strict";
 
 var g_AppRootPath = location.pathname.match(/\/([^/]+)\//)[0],
@@ -83,6 +83,35 @@ function myAlert(msg = 'Content', title = 'Modal title', onCloseCallback = undef
 	document.getElementById('divModalLabel').textContent = title;
 	myModal.show();
 }
+
+/**
+ * Custom alert bootstrap modal - i18n version expecting translation keys
+ * @param {string} msg content shown
+ * @param {string} title of the dialog
+ * @param {Function} onCloseCallback callback executed on close
+function myAlertI18n(msg = 'common.dlgContent', title = 'common.dlgTitle', onCloseCallback = undefined) {
+	const myModalEl = document.getElementById('divModal');
+	const myModal = bootstrap.Modal.getOrCreateInstance(myModalEl, { keyboard: true, backdrop: true });
+
+	if (onCloseCallback) {
+		// on close action
+		myModalEl.addEventListener('hidden.bs.modal', function listener(e) {
+			// remove event listener
+			e.target.removeEventListener(e.type, listener);
+
+			// call handler with original context
+			return onCloseCallback.call(this, e);
+		});
+	}
+
+	// myModalEl.querySelector('.modal-body').textContent = msg;
+	myModalEl.querySelector('.modal-body').dataset.i18n = msg;
+	// document.getElementById('divModalLabel').textContent = title;
+	document.getElementById('divModalLabel').dataset.i18n = title;
+	window.localize("#divModal");
+	myModal.show();
+}
+*/
 
 /**
  * Global document ready function
@@ -192,8 +221,8 @@ $(function () {
 	function handleLocalization(isDev) {
 
 		function renderLocalize() {
-			$('head').localize();
-			$('body').localize();
+			window.localize('head');
+			window.localize('body');
 
 			// const img = $('#langDropdown button.nav-link > img');
 			// img.attr('src', `${g_AppRootPath}images/flag_${lang}.svg`);
@@ -211,14 +240,17 @@ $(function () {
 				supportedLngs: ['en', 'pl'], // array of supported languages
 
 				ns: ['translation', ...(location.pathname.match(/InkBall/) ? ['inkBall'] : '')],
-  				defaultNS: 'translation',
+				defaultNS: 'translation',
 
 				backend: {
 					loadPath: `${g_AppRootPath}locales/{{lng}}/{{ns}}${(isDev === true ? '' : '.min')}.json`
 				}
 			}, function (/* err, t */) {
 				// for options see: https://github.com/i18next/jquery-i18next#initialize-the-plugin
-				jqueryI18next.init(i18next, $, { useOptionsAttr: true });
+				// jqueryI18next.init(i18next, $, { useOptionsAttr: true });
+
+				const localize = locI18next.init(i18next, { useOptionsAttr: false });
+				window.localize = localize;
 
 				// start localizing, details: https://github.com/i18next/jquery-i18next#usage-of-selector-function
 				renderLocalize();
@@ -295,6 +327,7 @@ $(function () {
 	registerMyAlert();
 	//overriding window.alert with own implementation
 	window.alert = myAlert;
+	// window.myAlertI18n = myAlertI18n;
 
 	handleLocalization(isDevelopment);
 });
