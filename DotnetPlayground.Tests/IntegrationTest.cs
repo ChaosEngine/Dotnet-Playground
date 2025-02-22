@@ -432,7 +432,7 @@ namespace Integration
 	}
 
 	[Collection(nameof(TestServerCollection))]
-	public class BlogsPage
+	public partial class BlogsPage
 	{
 		private readonly TestServerFixture<Startup> _fixture;
 		private readonly HttpClient _client;
@@ -524,7 +524,7 @@ namespace Integration
 				using (var index_response = await _client.GetAsync($"{_client.BaseAddress}{BlogsController.ASPX}/", HttpCompletionOption.ResponseContentRead))
 				{
 					var responseString = await index_response.Content.ReadAsStringAsync();
-					MatchCollection matches = Regex.Matches(responseString, @"\<form method=""post"" class=""blogForm row g-3"" data-id=""([0-9].*)""\>");
+					MatchCollection matches = MyRegex().Matches(responseString);
 					Assert.NotEmpty(matches);
 					var ids = new List<int>(matches.Count);
 					foreach (Match m in matches)
@@ -636,7 +636,7 @@ namespace Integration
 				using (var index_response = await _client.GetAsync($"{_client.BaseAddress}{BlogsController.ASPX}/", HttpCompletionOption.ResponseContentRead))
 				{
 					var responseString = await index_response.Content.ReadAsStringAsync();
-					MatchCollection matches = Regex.Matches(responseString, @"\<form method=""post"" class=""blogForm row g-3"" data-id=""([0-9].*)""\>");
+					MatchCollection matches = MyRegex().Matches(responseString);
 					Assert.NotEmpty(matches);
 					var ids = new List<int>(matches.Count);
 					foreach (Match m in matches)
@@ -836,10 +836,13 @@ namespace Integration
 				}
 			}//end using (var create_get_response
 		}
-	}
+
+        [GeneratedRegex(@"\<form method=""post"" class=""blogForm row g-3"" data-id=""([0-9].*)""\>")]
+        private static partial Regex MyRegex();
+    }
 
 	[Collection(nameof(TestServerCollection))]
-	public class WebCamGalleryPage
+	public partial class WebCamGalleryPage
 	{
 		private readonly TestServerFixture<Startup> _fixture;
 		private readonly HttpClient _client;
@@ -881,7 +884,7 @@ namespace Integration
 						</picture>
 					</a>*/
 
-					MatchCollection matches = Regex.Matches(responseString, @"\<a href=""(.*thumbnail-.*\.jpg)"" title=""(.*)"">");
+					MatchCollection matches = MyRegex().Matches(responseString);
 					Assert.NotEmpty(matches);
 					var images = new List<string>(matches.Count);
 					foreach (Match m in matches.Take(7))
@@ -1008,7 +1011,10 @@ namespace Integration
 
 			}//end using
 		}
-	}
+
+        [GeneratedRegex(@"\<a href=""(.*thumbnail-.*\.jpg)"" title=""(.*)"">")]
+        private static partial Regex MyRegex();
+    }
 
 	[Collection(nameof(TestServerCollection))]
 	public class IdentityManager2

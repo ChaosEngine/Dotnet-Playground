@@ -85,35 +85,6 @@ function myAlert(msg = 'Content', title = 'Modal title', onCloseCallback = undef
 }
 
 /**
- * Custom alert bootstrap modal - i18n version expecting translation keys
- * @param {string} msg content shown
- * @param {string} title of the dialog
- * @param {Function} onCloseCallback callback executed on close
-function myAlertI18n(msg = 'common.dlgContent', title = 'common.dlgTitle', onCloseCallback = undefined) {
-	const myModalEl = document.getElementById('divModal');
-	const myModal = bootstrap.Modal.getOrCreateInstance(myModalEl, { keyboard: true, backdrop: true });
-
-	if (onCloseCallback) {
-		// on close action
-		myModalEl.addEventListener('hidden.bs.modal', function listener(e) {
-			// remove event listener
-			e.target.removeEventListener(e.type, listener);
-
-			// call handler with original context
-			return onCloseCallback.call(this, e);
-		});
-	}
-
-	// myModalEl.querySelector('.modal-body').textContent = msg;
-	myModalEl.querySelector('.modal-body').dataset.i18n = msg;
-	// document.getElementById('divModalLabel').textContent = title;
-	document.getElementById('divModalLabel').dataset.i18n = title;
-	window.localize("#divModal");
-	myModal.show();
-}
-*/
-
-/**
  * Global document ready function
  */
 $(function () {
@@ -175,16 +146,16 @@ $(function () {
 		divModal.setAttribute("aria-hidden", "true");
 		divModal.innerHTML =
 			'<div class="modal-dialog">' +
-				'<div class="modal-content">' +
-					'<div class="modal-header">' +
-						`<h5 class="modal-title text-break" id="divModalLabel">${title}</h5>` +
-						'<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
-					'</div>' +
-					`<div class="modal-body text-break">${msg}</div>` +
-					'<div class="modal-footer">' +
-						'<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>' +
-					'</div>' +
-				'</div>' +
+			'<div class="modal-content">' +
+			'<div class="modal-header">' +
+			`<h5 class="modal-title text-break" id="divModalLabel">${title}</h5>` +
+			'<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
+			'</div>' +
+			`<div class="modal-body text-break">${msg}</div>` +
+			'<div class="modal-footer">' +
+			'<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>' +
+			'</div>' +
+			'</div>' +
 			'</div>';
 		document.body.appendChild(divModal);
 	}
@@ -221,12 +192,10 @@ $(function () {
 	function handleLocalization(isDev) {
 
 		function renderLocalize() {
-			window.localize('head');
-			window.localize('body');
+			window.localize('head,body');
 
-			// const img = $('#langDropdown button.nav-link > img');
-			// img.attr('src', `${g_AppRootPath}images/flag_${lang}.svg`);
-			// img.attr('alt', lang === 'en' ? translateFunc('nav.langDropdown.en') : translateFunc('nav.langDropdown.pl'));
+			// $('head').localize();
+			// $('body').localize();
 		}
 
 		// use plugins and options as needed, for options, detail see: http://i18next.com/docs/
@@ -248,8 +217,9 @@ $(function () {
 			}, function (/* err, t */) {
 				// for options see: https://github.com/i18next/jquery-i18next#initialize-the-plugin
 				// jqueryI18next.init(i18next, $, { useOptionsAttr: true });
+				// window.localize = (sel) => $(sel).localize();
 
-				const localize = locI18next.init(i18next, { useOptionsAttr: false });
+				const localize = locI18next.init(i18next, { useOptionsAttr: true, optionsAttr: 'data-i18n-options' });
 				window.localize = localize;
 
 				// start localizing, details: https://github.com/i18next/jquery-i18next#usage-of-selector-function

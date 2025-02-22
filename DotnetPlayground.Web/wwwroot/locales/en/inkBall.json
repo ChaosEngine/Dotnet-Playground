@@ -60,6 +60,7 @@
 		"pause": "pause",
 		"back2List": "back to Game List",
 		"surrender": "surrender",
+		"plaXSurrendr":"Player {{usr}} surrenders",
 		"drawLine": "Draw line",
 		"drawDot": "Draw dot",
 		"stopAndDraw": "Stop and Draw",
@@ -85,40 +86,47 @@
 		"oppMovedYou": "Opponent has moved, your turn",
 		"serviceMenu": "Service Menu",
 		"gameIntrpt": "Game interruption",
-		"gameIntrpt!":"Game interrupted!",
-		"winSituation": "Win situation",
+		"gameIntrpt!": "Game interrupted!",
+		"winSituation": "Victory!",
 		"gameWon!": "Game won!",
 		"usrXPoint": "{{sUser}} places {{msg}}) point",
 		"usrXPath": "{{sUser}} places {{msg}} path",
 		"plJoining": "Player joining",
-		"andWinner":"And the winner is... {{msg}}",
-		"whoWins":{
-			"red":"red.",
-			"blue":"blue.",
-			"noOne":"no one!",
-			"draw":"draw!"
+		"plXJoining": "Player {{usr}} joining",
+		"andWinner": "And the winner is... {{msg}}",
+		"whoWins": {
+			"red": "red.",
+			"blue": "blue.",
+			"noOne": "no one!",
+			"draw": "draw!"
 		},
-		"usrStartedPath":"User {{other}} started to draw path",
-		"browsNoNotif":"Browser does not support notifications.",
-		"usrBlockNotif":"User blocked notifications.",
-		"weHaveWinner":"We have a winner",
-		"notifTitle":"Hi there!",
-		"notifBody":"How are you doing?",
-		"usrMsg":"User Message",
-		"usrDisc":"User disconnected",
-		"usrCon":"User connected",
-		"usrStrtDraw":"User {{user}} started drawing new path",
-		"stpSignRCon":"Stopped SignalR connection",
-		"somePlayer":"some player",
-		"closingPat":"Closing path",
-
-
-		
-		
+		"usrStartedPath": "User {{other}} started to draw path",
+		"browsNoNotif": "Browser does not support notifications.",
+		"usrBlockNotif": "User blocked notifications.",
+		"weHaveWinner": "We have a winner",
+		"notifTitle": "Hi there!",
+		"notifBody": "How are you doing?",
+		"usrMsg": "User Message",
+		"usrDisc": "User disconnected",
+		"usrCon": "User connected",
+		"usrStrtDraw": "User {{user}} started drawing new path",
+		"stpSignRCon": "Stopped SignalR connection",
+		"somePlayer": "some player",
+		"closingPat": "Closing path",
+		"stat": {
+			"pts": "circles: %s, ",
+			"lin": "lines: %s, ",
+			"inter1": "intercepted(P1:%s, ",
+			"inter2": "P2:%s)",
+			"all": "Elements => points: {{pts}}, lines: {{lin}}, intercepted(P1:{{intP1}}, P2:{{intP2}})"
+		},
+		"othPlConn": "Other player {{usr}} connected 😁",
+		"othPlDisc": "Other player {{usr}} disconnected 😢",
 		"AI": {
 			"clustFirstClick": "!!!First you need to click some point with mouse to pick the color!!!",
-			"ptsNotUniq":"Points not unique",
-			"noSurrPts":"No surrounded points"
+			"groupPtsFirst": "!!!First you need to click 'blue' starting point with mouse!!!",
+			"dfs2First": "!!!First you need to click starting point with mouse!!!",
+			"aStarFirst": "!!!First you need to click two (starting and ending) points with mouse!!!"
 		}
 	},
 	"err": {
@@ -141,17 +149,20 @@
 		"noSVG": "SVG is not supported! 😢",
 		"kind": {
 			"misImpl": "missing Kind implementation!",
-			"serv2Cl": "ServerToClientPath bad Kind!",
-			"cl2Srv": "ClientToServerPath bad Kind!"
+			"serv2Cl": "ServerToClientPath - bad Kind!",
+			"cl2Srv": "ClientToServerPath - bad Kind!"
 		},
-		"signalrNull":"signalr conn is null",
-		"newPoint":"New Point",
-		"newPath":"New Path",
-		"unkwnObj":"unknown object",
-		"wrongPath":"Wrong path",
-		"pathDrawErrorDesc":"{{errDesc}} cancel it or refresh page",
-
-		
+		"signalrNull": "signalr conn is null",
+		"newPoint": "New Point",
+		"newPath": "New Path",
+		"unkwnObj": "unknown object",
+		"ptsNotUniq": "Points not unique, cancel it or refresh page",
+		"noSurrPts": "No surrounded points, cancel it or refresh page",
+		"wrongPath": "Wrong path, cancel it or refresh page",
+		"pathDrawErrorDesc": "{{errDesc}}, cancel it or refresh page",
+		"ptAlreadExist": "Wrong point - already existing",
+		"pointNotOutside": "Wrong point, Point is not outside all paths",
+		"noData": "no data",
 		"err!": "Error!"
 	}
 }
