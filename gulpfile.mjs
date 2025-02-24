@@ -29,6 +29,7 @@ import TerserPlugin from 'terser-webpack-plugin';
 import jsonMinify from 'gulp-json-minify';
 
 const webroot = "./DotnetPlayground.Web/wwwroot/";
+const IBwebroot = "./InkBall/src/InkBall.Module/IBwwwroot/";
 
 const paths = {
 	js: webroot + "js/**/*.js",
@@ -43,15 +44,19 @@ const paths = {
 	//<ServiceWorker>
 	SWJs: webroot + "sw.js",
 	SWJsDest: webroot + "sw.min.js",
-	//<ServiceWorker/>
+	//<ServiceWorker>
 	//<WebWorkers>
 	BruteForceWorkerJs: webroot + "js/workers/BruteForceWorker.js",
 	BruteForceWorkerJsDest: webroot + "js/workers/BruteForceWorker.min.js",
 	SharedJs: webroot + "js/workers/shared.js",
 	SharedJsDest: webroot + "js/workers/shared.min.js",
-	//<WebWorkers/>
-	inkBallJsRelative: "./InkBall/src/InkBall.Module/IBwwwroot/js/",
-	inkBallCssRelative: "./InkBall/src/InkBall.Module/IBwwwroot/css/"
+	//</WebWorkers>
+	//<InkBall>
+	inkBallJsRelative: IBwebroot + "js/",
+	inkBallCssRelative: IBwebroot + "css/",
+	inkBallTranslation: IBwebroot + "locales/**/*.json",
+	inkBallMinTranslation: IBwebroot + "locales/**/*.min.json"
+	//</InkBall>
 };
 
 const minCSS = function (sourcePattern, notPattern, dest) {
@@ -245,7 +250,14 @@ const minInkballCss = gulp.series(
 	}
 );
 
-const minInkball = gulp.parallel(minInkballJs, minInkballCss);
+const minInkballTranslations = function concatJsDest() {
+	return gulp.src([paths.inkBallTranslation, "!" + paths.inkBallMinTranslation], { base: "." })
+		.pipe(jsonMinify())
+		.pipe(rename({ suffix: '.min' }))
+		.pipe(gulp.dest("."));
+};
+
+const minInkball = gulp.parallel(minInkballJs, minInkballCss, minInkballTranslations);
 
 const cleanInkball = async function (cb) {
 	await Promise.all([
@@ -265,6 +277,7 @@ const cleanJs = gulp.series(cleanInkball, async function cleanMinJs(cb) {
 		rimraf(paths.minJs),
 		rimraf(paths.SWJsDest),
 		rimraf(paths.minTranslation),
+		rimraf(paths.inkBallMinTranslation),
 		rimraf(webroot + "js/**/*.map"),
 		rimraf(webroot + "*.map")
 	]);
@@ -367,7 +380,7 @@ const processSCSS = function (sourcePattern, notPattern) {
 	return gulp.src([sourcePattern, "!" + notPattern])
 		// .pipe(header('$themeColor: ${color};\n$projectVersion: ${version};\n', { color: colorTheme, version: `'${projectVersion}'` }))
 		.pipe(replace('$themeColor', colorTheme))
-    	.pipe(replace('$projectVersion', `'${projectVersion}'`))
+		.pipe(replace('$projectVersion', `'${projectVersion}'`))
 		.pipe(sass().on('error', sass.logError))
 		.pipe(gulp.dest(notPattern));
 };
