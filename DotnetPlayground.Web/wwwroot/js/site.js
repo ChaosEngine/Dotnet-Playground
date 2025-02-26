@@ -111,7 +111,7 @@ window.addEventListener('DOMContentLoaded', function () {
 				defaultNS: 'translation',
 
 				backend: {
-					loadPath: `../locales/{{lng}}/{{ns}}${(isDev === true ? '' : '.min')}.json`
+					loadPath: `${g_AppRootPath}locales/{{lng}}/{{ns}}${(isDev === true ? '' : '.min')}.json`
 				}
 			}, function (/* err, t */) {
 				// for options see: https://github.com/i18next/jquery-i18next#initialize-the-plugin
