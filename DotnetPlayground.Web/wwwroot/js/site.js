@@ -3,7 +3,7 @@
 /*global forge, bootstrap, i18next, i18nextBrowserLanguageDetector, i18nextHttpBackend, locI18next*/
 "use strict";
 
-var g_AppRootPath = location.pathname.match(/\/([^/]+)\//)[0],
+var g_AppRootPath = location.pathname.match(/\/([^/]+)\//)[0], g_isDevelopment = location.host.match(/:\d+/) !== null,
 	g_gitBranch = "GIT_BRANCH", g_gitHash = "GIT_HASH";
 
 /**
@@ -83,6 +83,65 @@ function myAlert(msg = 'Content', title = 'Modal title', onCloseCallback = undef
 	document.getElementById('divModalLabel').textContent = title;
 	myModal.show();
 }
+
+window.addEventListener('DOMContentLoaded', function () {
+
+	function handleLocalization(isDev) {
+
+		window.registerLocalizationOnReady = null;
+		let localize = null;
+
+		function renderLocalize() {
+			localize('head,body');
+
+			// $('head,body').localize();
+		}
+
+		// use plugins and options as needed, for options, detail see: http://i18next.com/docs/
+		i18next
+			// detect user language. learn more: https://github.com/i18next/i18next-browser-languageDetector
+			.use(i18nextBrowserLanguageDetector)
+			.use(i18nextHttpBackend)
+			.init({
+				debug: isDev,
+				fallbackLng: false, // default language if nothing found by detector or disable loading fallback
+				supportedLngs: ['en', 'pl'], // array of supported languages
+
+				ns: ['translation', ...(location.pathname.match(/InkBall/) ? ['ib'] : '')],
+				defaultNS: 'translation',
+
+				backend: {
+					loadPath: `../locales/{{lng}}/{{ns}}${(isDev === true ? '' : '.min')}.json`
+				}
+			}, function (/* err, t */) {
+				// for options see: https://github.com/i18next/jquery-i18next#initialize-the-plugin
+				// jqueryI18next.init(i18next, $, { useOptionsAttr: true });
+				// localize = (sel) => $(sel).localize();
+
+				localize = locI18next.init(i18next, { useOptionsAttr: true, optionsAttr: 'data-i18n-options' });
+
+				if (typeof window.registerLocalizationOnReady === "function") {
+					window.registerLocalizationOnReady(localize);
+					delete window.registerLocalizationOnReady;
+				}
+
+				// start localizing, details: https://github.com/i18next/jquery-i18next#usage-of-selector-function
+				renderLocalize();
+			});
+
+		// Language switcher
+		$('#langDropdown button[data-lang]').on('click', function () {
+			const lang = $(this).data('lang');
+
+			i18next.changeLanguage(lang, function (/* err, t */) {
+				// Update the content after language change
+				renderLocalize();
+			});
+		});
+	}
+
+	handleLocalization(g_isDevelopment);
+});
 
 /**
  * Global document ready function
@@ -189,54 +248,6 @@ $(function () {
 		}
 	}
 
-	function handleLocalization(isDev) {
-
-		function renderLocalize() {
-			window.localize('head,body');
-
-			// $('head').localize();
-			// $('body').localize();
-		}
-
-		// use plugins and options as needed, for options, detail see: http://i18next.com/docs/
-		i18next
-			// detect user language. learn more: https://github.com/i18next/i18next-browser-languageDetector
-			.use(i18nextBrowserLanguageDetector)
-			.use(i18nextHttpBackend)
-			.init({
-				debug: isDev,
-				fallbackLng: false, // default language if nothing found by detector or disable loading fallback
-				supportedLngs: ['en', 'pl'], // array of supported languages
-
-				ns: ['translation', ...(location.pathname.match(/InkBall/) ? ['inkBall'] : '')],
-				defaultNS: 'translation',
-
-				backend: {
-					loadPath: `${g_AppRootPath}locales/{{lng}}/{{ns}}${(isDev === true ? '' : '.min')}.json`
-				}
-			}, function (/* err, t */) {
-				// for options see: https://github.com/i18next/jquery-i18next#initialize-the-plugin
-				// jqueryI18next.init(i18next, $, { useOptionsAttr: true });
-				// window.localize = (sel) => $(sel).localize();
-
-				const localize = locI18next.init(i18next, { useOptionsAttr: true, optionsAttr: 'data-i18n-options' });
-				window.localize = localize;
-
-				// start localizing, details: https://github.com/i18next/jquery-i18next#usage-of-selector-function
-				renderLocalize();
-			});
-
-		// Language switcher
-		$('#langDropdown button[data-lang]').on('click', function () {
-			const lang = $(this).data('lang');
-
-			i18next.changeLanguage(lang, function (/* err, t */) {
-				// Update the content after language change
-				renderLocalize();
-			});
-		});
-	}
-
 
 	/**
 	 * Mapped after Microsoft.Extensions.Logging
@@ -282,8 +293,7 @@ $(function () {
 		org_error.call(this, arguments);
 	};
 
-	const isDevelopment = window.location.host.match(/:\d+/) !== null;
-	registerServiceWorker(g_AppRootPath, isDevelopment);
+	registerServiceWorker(g_AppRootPath, g_isDevelopment);
 
 	handleLogoutForm();
 
@@ -297,9 +307,6 @@ $(function () {
 	registerMyAlert();
 	//overriding window.alert with own implementation
 	window.alert = myAlert;
-	// window.myAlertI18n = myAlertI18n;
-
-	handleLocalization(isDevelopment);
 });
 
 window.onerror = function (msg, url, line, col, error) {

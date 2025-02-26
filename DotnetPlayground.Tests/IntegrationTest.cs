@@ -1286,6 +1286,8 @@ namespace Integration
 		[InlineData("lib/signalr-protocol-msgpack/browser/signalr-protocol-msgpack.min.js.map")]
 		[InlineData("lib/video.js/alt/video.core.novtt.min.js")]
 		[InlineData("lib/video.js/video-js.min.css")]
+		[InlineData("locales/en/translation.min.json")]
+		[InlineData("locales/pl/translation.min.json")]
 		public async Task GetStaticAssetContent(string url)
 		{
 			//if (!Directory.Exists("wwwroot/lib/jquery")) return;
@@ -1314,6 +1316,13 @@ namespace Integration
 					Assert.True(response.Content.Headers.TryGetValues("Content-Type", out c_type));
 					Assert.NotNull(c_type);
 					Assert.Equal("text/javascript", response.Content.Headers.ContentType.MediaType);
+					break;
+
+				case ".json":
+					Assert.IsType<StreamContent>(response.Content);
+					Assert.True(response.Content.Headers.TryGetValues("Content-Type", out c_type));
+					Assert.NotNull(c_type);
+					Assert.Equal("application/json", response.Content.Headers.ContentType.MediaType);
 					break;
 
 				case ".gif":
