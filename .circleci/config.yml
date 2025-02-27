@@ -149,6 +149,7 @@ jobs:
           name: Install project dependencies
           command: |
             dotnet restore
+            dotnet dev-certs https --trust
             pnpm i
             npx playwright install --only-shell chromium
       - run:
