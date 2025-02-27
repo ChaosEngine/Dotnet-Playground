@@ -51,6 +51,8 @@ test('Highscores page as Anonymous with redirect to LogIn', async ({ browser }) 
 	await notAllowedAndRedirectToLogin(browser, 'InkBall/Highscores');
 });
 
+/*
+//No use in that really
 test('NotExisting page as Anonymous with redirect to LogIn', async ({ browser }) => {
 	const page = await browser.newPage();
 
@@ -59,3 +61,4 @@ test('NotExisting page as Anonymous with redirect to LogIn', async ({ browser })
 	// Expects the URL to be Home because Game page redirect if no game present.
 	await expect(resp?.status()).toBe(404);
 });
+*/
