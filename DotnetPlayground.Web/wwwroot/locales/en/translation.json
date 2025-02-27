@@ -9,8 +9,8 @@
 			"en": "English",
 			"pl": "Polish",
 			"changeLang": "Change language",
-			"flag_svg": "/dotnet/images/flag_en.svg",
-			"flag_alt": "English"
+			"flag_alt": "English",
+			"selectedFlag": "en"
 		},
 		"loginPartial": {
 			"hello": "Hello",
