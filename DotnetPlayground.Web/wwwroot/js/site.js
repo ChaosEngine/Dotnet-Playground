@@ -111,7 +111,18 @@ window.addEventListener('DOMContentLoaded', function () {
 				defaultNS: 'translation',
 
 				backend: {
-					loadPath: `${g_AppRootPath}locales/{{lng}}/{{ns}}${(isDev === true ? '' : '.min')}.json`
+					loadPath: isDev ?
+						`${g_AppRootPath}locales/{{lng}}/{{ns}}.json`
+						: ([lng], [namespace]) => {
+							switch (namespace) {
+								case 'ib':
+									return `https://cdn.statically.io/gh/ChaosEngine/InkBall/refs/heads/${g_gitBranch}/src/InkBall.Module/IBwwwroot/locales/${lng}/${namespace}.min.json`;
+
+								case 'translation':
+								default:
+									return `https://cdn.statically.io/gh/ChaosEngine/Dotnet-Playground/refs/heads/${g_gitBranch}/DotnetPlayground.Web/wwwroot/locales/${lng}/${namespace}.min.json`;
+							}
+						}
 				}
 			}, function (/* err, t */) {
 				// for options see: https://github.com/i18next/jquery-i18next#initialize-the-plugin
