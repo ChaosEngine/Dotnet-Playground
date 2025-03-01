@@ -116,11 +116,13 @@ window.addEventListener('DOMContentLoaded', function () {
 						: ([lng], [namespace]) => {
 							switch (namespace) {
 								case 'ib':
-									return `https://cdn.statically.io/gh/ChaosEngine/InkBall/refs/heads/${g_gitBranch}/src/InkBall.Module/IBwwwroot/locales/${lng}/${namespace}.min.json`;
+									// return `https://cdn.statically.io/gh/ChaosEngine/InkBall/refs/heads/${g_gitBranch}/src/InkBall.Module/IBwwwroot/locales/${lng}/${namespace}.min.json`;
+									return `https://cdn.jsdelivr.net/gh/ChaosEngine/InkBall@${g_gitBranch/* 'dev' */}/src/InkBall.Module/IBwwwroot/locales/${lng}/${namespace}.min.json`;
 
-								case 'translation':
+								// case 'translation':
 								default:
-									return `https://cdn.statically.io/gh/ChaosEngine/Dotnet-Playground/refs/heads/${g_gitBranch}/DotnetPlayground.Web/wwwroot/locales/${lng}/${namespace}.min.json`;
+									// return `https://cdn.statically.io/gh/ChaosEngine/Dotnet-Playground/refs/heads/${g_gitBranch}/DotnetPlayground.Web/wwwroot/locales/${lng}/${namespace}.min.json`;
+									return `https://cdn.jsdelivr.net/gh/ChaosEngine/Dotnet-Playground@${g_gitBranch/* 'dev' */}/DotnetPlayground.Web/wwwroot/locales/${lng}/${namespace}.min.json`;
 							}
 						}
 				}
