@@ -143,8 +143,8 @@ window.addEventListener('DOMContentLoaded', function () {
 			});
 
 		// Language switcher
-		$('#langDropdown button[data-lang]').on('click', function () {
-			const lang = $(this).data('lang');
+		$('#langDropdown button[title]').on('click', function () {
+			const lang = $(this).attr("title");
 
 			i18next.changeLanguage(lang, function (/* err, t */) {
 				// Update the content after language change
