@@ -111,20 +111,18 @@ window.addEventListener('DOMContentLoaded', function () {
 				defaultNS: 'translation',
 
 				backend: {
-					loadPath: isDev ?
-						`${g_AppRootPath}locales/{{lng}}/{{ns}}.json`
-						: ([lng], [namespace]) => {
-							switch (namespace) {
-								case 'ib':
-									// return `https://cdn.statically.io/gh/ChaosEngine/InkBall/refs/heads/${g_gitBranch}/src/InkBall.Module/IBwwwroot/locales/${lng}/${namespace}.min.json`;
-									return `https://cdn.jsdelivr.net/gh/ChaosEngine/InkBall@${g_gitBranch/* 'dev' */}/src/InkBall.Module/IBwwwroot/locales/${lng}/${namespace}.min.json`;
+					loadPath: ([lng], [namespace]) => {
+						switch (namespace) {
+							case 'ib':
+								return isDev ? `${g_AppRootPath}locales/${lng}/${namespace}.json`
+								: `https://cdn.jsdelivr.net/gh/ChaosEngine/InkBall@${g_gitBranch/* 'dev' */}/src/InkBall.Module/wwwroot/locales/${lng}/${namespace}.min.json`;
 
-								// case 'translation':
-								default:
-									// return `https://cdn.statically.io/gh/ChaosEngine/Dotnet-Playground/refs/heads/${g_gitBranch}/DotnetPlayground.Web/wwwroot/locales/${lng}/${namespace}.min.json`;
-									return `https://cdn.jsdelivr.net/gh/ChaosEngine/Dotnet-Playground@${g_gitBranch/* 'dev' */}/DotnetPlayground.Web/wwwroot/locales/${lng}/${namespace}.min.json`;
-							}
+							// case 'translation':
+							default:
+								return isDev ? `${g_AppRootPath}locales/${lng}/${namespace}.json`
+								: `https://cdn.jsdelivr.net/gh/ChaosEngine/Dotnet-Playground@${g_gitBranch/* 'dev' */}/DotnetPlayground.Web/wwwroot/locales/${lng}/${namespace}.min.json`;
 						}
+					}
 				}
 			}, function (/* err, t */) {
 				// for options see: https://github.com/i18next/jquery-i18next#initialize-the-plugin
@@ -218,16 +216,16 @@ $(function () {
 		divModal.setAttribute("aria-hidden", "true");
 		divModal.innerHTML =
 			'<div class="modal-dialog">' +
-				'<div class="modal-content">' +
-					'<div class="modal-header">' +
-						`<h5 class="modal-title text-break" id="divModalLabel">${title}</h5>` +
-						'<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
-					'</div>' +
-					`<div class="modal-body text-break">${msg}</div>` +
-					'<div class="modal-footer">' +
-						'<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>' +
-					'</div>' +
-				'</div>' +
+			'<div class="modal-content">' +
+			'<div class="modal-header">' +
+			`<h5 class="modal-title text-break" id="divModalLabel">${title}</h5>` +
+			'<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
+			'</div>' +
+			`<div class="modal-body text-break">${msg}</div>` +
+			'<div class="modal-footer">' +
+			'<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>' +
+			'</div>' +
+			'</div>' +
 			'</div>';
 		document.body.appendChild(divModal);
 	}

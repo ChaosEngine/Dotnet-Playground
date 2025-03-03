@@ -29,7 +29,7 @@ import TerserPlugin from 'terser-webpack-plugin';
 import jsonMinify from 'gulp-json-minify';
 
 const webroot = "./DotnetPlayground.Web/wwwroot/";
-const IBwebroot = "./InkBall/src/InkBall.Module/IBwwwroot/";
+const IBwebroot = "./InkBall/src/InkBall.Module/wwwroot/";
 
 const paths = {
 	js: webroot + "js/**/*.js",
