@@ -115,12 +115,12 @@ window.addEventListener('DOMContentLoaded', function () {
 						switch (namespace) {
 							case 'ib':
 								return isDev ? `${g_AppRootPath}locales/${lng}/${namespace}.json`
-								: `https://cdn.jsdelivr.net/gh/ChaosEngine/InkBall@${g_gitBranch/* 'dev' */}/src/InkBall.Module/wwwroot/locales/${lng}/${namespace}.min.json`;
+									: `https://cdn.jsdelivr.net/gh/ChaosEngine/InkBall@${g_gitBranch/* 'dev' */}/src/InkBall.Module/wwwroot/locales/${lng}/${namespace}.min.json`;
 
 							// case 'translation':
 							default:
 								return isDev ? `${g_AppRootPath}locales/${lng}/${namespace}.json`
-								: `https://cdn.jsdelivr.net/gh/ChaosEngine/Dotnet-Playground@${g_gitBranch/* 'dev' */}/DotnetPlayground.Web/wwwroot/locales/${lng}/${namespace}.min.json`;
+									: `https://cdn.jsdelivr.net/gh/ChaosEngine/Dotnet-Playground@${g_gitBranch/* 'dev' */}/DotnetPlayground.Web/wwwroot/locales/${lng}/${namespace}.min.json`;
 						}
 					}
 				}
@@ -216,16 +216,16 @@ $(function () {
 		divModal.setAttribute("aria-hidden", "true");
 		divModal.innerHTML =
 			'<div class="modal-dialog">' +
-			'<div class="modal-content">' +
-			'<div class="modal-header">' +
-			`<h5 class="modal-title text-break" id="divModalLabel">${title}</h5>` +
-			'<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
-			'</div>' +
-			`<div class="modal-body text-break">${msg}</div>` +
-			'<div class="modal-footer">' +
-			'<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>' +
-			'</div>' +
-			'</div>' +
+				'<div class="modal-content">' +
+					'<div class="modal-header">' +
+						`<h5 class="modal-title text-break" id="divModalLabel">${title}</h5>` +
+						'<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
+					'</div>' +
+					`<div class="modal-body text-break">${msg}</div>` +
+					'<div class="modal-footer">' +
+						'<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>' +
+					'</div>' +
+				'</div>' +
 			'</div>';
 		document.body.appendChild(divModal);
 	}
@@ -253,7 +253,7 @@ $(function () {
 		const offlineIndicator = $("#offlineIndicator");
 
 		if (offlineIndicator !== undefined) {
-			const state = navigator.onLine ? $.t("common.online") : $.t("common.offline");
+			const state = navigator.onLine ? i18next.t("common.online") : i18next.t("common.offline");
 			offlineIndicator.html(state);
 			offlineIndicator.show();
 		}
