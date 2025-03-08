@@ -12,6 +12,11 @@
 			"flag_alt": "Polski",
 			"selectedFlag": "pl"
 		},
+		"themeSwitcher": {
+			"system": "Motyw Systemowy",
+			"light": "Motyw Jasny",
+			"dark": "Motyw Ciemny"
+		},
 		"loginPartial": {
 			"hello": "Witaj",
 			"manage": {

@@ -113,6 +113,22 @@ footer.container > noscript {
   height: 1em;
 }
 
+/*
+Theme switcher:
+	🔆 - light
+	🌙 - dark
+	💻 - system
+*/
+#themeSwitcher.light::after {
+  content: "🔆";
+}
+#themeSwitcher.dark::after {
+  content: "🌙";
+}
+#themeSwitcher.system::after {
+  content: "💻";
+}
+
 /***************VirtualScroll start***************/
 .bootstrap-table button.btn .fa-sync:after {
   content: "↻";

@@ -165,6 +165,25 @@ footer.container > noscript {
 	
 }
 
+/*
+Theme switcher:
+	🔆 - light
+	🌙 - dark
+	💻 - system
+*/
+#themeSwitcher {
+	&.light::after {
+		content: "🔆";
+	}
+
+	&.dark::after {
+		content: "🌙";
+	}
+
+	&.system::after {
+		content: "💻";
+	}
+}
 /***************VirtualScroll start***************/
 .bootstrap-table {
 	button.btn .fa-sync:after {

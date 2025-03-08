@@ -4,7 +4,7 @@
 "use strict";
 
 var g_AppRootPath = location.pathname.match(/\/([^/]+)\//)[0], g_isDevelopment = location.host.match(/:\d+/) !== null,
-	g_gitBranch = "GIT_BRANCH", g_gitHash = "GIT_HASH";
+	g_gitBranch = "GIT_BRANCH", g_gitHash = "GIT_HASH", localize = null;
 
 /**
  * Client side hash validation of clicked single hash row
@@ -89,7 +89,6 @@ window.addEventListener('DOMContentLoaded', function () {
 	function handleLocalization(isDev) {
 
 		window.registerLocalizationOnReady = null;
-		let localize = null;
 
 		function renderLocalize() {
 			localize('head,body');
@@ -247,14 +246,72 @@ $(function () {
 		initDarkTheme();
 		window.matchMedia('(prefers-color-scheme: dark)').addEventListener("change", initDarkTheme);
 		window.matchMedia('(prefers-color-scheme: light)').addEventListener("change", initLightTheme);
+
+
+
+
+
+		$('#themeSwitcher').on('click', function () {
+			const classes = $(this).attr('class').split(' ');
+			let cur_theme = classes.pop();
+			switch (cur_theme) {
+				case 'system':
+					cur_theme = 'light';
+					break;
+
+				case 'light':
+					cur_theme = 'dark';
+					break;
+
+				default:
+				case 'dark':
+					cur_theme = 'system';
+					break;
+			}
+			classes.push(cur_theme);
+			$(this).attr('class', classes.join(" "));
+			$(this).attr('data-i18n', `[title]nav.themeSwitcher.${cur_theme};[aria-label]nav.themeSwitcher.${cur_theme}`);
+			localize('#themeSwitcher');
+
+
+			if (cur_theme === 'system') {
+				document.documentElement.removeAttribute('data-bs-theme');
+				localStorage.removeItem('bs-theme');
+			}
+			else {
+				document.documentElement.setAttribute('data-bs-theme', cur_theme);
+				localStorage.setItem('bs-theme', cur_theme);
+			}
+		});
+
+		const cur_theme = localStorage.getItem('bs-theme') || 'system';
+		if (cur_theme === 'system')
+			document.documentElement.removeAttribute('data-bs-theme');
+		else
+			document.documentElement.setAttribute('data-bs-theme', cur_theme);
+
+
+		const btn=$('#themeSwitcher');
+		const classes = btn.attr('class').split(' ');
+		classes.pop();
+		classes.push(cur_theme);
+		btn.attr('class', classes.join(" "));
+		btn.attr('data-i18n', `[title]nav.themeSwitcher.${cur_theme};[aria-label]nav.themeSwitcher.${cur_theme}`);
+		// localize('#themeSwitcher');
+
+
+
+
 	}
 
 	function updateOnlineStatus() {
 		const offlineIndicator = $("#offlineIndicator");
 
 		if (offlineIndicator !== undefined) {
-			const state = navigator.onLine ? i18next.t("common.online") : i18next.t("common.offline");
-			offlineIndicator.html(state);
+			const state = navigator.onLine ? "common.online" : "common.offline";
+			// offlineIndicator.html(state);
+			offlineIndicator.attr('data-i18n', state);
+			localize("#offlineIndicator");
 			offlineIndicator.show();
 		}
 	}

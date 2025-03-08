@@ -12,6 +12,11 @@
 			"flag_alt": "English",
 			"selectedFlag": "en"
 		},
+		"themeSwitcher": {
+			"system": "Theme System",
+			"light": "Theme Light",
+			"dark": "Theme Dark"
+		},
 		"loginPartial": {
 			"hello": "Hello",
 			"manage": {
