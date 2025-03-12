@@ -46,7 +46,7 @@
 		"sass": "1.85.1",
 		"terser-webpack-plugin": "5.3.14",
 		"tiny-glob": "0.2.9",
-		"video.js": "8.21.0",
+		"video.js": "8.21.1",
 		"webpack": "5.98.0",
 		"webpack-stream": "7.0.0",
 		"worker-plugin": "5.0.1"
