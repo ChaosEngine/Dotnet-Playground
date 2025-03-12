@@ -183,7 +183,9 @@ jobs:
             npm i -g pnpm@latest
       - run:
           name: "Build Application according to some given configuration"
-          command: dotnet publish -c Release --self-contained -r linux-x64 DotnetPlayground.Web
+          command: |
+            pnpm install --prod --unsafe-perm
+            dotnet publish -c Release --self-contained -r linux-x64 DotnetPlayground.Web
 
 
 # Invoke jobs via workflows
