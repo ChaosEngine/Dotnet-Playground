@@ -1,4 +1,4 @@
-"use strict";
+﻿"use strict";
 
 import gulp from 'gulp';
 // const { series, parallel, src, dest, task } = gulp;
@@ -490,7 +490,6 @@ const postinstall = async (cb) => {
 	dir_copy(`${nm}/chance/dist`, `${dst}chance`);
 
 	file_copy(`${nm}/i18next/i18next.min.js`, `${dst}i18next/i18next.min.js`);
-	file_copy(`${nm}/jquery-i18next/jquery-i18next.min.js`, `${dst}jquery-i18next/jquery-i18next.min.js`);
 	file_copy(`${nm}/loc-i18next/loc-i18next.min.js`, `${dst}loc-i18next/loc-i18next.min.js`);
 	file_copy(`${nm}/i18next-http-backend/i18nextHttpBackend.min.js`, `${dst}i18next-http-backend/i18nextHttpBackend.min.js`);
 	file_copy(`${nm}/i18next-browser-languagedetector/i18nextBrowserLanguageDetector.min.js`, `${dst}i18next-browser-languagedetector/i18nextBrowserLanguageDetector.min.js`);

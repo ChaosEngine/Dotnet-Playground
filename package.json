@@ -36,7 +36,6 @@
 		"i18next-http-backend": "3.0.1",
 		"javascript-astar": "0.4.1",
 		"jquery": "3.7.1",
-		"jquery-i18next": "1.2.1",
 		"jquery-validation": "1.21.0",
 		"jquery-validation-unobtrusive": "4.0.0",
 		"loc-i18next": "0.1.6",

@@ -1,4 +1,4 @@
-@using Microsoft.Extensions.Options
+﻿@using Microsoft.Extensions.Options
 @inject Microsoft.Extensions.Configuration.IConfiguration Conf
 @inject IOptions<DBConfigShower> DBConfigShowerOptions
 @{
@@ -45,7 +45,7 @@
 				</button>
 				<div class="collapse navbar-collapse" id="navbarCollapse">
 					<ul class="navbar-nav me-auto">
-						<li class="nav-item dropdown">
+						<li class="nav-item dropdown" style="min-width:5.25em">
 							<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#"
 								role="button" aria-haspopup="true" aria-expanded="false" data-i18n="nav.items.main.name">Main</a>
 							<div class="dropdown-menu">
@@ -58,7 +58,7 @@
 								<a class="dropdown-item" href="~/Home/Contact" data-i18n="nav.items.main.contact">Contact</a>
 							</div>
 						</li>
-						<li class="nav-item dropdown">
+						<li class="nav-item dropdown" style="min-width:4.3em">
 							<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#"
 								role="button" aria-haspopup="true" aria-expanded="false" data-i18n="nav.items.blogs.name">Blogs</a>
 							<div class="dropdown-menu">
@@ -66,7 +66,7 @@
 								<a class="dropdown-item" href="~/Blogs/Create" data-i18n="nav.items.blogs.create">Create</a>
 							</div>
 						</li>
-						<li class="nav-item dropdown">
+						<li class="nav-item dropdown" style="min-width:9em">
 							<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#"
 								role="button" aria-haspopup="true" aria-expanded="false" data-i18n="nav.items.myRainbow.name">My Rainbow</a>
 							<div class="dropdown-menu">
@@ -75,7 +75,7 @@
 								<a class="dropdown-item" href="~/VirtualScroll/" data-i18n="nav.items.myRainbow.virtualScroll">Virtual Scroll</a>
 							</div>
 						</li>
-						<li class="nav-item dropdown">
+						<li class="nav-item dropdown" style="min-width:6em">
 							<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="~/WebCamGallery"
 								role="button" aria-haspopup="true" aria-expanded="false" data-i18n="nav.items.webCam.name">WebCam</a>
 							<div class="dropdown-menu">
@@ -123,7 +123,7 @@
 					<ul class="navbar-nav ms-auto">
 						<partial name="_LoginPartial" />
 
-						<button id="themeSwitcher" type="button" class="btn system" title="System" aria-label="System" data-i18n="[title]nav.themeSwitcher.system"></button>
+						<button id="themeSwitcher" type="button" class="btn text-start system" title="System" aria-label="System" data-i18n="[title]nav.themeSwitcher.system"></button>
 
 						<li class="nav-item dropdown" id="langDropdown" title="Change language" data-i18n="[title]nav.langDropdown.changeLang">
 							<button class="nav-link dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -160,7 +160,6 @@
 		<script src="~/lib/i18next/i18next.min.js"></script>
 		<script src="~/lib/i18next-browser-languagedetector/i18nextBrowserLanguageDetector.min.js"></script>
 		<script src="~/lib/i18next-http-backend/i18nextHttpBackend.min.js"></script>
-		@* <script src="~/lib/jquery-i18next/jquery-i18next.min.js"></script> *@
 		<script src="~/lib/loc-i18next/loc-i18next.min.js"></script>
 		<script src="~/js/site.js" asp-append-version="true"></script>
 		@*This is the fix, to enforce manual loading, but why? https://github.com/dotnet/aspnetcore/issues/39715 *@
@@ -179,10 +178,6 @@
 			asp-fallback-src="~/lib/i18next/i18next.min.js"
 			asp-fallback-test="window.i18next">
 		</script>
-		@* <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-i18next/1.2.1/jquery-i18next.min.js" integrity="sha512-79RgNpOyaf8AvNEUdanuk1x6g53UPoB6Fh2uogMkOMGADBG6B0DCzxc+dDktXkVPg2rlxGvPeAFKoZxTycVooQ==" crossorigin="anonymous" referrerpolicy="no-referrer"
-			asp-fallback-src="~/lib/jquery-i18next/jquery-i18next.min.js"
-			asp-fallback-test="window.jqueryI18next">
-		</script> *@
 		<script src="https://cdn.jsdelivr.net/npm/loc-i18next@0.1.6/dist/umd/loc-i18next.min.js" integrity="sha256-i/XkMNtFWXAgVw4xvk2Lx0SY+195DWTuHYBwYn4LXzo=" crossorigin="anonymous"
 			asp-fallback-src="~/lib/loc-i18next/loc-i18next.min.js"
 			asp-fallback-test="window.locI18next">
