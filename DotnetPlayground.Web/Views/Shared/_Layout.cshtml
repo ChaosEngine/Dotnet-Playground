@@ -1,4 +1,4 @@
-﻿@using Microsoft.Extensions.Options
+@using Microsoft.Extensions.Options
 @inject Microsoft.Extensions.Configuration.IConfiguration Conf
 @inject IOptions<DBConfigShower> DBConfigShowerOptions
 @{
@@ -6,6 +6,11 @@
 }
 <!DOCTYPE html>
 <html lang="en">
+<script type="text/javascript">
+	const theme = localStorage.getItem('bs-theme') || 'system';
+	if (theme !== 'system')
+		document.documentElement.setAttribute('data-bs-theme', theme);
+</script>
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />

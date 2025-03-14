@@ -6,7 +6,7 @@
 <h2>Testing view code generator</h2>
 <p>value = @Html.Raw(strongVal)</p>
 
-<pre id="editor">
+<pre id="editor" style="display:none">
 @ViewData["CompiledViewCode"]
 </pre>
 
@@ -49,9 +49,11 @@
                     maxLines: 30,
                     wrap: true,
                     showPrintMargin: false,
-                    autoScrollEditorIntoView: true,
-                    theme: window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ?
-                        'ace/theme/chaos' : 'ace/theme/textmate'
+                    autoScrollEditorIntoView: true
+                });
+                editor.setTheme(`ace/theme/${(localStorage.getItem('bs-theme') || 'system') === 'dark' || window.matchMedia('(prefers-color-scheme: dark)').matches ? 'chaos' : 'textmate'}`, ()=>{
+                    //after theme loaded - show it
+                    $('#editor').show();
                 });
                 const csharp = ace.require("ace/mode/csharp");
                 if (csharp) {

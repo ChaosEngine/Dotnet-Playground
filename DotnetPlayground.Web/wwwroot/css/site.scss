@@ -10,23 +10,23 @@ body {
 	position: relative;
 }
 
-@media (prefers-color-scheme: dark) {
-    body {
-        color: white;
-        background-color: rgb(33, 37, 41);
-    }
-	// More styles (colors-only)
-	.form-select, .form-control, .accordion-item, .accordion-button, .fixed-table-loading {
-        color: white !important;
-		//same as above main dark background
-        background-color: rgb(33, 37, 41) !important;
-	}
-	.card {
-		// --bs-bg-opacity: 1;
-		//slightly darker
-		background-color: rgb(39, 49, 59) !important;
-	}
-}
+// @media (prefers-color-scheme: dark) {
+//     body {
+//         color: white;
+//         background-color: rgb(33, 37, 41);
+//     }
+// 	// More styles (colors-only)
+// 	.form-select, .form-control, .accordion-item, .accordion-button, .fixed-table-loading {
+//         color: white !important;
+// 		//same as above main dark background
+//         background-color: rgb(33, 37, 41) !important;
+// 	}
+// 	.card {
+// 		// --bs-bg-opacity: 1;
+// 		//slightly darker
+// 		background-color: rgb(39, 49, 59) !important;
+// 	}
+// }
 
 /* Wrapping element */
 /* Set some basic padding to keep content from hitting the edges */
@@ -185,6 +185,10 @@ Theme switcher:
 	}
 }
 /***************VirtualScroll start***************/
+.fixed-table-loading {
+	background-color: rgba(128, 128, 128, 0.5) !important;
+}
+
 .bootstrap-table {
 	button.btn .fa-sync:after {
 		content: '↻';

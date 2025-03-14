@@ -232,13 +232,13 @@ $(function () {
 	function registerThemeChangeHandler() {
 		//Taken from https://anduin.aiursoft.com/post/2020/3/27/bootstrap-dark-theme-minimum-style
 		const initDarkTheme = function () {
-			if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+			if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
 				// dark mode
 				$('html').attr("data-bs-theme", "dark");
 			}
 		};
 		const initLightTheme = function () {
-			if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+			if (window.matchMedia('(prefers-color-scheme: light)').matches) {
 				// light mode
 				$('html').attr("data-bs-theme", "light");
 			}

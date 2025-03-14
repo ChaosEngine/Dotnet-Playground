@@ -1,4 +1,4 @@
-﻿"use strict";
+"use strict";
 
 import gulp from 'gulp';
 // const { series, parallel, src, dest, task } = gulp;
@@ -486,6 +486,7 @@ const postinstall = async (cb) => {
 	file_copy(`${nm}/ace-builds/src-min-noconflict/ace.js`, `${dst}ace-builds/ace.js`);
 	file_copy(`${nm}/ace-builds/src-min-noconflict/mode-csharp.js`, `${dst}ace-builds/mode-csharp.js`);
 	file_copy(`${nm}/ace-builds/src-min-noconflict/theme-chaos.js`, `${dst}ace-builds/theme-chaos.js`);
+	file_copy(`${nm}/ace-builds/src-min-noconflict/ext-searchbox.js`, `${dst}ace-builds/ext-searchbox.js`);
 	dir_copy(`${nm}/chance/dist`, `${dst}chance`);
 
 	file_copy(`${nm}/i18next/i18next.min.js`, `${dst}i18next/i18next.min.js`);

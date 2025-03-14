@@ -8,19 +8,6 @@ body {
   position: relative;
 }
 
-@media (prefers-color-scheme: dark) {
-  body {
-    color: white;
-    background-color: rgb(33, 37, 41);
-  }
-  .form-select, .form-control, .accordion-item, .accordion-button, .fixed-table-loading {
-    color: white !important;
-    background-color: rgb(33, 37, 41) !important;
-  }
-  .card {
-    background-color: rgb(39, 49, 59) !important;
-  }
-}
 /* Wrapping element */
 /* Set some basic padding to keep content from hitting the edges */
 .body-content {
@@ -130,6 +117,10 @@ Theme switcher:
 }
 
 /***************VirtualScroll start***************/
+.fixed-table-loading {
+  background-color: rgba(128, 128, 128, 0.5) !important;
+}
+
 .bootstrap-table button.btn .fa-sync:after {
   content: "↻";
   display: block;
