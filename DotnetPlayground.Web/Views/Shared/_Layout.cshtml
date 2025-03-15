@@ -1,6 +1,6 @@
 ﻿@using Microsoft.Extensions.Options
 @inject Microsoft.Extensions.Configuration.IConfiguration Conf
-@inject IOptions<DBConfigShower> DBConfigShowerOptions
+@inject IOptions<DotnetPlayground.DBConfigShower> DBConfigShowerOptions
 @{
 	string dbs_config = DBConfigShowerOptions.Value.DBConfig;
 }
@@ -166,7 +166,7 @@
 		@* <script src="/_framework/aspnetcore-browser-refresh.js"></script> *@
 	</environment>
 	<environment exclude="Development">
-		<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"
 				asp-fallback-src="~/lib/jquery/jquery.min.js"
 				asp-fallback-test="$">
 		</script>
@@ -181,7 +181,7 @@
 		<script src="https://cdn.jsdelivr.net/npm/loc-i18next@0.1.6/dist/umd/loc-i18next.min.js" integrity="sha256-i/XkMNtFWXAgVw4xvk2Lx0SY+195DWTuHYBwYn4LXzo=" crossorigin="anonymous"
 			asp-fallback-src="~/lib/loc-i18next/loc-i18next.min.js"
 			asp-fallback-test="window.locI18next">
-		></script>
+		</script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/i18next-browser-languagedetector/8.0.2/i18nextBrowserLanguageDetector.min.js" integrity="sha512-mGlmbZK2eNmR/VrBTpfhxbNQYPRsAqSdeg/wldttP+6EPqYBdY86/uVJY080JbNZBAVrHTUf7XEnJuplwkBr/w==" crossorigin="anonymous" referrerpolicy="no-referrer"
 			asp-fallback-src="~/lib/i18next-browser-languagedetector/i18nextBrowserLanguageDetector.min.js"
 			asp-fallback-test="window.i18nextBrowserLanguageDetector">
