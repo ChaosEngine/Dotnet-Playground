@@ -80,5 +80,18 @@
 	},
 	"footer": {
 		"noscript": "Your browser does not support JavaScript! REALLY?!"
+	},
+	"puzzles": {
+		"title": "Puzzle Generator",
+		"description": "Combines PNG/JPG/AVIF image with SVG puzzle pattern. Apply scaling, rotation, transform design to fit your needs.",
+		"fondPuzzle": "fond puzzle",
+		"jigsawPuzzlePieces": "Jigsaw Puzzle Pieces",
+		"jigsaw10x14": "10x14",
+		"simple": "simple",
+		"inputFile": "Input File",
+		"size": "Size {{size}}",
+		"rotation": "Rotation {{rotation}}",
+		"save": "Save",
+		"saving": "Saving..."
 	}
 }

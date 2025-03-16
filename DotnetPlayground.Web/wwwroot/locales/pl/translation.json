@@ -80,5 +80,18 @@
 	},
 	"footer": {
 		"noscript": "Twoja przeglądarka nie wspiera JavaScriptu! SERIO?!"
+	},
+	"puzzles": {
+		"title": "Generator Puzzli",
+		"description": "Łączy obraz PNG/JPG/AVIF z wzorem puzzli SVG. Zastosuj skalowanie, obrót, przekształcenie, aby dopasować do swoich potrzeb.",
+		"fondPuzzle": "czułe puzzle",
+		"jigsawPuzzlePieces": "Kawałki puzzli",
+		"jigsaw10x14": "10x14",
+		"simple": "prosty",
+		"inputFile": "Plik wejściowy",
+		"size": "Rozmiar {{size}}",
+		"rotation": "Obrót {{rotation}}",
+		"save": "Zapisz",
+		"saving": "Zapisywanie..."
 	}
 }

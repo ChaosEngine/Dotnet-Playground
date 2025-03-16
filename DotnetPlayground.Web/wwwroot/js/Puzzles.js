@@ -13,26 +13,37 @@ function PuzzlesOnLoad() {
 
 	$("input[type='radio'].form-check-input").on('change', function () {
 		const img = $(this).next('label').find('img');
-		const size = $('#rangeSize')[0].value;
+		const size = $('#rangeSize').val();
 
 		const img_path = img.attr('src');
 		$("#target").css("--bimg", "url(" + img_path + ")");
 
-		const rotation = $("#rotation")[0];
-		$("#target").css("--trans", "scale(" + size * 0.01 + ") rotateZ(" + rotation.value + "deg)");
+		const rotation = $("#rotation").val();
+		$("#target").css("--trans", "scale(" + size * 0.01 + ") rotateZ(" + rotation + "deg)");
 	})[0].focus();
 
 	$("#rangeSize, #rotation").on('change', function () {
-		const range = $("#rangeSize")[0];
-		const size = range.value;
-		let lbl = $("#rangeSize").prev('label');
-		lbl.text('Size ' + size);
+		const size = $("#rangeSize").val();
+		let lbl = $("label[for='rangeSize']");
 
-		const rotation = $("#rotation")[0];
-		lbl = $("#rotation").prev('label');
-		lbl.text('Rotation ' + rotation.value);
+		if (window.localize) {
+			lbl[0].dataset.i18nOptions = `{ 'size': ${size} }`;
+			window.localize("label[for='rangeSize']");
+		}
+		else
+			lbl.text(`Size ${size}`);
 
-		$("#target").css("--trans", "scale(" + size * 0.01 + ") rotateZ(" + rotation.value + "deg)");
+		const rotation = $("#rotation").val();
+		lbl = $("label[for='rotation']");
+
+		if (window.localize) {
+			lbl[0].dataset.i18nOptions = `{ 'rotation': ${rotation} }`;
+			window.localize("label[for='rotation']");
+		}
+		else
+			lbl.text(`Rotation ${rotation}`);
+
+		$("#target").css("--trans", "scale(" + size * 0.01 + ") rotateZ(" + rotation + "deg)");
 	});
 
 	$('input[type="file"]').on('change', function () {
@@ -60,12 +71,27 @@ function PuzzlesOnLoad() {
 		const target = $("#target")[0];
 		const button = $(event.target).find("button[type='submit']")[0];
 		button.disabled = true;
+
+		if (window.localize) {
+			button.dataset.i18n = 'puzzles.saving';
+			window.localize(".puzzles button[type='submit']");
+		}
+		else
+			button.textContent = "Saving...";
+
 		const canvas = await html2canvas(target);
 		const link = document.createElement('a');
 		link.download = 'puzzle.png';
 		link.href = canvas.toDataURL();
 		link.addEventListener('click', () => {
 			button.disabled = false;
+
+			if (window.localize) {
+				button.dataset.i18n = 'puzzles.save';
+				window.localize(".puzzles button[type='submit']");
+			}
+			else
+				button.textContent = "Save";
 		});
 		link.click();
 

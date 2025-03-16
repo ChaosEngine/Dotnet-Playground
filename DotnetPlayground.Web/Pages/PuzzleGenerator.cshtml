@@ -6,32 +6,32 @@
 }
 
 <div class="puzzles mt-4 mt-sm-0">
-	<h1>Puzzle Generator</h1>
-	<h3>Combine PNG/JPG/AVIF image with SVG puzzle pattern. Apply scaling, rotation, transform design to fit your needs.</h3>
+	<h1 data-i18n="puzzles.title">Puzzle Generator</h1>
+	<h3 data-i18n="puzzles.description">Combines PNG/JPG/AVIF image with SVG puzzle pattern. Apply scaling, rotation, transform design to fit your needs.</h3>
 
 	<form method="post">
 		<div class="row">
 			<div class="form-check form-check-inline col">
 				<input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1" checked />
-				<label class="form-check-label w-100" for="inlineRadio1">fond puzzle
+				<label class="form-check-label w-100" for="inlineRadio1"><span data-i18n="puzzles.fondPuzzle">fond puzzle</span>
 					<img src="~/images/puzzles/fond-puzzle.svg" alt="fond puzzle" width="183px" height="90px" class="img-fluid mt-2" />
 				</label>
 			</div>
 			<div class="form-check form-check-inline col">
 				<input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2" />
-				<label class="form-check-label w-100" for="inlineRadio2">Jigsaw Puzzle Pieces
+				<label class="form-check-label w-100" for="inlineRadio2"><span data-i18n="puzzles.jigsawPuzzlePieces">Jigsaw Puzzle Pieces</span>
 					<img src="~/images/puzzles/Jigsaw-Puzzle-Pieces.svg" alt="Jigsaw Puzzle Pieces" width="183px" height="183px" class="img-fluid mt-2" />
 				</label>
 			</div>
 			<div class="form-check form-check-inline col">
 				<input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option3" />
-				<label class="form-check-label w-100" for="inlineRadio3">10x14
+				<label class="form-check-label w-100" for="inlineRadio3"><span data-i18n="puzzles.jigsaw10x14">10x14</span>
 					<img src="~/images/puzzles/jigsaw10x14.svg" alt="10x14" width="183px" height="259px" class="img-fluid mt-2" />
 				</label>
 			</div>
 			<div class="form-check form-check-inline col">
 				<input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio4" value="option4" />
-				<label class="form-check-label w-100" for="inlineRadio4">puzzle
+				<label class="form-check-label w-100" for="inlineRadio4"><span data-i18n="puzzles.simple">simple</span>
 					<img src="~/images/puzzles/puzzle.svg" alt="puzzle" width="183px" height="183px" class="img-fluid mt-2" />
 				</label>
 			</div>
@@ -39,20 +39,20 @@
 
 		<div class="row">
 			<div class="mb-3">
-				<label class="form-label" for="customFile">Choose file</label>
+				<label class="form-label" for="customFile" data-i18n="puzzles.inputFile">Input File</label>
 				<input type="file" name="file" class="form-control" id="customFile" />
 			</div>
 		</div>
 
 		<div>
-			<label for="rangeSize" class="form-label">Size 200</label>
+			<label for="rangeSize" class="form-label" data-i18n="puzzles.size" data-i18n-options="{ 'size': 200 }">Size 200</label>
 			<input type="range" class="form-range" id="rangeSize" min="10" max="420" step="10" value="200" />
-			<label for="rotation" class="form-label">Rotation 180</label>
+			<label for="rotation" class="form-label" data-i18n="puzzles.rotation" data-i18n-options="{ 'rotation': 180 }">Rotation 180</label>
 			<input type="range" class="form-range" id="rotation" min="0" max="360" step="10" value="180" />
 		</div>
 
 		<div class="mb-2">
-			<button type="submit" class="btn btn-primary col-auto">Save</button>
+			<button type="submit" class="btn btn-primary col-auto" data-i18n="puzzles.save">Save</button>
 		</div>
 	</form>
 
@@ -69,7 +69,7 @@
 	<environment exclude="Development">
 		<script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous"
 			asp-fallback-src="~/lib/html2canvas/html2canvas.min.js"
-            asp-fallback-test="window.html2canvas"></script>
+			asp-fallback-test="window.html2canvas"></script>
 		<script type="text/javascript" src="~/js/Puzzles.min.js" asp-append-version="true"></script>
 	</environment>
 	<script type="text/javascript">
