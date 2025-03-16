@@ -292,7 +292,7 @@ Theme switcher:
 
 	//https://www.sitepoint.com/css3-transform-background-image/
 	//https://christianheilmann.com/2021/02/08/sharing-data-between-css-and-javascript-using-custom-properties/
-	.target
+	#target
 	{
 		--bimg: url('../images/puzzles/fond-puzzle.svg');
 		--trans: scale(2) rotateZ(180deg);

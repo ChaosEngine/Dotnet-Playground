@@ -1,6 +1,5 @@
 ﻿/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "PuzzlesOnLoad" }]*/
-/*eslint-disable no-console*/
-/*global myAlert*/
+/*global html2canvas*/
 "use strict";
 
 /**
@@ -17,10 +16,10 @@ function PuzzlesOnLoad() {
 		const size = $('#rangeSize')[0].value;
 
 		const img_path = img.attr('src');
-		$(".target").css("--bimg", "url(" + img_path + ")");
+		$("#target").css("--bimg", "url(" + img_path + ")");
 
 		const rotation = $("#rotation")[0];
-		$(".target").css("--trans", "scale(" + size * 0.01 + ") rotateZ(" + rotation.value + "deg)");
+		$("#target").css("--trans", "scale(" + size * 0.01 + ") rotateZ(" + rotation.value + "deg)");
 	})[0].focus();
 
 	$("#rangeSize, #rotation").on('change', function () {
@@ -33,14 +32,7 @@ function PuzzlesOnLoad() {
 		lbl = $("#rotation").prev('label');
 		lbl.text('Rotation ' + rotation.value);
 
-		$(".target").css("--trans", "scale(" + size * 0.01 + ") rotateZ(" + rotation.value + "deg)");
-	});
-
-	$(".puzzles form").on("submit", function (event) {
-		event.preventDefault();
-		myAlert('submitados!', 'titlos', (obj, e) => {
-			console.log(obj, e);
-		});
+		$("#target").css("--trans", "scale(" + size * 0.01 + ") rotateZ(" + rotation.value + "deg)");
 	});
 
 	$('input[type="file"]').on('change', function () {
@@ -53,12 +45,29 @@ function PuzzlesOnLoad() {
 				const w = img.width;
 				const h = img.height;
 
-				const target = $(".target");
+				const target = $("#target");
 				target.css("--uploadedImg", "url(" + blob + ")");
 				target.css("width", w);
 				target.css("height", h);
 				//URL.revokeObjectURL(this.src);
 			};
 		}
+	});
+
+	$(".puzzles form").on("submit", async (event) => {
+		event.preventDefault();
+
+		const target = $("#target")[0];
+		const button = $(event.target).find("button[type='submit']")[0];
+		button.disabled = true;
+		const canvas = await html2canvas(target);
+		const link = document.createElement('a');
+		link.download = 'puzzle.png';
+		link.href = canvas.toDataURL();
+		link.addEventListener('click', () => {
+			button.disabled = false;
+		});
+		link.click();
+
 	});
 }

@@ -9,6 +9,8 @@
 Oh Mario!
 </h3>
 
+@if(Model.Enabled)
+{
 <form method="post">
 	@if(Model.IsPlaying)
 	{
@@ -19,3 +21,4 @@ Oh Mario!
 	<input type="submit" value="Beep Me" class="btn btn-primary col-auto" />
 	}
 </form>
+}

@@ -196,7 +196,7 @@ Theme switcher:
   border: 1px dashed #444;
   transition: 500ms all;
 }
-.puzzles .target {
+.puzzles #target {
   --bimg: url("../images/puzzles/fond-puzzle.svg");
   --trans: scale(2) rotateZ(180deg);
   position: relative;
@@ -206,7 +206,7 @@ Theme switcher:
   border-radius: 7px;
   min-height: 32rem;
 }
-.puzzles .target::before {
+.puzzles #target::before {
   content: "";
   position: absolute;
   width: 200%;
@@ -217,7 +217,7 @@ Theme switcher:
   background: var(--bimg) repeat;
   transform: var(--trans);
 }
-.puzzles .target::after {
+.puzzles #target::after {
   content: "";
   position: absolute;
   width: 100%;
