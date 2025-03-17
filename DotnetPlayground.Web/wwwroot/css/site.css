@@ -198,7 +198,6 @@ Theme switcher:
 }
 .puzzles #target {
   --bimg: url("../images/puzzles/fond-puzzle.svg");
-  --trans: scale(2) rotateZ(180deg);
   position: relative;
   overflow: hidden;
   font-size: 2em;
