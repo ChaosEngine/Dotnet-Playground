@@ -68,7 +68,9 @@
 				"name": "WIP...",
 				"long": "Work in progress",
 				"puzzle": "Puzzle Generator",
-				"beep": "Beep Experiment"
+				"beep": "Beep Experiment",
+				"svg": "SVG Experiment",
+				"importCsv": "Import CSV"
 			}
 		}
 	},
@@ -93,5 +95,10 @@
 		"rotation": "Rotation {{rotation}}",
 		"save": "Save",
 		"saving": "Saving..."
+	},
+	"importCsv": {
+		"title": "CSV importer",
+		"description": "Import CSV file and display it in a table.",
+		"chooseFileLabel": "Choose CSV File:"
 	}
 }

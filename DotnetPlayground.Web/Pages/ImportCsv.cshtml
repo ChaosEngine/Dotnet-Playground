@@ -1,0 +1,27 @@
+@page
+@using DotnetPlayground.Pages
+@model ImportCsvModel
+@{
+	Layout = @"..\Views\Shared\_Layout.cshtml";
+	ViewData["Title"] = "Import Csv";
+}
+
+<div class="importCsv">
+	<h1 data-i18n="importCsv.title">CSV importer</h1>
+	<h3 data-i18n="importCsv.description">Import CSV file and display its content in a table.</h3>
+
+	<form method="post" enctype="multipart/form-data" class="row g-3">
+
+		<label for="csvFile" class="form-label" data-i18n="importCsv.chooseFileLabel">Choose CSV File:</label>
+		<input type="file" class="form-control" id="csvFile" name="csvFile" accept=".csv" />
+
+		<div id="tableContainer">
+			<!-- Table will be inserted here by JavaScript -->
+		</div>
+	</form>
+</div>
+
+@section scripts
+{
+	<script type="text/javascript" src="~/js/ImportCsv.js"></script>
+}
