@@ -46,7 +46,7 @@
 	<strong>Development environment should not be enabled in deployed applications</strong>, as it can result in sensitive information from exceptions being displayed to end users. For local debugging, development environment can be enabled by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>, and restarting the application.
 </p>*@
 
-<div class="jumbotron">
-	<h1>Error @Model</h1>
+<div class="error">
+	<h1 class="display-5 fw-bold">Error <span class="s-@Model">@Model</span></h1>
 	<h3>@status_message</h3>
 </div>

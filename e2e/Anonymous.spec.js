@@ -51,6 +51,8 @@ test('Highscores page as Anonymous with redirect to LogIn', async ({ browser }) 
 	await notAllowedAndRedirectToLogin(browser, 'InkBall/Highscores');
 });
 
+/*
+//No use in that really
 test('NotExisting page as Anonymous with redirect to LogIn', async ({ browser }) => {
 	const page = await browser.newPage();
 
@@ -58,4 +60,18 @@ test('NotExisting page as Anonymous with redirect to LogIn', async ({ browser })
 
 	// Expects the URL to be Home because Game page redirect if no game present.
 	await expect(resp?.status()).toBe(404);
+});
+*/
+
+test('Locale test - pl lang', async ({ browser }) => {
+	const page = await browser.newPage({ locale: 'pl' });
+
+	page.goto('InkBall/Home');
+
+	const flag_img = page.locator('#langDropdown > button > img');
+	await expect(flag_img ).toHaveAttribute('alt', 'Polski');
+
+	//Not logged-in message
+	const welcome = page.locator('p.inkhome');
+	await expect(welcome).toContainText(/Nie jesteś zalogoway ... albo uprawniony 😅/);
 });

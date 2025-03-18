@@ -1,0 +1,97 @@
+{
+	"head": {
+		"meta": {
+			"desc": "Dotnet Core examples, tests and experiments pages"
+		}
+	},
+	"nav": {
+		"langDropdown": {
+			"en": "English",
+			"pl": "Polish",
+			"changeLang": "Change language",
+			"flag_alt": "English",
+			"selectedFlag": "en"
+		},
+		"themeSwitcher": {
+			"system": "Theme System",
+			"light": "Theme Light",
+			"dark": "Theme Dark"
+		},
+		"loginPartial": {
+			"hello": "Hello",
+			"manage": {
+				"title": "manage",
+				"manageProfile": "Manage profile"
+			},
+			"logout": "Logout",
+			"profile": "Profile",
+			"register": "Register",
+			"login": "Login"
+		},
+		"items": {
+			"main": {
+				"name": "Main",
+				"home": "Home",
+				"unintentional": "Unintentional Error",
+				"codeGenerator": "View Code Generator",
+				"about": "About",
+				"contact": "Contact"
+			},
+			"blogs": {
+				"name": "Blogs",
+				"list": "List",
+				"create": "Create"
+			},
+			"myRainbow": {
+				"name": "My Rainbow",
+				"hashes": "Hashes",
+				"bruteForce": "Brute Force",
+				"virtualScroll": "Virtual Scroll"
+			},
+			"webCam": {
+				"name": "WebCam",
+				"live": "Live",
+				"dailyVideo": "Daily video",
+				"youtube": "Youtube videos",
+				"gallery": "Gallery"
+			},
+			"inkBall": {
+				"name": "InkBall",
+				"home": "Home",
+				"gameList": "Game list",
+				"game": "Game",
+				"highscores": "Highscores",
+				"register": "Register",
+				"Rules": "Rules"
+			},
+			"wip": {
+				"name": "WIP...",
+				"long": "Work in progress",
+				"puzzle": "Puzzle Generator",
+				"beep": "Beep Experiment"
+			}
+		}
+	},
+	"common": {
+		"online": "Online",
+		"offline": "Offline",
+		"dlgContent": "Content",
+		"dlgTitle": "Modal title"
+	},
+	"footer": {
+		"noscript": "Your browser does not support JavaScript! REALLY?!"
+	},
+	"puzzles": {
+		"title": "Puzzle Generator",
+		"description": "Combines PNG/JPG/AVIF image with SVG puzzle pattern. Apply scaling, rotation, transform design to fit your needs.",
+		"fondPuzzle": "fond puzzle",
+		"jigsawPuzzlePieces": "Jigsaw Puzzle Pieces",
+		"jigsaw10x14": "10x14",
+		"simple": "simple",
+		"inputFile": "Input File",
+		"size": "Size {{size}}",
+		"rotation": "Rotation {{rotation}}",
+		"save": "Save",
+		"saving": "Saving..."
+	}
+}

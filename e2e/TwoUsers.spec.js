@@ -32,7 +32,7 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
  * Gets random number in range: min(inclusive) - max (exclusive)
  * @param {any} min - from(inclusive)
  * @param {any} max - to (exclusive)
- * @returns {integer} random number
+ * @returns {number} random number
  */
 const getRandomInt = (min, max) => {
 	min = Math.max(0, Math.min(min, max));
@@ -60,7 +60,7 @@ async function testLoggedInGamesList(page) {
 	const legend = page.locator('text=New game creation');
 	await expect(legend).toBeVisible();
 
-	const btnNewGame = page.locator('input[type=submit]', { hasText: 'New game' });
+	const btnNewGame = page.locator('button[type=submit]', { hasText: 'New game' });
 	await expect(btnNewGame).toHaveClass("btn btn-primary");
 	await expect(btnNewGame).toBeVisible();
 }
@@ -75,7 +75,7 @@ async function createGameFromHome(player, gameTypeStr = 'First capture wins', bo
 	selBoardSize.selectOption({ label: boardSizeStr });
 
 	//P1 creates new game and going into waiting-listening mode
-	const btnNewGame = player.page.locator('input[type=submit]', { hasText: 'New game' });
+	const btnNewGame = player.page.locator('button[type=submit]', { hasText: 'New game' });
 	// await expect(btnNewGame).toBeVisible();
 	await btnNewGame.click();
 
@@ -89,7 +89,7 @@ async function joinCreatedGame(player, otherPlayerNameWithGameToJoin = 'Playwrig
 
 	const btnJoin = await player.page.locator('td.gtd', { hasText: otherPlayerNameWithGameToJoin })
 		.locator('..')
-		.locator('input[type=submit]', { hasText: 'Join' });
+		.locator('button[type=submit]', { hasText: 'Join' });
 
 	// await expect(btnJoin).toBeVisible();
 	await btnJoin.click();
@@ -100,14 +100,14 @@ async function joinCreatedGame(player, otherPlayerNameWithGameToJoin = 'Playwrig
 }
 
 async function surrenderOrCancelGame(player) {
-	const btnCancel = player.page.locator('input[type=submit]#SurrenderButton');
+	const btnCancel = player.page.locator('button[type=submit]#SurrenderButton');
 	await expect(btnCancel).toBeVisible();
 
 	await btnCancel.click();
 }
 
 async function startDrawingLine(player) {
-	const btnStopAndDraw = player.page.locator('input[type=button]#StopAndDraw');
+	const btnStopAndDraw = player.page.locator('button[type=button]#StopAndDraw');
 	await expect(btnStopAndDraw).toBeVisible();
 
 	await btnStopAndDraw.click();
@@ -125,7 +125,7 @@ async function verifyWin(player, message = 'And the winner is... red.') {
 
 async function chatPlayerToPlayer(fromPlayer, toPlayer, message) {
 	await fromPlayer.page.locator('#messageInput').type(message);
-	await fromPlayer.page.locator('input#sendButton').click();
+	await fromPlayer.page.locator('button#sendButton').click();
 
 	const p2_liMessagesList = toPlayer.page.locator('#messagesList', { hasText: message });
 	await expect(p2_liMessagesList).toBeVisible();
@@ -166,7 +166,7 @@ test('P1 create game, P2 joins, P2 wins', async () => {
 	await joinCreatedGame(p2, p1.userName);
 
 	const randX = getRandomInt(0, 8), randY = getRandomInt(0, 19);
-	// await delay(4 * 1000);//wait for signalR to settle in (?)
+	await delay(2 * 1000);//wait for signalR to settle in (?)
 	await expect(p1.page.getByText(`Player ${Playwright2.userName} joining`)).toBeVisible();
 
 

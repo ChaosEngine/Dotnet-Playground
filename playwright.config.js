@@ -105,7 +105,7 @@ const config = {
 
 	/* Run your local dev server before starting the tests */
 	webServer: {
-		command: 'dotnet run',
+		command: 'dotnet run --project DotnetPlayground.Web/',
 		url: baseUrl,
 		timeout: 120 * 1000,
 		reuseExistingServer: true,

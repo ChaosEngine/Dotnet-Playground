@@ -398,6 +398,59 @@ namespace DotnetPlayground.Migrations
                 b.ToTable("AspNetUserTokens");
             });
 
+			modelBuilder.Entity<ErrorLog>(entity =>
+			{
+				entity.Property<int>("Id")
+					.ValueGeneratedOnAdd()
+					.HasAnnotation("Sqlite:Autoincrement", true)
+#if INCLUDE_MYSQL
+					.HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
+#endif
+#if INCLUDE_SQLSERVER
+					.HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
+#endif
+#if INCLUDE_ORACLE
+					.HasAnnotation("Oracle:ValueGenerationStrategy", OracleValueGenerationStrategy.IdentityColumn)
+#endif
+#if INCLUDE_POSTGRES
+					.HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
+#endif
+					;
+				entity.HasKey("Id");
+
+
+				entity.Property<int?>("HttpStatus")
+					.HasColumnName("HttpStatus");
+
+				entity.Property<string>("Url")
+					.HasColumnName("Url")
+					.HasMaxLength(1000);
+
+				entity.Property<string>("Message")
+					.HasColumnName("Message")
+					.HasMaxLength(4000);
+					
+				entity.Property<int?>("Line")
+					.HasColumnName("Line");
+					
+				entity.Property<int?>("Column")
+					.HasColumnName("Column");
+
+				entity.Property<DateTime>("Created")
+					.ValueGeneratedOnAddOrUpdate()
+					.HasColumnType(GamesContext.TimeStampColumnTypeFromProvider(ContextSnapshotHelper.DBKind,
+                        "TEXT", "timestamp", "timestamp without time zone", "TIMESTAMP(7)", "datetime2"
+					))
+					.HasDefaultValueSql(GamesContext.TimeStampDefaultValueFromProvider(ContextSnapshotHelper.DBKind,
+						"datetime('now','localtime')",
+						"CURRENT_TIMESTAMP",
+						"CURRENT_TIMESTAMP",
+						"CURRENT_TIMESTAMP",
+						"GETDATE()"));
+
+				entity.ToTable("ErrorLog");
+			});
+
             modelBuilder.Entity("DotnetPlayground.Models.Post", b =>
             {
                 b.HasOne("DotnetPlayground.Models.Blog", "Blog")

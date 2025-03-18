@@ -10,19 +10,28 @@ namespace DotnetPlayground.Pages
 
 		private readonly IBackgroundTaskQueue _backgroundTaskQueue;
 
-        public bool IsPlaying => MelodyBeepBackgroundOperation.IsPlaying;
+		public bool IsPlaying => MelodyBeepBackgroundOperation.IsPlaying;
+
+		public bool Enabled =>
+#if DEBUG
+			true;
+#else
+			false;
+#endif
 
 		public BeepExperimentModel(IBackgroundTaskQueue backgroundTaskQueue)
 		{
 			_backgroundTaskQueue = backgroundTaskQueue;
 		}
 
+#if DEBUG
 		public IActionResult OnPost()
 		{
-			// _backgroundTaskQueue.QueueBackgroundWorkItem(new BeepBackgroundOperation(500, 200));
 			_backgroundTaskQueue.QueueBackgroundWorkItem(new MelodyBeepBackgroundOperation());
 
 			return base.RedirectToPage();
 		}
+#endif
+
 	}
 }

@@ -1,5 +1,5 @@
-﻿@charset "UTF-8";
-@use "../../../InkBall/src/InkBall.Module/IBwwwroot/css/svg-url.scss";
+@charset "UTF-8";
+@use "../../../InkBall/src/InkBall.Module/wwwroot/css/svg-url.scss";
 
 html,
 body {
@@ -10,23 +10,23 @@ body {
 	position: relative;
 }
 
-@media (prefers-color-scheme: dark) {
-    body {
-        color: white;
-        background-color: rgb(33, 37, 41);
-    }
-	// More styles (colors-only)
-	.form-select, .form-control, .accordion-item, .accordion-button, .fixed-table-loading {
-        color: white !important;
-		//same as above main dark background
-        background-color: rgb(33, 37, 41) !important;
-	}
-	.card {
-		// --bs-bg-opacity: 1;
-		//slightly darker
-		background-color: rgb(39, 49, 59) !important;
-	}
-}
+// @media (prefers-color-scheme: dark) {
+//     body {
+//         color: white;
+//         background-color: rgb(33, 37, 41);
+//     }
+// 	// More styles (colors-only)
+// 	.form-select, .form-control, .accordion-item, .accordion-button, .fixed-table-loading {
+//         color: white !important;
+// 		//same as above main dark background
+//         background-color: rgb(33, 37, 41) !important;
+// 	}
+// 	.card {
+// 		// --bs-bg-opacity: 1;
+// 		//slightly darker
+// 		background-color: rgb(39, 49, 59) !important;
+// 	}
+// }
 
 /* Wrapping element */
 /* Set some basic padding to keep content from hitting the edges */
@@ -140,7 +140,55 @@ footer.container > noscript {
 	content: $projectVersion; /* injected variable on gulp build pipeline by gulp-replace */
 }
 
+// Language selector and flags
+#langDropdown {
+
+	& button[title='en'] > img,
+	& img[title='en'] {
+		content: svg-url.svg-url('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480"><path fill="#012169" d="M0 0h640v480H0z"/><path fill="#FFF" d="m75 0 244 181L562 0h78v62L400 241l240 178v61h-80L320 301 81 480H0v-60l239-178L0 64V0z"/><path fill="#C8102E" d="m424 281 216 159v40L369 281zm-184 20 6 35L54 480H0zM640 0v3L391 191l2-44L590 0zM0 0l239 176h-60L0 42z"/><path fill="#FFF" d="M241 0v480h160V0zM0 160v160h640V160z"/><path fill="#C8102E" d="M0 193v96h640v-96zM273 0v480h96V0z"/></svg>');
+		display: inline-block;
+		/* background-repeat: no-repeat;
+		background-position: center; */
+		width: 2em;
+		height: 1em;
+	}
+
+	& button[title='pl'] > img,
+	& img[title='pl'] {
+		content: svg-url.svg-url('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 5"><rect width="8" height="5" fill="red"/><rect width="8" height="2.5" fill="#fff"/></svg>');
+		display: inline-block;
+		/* background-repeat: no-repeat;
+		background-position: center; */
+		width: 2em;
+		height: 1em;
+	}
+	
+}
+
+/*
+Theme switcher:
+	🔆 - light
+	🌙 - dark
+	💻 - system
+*/
+#themeSwitcher {
+	&.light::after {
+		content: "🔆";
+	}
+
+	&.dark::after {
+		content: "🌙";
+	}
+
+	&.system::after {
+		content: "💻";
+	}
+}
 /***************VirtualScroll start***************/
+.fixed-table-loading {
+	background-color: rgba(128, 128, 128, 0.5) !important;
+}
+
 .bootstrap-table {
 	button.btn .fa-sync:after {
 		content: '↻';
@@ -244,10 +292,10 @@ footer.container > noscript {
 
 	//https://www.sitepoint.com/css3-transform-background-image/
 	//https://christianheilmann.com/2021/02/08/sharing-data-between-css-and-javascript-using-custom-properties/
-	.target
+	#target
 	{
 		--bimg: url('../images/puzzles/fond-puzzle.svg');
-		--trans: scale(2) rotateZ(180deg);
+		// --trans: scale(2) rotateZ(180deg);
 
 		position: relative;
 		overflow: hidden;
@@ -305,3 +353,29 @@ footer.container > noscript {
 	height: 24px;
 	padding-right: 2rem !important;
   }
+/***************Error handler page start***************/
+/*
+Http status codes:
+ - Client error responses (400 – 499)
+ - Server error responses (500 – 599)
+*/
+.error > h1
+.s-400, .s-401, .s-402, .s-403, .s-404, .s-405, .s-406, .s-407, .s-408, .s-409, .s-410, .s-411, .s-412, .s-413, .s-414, .s-415, .s-416, .s-417, .s-418, .s-421, .s-422, .s-423, .s-424, .s-425, .s-426, .s-428, .s-429, .s-431, .s-451 {
+	color: orange;
+}
+.error > h1
+.s-500, .s-501, .s-502, .s-503, .s-504, .s-505, .s-506, .s-507, .s-508, .s-510, .s-511 {
+	color: red;
+	animation: blinkMe 1s linear infinite;
+}
+@keyframes blinkMe {
+	0% {
+		opacity: 0.2;
+	}
+	50% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0.2;
+	}
+}

@@ -18,6 +18,11 @@ async function signInUser(browser, loginURL, storageStatePath, user) {
 	await page.context().storageState({ path: `${storageStatePath}${user.userName}-storageState.json` });
 }
 
+/**
+ * Playwright global setup handler. Setup users, session/cookie stores and prepares
+ * logged on browsers and anonymous browsers to tun tests
+ * @param {import('@playwright/test').Config} config playwright config
+ */
 async function globalSetup(config) {
 	let browser = undefined;
 	const use = config.projects.at(0).use;

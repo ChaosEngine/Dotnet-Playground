@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:experimental
 FROM mcr.microsoft.com/dotnet/sdk:9.0-bookworm-slim AS build
-RUN --mount=type=cache,target=/root/.nuget --mount=type=cache,target=/root/.local/ --mount=type=cache,target=/root/.cache/ --mount=type=cache,target=./DotnetPlayground.Web/node_modules
+RUN --mount=type=cache,target=/root/.nuget --mount=type=cache,target=/root/.local/ --mount=type=cache,target=/root/.cache/ --mount=type=cache,target=./node_modules
 RUN curl -SLO https://deb.nodesource.com/nsolid_setup_deb.sh && \
     chmod 500 nsolid_setup_deb.sh && \
     ./nsolid_setup_deb.sh 21 && \
@@ -27,9 +27,8 @@ RUN dotnet restore -r linux-x64 /p:Configuration=Release
 COPY . .
 RUN sed -i -e "s/GIT_HASH/$SOURCE_COMMIT/g" -e "s/GIT_BRANCH/$SOURCE_BRANCH/g" DotnetPlayground.Web/wwwroot/js/site.js
 RUN dotnet test -v m
-RUN dotnet publish -c $BUILD_CONFIG --self-contained -r linux-x64 \
-    #-p:PublishTrimmed=true \
-    DotnetPlayground.Web
+RUN pnpm install --prod --unsafe-perm
+RUN dotnet publish -c $BUILD_CONFIG --self-contained -r linux-x64 DotnetPlayground.Web
 
 
 

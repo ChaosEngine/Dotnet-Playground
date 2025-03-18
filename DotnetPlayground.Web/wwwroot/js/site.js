@@ -1,11 +1,15 @@
 ﻿/*eslint-disable no-console*/
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate|handleAboutPageBranchHash" }]*/
-/*global forge, bootstrap*/
+/*global forge, bootstrap, i18next, i18nextBrowserLanguageDetector, i18nextHttpBackend, locI18next*/
 "use strict";
 
-var g_AppRootPath = location.pathname.match(/\/([^/]+)\//)[0],
-	g_gitBranch = "GIT_BRANCH", g_gitHash = "GIT_HASH";
+var g_AppRootPath = location.pathname.match(/\/([^/]+)\//)[0], g_isDevelopment = location.host.match(/:\d+/) !== null,
+	g_gitBranch = "GIT_BRANCH", g_gitHash = "GIT_HASH", localize = null;
 
+/**
+ * Client side hash validation of clicked single hash row
+ * @param {HTMLButtonElement} button triggering action
+ */
 function clientValidate(button) {
 	const td = $(button).parent().parent().find("td");
 
@@ -27,10 +31,16 @@ function clientValidate(button) {
 	td.eq(2).css("color", (sha === orig_sha ? "green" : "red")).css('font-weight', 'bold');
 }
 
+/**
+ * Client side hash validation of all hash rows
+ */
 function clientValidateAll() {
-	$("button[value='Validate']").each( (_index, item) => clientValidate(item));
+	$("button[value='Validate']").each((_index, item) => clientValidate(item));
 }
 
+/**
+ * About page handling of various elements
+ */
 function handleAboutPageBranchHash() {
 	let anchor = document.querySelector('#branchHash > a:first-child');
 	if (anchor) {
@@ -52,7 +62,7 @@ function handleAboutPageBranchHash() {
  * Custom alert bootstrap modal
  * @param {string} msg content shown
  * @param {string} title of the dialog
- * @param {function} onCloseCallback callback executed on close
+ * @param {Function} onCloseCallback callback executed on close
  */
 function myAlert(msg = 'Content', title = 'Modal title', onCloseCallback = undefined) {
 	const myModalEl = document.getElementById('divModal');
@@ -74,6 +84,75 @@ function myAlert(msg = 'Content', title = 'Modal title', onCloseCallback = undef
 	myModal.show();
 }
 
+window.addEventListener('DOMContentLoaded', function () {
+
+	function handleLocalization(isDev) {
+
+		window.registerLocalizationOnReady = null;
+
+		function renderLocalize() {
+			localize('head,body');
+
+			// $('head,body').localize();
+		}
+
+		// use plugins and options as needed, for options, detail see: http://i18next.com/docs/
+		i18next
+			// detect user language. learn more: https://github.com/i18next/i18next-browser-languageDetector
+			.use(i18nextBrowserLanguageDetector)
+			.use(i18nextHttpBackend)
+			.init({
+				debug: isDev,
+				fallbackLng: false, // default language if nothing found by detector or disable loading fallback
+				supportedLngs: ['en', 'pl'], // array of supported languages
+
+				ns: ['translation', ...(location.pathname.match(/InkBall/) ? ['ib'] : '')],
+				defaultNS: 'translation',
+
+				backend: {
+					loadPath: ([lng], [namespace]) => {
+						switch (namespace) {
+							case 'ib':
+								return isDev ? `${g_AppRootPath}locales/${lng}/${namespace}.json`
+									: `https://cdn.jsdelivr.net/gh/ChaosEngine/InkBall@${g_gitBranch/* 'dev' */}/src/InkBall.Module/wwwroot/locales/${lng}/${namespace}.min.json`;
+
+							// case 'translation':
+							default:
+								return isDev ? `${g_AppRootPath}locales/${lng}/${namespace}.json`
+									: `https://cdn.jsdelivr.net/gh/ChaosEngine/Dotnet-Playground@${g_gitBranch/* 'dev' */}/DotnetPlayground.Web/wwwroot/locales/${lng}/${namespace}.min.json`;
+						}
+					}
+				}
+			}, function (/* err, t */) {
+				// for options see: https://github.com/i18next/jquery-i18next#initialize-the-plugin
+				// jqueryI18next.init(i18next, $, { useOptionsAttr: true });
+				// localize = (sel) => $(sel).localize();
+
+				localize = locI18next.init(i18next, { useOptionsAttr: true, optionsAttr: 'data-i18n-options' });
+
+				if (typeof window.registerLocalizationOnReady === "function") {
+					window.registerLocalizationOnReady(localize);
+					delete window.registerLocalizationOnReady;
+				}
+
+				// start localizing, details: https://github.com/i18next/jquery-i18next#usage-of-selector-function
+				renderLocalize();
+			});
+
+		// Language switcher
+		$('#langDropdown button[title]').on('click', function () {
+			const lang = $(this).attr("title");
+
+			i18next.changeLanguage(lang, function (/* err, t */) {
+				// Update the content after language change
+				renderLocalize();
+			});
+		});
+	}
+
+	handleLocalization(g_isDevelopment);
+});
+
 /**
  * Global document ready function
  */
@@ -82,7 +161,7 @@ $(function () {
 	function ajaxLog(level, message, url, line, col, error) {
 		const logPath = g_AppRootPath + "Home/ClientsideLog";
 
-		$.post(logPath , {
+		$.post(logPath, {
 			level: level, message: message, url: url, line: line, col: col, error: error
 		});
 	}
@@ -115,10 +194,7 @@ $(function () {
 			//&& (navigator.serviceWorker.controller === null || navigator.serviceWorker.controller.state !== "activated")
 		) {
 			const version = encodeURIComponent(g_gitBranch + '_' + g_gitHash);
-			const swUrl = rootPath + 'sw' + (isDev === true ? '' : '.min') + '.js?' +
-				// '?path=' + encodeURIComponent(rootPath) +
-				// '&isDev=' + encodeURIComponent(isDev) +
-				'version=' + version;
+			const swUrl = `${rootPath}sw${(isDev === true ? '' : '.min')}.js?version=${version}`;
 
 			navigator.serviceWorker
 				.register(swUrl, { scope: rootPath })
@@ -129,7 +205,7 @@ $(function () {
 		}
 	}
 
-	function registerAlertModalContent(msg = 'Content', title = 'Modal title') {
+	function registerMyAlert(msg = 'Content', title = 'Modal title') {
 		const divModal = document.createElement('div');
 		divModal.id = "divModal";
 		divModal.classList.add("modal");
@@ -156,13 +232,13 @@ $(function () {
 	function registerThemeChangeHandler() {
 		//Taken from https://anduin.aiursoft.com/post/2020/3/27/bootstrap-dark-theme-minimum-style
 		const initDarkTheme = function () {
-			if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+			if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
 				// dark mode
 				$('html').attr("data-bs-theme", "dark");
 			}
 		};
 		const initLightTheme = function () {
-			if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+			if (window.matchMedia('(prefers-color-scheme: light)').matches) {
 				// light mode
 				$('html').attr("data-bs-theme", "light");
 			}
@@ -170,21 +246,80 @@ $(function () {
 		initDarkTheme();
 		window.matchMedia('(prefers-color-scheme: dark)').addEventListener("change", initDarkTheme);
 		window.matchMedia('(prefers-color-scheme: light)').addEventListener("change", initLightTheme);
+
+
+
+
+
+		$('#themeSwitcher').on('click', function () {
+			const classes = $(this).attr('class').split(' ');
+			let cur_theme = classes.pop();
+			switch (cur_theme) {
+				case 'system':
+					cur_theme = 'light';
+					break;
+
+				case 'light':
+					cur_theme = 'dark';
+					break;
+
+				default:
+				case 'dark':
+					cur_theme = 'system';
+					break;
+			}
+			classes.push(cur_theme);
+			$(this).attr('class', classes.join(" "));
+			$(this).attr('data-i18n', `[title]nav.themeSwitcher.${cur_theme};[aria-label]nav.themeSwitcher.${cur_theme}`);
+			localize('#themeSwitcher');
+
+
+			if (cur_theme === 'system') {
+				document.documentElement.removeAttribute('data-bs-theme');
+				localStorage.removeItem('bs-theme');
+			}
+			else {
+				document.documentElement.setAttribute('data-bs-theme', cur_theme);
+				localStorage.setItem('bs-theme', cur_theme);
+			}
+		});
+
+		const cur_theme = localStorage.getItem('bs-theme') || 'system';
+		if (cur_theme === 'system')
+			document.documentElement.removeAttribute('data-bs-theme');
+		else
+			document.documentElement.setAttribute('data-bs-theme', cur_theme);
+
+
+		const btn=$('#themeSwitcher');
+		const classes = btn.attr('class').split(' ');
+		classes.pop();
+		classes.push(cur_theme);
+		btn.attr('class', classes.join(" "));
+		btn.attr('data-i18n', `[title]nav.themeSwitcher.${cur_theme};[aria-label]nav.themeSwitcher.${cur_theme}`);
+		// localize('#themeSwitcher');
+
+
+
+
 	}
 
 	function updateOnlineStatus() {
 		const offlineIndicator = $("#offlineIndicator");
 
 		if (offlineIndicator !== undefined) {
-			const state = navigator.onLine ? "Online" : "Offline";
-			offlineIndicator.html(state);
+			const state = navigator.onLine ? "common.online" : "common.offline";
+			// offlineIndicator.html(state);
+			offlineIndicator.attr('data-i18n', state);
+			localize("#offlineIndicator");
 			offlineIndicator.show();
 		}
 	}
 
+
 	/**
 	 * Mapped after Microsoft.Extensions.Logging
-	 * */
+	 */
 	const logLevel = {
 		Trace: 0,
 		Debug: 1,
@@ -226,8 +361,7 @@ $(function () {
 		org_error.call(this, arguments);
 	};
 
-	const isDevelopment = window.location.host.match(/:\d+/) !== null;
-	registerServiceWorker(g_AppRootPath, isDevelopment);
+	registerServiceWorker(g_AppRootPath, g_isDevelopment);
 
 	handleLogoutForm();
 
@@ -238,7 +372,7 @@ $(function () {
 
 	registerThemeChangeHandler();
 
-	registerAlertModalContent();
+	registerMyAlert();
 	//overriding window.alert with own implementation
 	window.alert = myAlert;
 });

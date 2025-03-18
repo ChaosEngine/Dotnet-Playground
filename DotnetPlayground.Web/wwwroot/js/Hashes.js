@@ -1,6 +1,9 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "HashesOnLoad" }]*/
 "use strict";
 
+/**
+ * Hashes page onload event handler
+ */
 function HashesOnLoad() {
 
 	let g_LastTimeOfRun = new Date().getTime();

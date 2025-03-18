@@ -1,7 +1,7 @@
 # syntax = docker/dockerfile:experimental
 FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
-RUN --mount=type=cache,target=/root/.nuget --mount=type=cache,target=/root/.local/ --mount=type=cache,target=/root/.cache/ --mount=type=cache,target=./DotnetPlayground.Web/node_modules
-RUN apk add --update nodejs npm && npm install -g pnpm
+RUN --mount=type=cache,target=/root/.nuget --mount=type=cache,target=/root/.local/ --mount=type=cache,target=/root/.cache/ --mount=type=cache,target=./node_modules
+RUN apk add --update nodejs pnpm
 WORKDIR /build
 
 ENV DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/net9.0/Blogging.db"
@@ -24,9 +24,8 @@ RUN dotnet restore -r linux-musl-x64 /p:Configuration=Release
 COPY . .
 RUN sed -i -e "s/GIT_HASH/$SOURCE_COMMIT/g" -e "s/GIT_BRANCH/$SOURCE_BRANCH/g" DotnetPlayground.Web/wwwroot/js/site.js
 RUN dotnet test -v m
-RUN dotnet publish -c $BUILD_CONFIG --self-contained -r linux-musl-x64 \
-    #-p:PublishTrimmed=true \
-    DotnetPlayground.Web
+RUN pnpm install --prod --unsafe-perm
+RUN dotnet publish -c $BUILD_CONFIG --self-contained -r linux-musl-x64 DotnetPlayground.Web
 
 
 

@@ -45,6 +45,8 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using DotnetPlayground.Web.Helpers;
 using System.Text.Json;
+using Microsoft.AspNetCore.StaticFiles;
+
 
 
 #if INCLUDE_MONGODB
@@ -81,6 +83,7 @@ namespace DotnetPlayground
 					await Console.Out.WriteLineAsync("Using Linux Transport");
 				})*/
                 .UseContentRoot(Directory.GetCurrentDirectory())
+                .UseStaticWebAssets()
                 .UseStartup<Startup>();
             });
 
@@ -120,6 +123,7 @@ namespace DotnetPlayground
 					{
 						await Console.Out.WriteLineAsync("Using Linux Transport");
 					})*/
+                    .UseStaticWebAssets()
                     .UseStartup<Startup>();
                 })
                 .Build();
@@ -500,7 +504,7 @@ namespace DotnetPlayground
 
             app.Map("/dotnet", main =>
             {
-                main.UseStaticFiles();
+                // main.UseStaticFiles();
                 main.UseStaticFilesForInkBall();
                 main.UseRouting();
                 main.UseServerTiming();
@@ -510,9 +514,11 @@ namespace DotnetPlayground
 
                 main.UseEndpoints(endpoints =>
                 {
+                    endpoints.MapStaticAssets();
                     endpoints.PrepareSignalRForInkBall("/");
                     endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
-                    endpoints.MapRazorPages();
+                    endpoints.MapRazorPages()
+                        .WithStaticAssets();
                 });
 
                 main.UseIdentityManager();

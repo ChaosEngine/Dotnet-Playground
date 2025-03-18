@@ -99,19 +99,32 @@ namespace DotnetPlayground.Controllers
 			}
 		}
 
-		public async Task<IActionResult> Error(int statusCode)
+		public async Task<IActionResult> Error([FromServices]BloggingContext dbContext, int statusCode)
 		{
 			if (statusCode <= 0)
 				statusCode = Response.StatusCode;
 
 			var reExecute = HttpContext.Features.Get<IStatusCodeReExecuteFeature>();
-			_logger.LogInformation("Unexpected Status Code: {statusCode}, OriginalPath: {OriginalPath}", statusCode, reExecute?.OriginalPath);
+
+			_logger.LogError("Unexpected Status Code: {statusCode}, OriginalPath: {OriginalPath}", statusCode, reExecute?.OriginalPath);
+
+			CancellationToken token = HttpContext.RequestAborted;
+
+			await dbContext.ErrorLogs.AddAsync(new ErrorLog
+			{
+				HttpStatus = statusCode,
+				Url = reExecute?.OriginalPath,
+				Message = $"Request.Path = {Request.Path}",
+			}, token);
+
+			await dbContext.SaveChangesAsync(token);
 
 			return await Task.FromResult(View(statusCode));
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> ClientsideLog(LogLevel? level, string message, string url, string line, string col, string error)
+		public async Task<IActionResult> ClientsideLog([FromServices]BloggingContext dbContext,
+			LogLevel? level, string message, string url, string line, string col, string error)
 		{
 			switch (level.GetValueOrDefault(LogLevel.None))
 			{
@@ -133,6 +146,19 @@ namespace DotnetPlayground.Controllers
 				default:
 					break;
 			}
+
+			CancellationToken token = HttpContext.RequestAborted;
+
+			await dbContext.ErrorLogs.AddAsync(new ErrorLog
+			{
+				Url = url,
+				Message = message,
+				Line = int.TryParse(line, out var l) ? l : (int?)null,
+				Column = int.TryParse(col, out var c) ? c : (int?)null,
+			}, token);
+
+			await dbContext.SaveChangesAsync(token);
+			
 			var ok = Ok();
 			return await Task.FromResult(ok);
 		}
@@ -210,11 +236,25 @@ namespace DotnetPlayground.Controllers
 		}
 
 		[HttpPost("/CspReport")]
-		public async Task<IActionResult> CspReport([FromBody] CspReportRequest cspReportRequest)
+		public async Task<IActionResult> CspReport([FromServices]BloggingContext dbContext,
+			[FromBody] CspReportRequest cspReportRequest)
 		{
 			_logger.LogWarning("CSP Violation -> documentUri: {documentUri}, blockedUri: {blockedUri}, sourceFile: {sourceFile}",
-				cspReportRequest.CspReport.DocumentUri, cspReportRequest.CspReport.BlockedUri, cspReportRequest.CspReport.SourceFile);
+				cspReportRequest?.CspReport?.DocumentUri, cspReportRequest?.CspReport?.BlockedUri, cspReportRequest?.CspReport?.SourceFile);
 
+			CancellationToken token = HttpContext.RequestAborted;
+
+			await dbContext.ErrorLogs.AddAsync(new ErrorLog
+			{
+				Url = cspReportRequest?.CspReport?.DocumentUri,
+				HttpStatus = cspReportRequest?.CspReport?.StatusCode,
+				Message = $"ViolatedDirective: {cspReportRequest?.CspReport?.ViolatedDirective}, BlockedUri: {cspReportRequest?.CspReport?.BlockedUri}",
+				Line = cspReportRequest?.CspReport?.LineNumber,
+				Column = cspReportRequest?.CspReport?.ColumnNumber,
+			}, token);
+
+			await dbContext.SaveChangesAsync(token);
+			
 			return await Task.FromResult(Ok());
 		}
 	}

@@ -5,9 +5,9 @@ import gulp from 'gulp';
 
 import process from 'node:process';
 import fs from 'fs-extra';
-import { fileURLToPath } from 'url';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// import { fileURLToPath } from 'url';
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
 import * as dartSass from 'sass';
 import gulpSass from 'gulp-sass';
@@ -26,8 +26,10 @@ import webpack from 'webpack-stream';
 // import esmWebpackPlugin from '@purtuga/esm-webpack-plugin';
 import workerPlugin from 'worker-plugin';
 import TerserPlugin from 'terser-webpack-plugin';
+import jsonMinify from 'gulp-json-minify';
 
-const webroot = "./wwwroot/";
+const webroot = "./DotnetPlayground.Web/wwwroot/";
+const IBwebroot = "./InkBall/src/InkBall.Module/wwwroot/";
 
 const paths = {
 	js: webroot + "js/**/*.js",
@@ -35,20 +37,26 @@ const paths = {
 	css: webroot + "css/**/*.css",
 	scss: webroot + "css/**/*.scss",
 	minCss: webroot + "css/**/*.min.css",
+	translation: webroot + "locales/**/*.json",
+	minTranslation: webroot + "locales/**/*.min.json",
 	destCSSDir: webroot + "css/",
 	concatJsDest: webroot + "js/site.min.js",
 	//<ServiceWorker>
 	SWJs: webroot + "sw.js",
 	SWJsDest: webroot + "sw.min.js",
-	//<ServiceWorker/>
+	//<ServiceWorker>
 	//<WebWorkers>
 	BruteForceWorkerJs: webroot + "js/workers/BruteForceWorker.js",
 	BruteForceWorkerJsDest: webroot + "js/workers/BruteForceWorker.min.js",
 	SharedJs: webroot + "js/workers/shared.js",
 	SharedJsDest: webroot + "js/workers/shared.min.js",
-	//<WebWorkers/>
-	inkBallJsRelative: "../InkBall/src/InkBall.Module/IBwwwroot/js/",
-	inkBallCssRelative: "../InkBall/src/InkBall.Module/IBwwwroot/css/"
+	//</WebWorkers>
+	//<InkBall>
+	inkBallJsRelative: IBwebroot + "js/",
+	inkBallCssRelative: IBwebroot + "css/",
+	inkBallTranslation: IBwebroot + "locales/**/*.json",
+	inkBallMinTranslation: IBwebroot + "locales/**/*.min.json"
+	//</InkBall>
 };
 
 const minCSS = function (sourcePattern, notPattern, dest) {
@@ -81,9 +89,9 @@ const inkballEntryPoint = function (min) {
 		//paths.inkBallJsRelative + 'shared.js',
 		//paths.inkBallJsRelative + 'AISource.js'
 	]).pipe(webpack({
-		resolve: {
-			modules: ['node_modules', `../../../../../${path.basename(__dirname)}/node_modules`]
-		},
+		// resolve: {
+		// 	modules: ['node_modules', `../../../../../${path.basename(__dirname)}/node_modules`]
+		// },
 		entry: {
 			'inkball': [
 				//'@babel/polyfill',
@@ -134,9 +142,9 @@ const inkballEntryPoint = function (min) {
 const inkballAIWorker = function (doPollyfill) {
 	return gulp.src(paths.inkBallJsRelative + "AIWorker.js")
 		.pipe(webpack({
-			resolve: {
-				modules: ['node_modules', `../../../../../${path.basename(__dirname)}/node_modules`]
-			},
+			// resolve: {
+			// 	modules: ['node_modules', `../../../../../${path.basename(__dirname)}/node_modules`]
+			// },
 			entry: {
 				'AIWorker': doPollyfill === true ? [
 					'@babel/polyfill',
@@ -242,7 +250,14 @@ const minInkballCss = gulp.series(
 	}
 );
 
-const minInkball = gulp.parallel(minInkballJs, minInkballCss);
+const minInkballTranslations = function concatJsDest() {
+	return gulp.src([paths.inkBallTranslation, "!" + paths.inkBallMinTranslation], { base: "." })
+		.pipe(jsonMinify())
+		.pipe(rename({ suffix: '.min' }))
+		.pipe(gulp.dest("."));
+};
+
+const minInkball = gulp.parallel(minInkballJs, minInkballCss, minInkballTranslations);
 
 const cleanInkball = async function (cb) {
 	await Promise.all([
@@ -261,6 +276,8 @@ const cleanJs = gulp.series(cleanInkball, async function cleanMinJs(cb) {
 	await Promise.all([
 		rimraf(paths.minJs),
 		rimraf(paths.SWJsDest),
+		rimraf(paths.minTranslation),
+		rimraf(paths.inkBallMinTranslation),
 		rimraf(webroot + "js/**/*.map"),
 		rimraf(webroot + "*.map")
 	]);
@@ -298,6 +315,13 @@ const minJs = gulp.series(minSWJsJs,
 			.pipe(gulp.dest("."));
 	}
 );
+
+const minTranslations = function concatJsDest() {
+	return gulp.src([paths.translation, "!" + paths.minTranslation], { base: "." })
+		.pipe(jsonMinify())
+		.pipe(rename({ suffix: '.min' }))
+		.pipe(gulp.dest("."));
+};
 
 const processInputArgs = function () {
 	let colorTheme = undefined;//process.env.NODE_ENV === 'production' ? 'darkred' : 'darkslateblue';
@@ -356,7 +380,7 @@ const processSCSS = function (sourcePattern, notPattern) {
 	return gulp.src([sourcePattern, "!" + notPattern])
 		// .pipe(header('$themeColor: ${color};\n$projectVersion: ${version};\n', { color: colorTheme, version: `'${projectVersion}'` }))
 		.pipe(replace('$themeColor', colorTheme))
-    	.pipe(replace('$projectVersion', `'${projectVersion}'`))
+		.pipe(replace('$projectVersion', `'${projectVersion}'`))
 		.pipe(sass().on('error', sass.logError))
 		.pipe(gulp.dest(notPattern));
 };
@@ -373,7 +397,7 @@ const minScss = gulp.series(
 	}
 );
 
-const min = gulp.parallel(minJs, minInkball, minScss);
+const min = gulp.parallel(minJs, minInkball, minScss, minTranslations);
 
 const cssRun = gulp.parallel(minInkballCss, minScss);
 
@@ -462,7 +486,14 @@ const postinstall = async (cb) => {
 	file_copy(`${nm}/ace-builds/src-min-noconflict/ace.js`, `${dst}ace-builds/ace.js`);
 	file_copy(`${nm}/ace-builds/src-min-noconflict/mode-csharp.js`, `${dst}ace-builds/mode-csharp.js`);
 	file_copy(`${nm}/ace-builds/src-min-noconflict/theme-chaos.js`, `${dst}ace-builds/theme-chaos.js`);
+	file_copy(`${nm}/ace-builds/src-min-noconflict/ext-searchbox.js`, `${dst}ace-builds/ext-searchbox.js`);
 	dir_copy(`${nm}/chance/dist`, `${dst}chance`);
+
+	file_copy(`${nm}/i18next/i18next.min.js`, `${dst}i18next/i18next.min.js`);
+	file_copy(`${nm}/loc-i18next/loc-i18next.min.js`, `${dst}loc-i18next/loc-i18next.min.js`);
+	file_copy(`${nm}/i18next-http-backend/i18nextHttpBackend.min.js`, `${dst}i18next-http-backend/i18nextHttpBackend.min.js`);
+	file_copy(`${nm}/i18next-browser-languagedetector/i18nextBrowserLanguageDetector.min.js`, `${dst}i18next-browser-languagedetector/i18nextBrowserLanguageDetector.min.js`);
+	file_copy(`${nm}/html2canvas/dist/html2canvas.min.js`, `${dst}html2canvas/html2canvas.min.js`);
 
 	await Promise.all(copy_promises);
 
@@ -477,6 +508,7 @@ const main = gulp.series(
 	webpackRun,
 	min
 );
+
 ///
 /// Exports
 ///
