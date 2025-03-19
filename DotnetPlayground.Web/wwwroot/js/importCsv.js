@@ -1,6 +1,6 @@
 window.addEventListener('load', () => {
 
-	const csvToTable = (csvContent) => {
+	const csvToTable = (csvContent, delimiter) => {
 		// Remove \r and \n inside double-quoted values
 		const csvData = csvContent.replace(/"(.*?)"/gs, (match) => {
 			return match.replace(/[\r\n]/g, ''); // Removes only within quotes
@@ -15,7 +15,7 @@ window.addEventListener('load', () => {
 		for (const line of lines) {
 			if (line.length === 0 || line.startsWith('#')) continue; // Skip empty lines
 
-			const polished = line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/); // Handle commas inside quotes
+			const polished = line.split(new RegExp(`${delimiter}(?=(?:[^"]*"[^"]*")*[^"]*$)`)); // Handle delimiters inside quotes
 			const values = polished.map(value => value.replace(/^"|"$/g, '').trim());
 
 			const row = table.insertRow();
@@ -36,7 +36,8 @@ window.addEventListener('load', () => {
 
 			reader.onload = function (e) {
 				const csvData = e.target.result;
-				const table = csvToTable(csvData);
+				const delimiter = document.getElementById('delimiter').value;
+				const table = csvToTable(csvData, delimiter || ',');
 				if (table) {
 					document.getElementById('tableContainer').innerHTML = ''; // Clear existing content
 					document.getElementById('tableContainer').appendChild(table);

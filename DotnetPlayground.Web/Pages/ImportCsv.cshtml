@@ -12,10 +12,17 @@
 
 	<form method="post" enctype="multipart/form-data" class="row g-3">
 
-		<label for="csvFile" class="form-label" data-i18n="importCsv.chooseFileLabel">Choose CSV File:</label>
-		<input type="file" class="form-control" id="csvFile" name="csvFile" accept=".csv" />
+		<div class="col-sm-2">
+			<label for="delimiter" class="form-label" data-i18n="importCsv.delimiter">Delimiter:</label>
+			<input type="text" class="form-control" id="delimiter" name="delimiter" maxlength="1" value="," required />
+		</div>
 
-		<div id="tableContainer">
+		<div class="col">
+			<label for="csvFile" class="form-label" data-i18n="importCsv.chooseFileLabel">Choose CSV File:</label>
+			<input type="file" class="form-control" id="csvFile" name="csvFile" accept=".csv" />
+		</div>
+
+		<div id="tableContainer" class="row mt-3">
 			<!-- Table will be inserted here by JavaScript -->
 		</div>
 	</form>

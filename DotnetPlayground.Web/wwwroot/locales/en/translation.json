@@ -99,6 +99,7 @@
 	"importCsv": {
 		"title": "CSV importer",
 		"description": "Import CSV file and display it in a table.",
-		"chooseFileLabel": "Choose CSV File:"
+		"chooseFileLabel": "Choose CSV File:",
+		"delimiter":"Delimiter:"
 	}
 }
