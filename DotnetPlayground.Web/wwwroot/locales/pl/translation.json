@@ -99,7 +99,17 @@
 		"title": "Importer CSV",
 		"description": "Importuj plik CSV i wyświetl go w tabeli.",
 		"chooseFileLabel": "Wybierz plik CSV:",
-		"delimiter": "Separator:",
-		"totalRows": "Liczba wierszy: {{count}}"
+		"delimiter": "Separator",
+		"totalRows": "Liczba wierszy: {{count}}",
+		"submit": "Wyślij",
+		"count": "Ilość",
+		"Failed": "Porażka",
+		"success": "Sukces",
+		"exInterc": "Przechwycony wyjątek",
+		"undErr": "Nieokreślony błąd",
+		"badResp": "Zły status odpowiedzi",
+		"noCsv": "Nie znaleziono danych CSV, proszę najpierw je załadować",
+		"unknBtn": "Nieznany przycisk",
+		"goodResult": "Liczba wierszy: {{rowsCount}}, liczba niepustych komórek: {{nonEmptyCellsCount}}"
 	}
 }

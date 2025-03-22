@@ -100,7 +100,17 @@
 		"title": "CSV importer",
 		"description": "Import CSV file and display it in a table.",
 		"chooseFileLabel": "Choose CSV File:",
-		"delimiter":"Delimiter:",
-		"totalRows": "Total rows: {{count}}"
+		"delimiter": "Delimiter",
+		"totalRows": "Total rows: {{count}}",
+		"submit": "Submit",
+		"count": "Count",
+		"Failed": "Failed",
+		"success": "Success",
+		"exInterc": "Exception intercepted",
+		"undErr": "Undefined error",
+		"badResp": "Bad response status",
+		"noCsv": "No CSV data found, please load it first",
+		"unknBtn": "Unknown button",
+		"goodResult": "Rows count: {{rowsCount}}, non empty cells count: {{nonEmptyCellsCount}}"
 	}
 }
