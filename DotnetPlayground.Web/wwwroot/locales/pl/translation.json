@@ -99,6 +99,7 @@
 		"title": "Importer CSV",
 		"description": "Importuj plik CSV i wyświetl go w tabeli.",
 		"chooseFileLabel": "Wybierz plik CSV:",
-		"delimiter": "Separator:"
+		"delimiter": "Separator:",
+		"totalRows": "Liczba wierszy: {{count}}"
 	}
 }

@@ -11,6 +11,8 @@ window.addEventListener('load', () => {
 
 		const table = document.createElement('table');
 		table.className = 'table table-bordered'; // Optional: Add Bootstrap styling
+		let section = null;
+		let rowCounter = 0;
 
 		for (const line of lines) {
 			if (line.length === 0 || line.startsWith('#')) continue; // Skip empty lines
@@ -18,12 +20,29 @@ window.addEventListener('load', () => {
 			const polished = line.split(new RegExp(`${delimiter}(?=(?:[^"]*"[^"]*")*[^"]*$)`)); // Handle delimiters inside quotes
 			const values = polished.map(value => value.replace(/^"|"$/g, '').trim());
 
-			const row = table.insertRow();
+			if (!section) {
+				section = table.createTHead();
+				const row = section.insertRow();
+				for (let j = 0; j < values.length; j++) {
+					const cell = document.createElement('th');
+					cell.textContent = values[j].trim();
+					row.appendChild(cell);
+				}
+				section = table.createTBody();//switch to body
+				continue;//done with header, skip to next iteration
+			}
+			const row = section.insertRow();
 			for (let j = 0; j < values.length; j++) {
 				const cell = row.insertCell();
-				cell.textContent = values[j];
+				cell.textContent = values[j].trim();
 			}
+			rowCounter++;
 		}
+
+		section = table.createCaption();
+		section.dataset.i18n = 'importCsv.totalRows';
+		section.dataset.i18nOptions = `{ 'count': ${rowCounter} }`;
+		section.textContent = `Total rows: ${rowCounter}`;
 
 		return table;
 	};
@@ -41,6 +60,9 @@ window.addEventListener('load', () => {
 				if (table) {
 					document.getElementById('tableContainer').innerHTML = ''; // Clear existing content
 					document.getElementById('tableContainer').appendChild(table);
+
+					if (window.localize)
+						window.localize("#tableContainer");
 				}
 			};
 
