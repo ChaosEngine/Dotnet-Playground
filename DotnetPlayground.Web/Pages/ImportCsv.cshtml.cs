@@ -50,8 +50,7 @@ namespace DotnetPlayground.Pages
 			// 		if (!string.IsNullOrEmpty(cell))
 			// 			counter++;
 
-			long counter =
-			CsvData.Aggregate(0, (row_accumulator, row) =>
+			long counter = CsvData.Aggregate(0, (row_accumulator, row) =>
 			{
 				return row_accumulator + row.Aggregate(0, (cell_acc, cell) =>
 				{

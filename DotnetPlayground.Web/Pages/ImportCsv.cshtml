@@ -8,7 +8,7 @@
 
 <div class="importCsv">
 	<h1 data-i18n="importCsv.title">CSV importer</h1>
-	<h3 data-i18n="importCsv.description">Import CSV file and display its content in a table.</h3>
+	<h3 data-i18n="importCsv.description">Import CSV file, display it in a table and count non-empty cells.</h3>
 
 	<form method="post" id="csvForm" class="row g-3">
 
@@ -23,13 +23,13 @@
 		</div>
 
 		<div class="col-sm-6">
-			<button type="submit" name="btnCount" class="btn btn-primary form-control" data-i18n="importCsv.count">Count</button>
+			<button type="submit" name="btnCount" class="btn btn-primary form-control" data-i18n="importCsv.count">Count locally</button>
 		</div>
 		<div class="col-sm-6">
-			<button type="submit" name="btnSubmit" class="btn btn-primary form-control" data-i18n="importCsv.submit">Submit</button>
+			<button type="submit" name="btnSubmit" class="btn btn-primary form-control" data-i18n="importCsv.submit">Count on server</button>
 		</div>
 
-		<div id="tableContainer" class="row mt-3">
+		<div id="tableContainer" class="table-responsive mt-3" style="max-height: calc(100vh - 23em);">
 			<!-- Table will be inserted here by JavaScript -->
 		</div>
 	</form>

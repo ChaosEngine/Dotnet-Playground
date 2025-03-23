@@ -22,7 +22,7 @@ window.addEventListener('load', () => {
 		if (lines.length <= 0) return null; // bail if no lines
 
 		const table = document.createElement('table');
-		table.className = 'table table-bordered'; // Optional: Add Bootstrap styling
+		table.className = 'table table-bordered caption-top'; // Optional: Add Bootstrap styling
 		let section = null;
 		let rowCounter = 0;
 
@@ -49,18 +49,19 @@ window.addEventListener('load', () => {
 
 				}
 				section = table.createTBody();//switch to body
-				rowCounter++;
-				continue;//done with header, skip to next iteration
 			}
-			const row = section.insertRow();
-			rawData[rowCounter] = [];
+			else {
+				//add rows to body
+				const row = section.insertRow();
+				rawData[rowCounter] = [];
 
-			for (let j = 0; j < values.length; j++) {
-				const cell = row.insertCell();
-				const textual_content = values[j].trim();
-				cell.textContent = textual_content;
+				for (let j = 0; j < values.length; j++) {
+					const cell = row.insertCell();
+					const textual_content = values[j].trim();
+					cell.textContent = textual_content;
 
-				rawData[rowCounter][j] = textual_content;
+					rawData[rowCounter][j] = textual_content;
+				}
 			}
 			rowCounter++;
 		}
@@ -177,17 +178,24 @@ window.addEventListener('load', () => {
 			return;
 		}
 
-		const buttonName = event.submitter ? event.submitter.name : null;
-		switch (buttonName) {
-			case 'btnSubmit':
-				await submitToServerApproach(globalData);
-				break;
-			case 'btnCount':
-				await countClientSideApproach(globalData);
-				break;
-			default:
-				myAlert(i18next.t('importCsv.unknBtn'), i18next.t('importCsv.Failed'));
-				break;
+		const submitter = event.submitter;
+		try {
+			const buttonName = submitter.name ? submitter.name : null;
+			switch (buttonName) {
+				case 'btnSubmit':
+					submitter.disabled = true;
+					await submitToServerApproach(globalData);
+					break;
+				case 'btnCount':
+					submitter.disabled = true;
+					await countClientSideApproach(globalData);
+					break;
+				default:
+					myAlert(i18next.t('importCsv.unknBtn'), i18next.t('importCsv.Failed'));
+					break;
+			}
+		} finally {
+			submitter.disabled = false;
 		}
 	});
 
