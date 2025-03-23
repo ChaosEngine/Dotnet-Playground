@@ -1,5 +1,5 @@
 # syntax = docker/dockerfile:experimental
-FROM mcr.microsoft.com/dotnet/sdk:9.0-bookworm-slim AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0-bookworm-slim-arm32v7 AS build
 RUN --mount=type=cache,target=/root/.nuget --mount=type=cache,target=/root/.local/ --mount=type=cache,target=/root/.cache/ --mount=type=cache,target=./node_modules
 RUN curl -SLO https://deb.nodesource.com/nsolid_setup_deb.sh && \
     chmod 500 nsolid_setup_deb.sh && \
@@ -22,23 +22,23 @@ COPY ./IdentityManager2/src/IdentityManager2/IdentityManager2.csproj ./IdentityM
 COPY ./IdentityManager2/src/IdentityManager2/Assets/ ./IdentityManager2/src/IdentityManager2/Assets/
 COPY ./DotnetPlayground.Web/DotnetPlayground.Web.csproj ./DotnetPlayground.Web/DotnetPlayground.Web.csproj
 COPY ./*.sln ./NuGet.config ./
-RUN dotnet restore -r linux-x64 /p:Configuration=Release
+RUN dotnet restore -r linux-arm /p:Configuration=Release
 
 COPY . .
 RUN sed -i -e "s/GIT_HASH/$SOURCE_COMMIT/g" -e "s/GIT_BRANCH/$SOURCE_BRANCH/g" DotnetPlayground.Web/wwwroot/js/site.js
 RUN dotnet test -v m
 RUN pnpm install --prod --unsafe-perm
-RUN dotnet publish -c $BUILD_CONFIG --self-contained -r linux-x64 DotnetPlayground.Web
+RUN dotnet publish -c $BUILD_CONFIG --self-contained -r linux-arm DotnetPlayground.Web
 
 
 
 
 
-FROM mcr.microsoft.com/dotnet/runtime-deps:9.0-bookworm-slim
+FROM mcr.microsoft.com/dotnet/runtime-deps:9.0-bookworm-slim-arm32v7
 WORKDIR /app
 ENV USER=nobody
 ARG BUILD_CONFIG=${BUILD_CONFIG:-Release}
-COPY --from=build --chown="$USER":"$USER" /build/DotnetPlayground.Web/bin/$BUILD_CONFIG/net9.0/linux-x64/publish/ /build/startApp.sh ./
+COPY --from=build --chown="$USER":"$USER" /build/DotnetPlayground.Web/bin/$BUILD_CONFIG/net9.0/linux-arm/publish/ /build/startApp.sh ./
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
