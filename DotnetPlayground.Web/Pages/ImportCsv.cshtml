@@ -25,8 +25,14 @@
 		<div class="col-sm-6">
 			<button type="submit" name="btnCount" class="btn btn-primary form-control" data-i18n="importCsv.count">Count locally</button>
 		</div>
-		<div class="col-sm-6">
-			<button type="submit" name="btnSubmit" class="btn btn-primary form-control" data-i18n="importCsv.submit">Count on server</button>
+		<div class="col-sm-6 align-items-center row bg-info-subtle">
+			<div class="form-check col-sm-6">
+				<input class="form-check-input" type="checkbox" id="compression" name="compression">
+				<label class="form-check-label" for="compression" data-i18n="importCsv.compression">Request compression</label>
+			</div>
+			<div class="col-sm-6">
+				<button type="submit" name="btnSubmit" class="btn btn-primary form-control" data-i18n="importCsv.submit">Count on server</button>
+			</div>
 		</div>
 
 		<div id="tableContainer" class="table-responsive mt-3" style="max-height: calc(100vh - 23em);">

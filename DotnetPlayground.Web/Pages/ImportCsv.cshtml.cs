@@ -16,14 +16,8 @@ namespace DotnetPlayground.Pages
 
 
 		/// <summary>
-		/// Gets or sets the CSV data.
+		/// Gets or sets the CSV data; a two-dimensional array of strings representing the CSV data.
 		/// </summary>
-		/// <value>
-		/// A two-dimensional array of strings representing the CSV data.
-		/// </value>
-		/// <remarks>
-		/// This property is bound from the body of the request and is required.
-		/// </remarks>
 		[BindProperty]
 		[FromBody]
 		[Required]

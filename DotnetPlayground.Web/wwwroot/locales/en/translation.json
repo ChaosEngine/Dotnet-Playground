@@ -111,6 +111,7 @@
 		"badResp": "Bad response status",
 		"noCsv": "No CSV data found, please load it first",
 		"unknBtn": "Unknown button",
-		"goodResult": "Rows count: {{rowsCount}}, non empty cells count: {{nonEmptyCellsCount}}"
+		"goodResult": "Rows count: {{rowsCount}}, non empty cells count: {{nonEmptyCellsCount}}",
+		"compression": "Request compression"
 	}
 }

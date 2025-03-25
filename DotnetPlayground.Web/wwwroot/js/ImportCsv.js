@@ -101,13 +101,31 @@ window.addEventListener('load', () => {
 	/**
 	 * Submit the CSV data to the server
 	 * @param {Array<Array<string>>} rawData 2D array of strings
+	 * @param {boolean} compression Whether to compress the payload
 	 * @returns {Promise<void>}
 	 */
-	async function submitToServerApproach(rawData) {
-		const payload = JSON.stringify(rawData);
-		// Required for AntiForgeryToken
-		const antiforgeryToken = document.querySelector('input[name="__RequestVerificationToken"]').value;
+	async function submitToServerApproach(rawData, compression = false) {
 		try {
+			const stringified = JSON.stringify(rawData);
+
+			const headers = {
+				'Content-Type': 'application/json',
+				// Required for AntiForgeryToken
+				'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value,
+				...(compression ? { 'Content-Encoding': 'gzip' } : {})
+			};
+
+			let payload;
+			if (compression) {
+				const compressedStream = new CompressionStream('gzip');
+				const compressedPayloadStream = new Blob([stringified]).stream().pipeThrough(compressedStream);
+				const compressedPayload = await new Response(compressedPayloadStream).arrayBuffer();
+				payload = compressedPayload;
+			}
+			else
+				payload = stringified;
+
+
 			const response = await fetch('ImportCsv', {
 				method: 'POST',
 				body: payload,
@@ -115,10 +133,7 @@ window.addEventListener('load', () => {
 				cache: 'no-cache',
 				redirect: 'follow',
 				referrerPolicy: 'no-referrer',
-				headers: {
-					'Content-Type': 'application/json',
-					'RequestVerificationToken': antiforgeryToken
-				}
+				headers: headers
 			});
 			if (!response.ok) {
 				const body = await response.text();
@@ -178,13 +193,20 @@ window.addEventListener('load', () => {
 			return;
 		}
 
+
 		const submitter = event.submitter;
 		try {
+			//detects which button was clicked
 			const buttonName = submitter.name ? submitter.name : null;
 			switch (buttonName) {
 				case 'btnSubmit':
-					submitter.disabled = true;
-					await submitToServerApproach(globalData);
+					{
+						submitter.disabled = true;
+						//get compress checkbox value
+						const compress = document.getElementById('compression').checked;
+
+						await submitToServerApproach(globalData, compress);
+					}
 					break;
 				case 'btnCount':
 					submitter.disabled = true;

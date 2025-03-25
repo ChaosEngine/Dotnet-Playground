@@ -110,6 +110,7 @@
 		"badResp": "Zły status odpowiedzi",
 		"noCsv": "Nie znaleziono danych CSV, proszę najpierw je załadować",
 		"unknBtn": "Nieznany przycisk",
-		"goodResult": "Liczba wierszy: {{rowsCount}}, liczba niepustych komórek: {{nonEmptyCellsCount}}"
+		"goodResult": "Liczba wierszy: {{rowsCount}}, liczba niepustych komórek: {{nonEmptyCellsCount}}",
+		"compression": "Kompresja żądania"
 	}
 }
