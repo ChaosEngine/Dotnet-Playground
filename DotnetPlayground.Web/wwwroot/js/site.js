@@ -113,13 +113,15 @@ window.addEventListener('DOMContentLoaded', function () {
 					loadPath: ([lng], [namespace]) => {
 						switch (namespace) {
 							case 'ib':
-								return isDev ? `${g_AppRootPath}locales/${lng}/${namespace}.json`
-									: `https://cdn.jsdelivr.net/gh/ChaosEngine/InkBall@${g_gitBranch/* 'dev' */}/src/InkBall.Module/wwwroot/locales/${lng}/${namespace}.min.json`;
+								// return isDev ? `${g_AppRootPath}locales/${lng}/${namespace}.json`
+								// 	: `https://cdn.jsdelivr.net/gh/ChaosEngine/InkBall@${g_gitBranch/* 'dev' */}/src/InkBall.Module/wwwroot/locales/${lng}/${namespace}.min.json`;
+								return `${g_AppRootPath}locales/${lng}/${namespace}${isDev === true ? '' : '.min'}.json`;
 
 							// case 'translation':
 							default:
-								return isDev ? `${g_AppRootPath}locales/${lng}/${namespace}.json`
-									: `https://cdn.jsdelivr.net/gh/ChaosEngine/Dotnet-Playground@${g_gitBranch/* 'dev' */}/DotnetPlayground.Web/wwwroot/locales/${lng}/${namespace}.min.json`;
+								// return isDev ? `${g_AppRootPath}locales/${lng}/${namespace}.json`
+								// 	: `https://cdn.jsdelivr.net/gh/ChaosEngine/Dotnet-Playground@${g_gitBranch/* 'dev' */}/DotnetPlayground.Web/wwwroot/locales/${lng}/${namespace}.min.json`;
+								return `${g_AppRootPath}locales/${lng}/${namespace}${isDev === true ? '' : '.min'}.json`;
 						}
 					}
 				}

@@ -111,19 +111,25 @@ window.addEventListener('load', () => {
 			const headers = {
 				'Content-Type': 'application/json',
 				// Required for AntiForgeryToken
-				'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value,
-				...(compression ? { 'Content-Encoding': 'gzip' } : {})
+				'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
 			};
 
-			let payload;
+			let payload, length_of_payload;
+			//check if compression is needed
 			if (compression) {
 				const compressedStream = new CompressionStream('gzip');
 				const compressedPayloadStream = new Blob([stringified]).stream().pipeThrough(compressedStream);
 				const compressedPayload = await new Response(compressedPayloadStream).arrayBuffer();
 				payload = compressedPayload;
+				length_of_payload = compressedPayload.byteLength;
+				headers['Content-Encoding'] = 'gzip';
 			}
-			else
+			else {
 				payload = stringified;
+				length_of_payload = stringified.length;
+			}
+			// eslint-disable-next-line no-console
+			console.log('Payload size:', length_of_payload);
 
 
 			const response = await fetch('ImportCsv', {
