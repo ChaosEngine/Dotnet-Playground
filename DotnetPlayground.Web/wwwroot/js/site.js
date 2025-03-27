@@ -1,4 +1,4 @@
-﻿/*eslint-disable no-console*/
+/*eslint-disable no-console*/
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate|handleAboutPageBranchHash" }]*/
 /*global forge, bootstrap, i18next, i18nextBrowserLanguageDetector, i18nextHttpBackend, locI18next*/
 "use strict";
@@ -111,17 +111,20 @@ window.addEventListener('DOMContentLoaded', function () {
 
 				backend: {
 					loadPath: ([lng], [namespace]) => {
+						const loadFromCDN = localStorage.getItem('loadFromCDN') === 'true';
 						switch (namespace) {
 							case 'ib':
-								// return isDev ? `${g_AppRootPath}locales/${lng}/${namespace}.json`
-								// 	: `https://cdn.jsdelivr.net/gh/ChaosEngine/InkBall@${g_gitBranch/* 'dev' */}/src/InkBall.Module/wwwroot/locales/${lng}/${namespace}.min.json`;
-								return `${g_AppRootPath}locales/${lng}/${namespace}${isDev === true ? '' : '.min'}.json`;
+								return loadFromCDN && isDev === false ?
+									`https://cdn.jsdelivr.net/gh/ChaosEngine/InkBall@${g_gitBranch/* 'dev' */}/src/InkBall.Module/wwwroot/locales/${lng}/${namespace}.min.json`
+									:
+									`${g_AppRootPath}locales/${lng}/${namespace}${isDev === true ? '' : '.min'}.json`;
 
 							// case 'translation':
 							default:
-								// return isDev ? `${g_AppRootPath}locales/${lng}/${namespace}.json`
-								// 	: `https://cdn.jsdelivr.net/gh/ChaosEngine/Dotnet-Playground@${g_gitBranch/* 'dev' */}/DotnetPlayground.Web/wwwroot/locales/${lng}/${namespace}.min.json`;
-								return `${g_AppRootPath}locales/${lng}/${namespace}${isDev === true ? '' : '.min'}.json`;
+								return loadFromCDN && isDev === false ?
+									`https://cdn.jsdelivr.net/gh/ChaosEngine/Dotnet-Playground@${g_gitBranch/* 'dev' */}/DotnetPlayground.Web/wwwroot/locales/${lng}/${namespace}.min.json`
+									:
+									`${g_AppRootPath}locales/${lng}/${namespace}${isDev === true ? '' : '.min'}.json`;
 						}
 					}
 				}
@@ -293,7 +296,7 @@ $(function () {
 			document.documentElement.setAttribute('data-bs-theme', cur_theme);
 
 
-		const btn=$('#themeSwitcher');
+		const btn = $('#themeSwitcher');
 		const classes = btn.attr('class').split(' ');
 		classes.pop();
 		classes.push(cur_theme);

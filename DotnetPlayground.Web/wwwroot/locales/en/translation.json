@@ -99,7 +99,7 @@
 	"importCsv": {
 		"title": "CSV importer",
 		"description": "Import CSV file, display it in a table and count non-empty cells.",
-		"chooseFileLabel": "Choose CSV File:",
+		"csvFile": "Choose CSV File:",
 		"delimiter": "Delimiter",
 		"totalRows": "Total rows: {{count}}",
 		"submit": "Count on server",
