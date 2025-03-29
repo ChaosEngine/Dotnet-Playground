@@ -227,6 +227,12 @@ Theme switcher:
   background-image: var(--uploadedImg);
 }
 
+/***************ImportCsv start*************/
+.drop-zone-highlight {
+  border: 2px dashed #007bff;
+  background-color: #597989;
+}
+
 /***************Preferences/Profile start*************/
 #profile-form fieldset {
   border: 4px solid transparent;

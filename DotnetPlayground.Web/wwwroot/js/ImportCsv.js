@@ -74,27 +74,98 @@ window.addEventListener('load', () => {
 		return { table, rawData };
 	};
 
+	/**
+	 * Handle file selection and processing
+	 * @param {HTMLInputElement} file file to process
+	 */
+	const ProcessFile = (file) => {
+		const reader = new FileReader();
+
+		reader.onload = function (e) {
+			const csv_file = e.target.result;
+
+			let delimiter = document.getElementById('delimiter').value;
+			if (delimiter === '' || delimiter.length === 0) {
+				
+				//if delimiter is empty, try to detect it
+				//Count how many occurrences of "semicolon", "comma", "tab", "pipe", "colon" are in the file
+				//and sort those character by count by most common
+				const most_common_field_separator = [
+					{ char: ';', count: (csv_file.match(/;/g) || []).length },
+					{ char: ',', count: (csv_file.match(/,/g) || []).length },
+					{ char: '\t', count: (csv_file.match(/\t/g) || []).length },
+					{ char: '|', count: (csv_file.match(/\|/g) || []).length },
+					{ char: ':', count: (csv_file.match(/:/g) || []).length }
+				].sort((a, b) => b.count - a.count);
+				delimiter = most_common_field_separator[0].char;
+
+				//set the delimiter in the input field
+				document.getElementById('delimiter').value = delimiter;
+
+			}
+			const { table: table_element, rawData } = csvToTable(csv_file, delimiter);
+			globalData = rawData;
+			if (table_element) {
+				document.getElementById('tableContainer').innerHTML = ''; // Clear existing content
+				document.getElementById('tableContainer').appendChild(table_element);
+
+				if (window.localize)
+					window.localize("#tableContainer");
+			}
+		};
+
+		reader.readAsText(file);
+	};
+
+	// Unhighlight the drop zone when a file is dragged out of it
+	const unhighlightDropZone = (event) => {
+		// document.getElementById('dropZone').classList.remove('drop-zone-highlight');
+		event.currentTarget.classList.remove('drop-zone-highlight');
+	};
+
+	/**
+	 * Handle file input change event
+	 * @param {Event} event Event object
+	 */
 	document.getElementById('csvFile').addEventListener('change', (event) => {
 		const file = event.target.files[0];
 
-		if (file) {
-			const reader = new FileReader();
+		if (file)
+			ProcessFile(file);
+	});
 
-			reader.onload = function (e) {
-				const csv_file = e.target.result;
-				const delimiter = document.getElementById('delimiter').value;
-				const { table: table_element, rawData } = csvToTable(csv_file, delimiter || ',');
-				globalData = rawData;
-				if (table_element) {
-					document.getElementById('tableContainer').innerHTML = ''; // Clear existing content
-					document.getElementById('tableContainer').appendChild(table_element);
+	/**
+	 * Add dragover and dragenter event listeners to the drop zone; same event handler, showing the drop zone highlight
+	 * @param {string} eventType Event type
+	 */
+	['dragover', 'dragenter'].forEach(eventType => {
+		document.getElementById('dropZone').addEventListener(eventType, (event) => {
+			event.preventDefault();
+			event.currentTarget.classList.add('drop-zone-highlight');
+		});
+	});
 
-					if (window.localize)
-						window.localize("#tableContainer");
-				}
-			};
+	/**
+	 * Remove highlight when leaving the drop zone
+	 * @param {Event} event Event object
+	 */
+	document.getElementById('dropZone').addEventListener('dragleave', (event) => {
+		unhighlightDropZone(event); // Remove highlight when leaving the drop zone
+	});
 
-			reader.readAsText(file);
+	/**
+	 * Handle file drop event
+	 * @param {Event} event Event object
+	 */
+	document.getElementById('dropZone').addEventListener('drop', (event) => {
+		event.preventDefault();
+		unhighlightDropZone(event);
+
+		const fileInput = document.getElementById('csvFile');
+		if (event.dataTransfer.files.length > 0) {
+			fileInput.files = event.dataTransfer.files;
+
+			fileInput.dispatchEvent(new Event('change')); // Trigger change event
 		}
 	});
 

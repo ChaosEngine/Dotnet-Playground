@@ -98,7 +98,7 @@
 	"importCsv": {
 		"title": "Importer CSV",
 		"description": "Importuj plik CSV, wyświetl go w tabeli i policz niepuste komórki.",
-		"chooseFileLabel": "Wybierz plik CSV:",
+		"csvFile": "Wybierz plik CSV:",
 		"delimiter": "Separator",
 		"totalRows": "Liczba wierszy: {{count}}",
 		"submit": "Policz na serwerze",

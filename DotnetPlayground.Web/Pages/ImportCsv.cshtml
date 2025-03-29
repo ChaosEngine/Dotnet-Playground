@@ -12,30 +12,28 @@
 
 	<form method="post" id="csvForm" class="row g-3">
 
-		<div class="col-sm-2">
+		<div class="col-sm-2 p-2">
 			<label for="delimiter" class="form-label" data-i18n="importCsv.delimiter">Delimiter</label>:
-			<input type="text" class="form-control" id="delimiter" name="delimiter" maxlength="1" value="," required autofocus placeholder="delimiter" data-i18n="[placeholder]importCsv.delimiter" />
+			<input type="text" class="form-control" id="delimiter" name="delimiter" maxlength="1" autofocus placeholder="delimiter" data-i18n="[placeholder]importCsv.delimiter" onfocus="this.select()" />
 		</div>
 
-		<div class="col-sm-10">
-			<label for="csvFile" class="form-label" data-i18n="importCsv.chooseFileLabel">Choose CSV File:</label>
+		<div id="dropZone" class="col-sm-10 p-2">
+			<label for="csvFile" class="form-label" data-i18n="importCsv.csvFile">Choose CSV File:</label>
 			<input type="file" class="form-control" id="csvFile" name="csvFile" accept=".csv" required />
 		</div>
 
 		<div class="col-sm-6">
 			<button type="submit" name="btnCount" class="btn btn-primary form-control" data-i18n="importCsv.count">Count locally</button>
 		</div>
-		<div class="col-sm-6 align-items-center row bg-info-subtle">
-			<div class="form-check col-sm-6">
+		<div class="col-sm-6 bg-body-secondary border-2 rounded">
+			<div class="form-check">
 				<input class="form-check-input" type="checkbox" id="compression" name="compression">
 				<label class="form-check-label" for="compression" data-i18n="importCsv.compression">Request compression</label>
 			</div>
-			<div class="col-sm-6">
-				<button type="submit" name="btnSubmit" class="btn btn-primary form-control" data-i18n="importCsv.submit">Count on server</button>
-			</div>
+			<button type="submit" name="btnSubmit" class="btn btn-primary form-control" data-i18n="importCsv.submit">Count on server</button>
 		</div>
 
-		<div id="tableContainer" class="table-responsive mt-3" style="max-height: calc(100vh - 23em);">
+		<div id="tableContainer" class="table-responsive mt-3" style="max-height: calc(100vh - 24em);">
 			<!-- Table will be inserted here by JavaScript -->
 		</div>
 	</form>
