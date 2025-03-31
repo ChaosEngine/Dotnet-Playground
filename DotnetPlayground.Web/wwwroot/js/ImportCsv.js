@@ -86,18 +86,18 @@ window.addEventListener('load', () => {
 
 			let delimiter = document.getElementById('delimiter').value;
 			if (delimiter === '' || delimiter.length === 0) {
-				
+
 				//if delimiter is empty, try to detect it
 				//Count how many occurrences of "semicolon", "comma", "tab", "pipe", "colon" are in the file
 				//and sort those character by count by most common
 				const most_common_field_separator = [
-					{ char: ';', count: (csv_file.match(/;/g) || []).length },
-					{ char: ',', count: (csv_file.match(/,/g) || []).length },
-					{ char: '\t', count: (csv_file.match(/\t/g) || []).length },
-					{ char: '|', count: (csv_file.match(/\|/g) || []).length },
-					{ char: ':', count: (csv_file.match(/:/g) || []).length }
-				].sort((a, b) => b.count - a.count);
-				delimiter = most_common_field_separator[0].char;
+					[';', (csv_file.match(/;/g) || []).length],
+					[',', (csv_file.match(/,/g) || []).length],
+					['\t', (csv_file.match(/\t/g) || []).length],
+					['|', (csv_file.match(/\|/g) || []).length],
+					[':', (csv_file.match(/:/g) || []).length]
+				].sort(([, a_count], [, b_count]) => b_count - a_count);
+				delimiter = most_common_field_separator[0][0];//get the most common delimiter character
 
 				//set the delimiter in the input field
 				document.getElementById('delimiter').value = delimiter;
@@ -108,6 +108,8 @@ window.addEventListener('load', () => {
 			if (table_element) {
 				document.getElementById('tableContainer').innerHTML = ''; // Clear existing content
 				document.getElementById('tableContainer').appendChild(table_element);
+				//show the table container
+				document.getElementById('tableContainer').classList.remove('d-none');
 
 				if (window.localize)
 					window.localize("#tableContainer");
@@ -161,8 +163,8 @@ window.addEventListener('load', () => {
 		event.preventDefault();
 		unhighlightDropZone(event);
 
-		const fileInput = document.getElementById('csvFile');
 		if (event.dataTransfer.files.length > 0) {
+			const fileInput = document.getElementById('csvFile');
 			fileInput.files = event.dataTransfer.files;
 
 			fileInput.dispatchEvent(new Event('change')); // Trigger change event

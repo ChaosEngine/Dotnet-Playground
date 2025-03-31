@@ -228,7 +228,7 @@ Theme switcher:
 }
 
 /***************ImportCsv start*************/
-.drop-zone-highlight {
+.importCsv .drop-zone-highlight {
   border: 2px dashed #007bff;
   background-color: #597989;
 }
