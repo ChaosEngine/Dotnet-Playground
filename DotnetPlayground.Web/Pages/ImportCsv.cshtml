@@ -22,10 +22,10 @@
 			<input type="file" class="form-control" id="csvFile" name="csvFile" accept=".csv" required />
 		</div>
 
-		<div class="col-sm-6">
+		<div class="col-sm-6 d-flex align-items-center">
 			<button type="submit" name="btnCount" class="btn btn-primary form-control" data-i18n="importCsv.count">Count locally</button>
 		</div>
-		<div class="col-sm-6 bg-body-secondary border-2 rounded">
+		<div class="col-sm-6 bg-body-secondary rounded d-flex align-items-center">
 			<div class="form-check">
 				<input class="form-check-input" type="checkbox" id="compression" name="compression">
 				<label class="form-check-label" for="compression" data-i18n="importCsv.compression">Request compression</label>
@@ -33,7 +33,7 @@
 			<button type="submit" name="btnSubmit" class="btn btn-primary form-control" data-i18n="importCsv.submit">Count on server</button>
 		</div>
 
-		<div id="tableContainer" class="table-responsive mt-3" style="max-height: calc(100vh - 24em);">
+		<div id="tableContainer" class="table-responsive mt-3 d-none" style="max-height: calc(100vh - 24.5em)">
 			<!-- Table will be inserted here by JavaScript -->
 		</div>
 	</form>
