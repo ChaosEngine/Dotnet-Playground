@@ -416,8 +416,6 @@ namespace DotnetPlayground.Migrations
 					.HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
 #endif
 					;
-				entity.HasKey("Id");
-
 
 				entity.Property<int?>("HttpStatus")
 					.HasColumnName("HttpStatus");
@@ -437,9 +435,9 @@ namespace DotnetPlayground.Migrations
 					.HasColumnName("Column");
 
 				entity.Property<DateTime>("Created")
-					.ValueGeneratedOnAddOrUpdate()
+					// .ValueGeneratedOnAddOrUpdate()
 					.HasColumnType(GamesContext.TimeStampColumnTypeFromProvider(ContextSnapshotHelper.DBKind,
-                        "TEXT", "timestamp", "timestamp without time zone", "TIMESTAMP(7)", "datetime2"
+                        "TEXT", "datetime", "timestamp without time zone", "TIMESTAMP(7)", "datetime2"
 					))
 					.HasDefaultValueSql(GamesContext.TimeStampDefaultValueFromProvider(ContextSnapshotHelper.DBKind,
 						"datetime('now','localtime')",
@@ -447,6 +445,11 @@ namespace DotnetPlayground.Migrations
 						"CURRENT_TIMESTAMP",
 						"CURRENT_TIMESTAMP",
 						"GETDATE()"));
+                        
+				if (ContextSnapshotHelper.DBKind.ToLowerInvariant() == "microsoft.entityframeworkcore.sqlite" || ContextSnapshotHelper.DBKind.ToLowerInvariant() == "sqlite")
+                    entity.HasKey("Id");
+                else
+                    entity.HasKey("Id", "Created");
 
 				entity.ToTable("ErrorLog");
 			});

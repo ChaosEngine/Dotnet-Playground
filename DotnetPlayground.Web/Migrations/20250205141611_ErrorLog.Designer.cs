@@ -422,8 +422,6 @@ namespace DotnetPlayground.Migrations
 					.HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
 #endif
 					;
-                b.HasKey("Id");
-
 
                 b.Property<int?>("Column")
                     .HasColumnName("Column");
@@ -443,9 +441,9 @@ namespace DotnetPlayground.Migrations
                     .HasColumnName("Url");
                 
                 b.Property<DateTime>("Created")
-					.ValueGeneratedOnAddOrUpdate()
+					// .ValueGeneratedOnAddOrUpdate()
 					.HasColumnType(GamesContext.TimeStampColumnTypeFromProvider(ActiveProvider,
-                        "TEXT", "timestamp", "timestamp without time zone", "TIMESTAMP(7)", "datetime2"
+                        "TEXT", "datetime", "timestamp without time zone", "TIMESTAMP(7)", "datetime2"
 					))
 					.HasDefaultValueSql(GamesContext.TimeStampDefaultValueFromProvider(ActiveProvider,
 						"datetime('now','localtime')",
@@ -453,6 +451,11 @@ namespace DotnetPlayground.Migrations
 						"CURRENT_TIMESTAMP",
 						"CURRENT_TIMESTAMP",
 						"GETDATE()"));
+
+				if (ActiveProvider.ToLowerInvariant() == "microsoft.entityframeworkcore.sqlite" || ActiveProvider.ToLowerInvariant() == "sqlite")
+                    b.HasKey("Id");
+                else
+                    b.HasKey("Id", "Created");
 
                 b.ToTable("ErrorLog");
             });
