@@ -12,7 +12,7 @@ namespace DotnetPlayground.Pages
 		/// </summary>
 		/// <param name="RowsCount">The number of rows in the CSV file.</param>
 		/// <param name="NonEmptyCellsCount">The number of non-empty cells in the CSV file.</param>
-		private record struct CsvResult(int RowsCount, long NonEmptyCellsCount);
+		protected internal record struct CsvResult(int RowsCount, long NonEmptyCellsCount);
 
 
 		/// <summary>
