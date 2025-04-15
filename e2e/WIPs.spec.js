@@ -10,7 +10,7 @@ test.use({ storageState: './e2e/storageStates/Anonymous-storageState.json', igno
 test('ImportCsv - Open', async ({ browser }) => {
 	const page = await browser.newPage();
 
-	page.goto('ImportCsv');
+	await page.goto('ImportCsv');
 
 	// Expect a title "to contain" a substring.
 	await expect(page).toHaveTitle(/Import Csv - Dotnet Core Playground/);
@@ -24,7 +24,7 @@ test('ImportCsv - Open', async ({ browser }) => {
 test('ImportCsv - Upload and Count', async ({ browser }) => {
 	const page = await browser.newPage();
 
-	page.goto('ImportCsv');
+	await page.goto('ImportCsv');
 
 	// Locate the file input element
 	const fileInput = page.locator('input[type="file"]'); // Example locator
@@ -66,7 +66,7 @@ test('ImportCsv - Upload and Count', async ({ browser }) => {
 test('Locale test - pl lang', async ({ browser }) => {
 	const page = await browser.newPage({ locale: 'pl' });
 
-	page.goto('ImportCsv');
+	await page.goto('ImportCsv');
 
 	const flag_img = page.locator('#langDropdown > button > img');
 	await expect(flag_img).toHaveAttribute('alt', 'Polski');
