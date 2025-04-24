@@ -89,8 +89,8 @@ ${title}
 	 * @param {HTMLFormElement} form html element
 	 */
 	function PostFormSubmit(form) {
-		const blog_id = $(form).data("id");
-		const post_id = $(form).find("input[name='PostId']").val();
+		const blog_id = parseInt($(form).data("id"));
+		const post_id = parseInt($(form).find("input[name='PostId']").val());
 		//const operation = serialized_form.split('operation')[1].substr(1).trim();
 		const operation = document.activeElement.value;
 		const delete_operation = 'DeletePost';
@@ -175,7 +175,7 @@ ${title}
 	////////////functions end/////////
 
 	Array.prototype.slice.call(document.querySelectorAll("form.blogForm")).forEach(function (form) {
-		const blog_id = form.dataset["id"];
+		const blog_id = parseInt(form.dataset["id"]);
 		let el = document.createElement('div');
 		el.classList.add("col-sm-12");
 		el.classList.add("col-md-3");
