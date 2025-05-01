@@ -8,7 +8,7 @@
 		"@eslint/js": "9.25.1",
 		"@playwright/test": "1.52.0",
 		"eslint": "9.25.1",
-		"eslint-plugin-jsdoc": "50.6.10",
+		"eslint-plugin-jsdoc": "50.6.11",
 		"globals": "16.0.0"
 	},
 	"dependencies": {
@@ -32,8 +32,8 @@
 		"gulp-sourcemaps": "3.0.0",
 		"gulp-terser": "2.1.0",
 		"html2canvas": "1.4.1",
-		"i18next": "25.0.1",
-		"i18next-browser-languagedetector": "8.0.5",
+		"i18next": "25.0.2",
+		"i18next-browser-languagedetector": "8.1.0",
 		"i18next-http-backend": "3.0.2",
 		"javascript-astar": "0.4.1",
 		"jquery": "3.7.1",
@@ -47,7 +47,7 @@
 		"terser-webpack-plugin": "5.3.14",
 		"tiny-glob": "0.2.9",
 		"video.js": "8.22.0",
-		"webpack": "5.99.6",
+		"webpack": "5.99.7",
 		"webpack-stream": "7.0.0",
 		"worker-plugin": "5.0.1"
 	},
