@@ -85,11 +85,9 @@ function myAlert(msg = 'Content', title = 'Modal title', onCloseCallback = undef
 }
 
 window.addEventListener('DOMContentLoaded', function () {
+	window.registerLocalizationOnReady = [];//empty array to store callbacks to be executed when localization is ready
 
 	function handleLocalization(isDev) {
-
-		window.registerLocalizationOnReady = null;
-
 		function renderLocalize() {
 			localize('head,body');
 
@@ -111,17 +109,17 @@ window.addEventListener('DOMContentLoaded', function () {
 
 				backend: {
 					loadPath: ([lng], [namespace]) => {
-						const loadFromCDN = localStorage.getItem('loadFromCDN') === 'true';
+						const loadFromCDN = localStorage.getItem('loadFromCDN') === 'true' && isDev === false;
 						switch (namespace) {
 							case 'ib':
-								return loadFromCDN && isDev === false ?
+								return loadFromCDN ?
 									`https://cdn.jsdelivr.net/gh/ChaosEngine/InkBall@${g_gitBranch/* 'dev' */}/src/InkBall.Module/wwwroot/locales/${lng}/${namespace}.min.json`
 									:
 									`${g_AppRootPath}locales/${lng}/${namespace}${isDev === true ? '' : '.min'}.json`;
 
 							// case 'translation':
 							default:
-								return loadFromCDN && isDev === false ?
+								return loadFromCDN ?
 									`https://cdn.jsdelivr.net/gh/ChaosEngine/Dotnet-Playground@${g_gitBranch/* 'dev' */}/DotnetPlayground.Web/wwwroot/locales/${lng}/${namespace}.min.json`
 									:
 									`${g_AppRootPath}locales/${lng}/${namespace}${isDev === true ? '' : '.min'}.json`;
@@ -135,10 +133,8 @@ window.addEventListener('DOMContentLoaded', function () {
 
 				localize = locI18next.init(i18next, { useOptionsAttr: true, optionsAttr: 'data-i18n-options' });
 
-				if (typeof window.registerLocalizationOnReady === "function") {
-					window.registerLocalizationOnReady(localize);
-					delete window.registerLocalizationOnReady;
-				}
+				if (window.registerLocalizationOnReady.length > 0)
+					window.registerLocalizationOnReady.forEach((callback) => typeof callback === "function" && callback(localize));
 
 				// start localizing, details: https://github.com/i18next/jquery-i18next#usage-of-selector-function
 				renderLocalize();
