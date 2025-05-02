@@ -5,9 +5,9 @@
 	],
 	"devDependencies": {
 		"@eslint/eslintrc": "3.3.1",
-		"@eslint/js": "9.25.1",
+		"@eslint/js": "9.26.0",
 		"@playwright/test": "1.52.0",
-		"eslint": "9.25.1",
+		"eslint": "9.26.0",
 		"eslint-plugin-jsdoc": "50.6.11",
 		"globals": "16.0.0"
 	},
@@ -15,7 +15,7 @@
 		"@aptuitiv/gulp-clean-css": "4.4.3",
 		"@microsoft/signalr": "8.0.7",
 		"@microsoft/signalr-protocol-msgpack": "8.0.7",
-		"ace-builds": "1.40.1",
+		"ace-builds": "1.41.0",
 		"blueimp-gallery": "3.4.0",
 		"bootstrap": "5.3.5",
 		"bootstrap-table": "1.24.1",
