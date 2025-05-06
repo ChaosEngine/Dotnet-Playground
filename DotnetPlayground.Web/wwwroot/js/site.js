@@ -133,8 +133,9 @@ window.addEventListener('DOMContentLoaded', function () {
 
 				localize = locI18next.init(i18next, { useOptionsAttr: true, optionsAttr: 'data-i18n-options' });
 
-				if (window.registerLocalizationOnReady.length > 0)
-					window.registerLocalizationOnReady.forEach((callback) => typeof callback === "function" && callback(localize));
+				if (window.registerLocalizationOnReady.length > 0) {
+					window.registerLocalizationOnReady.forEach(callback => typeof callback === "function" && callback(localize));
+				}
 
 				// start localizing, details: https://github.com/i18next/jquery-i18next#usage-of-selector-function
 				renderLocalize();
