@@ -1,5 +1,6 @@
 {
 	"head": {
+		"title": "$t({{pageTitle}}) - {{siteTitle}}",
 		"meta": {
 			"desc": "Dotnet Core examples, tests and experiments pages"
 		}
@@ -113,5 +114,62 @@
 		"unknBtn": "Unknown button",
 		"goodResult": "Rows count: {{rowsCount}}, non empty cells count: {{nonEmptyCellsCount}}",
 		"compression": "Request compression"
+	},
+	"home": {
+		"title": "Home",
+		"slide1": {
+			"alt": "timelapse Webcam Gallery",
+			"desc": "Timelapse WebCam Gallery executed every 10 minutes recorded daily and annually"
+		},
+		"slide2": {
+			"alt": "Hashes",
+			"desc": "Simple rainbow tables proof of concept, with hash verification and bruteforce example"
+		},
+		"slide3": {
+			"alt": "Inkball game",
+			"desc": "Inkball game - old-school paper game brought to HTML5"
+		},
+		"slide4": {
+			"alt": "Extensible approach",
+			"desc": "Extensible modularized approach combining best practices of C# dotnet and JavaScript, HTML5 modern design"
+		},
+		"learnMore": "Learn More",
+		"seeMore": "See More",
+		"seeRepository": "See repository",
+		"carousel": {
+			"prev": "Previous",
+			"next": "Next"
+		},
+		"links": {
+			"name": "Links",
+			"inkball": "InkBall game",
+			"unintError": "Unintentional Error",
+			"viewCodeGen": "View-Code Generator",
+			"webCam": "WebCam Gallery",
+			"identManager": "Identity Manager"
+		}
+	},
+	"webCam": {
+		"title": "WebCam",
+		"annMovGen": "Annual movie clips",
+		"annMovGenTitle": "Show all annual movie clips",
+		"annColName": "Name",
+		"annColHash": "Hash",
+		"annColDate": "Date",
+		"annLoading": "Loading...",
+		"live": "Live",
+		"video": "Daily video",
+		"youTube": "Youtube videos",
+		"gallery": "Gallery",
+		"galLoadAll": "Load all",
+		"galLoadAllTit": "Load all images",
+		"liveTitle": "live",
+		"secsElapsed": " secs elapsed since last live-image load",
+		"reloading": ", reloading!",
+		"stillRel": "still reloading!",
+		"badImgType": "bad image Type",
+		"resNotOk": "response not ok",
+		"error": "Error",
+		"errorFollowing": "error: "
 	}
 }

@@ -1,5 +1,6 @@
 {
 	"head": {
+		"title": "$t({{pageTitle}}) - {{siteTitle}}",
 		"meta": {
 			"desc": "Przykłady Dotnet Core, testy i strony eksperymentalne"
 		}
@@ -112,5 +113,62 @@
 		"unknBtn": "Nieznany przycisk",
 		"goodResult": "Liczba wierszy: {{rowsCount}}, liczba niepustych komórek: {{nonEmptyCellsCount}}",
 		"compression": "Kompresja żądania"
+	},
+	"home": {
+		"title": "Domowa",
+		"slide1": {
+			"alt": "Galeria zdjęć z kamerki poklatkowej",
+			"desc": "Galeria zdjęć z kamerki poklatkowej wykonywana co 10 minut, rejestrowana codziennie i rocznie"
+		},
+		"slide2": {
+			"alt": "Hasze",
+			"desc": "Prosty dowód koncepcji tęczowych tablic, z weryfikacją haszy i przykładem łamania metodą brute force"
+		},
+		"slide3": {
+			"alt": "Gra w kropki",
+			"desc": "Gra Inkball – oldschoolowa gra papierowa przeniesiona do HTML5"
+		},
+		"slide4": {
+			"alt": "Rozszerzalne podejście",
+			"desc": "Rozszerzalne, zmodularyzowane podejście łączące najlepsze praktyki C# .NET i JavaScript, nowoczesny design HTML5"
+		},
+		"learnMore": "Dowiedz się więcej",
+		"seeMore": "Zobacz więcej",
+		"seeRepository": "Zobacz repozytorium",
+		"carousel": {
+			"prev": "Poprzedni",
+			"next": "Następny"
+		},
+		"links": {
+			"name": "Linki",
+			"inkball": "Gra w kropki",
+			"unintError": "Niewymuszony błąd",
+			"viewCodeGen": "Generator kodu widoku",
+			"webCam": "Kamerka",
+			"identManager": "Zarządzanie tożsamością"
+		}
+	},
+	"webCam": {
+		"title": "Kamerka",
+		"annMovGen": "Roczne klipy wideo",
+		"annMovGenTitle": "Pokaż wszystkie roczne klipy wideo",
+		"annColName": "Nazwa",
+		"annColHash": "Hash",
+		"annColDate": "Data",
+		"annLoading": "Ładowanie...",
+		"live": "Na żywo",
+		"video": "Codzienne wideo",
+		"youTube": "Wideo Youtube",
+		"gallery": "Galeria",
+		"galLoadAll": "Załaduj wszystko",
+		"galLoadAllTit": "Załaduj wszystkie obrazy",
+		"liveTitle": "na żywo",
+		"secsElapsed": " sek. od ostatniego załadowania obrazu na żywo",
+		"reloading": ", przeładowywanie!",
+		"stillRel": "nadal przeładowuje!",
+		"badImgType": "zły typ obrazu",
+		"resNotOk": "odpowiedź nieprawidłowa",
+		"error": "Błąd",
+		"errorFollowing": "błąd: "
 	}
 }

@@ -9,7 +9,7 @@
 		"@playwright/test": "^1.52.0",
 		"eslint": "^9.27.0",
 		"eslint-plugin-jsdoc": "^50.6.17",
-		"globals": "^16.1.0"
+		"globals": "^16.2.0"
 	},
 	"dependencies": {
 		"@aptuitiv/gulp-clean-css": "^4.4.3",
@@ -32,7 +32,7 @@
 		"gulp-sourcemaps": "^3.0.0",
 		"gulp-terser": "^2.1.0",
 		"html2canvas": "1.4.1",
-		"i18next": "25.2.0",
+		"i18next": "25.2.1",
 		"i18next-browser-languagedetector": "8.1.0",
 		"i18next-http-backend": "3.0.2",
 		"javascript-astar": "^0.4.1",
