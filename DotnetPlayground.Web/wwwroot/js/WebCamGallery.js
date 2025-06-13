@@ -1,6 +1,6 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "WebCamGalleryOnLoad" }]*/
 /* eslint-disable no-console */
-/*global g_AppRootPath, videojs, blueimp*/
+/*global g_AppRootPath, videojs, blueimp, i18next*/
 "use strict";
 ///////////////////WebCamGallery functions start/////////////////
 /**
@@ -20,15 +20,15 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 			if (data_last_modified !== "refreshing") {
 				const now = new Date();
 				const secs_between = (now - last_refresh) * 0.001;
-				let msg = String(secs_between) + ' secs elapsed since last live-image load';
+				let msg = String(secs_between) + i18next.t('webCam.secsElapsed');
 				if (secs_between > liveImageExpireTimeInSeconds) {
-					msg += ', reloading!';
+					msg += i18next.t('webCam.reloading');
 					await LoadImageAsBinaryArray(live);
 				}
 				console.log(msg);
 			}
 			else
-				console.log('still reloading!');
+				console.log(i18next.t('stillRel'));
 		}
 	}
 
@@ -66,7 +66,7 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 					}
 					break;
 				default:
-					reject(new Error('bad imgType'));
+					reject(new Error(i18next.t('webCam.badImgType')));
 			}
 		});
 	}
@@ -226,7 +226,7 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 				headers: { 'Cache-Control': 'no-cache' }
 			});
 			if (response.ok !== true)
-				throw new Error('response not ok');
+				throw new Error(i18next.t('webCam.resNotOk'));
 
 			const headers = response.headers;
 			const hdr_last_modified = headers.get('Last-Modified');
@@ -254,12 +254,14 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 		$('#tbAnnualMovieGenerator').html(
 			'<thead><tr>' +
 			'<th scope="col">#</th>' +
-			'<th scope="col">Name</th>' +
-			'<th scope="col">Hash</th>' +
-			'<th scope="col">Date</th>' +
-			'</tr></thead><caption>Loading...</caption><tbody></tbody>'
+			`<th scope="col" data-i18n='webCam.annColName'>Name</th>` +
+			`<th scope="col" data-i18n='webCam.annColHash'>Hash</th>` +
+			`<th scope="col" data-i18n='webCam.annColDate'>Date</th>` +
+			`</tr></thead><caption data-i18n='webCam.annLoading'>Loading...</caption><tbody></tbody>`
 		);
-
+		if (window.localize)
+			window.localize("#tbAnnualMovieGenerator");
+		
 		$.ajax({
 			method: 'POST',
 			url: 'AnnualTimelapse/?handler=SecretAction',
@@ -270,7 +272,7 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 		}).done(function (response/*, textStatus, jqXHR*/) {
 			console.log(response);
 			if (response.result === "Error0") {
-				alert("error");
+				alert(i18next.t('webCam.error'));
 				return;
 			}
 			else {
@@ -290,7 +292,7 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 				});
 			}
 		}).fail(function (_jqXHR, textStatus, errorThrown) {
-			alert("error: " + textStatus + " " + errorThrown);
+			alert(i18next.t('webCam.errorFollowing') + textStatus + " " + errorThrown);
 			$('#tbAnnualMovieGenerator').html('');
 		}).always(function () {
 			event.target.disabled = '';

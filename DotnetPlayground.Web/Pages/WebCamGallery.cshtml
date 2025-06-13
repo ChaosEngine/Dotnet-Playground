@@ -4,7 +4,7 @@
 @{
 	Model.Watch.Restart();
 	Layout = @"..\Views\Shared\_Layout.cshtml";
-	ViewData["Title"] = "WebCam Gallery";
+	ViewData["Title"] = "webCam.title";
 }
 @section headElements
 {
@@ -17,7 +17,7 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.4.0/css/blueimp-gallery.min.css" integrity="sha512-8z9zEPEYVxCX7hdM+6hA0RMSW42V+XtqsyXSbNkujXYclFqhRV8J4+MasIpuYZODoHJuQgxGjcRKm//sWEQm6w==" crossorigin="anonymous" 
               asp-fallback-href="~/lib/blueimp-gallery/css/blueimp-gallery.min.css"
               asp-fallback-test-class="blueimp-gallery" asp-fallback-test-property="position" asp-fallback-test-value="fixed" />
-		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/video.js/8.22.0/video-js.min.css" integrity="sha512-7wMpNCbZmQmUPa3OOvqZo2TbK4n4xy4hdSWvxXKaJH8tR/9+7YFS0qyiKK3FV3tE6ANeSAdd3xfFQbf71P5Dfw==" crossorigin="anonymous" referrerpolicy="no-referrer"
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/video.js@8.23.3/dist/video-js.min.css" integrity="sha256-aZM6nunxxsAVKRkQNSLoYiISSWTiGV0o6y0MBDwm9Zw=" crossorigin="anonymous" referrerpolicy="no-referrer"
               asp-fallback-href="~/lib/video.js/video-js.min.css"
               asp-fallback-test-class="video-js" asp-fallback-test-property="position" asp-fallback-test-value="relative" />
     </environment>
@@ -25,7 +25,7 @@
 
 <p id="secretAction" style='display: @(Model.IsAnnualMovieListAvailable() ? "block" : "none")'>
 	<button id="btnAnnualMovieGenerator" type="button" class="btn btn-primary" value="Generate"
-		data-bs-toggle="collapse" data-bs-target="#divAnnualMovieGenerator" aria-expanded="false" aria-controls="divAnnualMovieGenerator"
+		data-bs-toggle="collapse" data-bs-target="#divAnnualMovieGenerator" aria-expanded="false" aria-controls="divAnnualMovieGenerator" data-i18n="webCam.annMovGen;[title]webCam.annMovGenTitle"
   		title="Show all annual movie clips" disabled>Annual movie clips</button>
 </p>
 <div class="collapse card card-body" id="divAnnualMovieGenerator">
@@ -38,26 +38,26 @@
 		if (!string.IsNullOrEmpty(Model.LiveWebCamURL))
 		{
 			<li class="nav-item">
-				<a class="nav-link active" data-bs-toggle="tab" href="#live-tab" role="tab" aria-controls="live-tab" aria-selected="true">Live</a>
+				<a class="nav-link active" data-bs-toggle="tab" href="#live-tab" role="tab" aria-controls="live-tab" aria-selected="true" data-i18n="webCam.live" style="min-width: 6em">Live</a>
 			</li>
 		}
 		if (!string.IsNullOrEmpty(Model.BaseWebCamURL))
 		{
 			<li class="nav-item">
-				<a class="nav-link" data-bs-toggle="tab" href="#video-tab" role="tab" aria-controls="video-tab" aria-selected="false">Daily video</a>
+				<a class="nav-link" data-bs-toggle="tab" href="#video-tab" role="tab" aria-controls="video-tab" aria-selected="false" data-i18n="webCam.video" style="min-width: 10em">Daily video</a>
 			</li>
 		}
 		if (!string.IsNullOrEmpty(Model.YouTubePlaylistId))
 		{
 			<li class="nav-item">
-				<a class="nav-link" data-bs-toggle="tab" href="#youtube-tab" role="tab" aria-controls="youtube-tab" aria-selected="false">Youtube videos</a>
+				<a class="nav-link" data-bs-toggle="tab" href="#youtube-tab" role="tab" aria-controls="youtube-tab" aria-selected="false" data-i18n="webCam.youTube" style="min-width: 10em">Youtube videos</a>
 			</li>
 		}
 		if (Model.ThumbnailJpgs != null)
 		{
 			<li class="nav-item" style="display:inherit">
-				<a class="nav-link" data-bs-toggle="tab" href="#gallery-tab" role="tab" aria-controls="gallery-tab" aria-selected="false">Gallery</a>
-				<button id="btnReplAllImg" type="button" class="btn btn-secondary btn-sm" style="align-self:center;display:none" value="strng" title="Load all images">Load all</button>
+				<a class="nav-link" data-bs-toggle="tab" href="#gallery-tab" role="tab" aria-controls="gallery-tab" aria-selected="false" data-i18n="webCam.gallery" style="min-width: 6em">Gallery</a>
+				<button id="btnReplAllImg" type="button" class="btn btn-secondary btn-sm" style="align-self:center;display:none" value="strng" title="Load all images" data-i18n="webCam.galLoadAll;[title]webCam.galLoadAllTit">Load all</button>
 			</li>
 		}
 	}
@@ -68,8 +68,8 @@
 	if (!string.IsNullOrEmpty(Model.LiveWebCamURL))
 	{
   		<div class="tab-pane active" id="live-tab" role="tabpanel" aria-labelledby="live-tab">
-			<a id='aLive' title='live' style="width:1280px;height:960px">
-				<img id='live' alt='live' width="1280" height="960" class="img-fluid" data-last-modified="" src="images/no_img.svg" />
+			<a id='aLive' title='live' style="width:1280px;height:960px" data-i18n="[title]webCam.liveTitle">
+				<img id='live' alt='live' width="1280" height="960" class="img-fluid" data-last-modified="" src="images/no_img.svg" data-i18n="[alt]webCam.liveTitle" />
 			</a>
 		</div>
 	}
@@ -137,7 +137,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.4.0/js/blueimp-gallery.min.js" integrity="sha512-Tt9Ui0O6Sg6FjAK5XpAIM7PCMhaXCL+i13IHLZYuluoDXlesfg+JzVI86rgUU2YnfEz2ZEDHXkRkPnHlyWnqzg==" crossorigin="anonymous"
             asp-fallback-src="~/lib/blueimp-gallery/js/blueimp-gallery.min.js"
             asp-fallback-test="window.blueimp"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/8.22.0/alt/video.core.novtt.min.js" integrity="sha512-cN72cdLLa+tHZ//1tBI8wX5geRAerBxwSM0nxLmvJzwCAAxX3O1PP8Qxf0cXBVWubnSWdA06fUqUkoKROFwOLQ==" crossorigin="anonymous" referrerpolicy="no-referrer"
+        <script src="https://cdn.jsdelivr.net/npm/video.js@8.23.3/dist/alt/video.core.novtt.min.js" integrity="sha256-e1uK8Ncs98dRtOcMZDFw9sIL7sf69+IWZZhpC5LZqbo=" crossorigin="anonymous" referrerpolicy="no-referrer"
             asp-fallback-src="~/lib/video.js/alt/video.core.novtt.min.js"
             asp-fallback-test="videojs.options"></script>
 		<script type="text/javascript" src="~/js/WebCamGallery.min.js" asp-append-version="true"></script>

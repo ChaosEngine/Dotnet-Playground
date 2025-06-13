@@ -32,7 +32,7 @@ test('Home as Anonymous', async ({ browser }) => {
 	await page.goto('InkBall/Home');
 
 	// Expect a title "to contain" a substring.
-	await expect(page).toHaveTitle(/Home - Dotnet Core Playground/);
+	await expect(page).toHaveTitle(/InkBall Game - Dotnet Core Playground/);
 
 	//Not logged-in message
 	const welcome = page.locator('p.inkhome');

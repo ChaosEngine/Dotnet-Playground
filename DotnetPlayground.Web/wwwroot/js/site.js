@@ -94,6 +94,24 @@ window.addEventListener('DOMContentLoaded', function () {
 			// $('head,body').localize();
 		}
 
+		function loadPathFunc([lng], [namespace]) {
+			const loadFromCDN = localStorage.getItem('loadFromCDN') === 'true' && isDev === false;
+			switch (namespace) {
+				case 'ib':
+					return loadFromCDN ?
+						`https://cdn.jsdelivr.net/gh/ChaosEngine/InkBall@${g_gitBranch/* 'dev' */}/src/InkBall.Module/wwwroot/locales/${lng}/${namespace}.min.json`
+						:
+						`${g_AppRootPath}locales/${lng}/${namespace}${isDev === true ? '' : '.min'}.json`;
+
+				// case 'translation':
+				default:
+					return loadFromCDN ?
+						`https://cdn.jsdelivr.net/gh/ChaosEngine/Dotnet-Playground@${g_gitBranch/* 'dev' */}/DotnetPlayground.Web/wwwroot/locales/${lng}/${namespace}.min.json`
+						:
+						`${g_AppRootPath}locales/${lng}/${namespace}${isDev === true ? '' : '.min'}.json`;
+			}
+		}
+
 		// use plugins and options as needed, for options, detail see: http://i18next.com/docs/
 		i18next
 			// detect user language. learn more: https://github.com/i18next/i18next-browser-languageDetector
@@ -108,23 +126,7 @@ window.addEventListener('DOMContentLoaded', function () {
 				defaultNS: 'translation',
 
 				backend: {
-					loadPath: ([lng], [namespace]) => {
-						const loadFromCDN = localStorage.getItem('loadFromCDN') === 'true' && isDev === false;
-						switch (namespace) {
-							case 'ib':
-								return loadFromCDN ?
-									`https://cdn.jsdelivr.net/gh/ChaosEngine/InkBall@${g_gitBranch/* 'dev' */}/src/InkBall.Module/wwwroot/locales/${lng}/${namespace}.min.json`
-									:
-									`${g_AppRootPath}locales/${lng}/${namespace}${isDev === true ? '' : '.min'}.json`;
-
-							// case 'translation':
-							default:
-								return loadFromCDN ?
-									`https://cdn.jsdelivr.net/gh/ChaosEngine/Dotnet-Playground@${g_gitBranch/* 'dev' */}/DotnetPlayground.Web/wwwroot/locales/${lng}/${namespace}.min.json`
-									:
-									`${g_AppRootPath}locales/${lng}/${namespace}${isDev === true ? '' : '.min'}.json`;
-						}
-					}
+					loadPath: loadPathFunc
 				}
 			}, function (/* err, t */) {
 				// for options see: https://github.com/i18next/jquery-i18next#initialize-the-plugin

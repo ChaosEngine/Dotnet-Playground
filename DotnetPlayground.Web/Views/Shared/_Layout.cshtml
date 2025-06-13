@@ -19,7 +19,7 @@
 	<link rel="manifest" href="~/manifest.json" />
 	<link rel="icon" type="image/x-icon" href="~/images/favicon.png" />
 	<link rel="apple-touch-icon" href="~/images/favicon.png" />
-	<title>@ViewData["Title"] - @Conf["AppTitleName"]</title>
+	<title data-i18n="head.title" data-i18n-options="{ pageTitle: '@ViewData["Title"]', siteTitle: '@Conf["AppTitleName"]' }">@ViewData["Title"] - @Conf["AppTitleName"]</title>
 	<environment include="Development">
 		<meta name="theme-color" content="darkslateblue" />
 		<link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
@@ -177,7 +177,7 @@
 			asp-fallback-src="~/lib/bootstrap/js/bootstrap.bundle.min.js"
 			asp-fallback-test="window.bootstrap">
 		</script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/i18next/25.2.0/i18next.min.js" integrity="sha512-/B5ppkjTeWD6ikRltroW/MtnuBMn9apt0aCm1yJONvMVpzqcadnUj+prTTdO9LUIDh/YMo9hRspX5wVpNqMtWQ==" crossorigin="anonymous" referrerpolicy="no-referrer"
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/i18next/25.2.1/i18next.min.js" integrity="sha512-EghQx00FQAdh1lA1LekbKdhLRShQWDNKJwK5jyjCM/ZsAqCYMhJJxBmuNjVn4LeN9qoNffOQrTKpco4r81ZufQ==" crossorigin="anonymous" referrerpolicy="no-referrer"
 			asp-fallback-src="~/lib/i18next/i18next.min.js"
 			asp-fallback-test="window.i18next">
 		</script>
@@ -185,7 +185,7 @@
 			asp-fallback-src="~/lib/loc-i18next/loc-i18next.min.js"
 			asp-fallback-test="window.locI18next">
 		</script>
-		<script src="https://cdn.jsdelivr.net/npm/i18next-browser-languagedetector@8.1.0/i18nextBrowserLanguageDetector.min.js" integrity="sha256-StQM8gEaopE6hJwmY+AgpvnfMpoGpf8uJJdM0Nd7p/Q=" crossorigin="anonymous" referrerpolicy="no-referrer"
+		<script src="https://cdn.jsdelivr.net/npm/i18next-browser-languagedetector@8.2.0/i18nextBrowserLanguageDetector.min.js" integrity="sha256-l0cq5MF8HSY1HoJ15QnvMB2nUJLxzowJb2M/QzJ/C/M=" crossorigin="anonymous" referrerpolicy="no-referrer"
 			asp-fallback-src="~/lib/i18next-browser-languagedetector/i18nextBrowserLanguageDetector.min.js"
 			asp-fallback-test="window.i18nextBrowserLanguageDetector">
 		</script>
