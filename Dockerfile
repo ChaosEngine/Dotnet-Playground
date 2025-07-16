@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0-bookworm-slim-arm32v7 AS build
 RUN --mount=type=cache,target=/root/.nuget --mount=type=cache,target=/root/.local/ --mount=type=cache,target=/root/.cache/ --mount=type=cache,target=./node_modules
 RUN curl -SLO https://deb.nodesource.com/nsolid_setup_deb.sh && \
     chmod 500 nsolid_setup_deb.sh && \
-    ./nsolid_setup_deb.sh 21 && \
+    ./nsolid_setup_deb.sh 22 && \
     apt-get install -y nodejs && npm install -g pnpm
 WORKDIR /build
 
