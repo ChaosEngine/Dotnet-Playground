@@ -6,15 +6,15 @@
 	"devDependencies": {
 		"@eslint/eslintrc": "^3.3.1",
 		"@eslint/js": "^9.32.0",
-		"@playwright/test": "^1.54.1",
+		"@playwright/test": "^1.54.2",
 		"eslint": "^9.32.0",
-		"eslint-plugin-jsdoc": "^52.0.0",
+		"eslint-plugin-jsdoc": "^52.0.2",
 		"globals": "^16.3.0"
 	},
 	"dependencies": {
 		"@aptuitiv/gulp-clean-css": "^4.4.3",
-		"@microsoft/signalr": "8.0.7",
-		"@microsoft/signalr-protocol-msgpack": "8.0.7",
+		"@microsoft/signalr": "9.0.6",
+		"@microsoft/signalr-protocol-msgpack": "9.0.6",
 		"ace-builds": "1.43.2",
 		"blueimp-gallery": "3.4.0",
 		"bootstrap": "5.3.7",
