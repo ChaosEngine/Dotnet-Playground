@@ -32,13 +32,12 @@ RUN dotnet publish -c $BUILD_CONFIG --self-contained -r linux-musl-x64 DotnetPla
 
 
 FROM mcr.microsoft.com/dotnet/runtime-deps:9.0-alpine
-RUN apk add tzdata
+RUN apk add tzdata && \
+	ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 WORKDIR /app
 ENV USER=nobody
 ARG BUILD_CONFIG=${BUILD_CONFIG:-Release}
 COPY --from=build --chown="$USER":"$USER" /build/DotnetPlayground.Web/bin/$BUILD_CONFIG/net9.0/linux-musl-x64/publish/ /build/startApp.sh ./
-
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 USER "$USER"
 
