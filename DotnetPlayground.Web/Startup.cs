@@ -382,11 +382,15 @@ namespace DotnetPlayground
 				return next();
 			});*/
 #else
-			//Apache/nginx proxy schould pass "X-Forwarded-Proto"
-			app.UseForwardedHeaders(new ForwardedHeadersOptions
-			{
-				ForwardedHeaders = /*ForwardedHeaders.XForwardedHost | */ForwardedHeaders.XForwardedProto
-			});
+            //Apache/nginx proxy schould pass "X-Forwarded-Proto"
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = /*ForwardedHeaders.XForwardedHost | */ForwardedHeaders.XForwardedProto,
+                KnownNetworks = { new Microsoft.AspNetCore.HttpOverrides.IPNetwork(
+                    IPAddress.Parse(Configuration["Proxy:KnownNetworks:YOUR_NETWORK_IP"]),
+                    int.Parse(Configuration["Proxy:KnownNetworks:YOUR_NETWORK_PREFIX_LENGTH"])
+                ) }
+            });
 #endif
         }
 
