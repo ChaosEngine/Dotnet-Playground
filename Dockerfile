@@ -35,12 +35,11 @@ RUN dotnet publish -c $BUILD_CONFIG --self-contained -r linux-arm DotnetPlaygrou
 
 
 FROM mcr.microsoft.com/dotnet/runtime-deps:9.0-bookworm-slim-arm32v7
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 WORKDIR /app
 ENV USER=nobody
 ARG BUILD_CONFIG=${BUILD_CONFIG:-Release}
 COPY --from=build --chown="$USER":"$USER" /build/DotnetPlayground.Web/bin/$BUILD_CONFIG/net9.0/linux-arm/publish/ /build/startApp.sh ./
-
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 USER "$USER"
 
