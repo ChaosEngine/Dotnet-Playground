@@ -8,7 +8,7 @@
 		"@eslint/js": "^9.33.0",
 		"@playwright/test": "^1.54.2",
 		"eslint": "^9.33.0",
-		"eslint-plugin-jsdoc": "^54.0.0",
+		"eslint-plugin-jsdoc": "^54.1.0",
 		"globals": "^16.3.0"
 	},
 	"dependencies": {
@@ -47,7 +47,7 @@
 		"terser-webpack-plugin": "^5.3.14",
 		"tiny-glob": "^0.2.9",
 		"video.js": "8.23.4",
-		"webpack": "^5.101.2",
+		"webpack": "^5.101.3",
 		"webpack-stream": "^7.0.0",
 		"worker-plugin": "^5.0.1"
 	},
