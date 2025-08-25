@@ -424,8 +424,10 @@ const postinstall = async (cb) => {
 			return false;
 		}
 	});
+	
 	file_copy(`${nm}/bootstrap-table/dist/bootstrap-table.min.css`, `${dst}bootstrap-table/bootstrap-table.min.css`);
 	file_copy(`${nm}/bootstrap-table/dist/bootstrap-table.min.js`, `${dst}bootstrap-table/bootstrap-table.min.js`);
+
 	dir_copy(`${nm}/node-forge/dist`, `${dst}node-forge`, (src) => {
 		if (fs.lstatSync(src).isDirectory() || src.includes(`forge.min.js`)) {
 			return true;

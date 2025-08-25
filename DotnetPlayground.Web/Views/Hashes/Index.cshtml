@@ -56,7 +56,7 @@
 </form>
 <table id="result_tab" class="table table-striped table-sm" style='@(Model != null && !Model.Key.StartsWith("error") ? "" : "display:none")'>
 	<thead><tr><th>Key</th><th>MD5</th><th>SHA256</th>
-		<th><button class="btn btn-success fw-bold text-nowrap pe-3" title="ValidateAll" value="ValidateAll" onclick="clientValidateAll()">ALL ⇩</button></th>
+		<th><button class="btn btn-success fw-bold text-nowrap pe-3" title="Validate all" value="ValidateAll" onclick="clientValidateAll()">ALL ⇩</button></th>
 	</tr></thead>
 	<tbody>
 		<tr id="trFirstResult">
