@@ -1,37 +1,37 @@
 @{
-	ViewBag.Title = "Virtual Scroll of hashes";
+	ViewBag.Title = "virtScrol.title";
 }
 
 <div id="toolbar">
-	<button id="btninfo" class="btn btn-secondary" type="button">&#9432;&nbsp;Row info</button>
-	&nbsp;&nbsp;<span id="spTimeToLoad"></span>
+	<button id="btninfo" class="btn btn-secondary" type="button">&#9432;&nbsp;<span data-i18n="virtScrol.rowInfo">Row info</span></button>
+	&nbsp;&nbsp;<span id="spStatus"></span>
 </div>
 
 <div class="container-fluid">
 	<table id="table"
-		   data-unique-id="Key"
-		   data-classes="table table-sm table-hover table-striped"
-		   data-side-pagination="server"
-		   data-url="Load"
-		   data-pagination="true"
-		   data-pagination-use-intermediate="true"
-		   data-sort-reset="true"
-		   data-show-refresh="true"
-		   data-search="true"
-		   data-toolbar="#toolbar"
-		   data-icons-prefix="fa"
-		   data-page-size="50"
-		   data-page-list="[50,500,2000,10000]"
-		   data-virtual-scroll="true"
-		   data-height="600"
-		   >
+		data-unique-id="Key"
+		data-classes="table table-sm table-hover table-striped"
+		data-side-pagination="server"
+		data-url="Load"
+		data-pagination="true"
+		data-pagination-use-intermediate="true"
+		data-sort-reset="true"
+		data-show-refresh="true"
+		data-search="true"
+		data-toolbar="#toolbar"
+		data-icons-prefix="fa"
+		data-page-size="50"
+		data-page-list="[50,500,2000,10000]"
+		data-virtual-scroll="true"
+		data-height="600"
+		>
 		<thead>
 			<tr>
-				<th data-field="key" data-sortable="true" data-halign="center" data-align="center">Key</th>
-				<th data-field="hashMD5" data-sortable="true">HashMD5</th>
-				<th data-field="hashSHA256" data-sortable="true">HashSHA256</th>
+				<th data-field="key" data-sortable="true" data-halign="center" data-align="center"><span data-i18n="virtScrol.key">Key</span></th>
+				<th data-field="hashMD5" data-sortable="true"><span data-i18n="virtScrol.hashMD5">HashMD5</span></th>
+				<th data-field="hashSHA256" data-sortable="true"><span data-i18n="virtScrol.hashSHA256">HashSHA256</span></th>
 				<th data-field="Validate" data-sortable="false" data-halign="center" data-align="center">
-					<button class="btn btn-success fw-bold text-nowrap pe-3" title="ValidateAll" value="ValidateAll" onclick="clientValidateAll()">ALL ⇩</button>
+					<button class="btn btn-success fw-bold text-nowrap pe-3" title="Validate all" value="ValidateAll" onclick="clientValidateAll()" data-i18n="[title]virtScrol.validateAllTitle;virtScrol.validateAll">ALL ⇩</button>
 				</th>
 			</tr>
 		</thead>

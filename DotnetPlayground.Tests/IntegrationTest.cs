@@ -314,7 +314,10 @@ namespace Integration
 				response.EnsureSuccessStatusCode();
 
 				var responseString = await response.Content.ReadAsStringAsync();
-				Assert.Contains("""<button id="btninfo" class="btn btn-secondary" type="button">&#9432;&nbsp;Row info</button>""",
+				Assert.Contains(
+					"""
+						<button id="btninfo" class="btn btn-secondary" type="button">&#9432;&nbsp;<span data-i18n="virtScrol.rowInfo">Row info</span></button>
+					""",
 					responseString);
 				Assert.Contains("data-page-list=\"[50,500,2000,10000]\"", responseString);
 			}
