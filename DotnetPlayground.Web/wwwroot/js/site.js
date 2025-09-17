@@ -62,7 +62,7 @@ function handleAboutPageBranchHash() {
  * Custom alert bootstrap modal
  * @param {string} msg content shown
  * @param {string} title of the dialog
- * @param {Function} onCloseCallback callback executed on close
+ * @param {(Element) => void} onCloseCallback callback executed on close
  */
 function myAlert(msg = 'Content', title = 'Modal title', onCloseCallback = undefined) {
 	const myModalEl = document.getElementById('divModal');
