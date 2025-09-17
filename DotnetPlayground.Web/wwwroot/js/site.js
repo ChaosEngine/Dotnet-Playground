@@ -165,9 +165,25 @@ $(function () {
 	function ajaxLog(level, message, url, line, col, error) {
 		const logPath = g_AppRootPath + "Home/ClientsideLog";
 
-		$.post(logPath, {
-			level: level, message: message, url: url, line: line, col: col, error: error
-		});
+		// $.post(logPath, {
+		// 	level, message, url, line, col, error
+		// });
+
+		//alternative way - https://hemath.dev/blog/say-bye-with-javascript-beacon/?utm_source=unknownews
+		const data = new URLSearchParams();
+		if (level)
+			data.set('level', level);
+		if (message)
+			data.set('message', message);
+		if (url)
+			data.set('url', url);
+		if (line)
+			data.set('line', line);
+		if (col)
+			data.set('col', col);
+		if (error)
+			data.set('error', error);
+		navigator.sendBeacon(logPath, data);
 	}
 
 	/**
