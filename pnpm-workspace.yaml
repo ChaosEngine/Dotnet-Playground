@@ -1,3 +1,0 @@
-ignoredBuiltDependencies:
-  - '@parcel/watcher'
-  - es5-ext
