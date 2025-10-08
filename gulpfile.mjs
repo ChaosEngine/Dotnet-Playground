@@ -4,7 +4,7 @@ import gulp from 'gulp';
 // const { series, parallel, src, dest, task } = gulp;
 
 import process from 'node:process';
-import fs from 'fs-extra';
+import fs from 'node:fs/promises';
 // import { fileURLToPath } from 'url';
 // const __filename = fileURLToPath(import.meta.url);
 // const __dirname = path.dirname(__filename);
@@ -77,7 +77,7 @@ const rimraf = async function (globPattern) {
 
 	found_files.forEach(async file => {
 		// console.log(file);
-		await fs.remove(file);
+		await fs.rm(file);
 	});
 };
 
@@ -406,19 +406,22 @@ const cssRun = gulp.parallel(minInkballCss, minScss);
 ///
 const postinstall = async (cb) => {
 	const copy_promises = [];
-	const file_copy = (src, dst) => copy_promises.push(fs.copy(src, dst));
-	const dir_copy = (src, dst, filter = undefined) => copy_promises.push(fs.copy(src, dst, { filter }));
+	const file_copy = (src, dst) => copy_promises.push(fs.cp(src, dst));
+	const dir_copy = (src, dst, filter = undefined) => copy_promises.push(fs.cp(src, dst, {
+		recursive: true, // needed to copy directories
+		filter           // your filter function
+	}));
 	const nm = 'node_modules', dst = `${webroot}lib/`;
 
-	dir_copy(`${nm}/bootstrap/dist/css`, `${dst}bootstrap/css`, (src) => {
-		if (fs.lstatSync(src).isDirectory() || src.includes(`bootstrap.min.css`)) {
+	dir_copy(`${nm}/bootstrap/dist/css`, `${dst}bootstrap/css`, async (src) => {
+		if ((await fs.lstat(src)).isDirectory() || src.includes(`bootstrap.min.css`)) {
 			return true;
 		} else {
 			return false;
 		}
 	});
-	dir_copy(`${nm}/bootstrap/dist/js`, `${dst}bootstrap/js`, (src) => {
-		if (fs.lstatSync(src).isDirectory() || src.includes(`bootstrap.bundle.min.js`)) {
+	dir_copy(`${nm}/bootstrap/dist/js`, `${dst}bootstrap/js`, async (src) => {
+		if ((await fs.lstat(src)).isDirectory() || src.includes(`bootstrap.bundle.min.js`)) {
 			return true;
 		} else {
 			return false;
@@ -428,15 +431,15 @@ const postinstall = async (cb) => {
 	file_copy(`${nm}/bootstrap-table/dist/bootstrap-table.min.css`, `${dst}bootstrap-table/bootstrap-table.min.css`);
 	file_copy(`${nm}/bootstrap-table/dist/bootstrap-table.min.js`, `${dst}bootstrap-table/bootstrap-table.min.js`);
 
-	dir_copy(`${nm}/node-forge/dist`, `${dst}node-forge`, (src) => {
-		if (fs.lstatSync(src).isDirectory() || src.includes(`forge.min.js`)) {
+	dir_copy(`${nm}/node-forge/dist`, `${dst}node-forge`, async (src) => {
+		if ((await fs.lstat(src)).isDirectory() || src.includes(`forge.min.js`)) {
 			return true;
 		} else {
 			return false;
 		}
 	});
-	dir_copy(`${nm}/jquery/dist`, `${dst}jquery`, (src) => {
-		if (fs.lstatSync(src).isDirectory() || src.includes(`jquery.min`)) {
+	dir_copy(`${nm}/jquery/dist`, `${dst}jquery`, async (src) => {
+		if ((await fs.lstat(src)).isDirectory() || src.includes(`jquery.min`)) {
 			// console.log(`T:` + src);
 			return true;
 		} else {
@@ -447,15 +450,15 @@ const postinstall = async (cb) => {
 	file_copy(`${nm}/jquery-validation/dist/jquery.validate.min.js`, `${dst}jquery-validation/jquery.validate.min.js`);
 	file_copy(`${nm}/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js`, `${dst}jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js`);
 	dir_copy(`${nm}/blueimp-gallery/img`, `${dst}blueimp-gallery/img`);
-	dir_copy(`${nm}/blueimp-gallery/css`, `${dst}blueimp-gallery/css`, (src) => {
-		if (fs.lstatSync(src).isDirectory() || src.includes(`blueimp-gallery.min.css`)) {
+	dir_copy(`${nm}/blueimp-gallery/css`, `${dst}blueimp-gallery/css`, async (src) => {
+		if ((await fs.lstat(src)).isDirectory() || src.includes(`blueimp-gallery.min.css`)) {
 			return true;
 		} else {
 			return false;
 		}
 	});
-	dir_copy(`${nm}/blueimp-gallery/js`, `${dst}blueimp-gallery/js`, (src) => {
-		if (fs.lstatSync(src).isDirectory() || src.includes(`${path.sep}blueimp-gallery.min.js`)) {
+	dir_copy(`${nm}/blueimp-gallery/js`, `${dst}blueimp-gallery/js`, async (src) => {
+		if ((await fs.lstat(src)).isDirectory() || src.includes(`${path.sep}blueimp-gallery.min.js`)) {
 			// console.log(`T:` + src);
 			return true;
 		} else {
@@ -466,8 +469,8 @@ const postinstall = async (cb) => {
 	file_copy(`${nm}/video.js/dist/video-js.min.css`, `${dst}video.js/video-js.min.css`);
 	file_copy(`${nm}/video.js/dist/alt/video.core.novtt.min.js`, `${dst}video.js/alt/video.core.novtt.min.js`);
 	file_copy(`${nm}/qrcodejs/qrcode.min.js`, `${dst}qrcodejs/qrcode.min.js`);
-	dir_copy(`${nm}/@microsoft/signalr/dist/browser`, `${dst}signalr/browser`, (src) => {
-		if (fs.lstatSync(src).isDirectory() || src.includes(`signalr.min.js`)) {
+	dir_copy(`${nm}/@microsoft/signalr/dist/browser`, `${dst}signalr/browser`, async (src) => {
+		if ((await fs.lstat(src)).isDirectory() || src.includes(`signalr.min.js`)) {
 			// console.log(`T:` + src);
 			return true;
 		} else {
@@ -475,8 +478,8 @@ const postinstall = async (cb) => {
 			return false;
 		}
 	});
-	dir_copy(`${nm}/@microsoft/signalr-protocol-msgpack/dist/browser`, `${dst}signalr-protocol-msgpack/browser`, (src) => {
-		if (fs.lstatSync(src).isDirectory() || src.includes(`signalr-protocol-msgpack.min.js`)) {
+	dir_copy(`${nm}/@microsoft/signalr-protocol-msgpack/dist/browser`, `${dst}signalr-protocol-msgpack/browser`, async (src) => {
+		if ((await fs.lstat(src)).isDirectory() || src.includes(`signalr-protocol-msgpack.min.js`)) {
 			// console.log(`T:` + src);
 			return true;
 		} else {
