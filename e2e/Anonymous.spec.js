@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 
 /**
  * Tests redirects to authorize requiring pages
- * @param {object} browser playwright
+ * @param {import('@playwright/test').Browser} browser playwright
  * @param {string} pageUrl url to page
  */
 async function notAllowedAndRedirectToLogin(browser, pageUrl) {

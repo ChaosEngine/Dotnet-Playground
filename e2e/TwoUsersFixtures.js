@@ -45,7 +45,7 @@ export const test = base.extend(
 			await use(await PlaywrightUser.create(browser, FixtureUsers[1].userName));
 		}
 	}
-	
+
 	// Object.fromEntries(
 	// 	Object.entries(FixtureUsers)
 	// 		.map(([/* key */, val]) => [val.userName, async ({ browser }, use) => {
@@ -53,3 +53,4 @@ export const test = base.extend(
 	// 		}])
 	// )
 );
+
