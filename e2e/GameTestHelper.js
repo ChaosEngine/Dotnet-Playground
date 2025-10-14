@@ -63,7 +63,7 @@ export class GameTestHelper {
 
 	svgClick = async (svgElement, x, y) => {
 		// await svgElement.dblclick({ position: { x: x * 16, y: y * 16 } });
-		await svgElement.click({ position: { x: x * 16, y: y * 16 }, delay: 50 });//two clicks make it somehow better?
+		await svgElement.click({ position: { x: x * 16, y: y * 16 }, delay: 100 });//two clicks make it somehow better?
 		// this.delay(200);
 	};
 
