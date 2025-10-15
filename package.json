@@ -13,8 +13,8 @@
 	},
 	"dependencies": {
 		"@aptuitiv/gulp-clean-css": "^4.4.3",
-		"@microsoft/signalr": "9.0.6",
-		"@microsoft/signalr-protocol-msgpack": "9.0.6",
+		"@microsoft/signalr": "10.0.0",
+		"@microsoft/signalr-protocol-msgpack": "10.0.0",
 		"ace-builds": "1.43.6",
 		"blueimp-gallery": "3.4.0",
 		"bootstrap": "5.3.8",

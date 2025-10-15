@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   Pomelo-tests:
     docker:
-      - image: mcr.microsoft.com/dotnet/sdk:9.0
+      - image: mcr.microsoft.com/dotnet/sdk:10.0-noble
     # Steps for the job
     steps:
       - checkout
@@ -43,7 +43,7 @@ jobs:
 
   InkBall-tests:
     docker:
-      - image: mcr.microsoft.com/dotnet/sdk:9.0
+      - image: mcr.microsoft.com/dotnet/sdk:10.0-noble
     # Steps for the job
     steps:
       - checkout
@@ -83,7 +83,7 @@ jobs:
 
   DotnetPlayground-tests:
     docker:
-      - image: mcr.microsoft.com/dotnet/sdk:9.0
+      - image: mcr.microsoft.com/dotnet/sdk:10.0-noble
     # Steps for the job
     steps:
       - checkout
@@ -137,7 +137,7 @@ jobs:
           command: |
             apt update; apt install software-properties-common -y
             add-apt-repository ppa:dotnet/backports -y
-            apt install -y dotnet-sdk-9.0
+            apt install -y dotnet-sdk-10.0
             npm i -g bun
       - run:
           name: Show versions
@@ -163,7 +163,7 @@ jobs:
 
   build:
     docker:
-      - image: mcr.microsoft.com/dotnet/sdk:9.0
+      - image: mcr.microsoft.com/dotnet/sdk:10.0-noble
     # Steps for the job
     steps:
       - checkout
