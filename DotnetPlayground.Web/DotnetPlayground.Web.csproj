@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
     <Version>1.0.31-inkball-ai</Version>
-		<TargetFramework>net9.0</TargetFramework>
+		<TargetFramework>net10.0</TargetFramework>
 		<LangVersion>latest</LangVersion>
 		<AssemblyName>DotnetPlayground.Web</AssemblyName>
 		<OutputType>Exe</OutputType>
