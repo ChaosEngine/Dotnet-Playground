@@ -55,8 +55,8 @@ export class GameTestHelper {
 	};
 
 	putPointForPlayer = async (player, x, y, otherPlayer = undefined) => {
-		await player.page.locator('svg#screen').dblclick({ position: { x: x * 16, y: y * 16 } });
-		// await player.page.locator('svg#screen').click({ position: { x: x * 16, y: y * 16 } });//two clicks make it somehow better?
+		// await player.page.locator('svg#screen').dblclick({ position: { x: x * 16, y: y * 16 } });
+		await player.page.locator('svg#screen').click({ position: { x: x * 16, y: y * 16 }, delay: 100 });//two clicks make it somehow better?
 		if (otherPlayer)
 			await this.testPointExistenceForPlayer(otherPlayer, x, y);
 	};
@@ -67,7 +67,7 @@ export class GameTestHelper {
 		// this.delay(200);
 	};
 
-	
+
 	/**
 	 * tests that user is logged in and "no active game" alert is visible
 	 * @param {import('@playwright/test').Page} page playwright page

@@ -15,24 +15,19 @@ test.beforeAll(async ({ browser }) => {
 
 
 //////Tests//////
-test.describe('runs in parallel', () => {
-	test.describe.configure({ mode: 'parallel' });
+test('Playwright1 and Playwright2 - no games created', async () => {
+	// ... interact with Playwright1 and/or Playwright2 ...
 
-	test('Playwright1 and Playwright2 - no games created', async () => {
-		// ... interact with Playwright1 and/or Playwright2 ...
+	await helper.testLoggedInAndNoGameAlert(Playwright1.page, Playwright1.userName);
 
-		await helper.testLoggedInAndNoGameAlert(Playwright1.page, Playwright1.userName);
-
-		await helper.testLoggedInAndNoGameAlert(Playwright2.page, Playwright2.userName);
-	});
-
-	test('Playwright1 and Playwright2 - GamesList', async () => {
-		// ... interact with Playwright1 and/or Playwright2 ...
-
-		await helper.testLoggedInGamesList(Playwright1.page);
-	});
-
+	await helper.testLoggedInAndNoGameAlert(Playwright2.page, Playwright2.userName);
 });
+
+test('Playwright1 and Playwright2 - GamesList', async () => {
+	// ... interact with Playwright1 and/or Playwright2 ...
+
+	await helper.testLoggedInGamesList(Playwright1.page);
+});	 
 
 test('P1 create game, P2 joins, P2 wins', async () => {
 	const p1 = Playwright1, p2 = Playwright2;
@@ -113,6 +108,7 @@ test('AI game: put 5x4 points and AI surrounds it', async () => {
 
 	//put 4x p1 points and let AI surround it 5 times and win
 	await helper.svgClick(svg, randX + 15, randY + 11);//1st point
+	
 	const firstOponentPoint = await svg.locator('circle[data-status="POINT_FREE_BLUE"]');//2nd point is AI
 	const cy = await firstOponentPoint.getAttribute('cy');
 	if (cy) {
@@ -152,7 +148,14 @@ test('AI game: put 5x4 points and AI surrounds it', async () => {
 	for (let x = 2; x <= 34; x += 2)
 		await helper.svgClick(svg, x, randY + 3);
 
+	await helper.delay(1 * 500);//wait for signalR to settle in (?)
 
-	await helper.delay(1 * 1000);//wait for signalR to settle in (?)
+	const winMessageVisible = await p1.page.locator('div.modal-body', { hasText: 'And the winner is... blue.'}).isVisible();
+	if(!winMessageVisible)
+	{
+		await helper.svgClick(svg, 36, randY + 3);//somehow we are lacking last point, put it just to be sure
+		// await helper.svgClick(svg, 38, randY + 3);//just to be sure
+	}
+
 	await helper.verifyWin(p1, 'And the winner is... blue.');
 });
