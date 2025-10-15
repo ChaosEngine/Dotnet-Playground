@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:experimental
-ARG BASE_IMAGE_VARIANT=bookworm-slim
-FROM mcr.microsoft.com/dotnet/sdk:9.0-${BASE_IMAGE_VARIANT} AS build
+ARG BASE_IMAGE_VARIANT=noble
+FROM mcr.microsoft.com/dotnet/sdk:10.0-${BASE_IMAGE_VARIANT} AS build
 RUN --mount=type=cache,target=/root/.nuget --mount=type=cache,target=/root/.local/ --mount=type=cache,target=/root/.cache/ --mount=type=cache,target=./node_modules
 RUN curl -SLO https://deb.nodesource.com/nsolid_setup_deb.sh && \
     chmod 500 nsolid_setup_deb.sh && \
@@ -8,7 +8,7 @@ RUN curl -SLO https://deb.nodesource.com/nsolid_setup_deb.sh && \
     apt-get install -y nodejs && npm install -g bun
 WORKDIR /build
 
-ENV DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/net9.0/Blogging.db"
+ENV DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/net10.0/Blogging.db"
 ARG SOURCE_COMMIT
 ARG SOURCE_BRANCH
 ARG BUILD_CONFIG=${BUILD_CONFIG:-Release}
@@ -36,15 +36,15 @@ RUN dotnet publish -c $BUILD_CONFIG --self-contained -r $RUNTIME_ID DotnetPlaygr
 
 
 
-ARG BASE_IMAGE_VARIANT=bookworm-slim
-FROM mcr.microsoft.com/dotnet/runtime-deps:9.0-${BASE_IMAGE_VARIANT}
+ARG BASE_IMAGE_VARIANT=noble
+FROM mcr.microsoft.com/dotnet/runtime-deps:10.0-${BASE_IMAGE_VARIANT}
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 WORKDIR /app
 ENV USER=nobody
 ARG BUILD_CONFIG=${BUILD_CONFIG:-Release}
 ARG RUNTIME_ID=${RUNTIME_ID:-linux-x64}
-COPY --from=build --chown="$USER":"$USER" /build/DotnetPlayground.Web/bin/$BUILD_CONFIG/net9.0/$RUNTIME_ID/publish/ /build/startApp.sh ./
+COPY --from=build --chown="$USER":"$USER" /build/DotnetPlayground.Web/bin/$BUILD_CONFIG/net10.0/$RUNTIME_ID/publish/ /build/startApp.sh ./
 
 USER "$USER"
 
