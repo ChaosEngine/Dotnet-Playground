@@ -382,11 +382,15 @@ namespace DotnetPlayground
 				return next();
 			});*/
 #else
-			//Apache/nginx proxy schould pass "X-Forwarded-Proto"
-			app.UseForwardedHeaders(new ForwardedHeadersOptions
-			{
-				ForwardedHeaders = /*ForwardedHeaders.XForwardedHost | */ForwardedHeaders.XForwardedProto
-			});
+            //Apache/nginx proxy schould pass "X-Forwarded-Proto"
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = /*ForwardedHeaders.XForwardedHost | */ForwardedHeaders.XForwardedProto,
+                KnownNetworks = { new Microsoft.AspNetCore.HttpOverrides.IPNetwork(
+                    IPAddress.Parse(Configuration["Proxy:KnownNetworks:YOUR_NETWORK_IP"]),
+                    int.Parse(Configuration["Proxy:KnownNetworks:YOUR_NETWORK_PREFIX_LENGTH"])
+                ) }
+            });
 #endif
         }
 
@@ -479,6 +483,8 @@ namespace DotnetPlayground
                     .WithResolver(MessagePack.Resolvers.StandardResolver.Instance)
                     .WithSecurity(MessagePackSecurity.UntrustedData);
             });
+
+            services.AddRequestDecompression();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -504,6 +510,20 @@ namespace DotnetPlayground
 
             app.Map("/dotnet", main =>
             {
+                
+                // Adds request decompression middleware
+                // main.UseMiddleware<RequestDecompressionMiddleware>();
+                main.UseRequestDecompression();
+
+                // // Apply the custom middleware to the ImportCsv page only
+                // main.MapWhen(context => context.Request.Path.StartsWithSegments("/ImportCsv") 
+                // && context.Request.Method == "POST", appBuilder =>
+                // {
+                //     // appBuilder.UseMiddleware<RequestDecompressionMiddleware>();
+                //     appBuilder.UseRequestDecompression();
+                // });
+
+
                 // main.UseStaticFiles();
                 main.UseStaticFilesForInkBall();
                 main.UseRouting();

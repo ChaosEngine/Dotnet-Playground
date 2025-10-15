@@ -1,0 +1,50 @@
+@page
+@using DotnetPlayground.Pages
+@model ImportCsvModel
+@{
+	Layout = @"..\Views\Shared\_Layout.cshtml";
+	ViewData["Title"] = "Import Csv";
+}
+
+<div class="importCsv">
+	<h1 data-i18n="importCsv.title">CSV importer</h1>
+	<h3 data-i18n="importCsv.description">Import CSV file, display it in a table and count non-empty cells.</h3>
+
+	<form method="post" id="csvForm" class="row g-3">
+
+		<div class="col-sm-2 p-2">
+			<label for="delimiter" class="form-label" data-i18n="importCsv.delimiter">Delimiter</label>:
+			<input type="text" class="form-control" id="delimiter" name="delimiter" maxlength="1" autofocus placeholder="delimiter" data-i18n="[placeholder]importCsv.delimiter" onfocus="this.select()" />
+		</div>
+
+		<div id="dropZone" class="col-sm-10 p-2">
+			<label for="csvFile" class="form-label" data-i18n="importCsv.csvFile">Choose CSV File:</label>
+			<input type="file" class="form-control" id="csvFile" name="csvFile" accept=".csv" required />
+		</div>
+
+		<div class="col-sm-6 d-flex align-items-center">
+			<button type="submit" name="btnCount" class="btn btn-primary form-control" data-i18n="importCsv.count">Count locally</button>
+		</div>
+		<div class="col-sm-6 bg-body-secondary rounded d-flex align-items-center">
+			<div class="form-check">
+				<input class="form-check-input" type="checkbox" id="compression" name="compression">
+				<label class="form-check-label" for="compression" data-i18n="importCsv.compression">Request compression</label>
+			</div>
+			<button type="submit" name="btnSubmit" class="btn btn-primary form-control" data-i18n="importCsv.submit">Count on server</button>
+		</div>
+
+		<div id="tableContainer" class="table-responsive mt-3 d-none" style="max-height: calc(100vh - 24.5em)">
+			<!-- Table will be inserted here by JavaScript -->
+		</div>
+	</form>
+</div>
+
+@section scripts
+{
+	<environment include="Development">
+		<script type="text/javascript" src="~/js/ImportCsv.js" asp-append-version="true"></script>
+	</environment>
+	<environment exclude="Development">
+		<script type="text/javascript" src="~/js/ImportCsv.min.js" asp-append-version="true"></script>
+	</environment>
+}

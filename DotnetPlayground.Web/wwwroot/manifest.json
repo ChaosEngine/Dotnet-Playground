@@ -1,6 +1,7 @@
 {
   "name": "Dotnet Core Playground",
   "short_name": "DotnetPlayground",
+  "description": "A web playground for experimenting with .NET Core code, featuring interactive coding, testing, and learning tools.",
   "theme_color": "darkred",
   "background_color": "white",
   "display": "minimal-ui",
@@ -16,8 +17,22 @@
     {
       "src": "/dotnet/images/sandbox-icon-192.png",
       "sizes": "192x192",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/dotnet/images/sandbox-icon-512.png",
+      "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "form_factor": "wide",
+      "label": "Inkball game screenshot"
+    },
+    {
+      "src": "/dotnet/images/sandbox-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "label": "Inkball game screenshot"
     }
   ],
   "splash_pages": null

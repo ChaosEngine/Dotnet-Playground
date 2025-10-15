@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0-bookworm-slim AS build
 RUN --mount=type=cache,target=/root/.nuget --mount=type=cache,target=/root/.local/ --mount=type=cache,target=/root/.cache/ --mount=type=cache,target=./node_modules
 RUN curl -SLO https://deb.nodesource.com/nsolid_setup_deb.sh && \
     chmod 500 nsolid_setup_deb.sh && \
-    ./nsolid_setup_deb.sh 21 && \
+    ./nsolid_setup_deb.sh 22 && \
     apt-get install -y nodejs && npm install -g pnpm
 WORKDIR /build
 
@@ -35,12 +35,12 @@ RUN dotnet publish -c $BUILD_CONFIG --self-contained -r linux-x64 DotnetPlaygrou
 
 
 FROM mcr.microsoft.com/dotnet/runtime-deps:9.0-bookworm-slim
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 WORKDIR /app
 ENV USER=nobody
 ARG BUILD_CONFIG=${BUILD_CONFIG:-Release}
 COPY --from=build --chown="$USER":"$USER" /build/DotnetPlayground.Web/bin/$BUILD_CONFIG/net9.0/linux-x64/publish/ /build/startApp.sh ./
-
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 USER "$USER"
 

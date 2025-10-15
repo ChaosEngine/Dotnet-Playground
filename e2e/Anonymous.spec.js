@@ -3,13 +3,13 @@ import { test, expect } from '@playwright/test';
 
 /**
  * Tests redirects to authorize requiring pages
- * @param {object} browser playwright
+ * @param {import('@playwright/test').Browser} browser playwright
  * @param {string} pageUrl url to page
  */
 async function notAllowedAndRedirectToLogin(browser, pageUrl) {
 	const page = await browser.newPage();
 
-	page.goto(pageUrl);
+	await page.goto(pageUrl);
 
 	// Expects the URL to be Home because Game page redirect if no game present.
 	await expect(page).toHaveURL(/.*Identity\/Account\/Login.*/);
@@ -29,10 +29,10 @@ test.use({ storageState: './e2e/storageStates/Anonymous-storageState.json', igno
 test('Home as Anonymous', async ({ browser }) => {
 	const page = await browser.newPage();
 
-	page.goto('InkBall/Home');
+	await page.goto('InkBall/Home');
 
 	// Expect a title "to contain" a substring.
-	await expect(page).toHaveTitle(/Home - Dotnet Core Playground/);
+	await expect(page).toHaveTitle(/InkBall Game - Dotnet Core Playground/);
 
 	//Not logged-in message
 	const welcome = page.locator('p.inkhome');
@@ -66,7 +66,7 @@ test('NotExisting page as Anonymous with redirect to LogIn', async ({ browser })
 test('Locale test - pl lang', async ({ browser }) => {
 	const page = await browser.newPage({ locale: 'pl' });
 
-	page.goto('InkBall/Home');
+	await page.goto('InkBall/Home');
 
 	const flag_img = page.locator('#langDropdown > button > img');
 	await expect(flag_img ).toHaveAttribute('alt', 'Polski');

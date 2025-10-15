@@ -1,5 +1,5 @@
 // global-setup.js
-import fs from 'fs';
+import fs from 'node:fs/promises';
 import { chromium, firefox, webkit/* , FullConfig */ } from '@playwright/test';
 import { FixtureUsers } from './TwoUsersFixtures';
 
@@ -33,10 +33,21 @@ async function globalSetup(config) {
 	for (const user of FixtureUsers) {
 		const storageFile = `${use.storageState}${user.userName}-storageState.json`;
 		let signInFreshUser = false;
-		if (!fs.existsSync(storageFile)) {
-			signInFreshUser = true;
-		} else {
-			const file_date = new Date(fs.statSync(storageFile).mtime);
+		try {
+			await fs.stat(storageFile);
+			// File exists
+		} catch (err) {
+			if (err.code === 'ENOENT') {
+				// File does not exist
+				signInFreshUser = true;
+			} else {
+				// Some other error occurred
+				throw err;
+			}
+		}
+
+		if (!signInFreshUser) {
+			const file_date = new Date((await fs.stat(storageFile)).mtime);
 			//
 			// Taken from https://www.geeksforgeeks.org/how-to-calculate-the-number-of-days-between-two-dates-in-javascript/
 			// Thanks

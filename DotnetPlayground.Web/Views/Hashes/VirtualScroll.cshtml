@@ -1,37 +1,37 @@
 @{
-	ViewBag.Title = "Virtual Scroll of hashes";
+	ViewBag.Title = "virtScrol.title";
 }
 
 <div id="toolbar">
-	<button id="btninfo" class="btn btn-secondary" type="button">&#9432;&nbsp;Row info</button>
-	&nbsp;&nbsp;<span id="spTimeToLoad"></span>
+	<button id="btninfo" class="btn btn-secondary" type="button">&#9432;&nbsp;<span data-i18n="virtScrol.rowInfo">Row info</span></button>
+	&nbsp;&nbsp;<span id="spStatus"></span>
 </div>
 
 <div class="container-fluid">
 	<table id="table"
-		   data-unique-id="Key"
-		   data-classes="table table-sm table-hover table-striped"
-		   data-side-pagination="server"
-		   data-url="Load"
-		   data-pagination="true"
-		   data-pagination-use-intermediate="true"
-		   data-sort-reset="true"
-		   data-show-refresh="true"
-		   data-search="true"
-		   data-toolbar="#toolbar"
-		   data-icons-prefix="fa"
-		   data-page-size="50"
-		   data-page-list="[50,500,2000,10000]"
-		   data-virtual-scroll="true"
-		   data-height="600"
-		   >
+		data-unique-id="Key"
+		data-classes="table table-sm table-hover table-striped"
+		data-side-pagination="server"
+		data-url="Load"
+		data-pagination="true"
+		data-pagination-use-intermediate="true"
+		data-sort-reset="true"
+		data-show-refresh="true"
+		data-search="true"
+		data-toolbar="#toolbar"
+		data-icons-prefix="fa"
+		data-page-size="50"
+		data-page-list="[50,500,2000,10000]"
+		data-virtual-scroll="true"
+		data-height="600"
+		>
 		<thead>
 			<tr>
-				<th data-field="key" data-sortable="true" data-halign="center" data-align="center">Key</th>
-				<th data-field="hashMD5" data-sortable="true">HashMD5</th>
-				<th data-field="hashSHA256" data-sortable="true">HashSHA256</th>
+				<th data-field="key" data-sortable="true" data-halign="center" data-align="center"><span data-i18n="virtScrol.key">Key</span></th>
+				<th data-field="hashMD5" data-sortable="true"><span data-i18n="virtScrol.hashMD5">HashMD5</span></th>
+				<th data-field="hashSHA256" data-sortable="true"><span data-i18n="virtScrol.hashSHA256">HashSHA256</span></th>
 				<th data-field="Validate" data-sortable="false" data-halign="center" data-align="center">
-					<button class="btn btn-success fw-bold text-nowrap pe-3" title="ValidateAll" value="ValidateAll" onclick="clientValidateAll()">ALL ⇩</button>
+					<button class="btn btn-success fw-bold text-nowrap pe-3" title="Validate all" value="ValidateAll" onclick="clientValidateAll()" data-i18n="[title]virtScrol.validateAllTitle;virtScrol.validateAll">ALL ⇩</button>
 				</th>
 			</tr>
 		</thead>
@@ -44,7 +44,7 @@
 		<link rel="stylesheet" href="~/lib/bootstrap-table/bootstrap-table.min.css" />
 	</environment>
 	<environment exclude="Development">
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/bootstrap-table.min.css" integrity="sha256-PTCLgOc9BtlS/h47BqfdNha7rUqG6M8SJLuuln4Dhns=" crossorigin="anonymous" referrerpolicy="no-referrer"
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.2/dist/bootstrap-table.min.css" integrity="sha256-76TV+YkfYiUTINZ6hdqH2pWLHz1h94ub/JyGLeeThbY=" crossorigin="anonymous" referrerpolicy="no-referrer"
 			asp-fallback-href="~/lib/bootstrap-table/bootstrap-table.min.css"
 			asp-fallback-test-class="bootstrap-table fullscreen" asp-fallback-test-property="position" asp-fallback-test-value="fixed" />
 	</environment>
@@ -56,7 +56,7 @@
 		<script src="~/js/VirtualScroll.js" asp-append-version="true"></script>
 	</environment>
 	<environment exclude="Development">
-		<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/bootstrap-table.min.js" integrity="sha256-M/QgD/3rriQLHAJg3qJzgIqvXztxwppFawYXosOIOEM=" crossorigin="anonymous" referrerpolicy="no-referrer"
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.2/dist/bootstrap-table.min.js" integrity="sha256-Tqf4OAPoMyK4cyP+pufUytLuH35zrfGRpP+ri5N9fl0=" crossorigin="anonymous" referrerpolicy="no-referrer"
 				asp-fallback-src="~/lib/bootstrap-table/bootstrap-table.min.js"
 				asp-fallback-test="$ && $.fn && $.fn.bootstrapTable">
 		</script>

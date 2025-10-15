@@ -178,7 +178,7 @@ jobs:
           command: |
             curl -SLO https://deb.nodesource.com/nsolid_setup_deb.sh
             chmod 500 nsolid_setup_deb.sh
-            ./nsolid_setup_deb.sh 21
+            ./nsolid_setup_deb.sh 22
             apt-get install -y nodejs
             npm i -g pnpm@latest
       - run:

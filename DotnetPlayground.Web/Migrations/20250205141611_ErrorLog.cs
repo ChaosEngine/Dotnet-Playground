@@ -45,7 +45,7 @@ namespace DotnetPlayground.Migrations
                     Column = table.Column<int>(nullable: true),
                     Created = table.Column<DateTime>(
                         type: GamesContext.TimeStampColumnTypeFromProvider(ActiveProvider,
-                        "TEXT", "timestamp", "timestamp without time zone", "TIMESTAMP(7)", "datetime2"),
+                        "TEXT", "datetime", "timestamp without time zone", "TIMESTAMP(7)", "datetime2"),
                         nullable: false,
 						defaultValueSql: GamesContext.TimeStampDefaultValueFromProvider(ActiveProvider,
 							"datetime('now','localtime')",
@@ -57,7 +57,10 @@ namespace DotnetPlayground.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ErrorLog", x => x.Id);
+                    if (ActiveProvider.ToLowerInvariant() == "microsoft.entityframeworkcore.sqlite" || ActiveProvider.ToLowerInvariant() == "sqlite")
+                        table.PrimaryKey("PK_ErrorLog", x => x.Id);
+                    else
+                        table.PrimaryKey("PK_ErrorLog", x => new { x.Id, x.Created });
                 });
         }
 

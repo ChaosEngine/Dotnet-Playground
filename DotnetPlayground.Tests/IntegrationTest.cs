@@ -61,8 +61,8 @@ namespace Integration
 				response.EnsureSuccessStatusCode();
 
 				var responseString = await response.Content.ReadAsStringAsync();
-				Assert.Contains("<title>Home Page - Dotnet Core Playground</title>", responseString);
-				Assert.Contains("<h2>Links</h2>", responseString);
+				Assert.Contains("<title data-i18n=\"head.title\" data-i18n-options=\"{ pageTitle: 'home.title', siteTitle: 'Dotnet Core Playground' }\">home.title - Dotnet Core Playground</title>", responseString);
+				Assert.Contains("<h2 data-i18n=\"home.links.name\">Links</h2>", responseString);
 			}
 		}
 
@@ -314,7 +314,10 @@ namespace Integration
 				response.EnsureSuccessStatusCode();
 
 				var responseString = await response.Content.ReadAsStringAsync();
-				Assert.Contains("""<button id="btninfo" class="btn btn-secondary" type="button">&#9432;&nbsp;Row info</button>""",
+				Assert.Contains(
+					"""
+						<button id="btninfo" class="btn btn-secondary" type="button">&#9432;&nbsp;<span data-i18n="virtScrol.rowInfo">Row info</span></button>
+					""",
 					responseString);
 				Assert.Contains("data-page-list=\"[50,500,2000,10000]\"", responseString);
 			}
@@ -457,7 +460,7 @@ namespace Integration
 				response.EnsureSuccessStatusCode();
 
 				var responseString = await response.Content.ReadAsStringAsync();
-				Assert.Contains("<title>Blogs - Dotnet Core Playground</title>", responseString);
+				Assert.Contains("<title data-i18n=\"head.title\" data-i18n-options=\"{ pageTitle: 'Blogs', siteTitle: 'Dotnet Core Playground' }\">Blogs - Dotnet Core Playground</title>", responseString);
 				Assert.Contains("js/Blogs.", responseString);//test loading main js script
 			}
 		}
@@ -473,7 +476,7 @@ namespace Integration
 				response.EnsureSuccessStatusCode();
 
 				var responseString = await response.Content.ReadAsStringAsync();
-				Assert.Contains("<title>New Blog - Dotnet Core Playground</title>", responseString);
+				Assert.Contains("<title data-i18n=\"head.title\" data-i18n-options=\"{ pageTitle: 'New Blog', siteTitle: 'Dotnet Core Playground' }\">New Blog - Dotnet Core Playground</title>", responseString);
 				Assert.Contains("<label class=\"form-label\" for=\"Url\">Url</label>", responseString);
 			}
 		}
@@ -864,7 +867,7 @@ namespace Integration
 				response.EnsureSuccessStatusCode();
 
 				var responseString = await response.Content.ReadAsStringAsync();
-				Assert.Contains("<title>WebCam Gallery - Dotnet Core Playground</title>", responseString);
+				Assert.Contains("<title data-i18n=\"head.title\" data-i18n-options=\"{ pageTitle: 'webCam.title', siteTitle: 'Dotnet Core Playground' }\">webCam.title - Dotnet Core Playground</title>", responseString);
 				Assert.Contains("/js/WebCamGallery.", responseString);//test loading main js script
 				Assert.Contains("WebCamGalleryOnLoad", responseString);
 

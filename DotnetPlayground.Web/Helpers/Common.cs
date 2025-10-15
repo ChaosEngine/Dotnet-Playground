@@ -7,7 +7,10 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
+
+[assembly: InternalsVisibleTo("DotnetPlayground.Tests")]
 
 namespace DotnetPlayground
 {

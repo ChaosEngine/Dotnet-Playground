@@ -1,4 +1,4 @@
-﻿/*eslint-disable no-console*/
+/*eslint-disable no-console*/
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate|handleAboutPageBranchHash" }]*/
 /*global forge, bootstrap, i18next, i18nextBrowserLanguageDetector, i18nextHttpBackend, locI18next*/
 "use strict";
@@ -62,7 +62,7 @@ function handleAboutPageBranchHash() {
  * Custom alert bootstrap modal
  * @param {string} msg content shown
  * @param {string} title of the dialog
- * @param {Function} onCloseCallback callback executed on close
+ * @param {(Element) => void} onCloseCallback callback executed on close
  */
 function myAlert(msg = 'Content', title = 'Modal title', onCloseCallback = undefined) {
 	const myModalEl = document.getElementById('divModal');
@@ -85,15 +85,31 @@ function myAlert(msg = 'Content', title = 'Modal title', onCloseCallback = undef
 }
 
 window.addEventListener('DOMContentLoaded', function () {
+	window.registerLocalizationOnReady = [];//empty array to store callbacks to be executed when localization is ready
 
 	function handleLocalization(isDev) {
-
-		window.registerLocalizationOnReady = null;
-
 		function renderLocalize() {
 			localize('head,body');
 
 			// $('head,body').localize();
+		}
+
+		function loadPathFunc([lng], [namespace]) {
+			const loadFromCDN = localStorage.getItem('loadFromCDN') === 'true' && isDev === false;
+			switch (namespace) {
+				case 'ib':
+					return loadFromCDN ?
+						`https://cdn.jsdelivr.net/gh/ChaosEngine/InkBall@${g_gitBranch/* 'dev' */}/src/InkBall.Module/wwwroot/locales/${lng}/${namespace}.min.json`
+						:
+						`${g_AppRootPath}locales/${lng}/${namespace}${isDev === true ? '' : '.min'}.json`;
+
+				// case 'translation':
+				default:
+					return loadFromCDN ?
+						`https://cdn.jsdelivr.net/gh/ChaosEngine/Dotnet-Playground@${g_gitBranch/* 'dev' */}/DotnetPlayground.Web/wwwroot/locales/${lng}/${namespace}.min.json`
+						:
+						`${g_AppRootPath}locales/${lng}/${namespace}${isDev === true ? '' : '.min'}.json`;
+			}
 		}
 
 		// use plugins and options as needed, for options, detail see: http://i18next.com/docs/
@@ -110,18 +126,7 @@ window.addEventListener('DOMContentLoaded', function () {
 				defaultNS: 'translation',
 
 				backend: {
-					loadPath: ([lng], [namespace]) => {
-						switch (namespace) {
-							case 'ib':
-								return isDev ? `${g_AppRootPath}locales/${lng}/${namespace}.json`
-									: `https://cdn.jsdelivr.net/gh/ChaosEngine/InkBall@${g_gitBranch/* 'dev' */}/src/InkBall.Module/wwwroot/locales/${lng}/${namespace}.min.json`;
-
-							// case 'translation':
-							default:
-								return isDev ? `${g_AppRootPath}locales/${lng}/${namespace}.json`
-									: `https://cdn.jsdelivr.net/gh/ChaosEngine/Dotnet-Playground@${g_gitBranch/* 'dev' */}/DotnetPlayground.Web/wwwroot/locales/${lng}/${namespace}.min.json`;
-						}
-					}
+					loadPath: loadPathFunc
 				}
 			}, function (/* err, t */) {
 				// for options see: https://github.com/i18next/jquery-i18next#initialize-the-plugin
@@ -130,9 +135,8 @@ window.addEventListener('DOMContentLoaded', function () {
 
 				localize = locI18next.init(i18next, { useOptionsAttr: true, optionsAttr: 'data-i18n-options' });
 
-				if (typeof window.registerLocalizationOnReady === "function") {
-					window.registerLocalizationOnReady(localize);
-					delete window.registerLocalizationOnReady;
+				if (window.registerLocalizationOnReady.length > 0) {
+					window.registerLocalizationOnReady.forEach(callback => typeof callback === "function" && callback(localize));
 				}
 
 				// start localizing, details: https://github.com/i18next/jquery-i18next#usage-of-selector-function
@@ -161,9 +165,25 @@ $(function () {
 	function ajaxLog(level, message, url, line, col, error) {
 		const logPath = g_AppRootPath + "Home/ClientsideLog";
 
-		$.post(logPath, {
-			level: level, message: message, url: url, line: line, col: col, error: error
-		});
+		// $.post(logPath, {
+		// 	level, message, url, line, col, error
+		// });
+
+		//alternative way - https://hemath.dev/blog/say-bye-with-javascript-beacon/?utm_source=unknownews
+		const data = new URLSearchParams();
+		if (level)
+			data.set('level', level);
+		if (message)
+			data.set('message', message);
+		if (url)
+			data.set('url', url);
+		if (line)
+			data.set('line', line);
+		if (col)
+			data.set('col', col);
+		if (error)
+			data.set('error', error);
+		navigator.sendBeacon(logPath, data);
 	}
 
 	/**
@@ -291,7 +311,7 @@ $(function () {
 			document.documentElement.setAttribute('data-bs-theme', cur_theme);
 
 
-		const btn=$('#themeSwitcher');
+		const btn = $('#themeSwitcher');
 		const classes = btn.attr('class').split(' ');
 		classes.pop();
 		classes.push(cur_theme);
