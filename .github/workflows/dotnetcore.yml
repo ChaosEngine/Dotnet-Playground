@@ -18,7 +18,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.0.x
+        dotnet-version: 10.0.x
     - name: Build with dotnet
       env:
         DOTNET_ROLL_FORWARD_ON_NO_CANDIDATE_FX: 2
@@ -26,6 +26,6 @@ jobs:
     - name: Test with dotnet
       env:
         DBKind: "sqlite"
-        ConnectionStrings__Sqlite: "Filename=./bin/Debug/net9.0/Blogging.db"
+        ConnectionStrings__Sqlite: "Filename=./bin/Debug/net10.0/Blogging.db"
         DOTNET_ROLL_FORWARD_ON_NO_CANDIDATE_FX: 2
       run: dotnet test -v m --configuration Debug

@@ -227,9 +227,11 @@ namespace DotnetPlayground.Controllers
 			if (blogId <= 0 || string.IsNullOrEmpty(post.Title) || string.IsNullOrEmpty(post.Content)) return BadRequest(ModelState);
 
 			int modified = await _repo.EditPosts(p => p.BlogId == blogId && p.PostId == post.PostId,
-				(s) => s
-				.SetProperty(p => p.Title, db_post => post.Title)
-				.SetProperty(p => p.Content, db_post => post.Content)
+				(s) =>
+				{
+					s.Title = post.Title;
+					s.Content = post.Content;
+				}
 			);
 
 			if (modified > 0)
@@ -257,7 +259,7 @@ namespace DotnetPlayground.Controllers
 
 			int modified = await _repo.Edit(b =>
 				b.BlogId == blogId,
-				(s) => s.SetProperty(blog => blog.Url, blog => url)
+				(s) => s.Url = url
 			);
 			if (modified > 0)
 				return Json(new Blog

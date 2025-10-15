@@ -16,8 +16,7 @@ namespace DotnetPlayground.Repositories
 
 		Task<List<Post>> GetPostsFromBlogAsync(int blogId);
 
-		Task<int> EditPosts(Expression<Func<Post, bool>> predicate,
-			Expression<Func<SetPropertyCalls<Post>, SetPropertyCalls<Post>>> setPropertyCalls);
+		Task<int> EditPosts(Expression<Func<Post, bool>> predicate, Action<Post> updateAction);
 	}
 
 	[RequiresUnreferencedCode("Using EF with _entities.Set<Ent> generic method")]
@@ -43,14 +42,16 @@ namespace DotnetPlayground.Repositories
 			return posts;
 		}
 
-        public async Task<int> EditPosts(Expression<Func<Post, bool>> predicate,
-			Expression<Func<SetPropertyCalls<Post>, SetPropertyCalls<Post>>> setPropertyCalls)
-        {
-            var updated_count = await _entities.Posts
-                .Where(predicate)
-                .ExecuteUpdateAsync(setPropertyCalls);
+		public async Task<int> EditPosts(Expression<Func<Post, bool>> predicate, Action<Post> updateAction)
+		{
+			var posts = await _entities.Posts.Where(predicate).ToListAsync();
+			foreach (var p in posts)
+			{
+				updateAction(p);
+			}
 
-            return updated_count;
-        }
-    }
+			var updated_count = await _entities.SaveChangesAsync();
+			return updated_count;
+		}
+	}
 }
