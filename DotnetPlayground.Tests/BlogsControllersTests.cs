@@ -81,29 +81,29 @@ namespace Controllers
 
 			mock.Setup(r => r.Edit(
 				Moq.It.IsAny<Expression<Func<Blog, bool>>>(),
-				Moq.It.IsAny<Expression<Func<SetPropertyCalls<Blog>, SetPropertyCalls<Blog>>>>()
-				)).Returns<Expression<Func<Blog, bool>>, Expression<Func<SetPropertyCalls<Blog>, SetPropertyCalls<Blog>>>>(
-				(predicate, setPropertyCalls) =>
+				Moq.It.IsAny<Action<Blog>>()
+				)).Returns<Expression<Func<Blog, bool>>, Action<Blog>>(
+				(predicate, setAction) =>
 			{
-				var found = lst.Where(predicate.Compile());
-				var afunc = setPropertyCalls.Compile();
-				//afunc ?????
-				//found.Url = s.Url;
-
+				var found = lst.Where(predicate.Compile()).ToList();
+				foreach (var item in found)
+				{
+					setAction(item);
+				}
 				return Task.FromResult(found.Count());
 			});
 
 			mock.Setup(r => r.EditPosts(
 				Moq.It.IsAny<Expression<Func<Post, bool>>>(),
-				Moq.It.IsAny<Expression<Func<SetPropertyCalls<Post>, SetPropertyCalls<Post>>>>()
-				)).Returns<Expression<Func<Post, bool>>, Expression<Func<SetPropertyCalls<Post>, SetPropertyCalls<Post>>>>(
-				(predicate, setPropertyCalls) =>
+				Moq.It.IsAny<Action<Post>>()
+				)).Returns<Expression<Func<Post, bool>>, Action<Post>>(
+				(predicate, setAction) =>
 				{
-					var found = lst.SelectMany(b => b.Post).Where(predicate.Compile());
-					var afunc = setPropertyCalls.Compile();
-					//afunc ?????
-					//found.Url = s.Url;
-
+					var found = lst.SelectMany(b => b.Post).Where(predicate.Compile()).ToList();
+					foreach (var post in found)
+					{
+						setAction(post);
+					}
 					return Task.FromResult(found.Count());
 				});
 
