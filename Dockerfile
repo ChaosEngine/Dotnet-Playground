@@ -1,5 +1,5 @@
 # syntax = docker/dockerfile:experimental
-FROM mcr.microsoft.com/dotnet/sdk:9.0-bookworm-slim AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0-noble AS build
 RUN --mount=type=cache,target=/root/.nuget --mount=type=cache,target=/root/.local/ --mount=type=cache,target=/root/.cache/ --mount=type=cache,target=./node_modules
 RUN curl -SLO https://deb.nodesource.com/nsolid_setup_deb.sh && \
     chmod 500 nsolid_setup_deb.sh && \
@@ -7,7 +7,7 @@ RUN curl -SLO https://deb.nodesource.com/nsolid_setup_deb.sh && \
     apt-get install -y nodejs && npm install -g bun
 WORKDIR /build
 
-ENV DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/net9.0/Blogging.db"
+ENV DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/net10.0/Blogging.db"
 ARG SOURCE_COMMIT
 ARG SOURCE_BRANCH
 ARG BUILD_CONFIG=${BUILD_CONFIG:-Release}
@@ -34,13 +34,13 @@ RUN dotnet publish -c $BUILD_CONFIG --self-contained -r linux-x64 DotnetPlaygrou
 
 
 
-FROM mcr.microsoft.com/dotnet/runtime-deps:9.0-bookworm-slim
+FROM mcr.microsoft.com/dotnet/runtime-deps:10.0-noble
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 WORKDIR /app
 ENV USER=nobody
 ARG BUILD_CONFIG=${BUILD_CONFIG:-Release}
-COPY --from=build --chown="$USER":"$USER" /build/DotnetPlayground.Web/bin/$BUILD_CONFIG/net9.0/linux-x64/publish/ /build/startApp.sh ./
+COPY --from=build --chown="$USER":"$USER" /build/DotnetPlayground.Web/bin/$BUILD_CONFIG/net10.0/linux-x64/publish/ /build/startApp.sh ./
 
 USER "$USER"
 
