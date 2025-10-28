@@ -240,9 +240,9 @@ window.addEventListener('load', () => {
 	/**
 	 * Count non empty cells in the CSV data
 	 * @param {Array<Array<string>>} rawData 2D array of strings
-	 * @returns {Promise<void>}
+	 * @returns {void}
 	 */
-	async function countClientSideApproach(rawData) {
+	function countClientSideApproach(rawData) {
 		// rawData is a 2D array of strings
 		// Each inner array represents a row of the CSV file
 		// Each string represents a cell value
@@ -289,7 +289,7 @@ window.addEventListener('load', () => {
 					break;
 				case 'btnCount':
 					submitter.disabled = true;
-					await countClientSideApproach(globalData);
+					countClientSideApproach(globalData);
 					break;
 				default:
 					myAlert(i18next.t('importCsv.unknBtn'), i18next.t('importCsv.Failed'));
