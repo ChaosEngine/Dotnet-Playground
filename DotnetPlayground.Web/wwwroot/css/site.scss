@@ -294,8 +294,7 @@ Theme switcher:
 	//https://christianheilmann.com/2021/02/08/sharing-data-between-css-and-javascript-using-custom-properties/
 	#target
 	{
-		--bimg: url('../images/puzzles/fond-puzzle.svg');
-		// --trans: scale(2) rotateZ(180deg);
+		// --bimg: url('../images/puzzles/fond-puzzle.svg');
 
 		position: relative;
 		overflow: hidden;

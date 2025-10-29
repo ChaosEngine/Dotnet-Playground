@@ -197,7 +197,6 @@ Theme switcher:
   transition: 500ms all;
 }
 .puzzles #target {
-  --bimg: url("../images/puzzles/fond-puzzle.svg");
   position: relative;
   overflow: hidden;
   font-size: 2em;
