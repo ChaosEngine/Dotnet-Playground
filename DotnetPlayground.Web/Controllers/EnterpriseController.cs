@@ -15,7 +15,7 @@ using Microsoft.IdentityModel.Tokens;
 namespace DotnetPlayground.Controllers
 {
     //create brand new endpoint /enterprise that accepts a query string parameter named state
-    [Route("[controller]")]
+    [Route("[controller]/v1/authint")]
     public class EnterpriseController : Controller
     {
         private ILogger<EnterpriseController> _logger;
@@ -91,14 +91,14 @@ namespace DotnetPlayground.Controllers
             return tokenString;
         }
 
-        [HttpGet("v1/authint/bi/{orgShortName}")]
+        [HttpGet("bi/{orgShortName}")]
         [Authorize()]
         public IActionResult Get([Required]string orgShortName, [FromQuery] string authcodecallback)
         {
             return View("Index");
         }
 
-        [HttpPost("v1/authint/bi/{orgShortName}")]
+        [HttpPost("bi/{orgShortName}")]
         [Authorize()]
         public IActionResult RedirectWithCode([Required]string orgShortName, /* [FromQuery]  */string authcodecallback)
         {
@@ -118,7 +118,7 @@ namespace DotnetPlayground.Controllers
             return Redirect(redirectUrl);
         }
 
-        [HttpGet("v1/authint/authtoken/{orgShortName}")]
+        [HttpGet("authtoken/{orgShortName}")]
         public IActionResult GenerateToken([Required]string orgShortName, [FromQuery] string code)
         {
             if (string.IsNullOrEmpty(orgShortName))
