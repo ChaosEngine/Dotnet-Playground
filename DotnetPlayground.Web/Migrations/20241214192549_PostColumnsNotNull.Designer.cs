@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using MySql.EntityFrameworkCore.Metadata;
+
 #if INCLUDE_POSTGRES
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 #endif
@@ -58,7 +60,7 @@ namespace DotnetPlayground.Migrations
                     .ValueGeneratedOnAdd()
                     .HasAnnotation("Sqlite:Autoincrement", true)
 #if INCLUDE_MYSQL
-					.HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
+					.HasAnnotation("MySql:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn)
 #endif
 #if INCLUDE_SQLSERVER
 					.HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
@@ -85,7 +87,7 @@ namespace DotnetPlayground.Migrations
                     .ValueGeneratedOnAdd()
                     .HasAnnotation("Sqlite:Autoincrement", true)
 #if INCLUDE_MYSQL
-                    .HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
+                    .HasAnnotation("MySql:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn)
 #endif
 #if INCLUDE_SQLSERVER
 					.HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
@@ -145,7 +147,7 @@ namespace DotnetPlayground.Migrations
                     .ValueGeneratedOnAdd()
 					.HasAnnotation("Sqlite:Autoincrement", true)
 #if INCLUDE_MYSQL
-					.HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
+					.HasAnnotation("MySql:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn)
 #endif
 #if INCLUDE_SQLSERVER
 					.HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
@@ -285,7 +287,7 @@ namespace DotnetPlayground.Migrations
                     .ValueGeneratedOnAdd()
 					.HasAnnotation("Sqlite:Autoincrement", true)
 #if INCLUDE_MYSQL
-					.HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
+					.HasAnnotation("MySql:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn)
 #endif
 #if INCLUDE_SQLSERVER
 					.HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
@@ -318,7 +320,7 @@ namespace DotnetPlayground.Migrations
                     .ValueGeneratedOnAdd()
 					.HasAnnotation("Sqlite:Autoincrement", true)
 #if INCLUDE_MYSQL
-					.HasAnnotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn)
+					.HasAnnotation("MySql:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn)
 #endif
 #if INCLUDE_SQLSERVER
 					.HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
