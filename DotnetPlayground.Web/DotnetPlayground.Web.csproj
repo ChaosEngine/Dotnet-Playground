@@ -52,7 +52,7 @@
 		<PackageReference Include="MongoDB.Driver" Version="3.5.0" Condition="$(DefineConstants.Contains('INCLUDE_MONGODB'))" />
 		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.70.0.3847" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="9.0.10" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.10" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.11" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="9.0.10" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="9.0.10" />
 		<PackageReference Include="MessagePack" Version="3.1.4" />
