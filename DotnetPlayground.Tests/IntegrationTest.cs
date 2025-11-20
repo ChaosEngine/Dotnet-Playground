@@ -460,7 +460,7 @@ namespace Integration
 				response.EnsureSuccessStatusCode();
 
 				var responseString = await response.Content.ReadAsStringAsync();
-				Assert.Contains("<title data-i18n=\"head.title\" data-i18n-options=\"{ pageTitle: 'Blogs', siteTitle: 'Dotnet Core Playground' }\">Blogs - Dotnet Core Playground</title>", responseString);
+				Assert.Contains("<title data-i18n=\"head.title\" data-i18n-options=\"{ pageTitle: 'nav.items.blogs.name', siteTitle: 'Dotnet Core Playground' }\">nav.items.blogs.name - Dotnet Core Playground</title>", responseString);
 				Assert.Contains("js/Blogs.", responseString);//test loading main js script
 			}
 		}
@@ -476,7 +476,7 @@ namespace Integration
 				response.EnsureSuccessStatusCode();
 
 				var responseString = await response.Content.ReadAsStringAsync();
-				Assert.Contains("<title data-i18n=\"head.title\" data-i18n-options=\"{ pageTitle: 'New Blog', siteTitle: 'Dotnet Core Playground' }\">New Blog - Dotnet Core Playground</title>", responseString);
+				Assert.Contains("<title data-i18n=\"head.title\" data-i18n-options=\"{ pageTitle: 'nav.items.blogs.create', siteTitle: 'Dotnet Core Playground' }\">nav.items.blogs.create - Dotnet Core Playground</title>", responseString);
 				Assert.Contains("<label class=\"form-label\" for=\"Url\">Url</label>", responseString);
 			}
 		}

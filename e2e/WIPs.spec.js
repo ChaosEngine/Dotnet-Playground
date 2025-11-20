@@ -13,7 +13,7 @@ test('ImportCsv - Open', async ({ browser }) => {
 	await page.goto('ImportCsv');
 
 	// Expect a title "to contain" a substring.
-	await expect(page).toHaveTitle(/Import Csv - Dotnet Core Playground/);
+	await expect(page).toHaveTitle(/Import CSV - Dotnet Core Playground/);
 
 	//Not logged-in message
 	const welcome = page.locator('div.importCsv h3');

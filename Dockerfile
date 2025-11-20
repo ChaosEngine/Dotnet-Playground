@@ -4,7 +4,7 @@ RUN --mount=type=cache,target=/root/.nuget --mount=type=cache,target=/root/.loca
 RUN curl -SLO https://deb.nodesource.com/nsolid_setup_deb.sh && \
     chmod 500 nsolid_setup_deb.sh && \
     ./nsolid_setup_deb.sh 22 && \
-    apt-get install -y nodejs && npm install -g pnpm
+    apt-get install -y nodejs && npm install -g bun
 WORKDIR /build
 
 ENV DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/net9.0/Blogging.db"
@@ -27,7 +27,7 @@ RUN dotnet restore -r linux-arm /p:Configuration=Release
 COPY . .
 RUN sed -i -e "s/GIT_HASH/$SOURCE_COMMIT/g" -e "s/GIT_BRANCH/$SOURCE_BRANCH/g" DotnetPlayground.Web/wwwroot/js/site.js
 RUN dotnet test -v m
-RUN pnpm install --prod --unsafe-perm
+RUN bun install --prod --unsafe-perm
 RUN dotnet publish -c $BUILD_CONFIG --self-contained -r linux-arm DotnetPlayground.Web
 
 

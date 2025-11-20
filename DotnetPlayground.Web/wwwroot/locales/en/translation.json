@@ -71,7 +71,8 @@
 				"puzzle": "Puzzle Generator",
 				"beep": "Beep Experiment",
 				"svg": "SVG Experiment",
-				"importCsv": "Import CSV"
+				"importCsv": "Import CSV",
+				"enterprise": "Enterprise login"
 			}
 		}
 	},
