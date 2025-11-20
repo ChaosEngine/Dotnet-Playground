@@ -138,25 +138,25 @@ jobs:
             apt update; apt install software-properties-common -y
             add-apt-repository ppa:dotnet/backports -y
             apt install -y dotnet-sdk-9.0
-            npm i -g bun
+            npm i -g pnpm@latest
       - run:
           name: Show versions
           command: |
             dotnet --info
             node --version
-            bun --version
+            pnpm --version
       - run:
           name: Install project dependencies
           command: |
             dotnet restore
             dotnet dev-certs https --trust
-            bun i
-            bun x playwright install --only-shell chromium
+            pnpm i
+            npx playwright install --only-shell chromium
       - run:
           name: End-2-End Playwright browser tests
           command: |
             export DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/Blogging.db"
-            bun x playwright test
+            npx playwright test
       - store_artifacts:
           path: e2e/playwright-report
 
@@ -180,11 +180,11 @@ jobs:
             chmod 500 nsolid_setup_deb.sh
             ./nsolid_setup_deb.sh 22
             apt-get install -y nodejs
-            npm i -g bun
+            npm i -g pnpm@latest
       - run:
           name: "Build Application according to some given configuration"
           command: |
-            bun i --prod --unsafe-perm
+            pnpm install --prod --unsafe-perm
             dotnet publish -c Release --self-contained -r linux-x64 DotnetPlayground.Web
 
 
