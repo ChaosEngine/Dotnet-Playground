@@ -1,5 +1,5 @@
 /*eslint-disable no-console*/
-/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate|handleAboutPageBranchHash" }]*/
+/*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate" }]*/
 /*global forge, bootstrap, i18next, i18nextBrowserLanguageDetector, i18nextHttpBackend, locI18next*/
 "use strict";
 
@@ -35,27 +35,7 @@ function clientValidate(button) {
  * Client side hash validation of all hash rows
  */
 function clientValidateAll() {
-	$("button[value='Validate']").each((_index, item) => clientValidate(item));
-}
-
-/**
- * About page handling of various elements
- */
-function handleAboutPageBranchHash() {
-	let anchor = document.querySelector('#branchHash > a:first-child');
-	if (anchor) {
-		anchor.setAttribute('href', anchor.getAttribute('href') + g_gitBranch);
-		const strong = anchor.querySelector('strong');
-		if (strong)
-			strong.innerText = g_gitBranch;
-	}
-	anchor = document.querySelector('#branchHash > a:last-child');
-	if (anchor) {
-		anchor.setAttribute('href', anchor.getAttribute('href') + g_gitHash);
-		const strong = anchor.querySelector('strong');
-		if (strong)
-			strong.innerText = g_gitHash;
-	}
+	$("button[value='Validate']").each((_, item) => clientValidate(item));
 }
 
 /**
@@ -95,20 +75,20 @@ window.addEventListener('DOMContentLoaded', function () {
 		}
 
 		function loadPathFunc([lng], [namespace]) {
-			const loadFromCDN = localStorage.getItem('loadFromCDN') === 'true' && isDev === false;
+			const loadFromCDN = localStorage.getItem('loadFromCDN') === 'true' && !isDev;
 			switch (namespace) {
 				case 'ib':
 					return loadFromCDN ?
 						`https://cdn.jsdelivr.net/gh/ChaosEngine/InkBall@${g_gitBranch/* 'dev' */}/src/InkBall.Module/wwwroot/locales/${lng}/${namespace}.min.json`
 						:
-						`${g_AppRootPath}locales/${lng}/${namespace}${isDev === true ? '' : '.min'}.json`;
+						`${g_AppRootPath}locales/${lng}/${namespace}${isDev ? '' : '.min'}.json`;
 
 				// case 'translation':
 				default:
 					return loadFromCDN ?
 						`https://cdn.jsdelivr.net/gh/ChaosEngine/Dotnet-Playground@${g_gitBranch/* 'dev' */}/DotnetPlayground.Web/wwwroot/locales/${lng}/${namespace}.min.json`
 						:
-						`${g_AppRootPath}locales/${lng}/${namespace}${isDev === true ? '' : '.min'}.json`;
+						`${g_AppRootPath}locales/${lng}/${namespace}${isDev ? '' : '.min'}.json`;
 			}
 		}
 
@@ -191,16 +171,18 @@ $(function () {
 	 */
 	function handleLogoutForm() {
 		//if we're not seeing logoutForm form - disable secure/authorized links, otherwise enable registration
-		const links2disable = document.getElementById("logoutForm") === null ?
+		const links2disable = $("#logoutForm").length === 0 ?
 			["aInkList", "aInkGame", "aInkGameHigh"] :
 			["aInkRegister"];
 
 		links2disable.forEach(id => {
-			const el = document.getElementById(id);
-			//el.removeAttribute("href");
-			el.setAttribute("tabindex", "-1");
-			el.setAttribute("aria-disabled", "true");
-			el.classList.add("disabled");
+			const el = $(`#${id}`);
+			//el.removeAttr("href");
+			el.attr({
+				"tabindex": "-1",
+				"aria-disabled": "true"
+			});
+			el.addClass("disabled");
 		});
 	}
 
@@ -214,7 +196,7 @@ $(function () {
 			//&& (navigator.serviceWorker.controller === null || navigator.serviceWorker.controller.state !== "activated")
 		) {
 			const version = encodeURIComponent(g_gitBranch + '_' + g_gitHash);
-			const swUrl = `${rootPath}sw${(isDev === true ? '' : '.min')}.js?version=${version}`;
+			const swUrl = `${rootPath}sw${(isDev ? '' : '.min')}.js?version=${version}`;
 
 			navigator.serviceWorker
 				.register(swUrl, { scope: rootPath })
@@ -225,28 +207,29 @@ $(function () {
 		}
 	}
 
-	function registerMyAlert(msg = 'Content', title = 'Modal title') {
-		const divModal = document.createElement('div');
-		divModal.id = "divModal";
-		divModal.classList.add("modal");
-		divModal.classList.add("fade");
-		divModal.setAttribute("tabindex", "-1");
-		divModal.setAttribute("aria-labelledby", "divModalLabel");
-		divModal.setAttribute("aria-hidden", "true");
-		divModal.innerHTML =
-			'<div class="modal-dialog">' +
-				'<div class="modal-content">' +
-					'<div class="modal-header">' +
-						`<h5 class="modal-title text-break" id="divModalLabel">${title}</h5>` +
-						'<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
+	function registerMyAlert() {
+		$('<div>')
+			.addClass('modal fade')
+			.attr({
+				'id': 'divModal',
+				'tabindex': '-1',
+				'aria-labelledby': 'divModalLabel',
+				'aria-hidden': 'true'
+			})
+			.html(
+				'<div class="modal-dialog">' +
+					'<div class="modal-content">' +
+						'<div class="modal-header">' +
+							`<h5 class="modal-title text-break" id="divModalLabel">Modal title</h5>` +
+							'<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
+						'</div>' +
+						`<div class="modal-body text-break">Content</div>` +
+						'<div class="modal-footer">' +
+							'<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>' +
+						'</div>' +
 					'</div>' +
-					`<div class="modal-body text-break">${msg}</div>` +
-					'<div class="modal-footer">' +
-						'<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>' +
-					'</div>' +
-				'</div>' +
-			'</div>';
-		document.body.appendChild(divModal);
+				'</div>'
+			).appendTo('body');
 	}
 
 	function registerThemeChangeHandler() {
@@ -289,34 +272,39 @@ $(function () {
 					break;
 			}
 			classes.push(cur_theme);
-			$(this).attr('class', classes.join(" "));
-			$(this).attr('data-i18n', `[title]nav.themeSwitcher.${cur_theme};[aria-label]nav.themeSwitcher.${cur_theme}`);
+			$(this).attr({
+				'class': classes.join(" "),
+				'data-i18n': `[title]nav.themeSwitcher.${cur_theme};[aria-label]nav.themeSwitcher.${cur_theme}`
+			});
 			localize('#themeSwitcher');
 
 
 			if (cur_theme === 'system') {
-				document.documentElement.removeAttribute('data-bs-theme');
+				$('html').removeAttr('data-bs-theme');
 				localStorage.removeItem('bs-theme');
 			}
 			else {
-				document.documentElement.setAttribute('data-bs-theme', cur_theme);
+				$('html').attr('data-bs-theme', cur_theme);
 				localStorage.setItem('bs-theme', cur_theme);
 			}
 		});
 
 		const cur_theme = localStorage.getItem('bs-theme') || 'system';
 		if (cur_theme === 'system')
-			document.documentElement.removeAttribute('data-bs-theme');
+			$('html').removeAttr('data-bs-theme');
 		else
-			document.documentElement.setAttribute('data-bs-theme', cur_theme);
+			$('html').attr('data-bs-theme', cur_theme);
+
 
 
 		const btn = $('#themeSwitcher');
 		const classes = btn.attr('class').split(' ');
 		classes.pop();
 		classes.push(cur_theme);
-		btn.attr('class', classes.join(" "));
-		btn.attr('data-i18n', `[title]nav.themeSwitcher.${cur_theme};[aria-label]nav.themeSwitcher.${cur_theme}`);
+		btn.attr({
+			'class': classes.join(" "),
+			'data-i18n': `[title]nav.themeSwitcher.${cur_theme};[aria-label]nav.themeSwitcher.${cur_theme}`
+		});
 		// localize('#themeSwitcher');
 
 
