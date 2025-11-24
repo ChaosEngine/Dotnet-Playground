@@ -1,46 +1,46 @@
 ﻿@{
-    ViewData["Title"] = "nav.items.main.contact";
+	ViewData["Title"] = "nav.items.main.contact";
 }
-<h2>Contact.</h2>
+<h2>Contact</h2>
 
 <h4>@Html.Raw(ViewData["Message"])</h4>
 
 <address>
-    <span id="spStreetName">Model.Address.StreetName()</span><br />
-    <span id="spCity">Model.Address.City()</span>, <span id="spState">Model.Address.StateAbbr()</span> <span id="spZipCode">Model.Address.ZipCode()</span><br />
-    <abbr title="Phone">P:</abbr>
-    <span id="spPhone">Model.Phone.PhoneNumber()</span>
+	<span id="spStreetName"></span><br />
+	<span id="spCity"></span>, <span id="spState"></span> <span id="spZipCode"></span><br />
+	<abbr title="Phone">P:</abbr>
+	<span id="spPhone"></span>
 </address>
 <address>
-    <strong>Support:</strong> <a id="aEmail0" href="#">email0</a>
+	<strong>Support:</strong> <a id="aEmail0" href="#"></a>
 </address>
 <address>
-    <strong>Marketing:</strong> <a id="aEmail1" href="#">email1</a>
+	<strong>Marketing:</strong> <a id="aEmail1" href="#"></a>
 </address>
 
 @section Scripts
 {
 <environment include="Development">
-    <script src="~/lib/chance/chance.min.js" type="text/javascript"></script>
+	<script src="~/lib/chance/chance.min.js" type="text/javascript"></script>
 </environment>
 <environment exclude="Development">
-    <script src="https://cdn.jsdelivr.net/npm/chance@1.1.13/dist/chance.min.js" integrity="sha256-XNg4f2HteQQm/WuPYzkZ223Z7fkMCGxHcJL8k5D3ed0=" crossorigin="anonymous"
-            asp-fallback-src="~/lib/chance/chance.min.js"
-            asp-fallback-test="window.chance"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chance@1.1.13/dist/chance.min.js"
+		integrity="sha256-XNg4f2HteQQm/WuPYzkZ223Z7fkMCGxHcJL8k5D3ed0=" crossorigin="anonymous"
+		asp-fallback-src="~/lib/chance/chance.min.js" asp-fallback-test="window.chance"></script>
 </environment>
 <script type="text/javascript">
-    window.addEventListener('load', function () {
-        document.getElementById('spStreetName').innerText = chance.street();
-        document.getElementById('spCity').innerText = chance.city();
-        document.getElementById('spState').innerText = chance.state();
-        document.getElementById('spZipCode').innerText = chance.zip();
-        document.getElementById('spPhone').innerText = chance.phone();
-        const email0 = document.getElementById('aEmail0');
-        email0.innerText = chance.email();
-        email0.setAttribute('href', "mailto:" + email0.innerText);
-        const email1 = document.getElementById('aEmail1');
-        email1.innerText = chance.email();
-        email1.setAttribute('href', "mailto:" + email1.innerText);
-    });
+window.addEventListener('load', () => {
+	$('#spStreetName').text(chance.street());
+	$('#spCity').text(chance.city());
+	$('#spState').text(chance.state());
+	$('#spZipCode').text(chance.zip());
+	$('#spPhone').text(chance.phone());
+	const email0 = $('#aEmail0');
+	email0.text(chance.email());
+	email0.attr('href', "mailto:" + email0.text());
+	const email1 = $('#aEmail1');
+	email1.text(chance.email());
+	email1.attr('href', "mailto:" + email1.text());
+});
 </script>
 }

@@ -27,8 +27,14 @@ function clientValidate(button) {
 	md.update(key);
 	const sha = md.digest().toHex();
 
-	td.eq(1).css("color", (md5 === orig_md5 ? "green" : "red")).css('font-weight', 'bold');
-	td.eq(2).css("color", (sha === orig_sha ? "green" : "red")).css('font-weight', 'bold');
+	td.eq(1).css({
+		"color": (md5 === orig_md5 ? "green" : "red"),
+		'font-weight': 'bold'
+	});
+	td.eq(2).css({
+		"color": (sha === orig_sha ? "green" : "red"),
+		'font-weight': 'bold'
+	});
 }
 
 /**
