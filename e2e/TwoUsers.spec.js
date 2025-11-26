@@ -9,8 +9,8 @@ import { GameTestHelper } from './GameTestHelper';
 //init
 let Playwright1, Playwright2, helper = new GameTestHelper(expect);
 test.beforeAll(async ({ browser }) => {
-	Playwright1 = await PlaywrightUser.create(browser, FixtureUsers[0].userName);
-	Playwright2 = await PlaywrightUser.create(browser, FixtureUsers[1].userName);
+	Playwright1 = await PlaywrightUser.create(browser, 'en-US', FixtureUsers[0].userName);
+	Playwright2 = await PlaywrightUser.create(browser, 'en-US', FixtureUsers[1].userName);
 });
 
 
