@@ -3,8 +3,8 @@ import fs from 'node:fs/promises';
 import { chromium, firefox, webkit/* , FullConfig */ } from '@playwright/test';
 import { FixtureUsers } from './TwoUsersFixtures';
 
-async function signInUser(browser, loginURL, storageStatePath, user) {
-	const page = await browser.newPage({ ignoreHTTPSErrors: true });
+async function signInUser(browser, loginURL, storageStatePath, locale, user) {
+	const page = await browser.newPage({ ignoreHTTPSErrors: true, locale: locale });
 
 	if (user.email && user.password) {
 		await page.goto(loginURL);
@@ -71,7 +71,7 @@ async function globalSetup(config) {
 			if (!browser && webkit)
 				browser = await webkit.launch();
 
-			await signInUser(browser, loginURL, use.storageState, user);
+			await signInUser(browser, loginURL, use.storageState, use.locale, user);
 		}
 	}
 
