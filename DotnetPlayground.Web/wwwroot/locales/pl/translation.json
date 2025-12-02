@@ -84,6 +84,16 @@
 	"footer": {
 		"noscript": "Twoja przeglądarka nie wspiera JavaScriptu! SERIO?!"
 	},
+	"error": {
+		"title": "Błąd",
+		"400": "Nieprawidłowe żądanie: Żądanie nie może zostać spełnione z powodu błędnej składni",
+		"403": "Zabronione",
+		"404": "Strona nie znaleziona",
+		"408": "Przekroczono limit czasu oczekiwania na żądanie",
+		"500": "Błąd wewnętrzny serwera - serwer nie był w stanie zakończyć przetwarzania żądania",
+		"503": "Usługa niedostępna - Serwer jest obecnie niedostępny (ponieważ jest przeciążony lub wyłączony w celu konserwacji). Zazwyczaj jest to stan tymczasowy",
+		"unknown": "To dziwne... Wydarzyło się coś, czego się nie spodziewaliśmy 😱"
+	},
 	"puzzles": {
 		"title": "Generator Puzzli",
 		"description": "Łączy obraz PNG/JPG/AVIF z wzorem puzzli SVG. Zastosuj skalowanie, obrót, przekształcenie, aby dopasować do swoich potrzeb.",

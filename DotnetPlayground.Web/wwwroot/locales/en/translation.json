@@ -85,6 +85,16 @@
 	"footer": {
 		"noscript": "Your browser does not support JavaScript! REALLY?!"
 	},
+	"error": {
+		"title": "Error",
+		"400": "Bad request: The request cannot be fulfilled due to bad syntax",
+		"403": "Forbidden",
+		"404": "Page not found",
+		"408": "The server timed out waiting for the request",
+		"500": "Internal Server Error - server was unable to finish processing the request",
+		"503": "Service unavailable - The server is currently unavailable (because it is overloaded or down for maintenance). Generally, this is a temporary state",
+		"unknown": "That's odd... Something we didn't expect happened 😱"
+	},
 	"puzzles": {
 		"title": "Puzzle Generator",
 		"description": "Combines PNG/JPG/AVIF image with SVG puzzle pattern. Apply scaling, rotation, transform design to fit your needs.",
