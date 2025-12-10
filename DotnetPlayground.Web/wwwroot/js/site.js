@@ -110,7 +110,10 @@ window.addEventListener('DOMContentLoaded', function () {
 
 				ns: ['translation', ...(location.pathname.match(/InkBall/) ? ['ib'] : '')],
 				defaultNS: 'translation',
-
+				parseMissingKeyHandler: (key, defaultValue) => {
+					console.warn(`Missing i18next localization key: ${key}`);
+					return defaultValue || key;
+				},
 				backend: {
 					loadPath: loadPathFunc
 				}
