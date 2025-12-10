@@ -95,6 +95,32 @@
 		"503": "Service unavailable - The server is currently unavailable (because it is overloaded or down for maintenance). Generally, this is a temporary state",
 		"unknown": "That's odd... Something we didn't expect happened 😱"
 	},
+	"login": {
+		"title": "Log in",
+		"useLocalAccount": "Use a local account to log in.",
+		"email": "Email",
+		"emailPlaceholder": "Enter your email",
+		"password": "Password",
+		"passwordPlaceholder": "Enter your password",
+		"rememberMe": "Remember me",
+		"loginButton": "Log in",
+		"forgotPassword": "Forgot your password?",
+		"registerNewUser": "Register as a new user",
+		"useExternalService": "Use another service to log in.",
+		"noExternalServices": "There are no external authentication services configured. See <a href='https://go.microsoft.com/fwlink/?LinkID=532715'>this article</a> for details on setting up this ASP.NET application to support logging in via external services.",
+		"noAccount": "Don't have an account?",
+		"register": "Register",
+		"requiredField": "This field is required",
+		"invalidEmail": "Please enter a valid email address"
+	},
+	"logout": {
+		"title": "Log out",
+		"successMessage": "You have successfully logged out of the application. Click <a href='Login'>here</a> to log in again.",
+		"canLogoutHere": "You can log out here",
+		"logoutButton": "Logout",
+		"message": "You have been logged out.",
+		"loginAgain": "Login again"
+	},
 	"puzzles": {
 		"title": "Puzzle Generator",
 		"description": "Combines PNG/JPG/AVIF image with SVG puzzle pattern. Apply scaling, rotation, transform design to fit your needs.",
