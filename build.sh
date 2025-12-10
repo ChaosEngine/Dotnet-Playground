@@ -13,7 +13,7 @@ case $1 in
     "latest"|"ubuntu"|"default"|"debian")
 				image="latest";
 				dockerfile_name="Dockerfile";
-				base_image_variant="bookworm-slim";
+				base_image_variant="noble";
 				runtime_id="linux-x64";
 				echo "image would be $image";
 			;;
