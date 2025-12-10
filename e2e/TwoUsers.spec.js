@@ -102,6 +102,9 @@ test.describe('AI tests', () => {
 
 		await helper.delay(1 * 500);//wait for signalR to settle in (?)
 
+		//expect to have background file including 'FuturisticRobotProfile' name
+		await expect(p1.page.locator('div.container.inkgame')).toHaveCSS('background-image', /FuturisticRobotProfile/);
+
 		let randX = helper.getRandomInt(0, 6), randY = helper.getRandomInt(0, 8);
 		await expect(p1.page.getByText(`Multi CPU Oponent UserPlayer`)).toBeVisible();
 
