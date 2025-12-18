@@ -124,41 +124,41 @@ test.describe('AI tests', () => {
 		}
 
 
-		await helper.svgClick(svg, randX + 16, randY + 11);
+		// await helper.svgClick(svg, randX + 16, randY + 11);
 		await helper.svgClick(svg, randX + 15, randY + 12);
 		await helper.svgClick(svg, randX + 16, randY + 12);
 
-		await helper.svgClick(svg, randX + 20, randY + 11);
-		await helper.svgClick(svg, randX + 21, randY + 11);
+		// await helper.svgClick(svg, randX + 20, randY + 11);
+		// await helper.svgClick(svg, randX + 21, randY + 11);
 		await helper.svgClick(svg, randX + 20, randY + 12);
 		await helper.svgClick(svg, randX + 21, randY + 12);
 
-		await helper.svgClick(svg, randX + 25, randY + 11);
-		await helper.svgClick(svg, randX + 26, randY + 11);
+		// await helper.svgClick(svg, randX + 25, randY + 11);
+		// await helper.svgClick(svg, randX + 26, randY + 11);
 		await helper.svgClick(svg, randX + 25, randY + 12);
 		await helper.svgClick(svg, randX + 26, randY + 12);
 
-		await helper.svgClick(svg, randX + 15, randY + 16);
-		await helper.svgClick(svg, randX + 16, randY + 16);
+		// await helper.svgClick(svg, randX + 15, randY + 16);
+		// await helper.svgClick(svg, randX + 16, randY + 16);
 		await helper.svgClick(svg, randX + 15, randY + 17);
 		await helper.svgClick(svg, randX + 16, randY + 17);
 
-		await helper.svgClick(svg, randX + 20, randY + 16);
-		await helper.svgClick(svg, randX + 21, randY + 16);
+		// await helper.svgClick(svg, randX + 20, randY + 16);
+		// await helper.svgClick(svg, randX + 21, randY + 16);
 		await helper.svgClick(svg, randX + 20, randY + 17);
 		await helper.svgClick(svg, randX + 21, randY + 17);
 
 		//put dummy 2 spread points just to trigger AI to do its work
-		for (let x = 2; x <= 38; x += 2)
+		for (let x = 2; x <= 36; x += 2) {
 			await helper.svgClick(svg, x, randY + 1);
-		for (let x = 2; x <= 34; x += 2)
 			await helper.svgClick(svg, x, randY + 3);
+		}
 
 		await helper.delay(1 * 500);//wait for signalR to settle in (?)
 
 		const winMessageVisible = await p1.page.locator('div.modal-body', { hasText: 'And the winner is... blue.' }).isVisible();
 		if (!winMessageVisible) {
-			await helper.svgClick(svg, 36, randY + 3);//somehow we are lacking last point, put it just to be sure
+			await helper.svgClick(svg, 38, randY + 3);//somehow we are lacking last point, put it just to be sure
 			// await helper.svgClick(svg, 38, randY + 3);//just to be sure
 		}
 
