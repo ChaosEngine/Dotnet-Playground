@@ -46,7 +46,7 @@
 		"terser-webpack-plugin": "^5.3.16",
 		"tiny-glob": "^0.2.9",
 		"video.js": "8.23.4",
-		"webpack": "^5.104.0",
+		"webpack": "^5.104.1",
 		"webpack-stream": "^7.0.0",
 		"worker-plugin": "^5.0.1"
 	},
