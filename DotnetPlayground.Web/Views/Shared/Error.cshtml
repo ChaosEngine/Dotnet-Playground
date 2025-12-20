@@ -10,11 +10,17 @@
 
 <script type="text/javascript">
 window.addEventListener('load', () => {
-	if (window.registerLocalizationOnReady && Array.isArray(window.registerLocalizationOnReady)) {
-		window.registerLocalizationOnReady.push(() => {
-			const key = i18next.exists('error.@Model') ? 'error.@Model' : 'error.unknown';
-			document.querySelector('.error h3').setAttribute('data-i18n', key);
+	function execute(localize) {
+		const key = i18next.exists('error.@Model') ? 'error.@Model' : 'error.unknown';
+		document.querySelector('.error h3').setAttribute('data-i18n', key);
+		localize('.error');
+	}
+	if (!window.localize && window.registerLocalizationOnReady && Array.isArray(window.registerLocalizationOnReady)) {
+		window.registerLocalizationOnReady.push((localize) => {
+			execute(localize);
 		});
 	}
+	else
+		execute(window.localize);
 });
 </script>

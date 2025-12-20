@@ -395,11 +395,14 @@ window.addEventListener(/* 'DOMContentLoaded' */'load', function () {
 	}
 
 	////////////execution/////////////
-	if (window.registerLocalizationOnReady && Array.isArray(window.registerLocalizationOnReady)) {
+	if (!window.localize && window.registerLocalizationOnReady && Array.isArray(window.registerLocalizationOnReady)) {
 		window.registerLocalizationOnReady.push(i18nLocalizeFunc => {
 			const localize = typeof i18nLocalizeFunc === "function" ? i18nLocalizeFunc : undefined;
 
 			RunPage(localize);
 		});
+	}
+	else {
+		RunPage(window.localize);
 	}
 });

@@ -1,6 +1,6 @@
 /*eslint-disable no-console*/
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate" }]*/
-/*global forge, bootstrap, i18next, i18nextBrowserLanguageDetector, i18nextHttpBackend, locI18next*/
+/*global forge, bootstrap, i18next, i18nextBrowserLanguageDetector, i18nextHttpBackend, i18nextChainedBackend, i18nextLocalStorageBackend, locI18next*/
 "use strict";
 
 var g_AppRootPath = location.pathname.match(/\/([^/]+)\//)[0], g_isDevelopment = location.host.match(/:\d+/) !== null,
@@ -100,9 +100,9 @@ window.addEventListener('DOMContentLoaded', function () {
 
 		// use plugins and options as needed, for options, detail see: http://i18next.com/docs/
 		i18next
+			.use(i18nextChainedBackend)
 			// detect user language. learn more: https://github.com/i18next/i18next-browser-languageDetector
 			.use(i18nextBrowserLanguageDetector)
-			.use(i18nextHttpBackend)
 			.init({
 				debug: isDev,
 				fallbackLng: false, // default language if nothing found by detector or disable loading fallback
@@ -115,7 +115,23 @@ window.addEventListener('DOMContentLoaded', function () {
 					return defaultValue || key;
 				},
 				backend: {
-					loadPath: loadPathFunc
+					backends: [
+						...(isDev ? [] : [i18nextLocalStorageBackend]),
+						i18nextHttpBackend
+					],
+					backendOptions: [
+						...(isDev ? [] : [{
+							//i18nextLocalStorageBackend opts
+							prefix: 'i18next_res_',
+							expirationTime:
+								7/* days */ * 24/* hours */ * 60/* mins */ * 60/* secs */ * 1000/* milliseconds */,
+							defaultVersion: g_gitHash
+						}]),
+						{
+							//i18nextHttpBackend opts
+							loadPath: loadPathFunc
+						}
+					]
 				}
 			}, function (/* err, t */) {
 				// for options see: https://github.com/i18next/jquery-i18next#initialize-the-plugin
