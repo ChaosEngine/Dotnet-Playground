@@ -42,7 +42,7 @@
 		"msgpack5": "6.0.2",
 		"node-forge": "1.3.3",
 		"qrcodejs": "1.0.0",
-		"sass": "^1.97.0",
+		"sass": "^1.97.1",
 		"terser-webpack-plugin": "^5.3.16",
 		"tiny-glob": "^0.2.9",
 		"video.js": "8.23.4",
