@@ -396,9 +396,7 @@ window.addEventListener(/* 'DOMContentLoaded' */'load', function () {
 
 	////////////execution/////////////
 	if (!window.localize && window.registerLocalizationOnReady && Array.isArray(window.registerLocalizationOnReady)) {
-		window.registerLocalizationOnReady.push(i18nLocalizeFunc => {
-			const localize = typeof i18nLocalizeFunc === "function" ? i18nLocalizeFunc : undefined;
-
+		window.registerLocalizationOnReady.push(localize => {
 			RunPage(localize);
 		});
 	}

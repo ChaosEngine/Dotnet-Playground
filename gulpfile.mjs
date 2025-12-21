@@ -14,7 +14,6 @@ import gulpSass from 'gulp-sass';
 const sass = gulpSass(dartSass);
 
 import replace from 'gulp-replace';
-import glob from "tiny-glob";
 import concat from "gulp-concat";
 import cleanCSS from "@aptuitiv/gulp-clean-css";
 import terser from "gulp-terser";
@@ -73,12 +72,15 @@ const minCSS = function (sourcePattern, notPattern, dest) {
 };
 
 const rimraf = async function (globPattern) {
-	const found_files = await glob(globPattern);
+	//const found_files = await glob(globPattern);
+	let found_files = [];
+	for await (const file of fs.glob(globPattern))
+		found_files.push(file);
 
-	found_files.forEach(async file => {
+	await Promise.all(found_files.map(file => {
 		// console.log(file);
-		await fs.rm(file);
-	});
+		return fs.rm(file);
+	}));
 };
 
 ////////////// [Inkball Section] //////////////////
@@ -427,7 +429,7 @@ const postinstall = async (cb) => {
 			return false;
 		}
 	});
-	
+
 	file_copy(`${nm}/bootstrap-table/dist/bootstrap-table.min.css`, `${dst}bootstrap-table/bootstrap-table.min.css`);
 	file_copy(`${nm}/bootstrap-table/dist/bootstrap-table.min.js`, `${dst}bootstrap-table/bootstrap-table.min.js`);
 
@@ -501,7 +503,7 @@ const postinstall = async (cb) => {
 	file_copy(`${nm}/i18next-browser-languagedetector/i18nextBrowserLanguageDetector.min.js`, `${dst}i18next-browser-languagedetector/i18nextBrowserLanguageDetector.min.js`);
 	file_copy(`${nm}/i18next-localstorage-backend/i18nextLocalStorageBackend.min.js`, `${dst}i18next-localstorage-backend/i18nextLocalStorageBackend.min.js`);
 	file_copy(`${nm}/i18next-chained-backend/i18nextChainedBackend.min.js`, `${dst}i18next-chained-backend/i18nextChainedBackend.min.js`);
-	
+
 	file_copy(`${nm}/html2canvas/dist/html2canvas.min.js`, `${dst}html2canvas/html2canvas.min.js`);
 
 	await Promise.all(copy_promises);
