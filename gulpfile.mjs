@@ -5,9 +5,7 @@ import gulp from 'gulp';
 
 import process from 'node:process';
 import fs from 'node:fs/promises';
-// import { fileURLToPath } from 'url';
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
+import path from 'node:path';
 
 import * as dartSass from 'sass';
 import gulpSass from 'gulp-sass';
@@ -20,11 +18,9 @@ import terser from "gulp-terser";
 //import babel from "gulp-babel",
 import rename from "gulp-rename";
 import sourcemaps from 'gulp-sourcemaps';
-import path from 'path';
 import webpack from 'webpack-stream';
-// import esmWebpackPlugin from '@purtuga/esm-webpack-plugin';
-import workerPlugin from 'worker-plugin';
-import TerserPlugin from 'terser-webpack-plugin';
+// import workerPlugin from 'worker-plugin';
+// import TerserPlugin from 'terser-webpack-plugin';
 import jsonMinify from 'gulp-json-minify';
 
 const webroot = "./DotnetPlayground.Web/wwwroot/";
@@ -91,9 +87,6 @@ const inkballEntryPoint = function (min) {
 		//paths.inkBallJsRelative + 'shared.js',
 		//paths.inkBallJsRelative + 'AISource.js'
 	]).pipe(webpack({
-		// resolve: {
-		// 	modules: ['node_modules', `../../../../../${path.basename(__dirname)}/node_modules`]
-		// },
 		entry: {
 			'inkball': [
 				//'@babel/polyfill',
@@ -124,12 +117,12 @@ const inkballEntryPoint = function (min) {
 			}]
 		},
 		optimization: {
-			minimize: min,
-			minimizer: [
-				new TerserPlugin({
-					extractComments: false
-				})
-			]
+			minimize: min
+			//, minimizer: [
+			// 	new TerserPlugin({
+			// 		extractComments: false
+			// 	})
+			// ]
 		},
 		performance: {
 			hints: process.env.NODE_ENV === 'production' ? "warning" : false
@@ -144,9 +137,6 @@ const inkballEntryPoint = function (min) {
 const inkballAIWorker = function (doPollyfill) {
 	return gulp.src(paths.inkBallJsRelative + "AIWorker.js")
 		.pipe(webpack({
-			// resolve: {
-			// 	modules: ['node_modules', `../../../../../${path.basename(__dirname)}/node_modules`]
-			// },
 			entry: {
 				'AIWorker': doPollyfill === true ? [
 					'@babel/polyfill',
@@ -159,13 +149,12 @@ const inkballAIWorker = function (doPollyfill) {
 			output: {
 				filename: doPollyfill === true ? '[name].PolyfillBundle.js' : '[name].Bundle.js'
 			},
-			plugins: [
-				//new esmWebpackPlugin(),
-				new workerPlugin({
-					// use "self" as the global object when receiving hot updates.
-					globalObject: 'self' // <-- this is the default value
-				})
-			],
+			// plugins: [
+			// 	new workerPlugin({
+			// 		// use "self" as the global object when receiving hot updates.
+			// 		globalObject: 'self' // <-- this is the default value
+			// 	})
+			// ],
 			module: doPollyfill === true ? {
 				rules: [{
 					use: {
@@ -182,12 +171,12 @@ const inkballAIWorker = function (doPollyfill) {
 				}]
 			} : {},
 			optimization: {
-				// minimize: true,
-				minimizer: [
-					new TerserPlugin({
-						extractComments: false
-					})
-				]
+				minimize: true
+				//, minimizer: [
+				//	new TerserPlugin({
+				//		extractComments: false
+				//	})
+				//]
 			},
 			performance: {
 				hints: process.env.NODE_ENV === 'production' ? "warning" : false
