@@ -14,6 +14,10 @@ body {
   padding-top: 4.5rem;
 }
 
+.dropdown-menu {
+  border-radius: unset;
+}
+
 /* overriding Bootstrap-5 underlined links and others */
 a {
   text-decoration: none;
@@ -84,20 +88,20 @@ footer.container > noscript {
 }
 
 #langDropdown button[title=en] > img, #langDropdown img[title=en] {
-  content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 480'%3E%3Cpath fill='%23012169' d='M0 0h640v480H0z'/%3E%3Cpath fill='%23FFF' d='m75 0 244 181L562 0h78v62L400 241l240 178v61h-80L320 301 81 480H0v-60l239-178L0 64V0z'/%3E%3Cpath fill='%23C8102E' d='m424 281 216 159v40L369 281zm-184 20 6 35L54 480H0zM640 0v3L391 191l2-44L590 0zM0 0l239 176h-60L0 42z'/%3E%3Cpath fill='%23FFF' d='M241 0v480h160V0zM0 160v160h640V160z'/%3E%3Cpath fill='%23C8102E' d='M0 193v96h640v-96zM273 0v480h96V0z'/%3E%3C/svg%3E");
+  content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='5 5 50 20'%3E%3Cpath d='m0 0v30h60v-30z' fill='%23012169'/%3E%3Cpath d='m0 0 60 30m0-30-60 30' stroke='%23fff' stroke-width='6'/%3E%3Cpath d='m0 0 60 30m0-30-60 30' stroke='%23c8102e' stroke-width='4'/%3E%3Cpath d='m30 0v30m-30-15h60' stroke='%23fff' stroke-width='9'/%3E%3Cpath d='m30 0v30m-30-15h60' stroke='%23c8102e' stroke-width='6'/%3E%3C/svg%3E");
   display: inline-block;
   /* background-repeat: no-repeat;
   background-position: center; */
   width: 2em;
-  height: 1em;
+  height: 1.2em;
 }
 #langDropdown button[title=pl] > img, #langDropdown img[title=pl] {
-  content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 5'%3E%3Crect width='8' height='5' fill='red'/%3E%3Crect width='8' height='2.5' fill='%23fff'/%3E%3C/svg%3E");
+  content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 2'%3E%3Crect width='4' height='2' fill='red'/%3E%3Crect width='4' height='1' fill='%23fff'/%3E%3C/svg%3E");
   display: inline-block;
   /* background-repeat: no-repeat;
   background-position: center; */
   width: 2em;
-  height: 1em;
+  height: 1.2em;
 }
 
 /*
@@ -241,9 +245,10 @@ Theme switcher:
 /***social login svg icons***/
 .registered-logins td, #external-account button {
   background-repeat: no-repeat;
+  background-position-x: center;
   border: none;
-  width: 80px;
-  height: 72px;
+  width: 5em;
+  height: 5em;
 }
 
 .warn-icon::before {
