@@ -30,14 +30,32 @@ namespace DotnetPlayground.Controllers
 
 		public async Task<IActionResult> Index()
 		{
+			await HttpContext.Session.LoadAsync(HttpContext.RequestAborted);
+			bool any_stored = false;
+
 			if (!HttpContext.Session.Keys.Contains(SessionKeyName))
+			{
+				any_stored = true;
 				HttpContext.Session.SetString(SessionKeyName, RandomData.RandomStr());
+			}
 			if (!HttpContext.Session.Keys.Contains(SessionKeyYearsMember))
+			{
+				any_stored = true;
 				HttpContext.Session.SetInt32(SessionKeyYearsMember, 3);
+			}
 			if (!HttpContext.Session.Keys.Contains(SessionKeyDate))
+			{
+				any_stored = true;
 				HttpContext.Session.Set(SessionKeyDate, DateTime.Now);
+			}
 			if (!HttpContext.Session.Keys.Contains(typeof(RandomData).Name))
-				HttpContext.Session.Set(typeof(RandomData).Name, new RandomData(500, 8000));
+			{
+				any_stored = true;
+				HttpContext.Session.Set(typeof(RandomData).Name, new RandomData(50, 400));
+			}
+
+			if (any_stored)
+				await HttpContext.Session.CommitAsync(HttpContext.RequestAborted);
 
 			return await Task.FromResult(View());
 		}
@@ -55,6 +73,8 @@ namespace DotnetPlayground.Controllers
 
 		public async Task<IActionResult> Contact()
 		{
+			await HttpContext.Session.LoadAsync(HttpContext.RequestAborted);
+		
 			var name = HttpContext.Session.GetString(SessionKeyName);
 			var yearsMember = HttpContext.Session.GetInt32(SessionKeyYearsMember);
 
@@ -99,7 +119,7 @@ namespace DotnetPlayground.Controllers
 			}
 		}
 
-		public async Task<IActionResult> Error([FromServices]BloggingContext dbContext, int statusCode)
+		public async Task<IActionResult> Error([FromServices] BloggingContext dbContext, int statusCode)
 		{
 			if (statusCode <= 0)
 				statusCode = Response.StatusCode;
@@ -123,7 +143,7 @@ namespace DotnetPlayground.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> ClientsideLog([FromServices]BloggingContext dbContext,
+		public async Task<IActionResult> ClientsideLog([FromServices] BloggingContext dbContext,
 			LogLevel? level, string message, string url, string line, string col, string error)
 		{
 			switch (level.GetValueOrDefault(LogLevel.None))
@@ -158,7 +178,7 @@ namespace DotnetPlayground.Controllers
 			}, token);
 
 			await dbContext.SaveChangesAsync(token);
-			
+
 			var ok = Ok();
 			return await Task.FromResult(ok);
 		}
@@ -236,7 +256,7 @@ namespace DotnetPlayground.Controllers
 		}
 
 		[HttpPost("/CspReport")]
-		public async Task<IActionResult> CspReport([FromServices]BloggingContext dbContext,
+		public async Task<IActionResult> CspReport([FromServices] BloggingContext dbContext,
 			[FromBody] CspReportRequest cspReportRequest)
 		{
 			_logger.LogWarning("CSP Violation -> documentUri: {documentUri}, blockedUri: {blockedUri}, sourceFile: {sourceFile}",
@@ -254,7 +274,7 @@ namespace DotnetPlayground.Controllers
 			}, token);
 
 			await dbContext.SaveChangesAsync(token);
-			
+
 			return await Task.FromResult(Ok());
 		}
 	}
