@@ -50,7 +50,7 @@
 		<PackageReference Include="Lib.AspNetCore.ServerTiming" Version="6.0.0" />
 		<!--<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.16.2" Condition="$(DefineConstants.Contains('INCLUDE_COSMOSDB'))" />-->
 		<PackageReference Include="MongoDB.Driver" Version="3.5.2" Condition="$(DefineConstants.Contains('INCLUDE_MONGODB'))" />
-		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.73.0.3981" />
+		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.73.0.4022" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="9.0.11" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.11" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="9.0.11" />
