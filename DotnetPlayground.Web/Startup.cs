@@ -363,7 +363,7 @@ namespace DotnetPlayground
                 //options.RootPathBase = Configuration["AppRootPath"].TrimEnd('/');
                 options.TitleNavBarLinkTarget = Configuration["AppRootPath"];
             })
-            .AddIdentityMangerService<AspNetCoreIdentityManagerService<ApplicationUser, string, IdentityRole, string>>();
+            .AddIdentityMangerService<MyAspNetCoreIdentityManagerService<ApplicationUser, string, IdentityRole, string>>();
         }
 
         private void UseProxyForwardingAndDomainPathHelper(IApplicationBuilder app)
