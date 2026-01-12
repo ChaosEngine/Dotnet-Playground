@@ -19,10 +19,10 @@ case $1 in
 			;;
 
     "arm64"|"aarch64")
-				image="latest";
-				dockerfile_name="Dockerfile";
-				base_image_variant="bookworm-slim-arm64v8";
-				runtime_id="linux-arm64";
+				image="alpine";
+				dockerfile_name="Dockerfile.alpine";
+				base_image_variant="alpine-arm64v8";
+				runtime_id="linux-musl-arm64";
 				echo "image would be $image";
 			;;
 			
