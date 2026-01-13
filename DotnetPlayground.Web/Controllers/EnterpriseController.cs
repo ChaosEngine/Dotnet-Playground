@@ -72,7 +72,11 @@ namespace DotnetPlayground.Controllers
             catch (Exception ex)
             {
                 // Handle the exception (e.g., log it)
-                _logger.LogWarning(ex, "Failed to decode base64 code: {code}", code);
+                var sanitizedCode = code?
+                    .Replace("\r\n", string.Empty)
+                    .Replace("\n", string.Empty)
+                    .Replace("\r", string.Empty);
+                _logger.LogWarning(ex, "Failed to decode base64 code: {code}", sanitizedCode);
             }
 
             var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("secret-key-must-be-at-least-256-bits-long-long-long-long-long-long"));
