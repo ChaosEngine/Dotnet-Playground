@@ -395,11 +395,12 @@ window.addEventListener(/* 'DOMContentLoaded' */'load', function () {
 	}
 
 	////////////execution/////////////
-	if (window.registerLocalizationOnReady && Array.isArray(window.registerLocalizationOnReady)) {
-		window.registerLocalizationOnReady.push(i18nLocalizeFunc => {
-			const localize = typeof i18nLocalizeFunc === "function" ? i18nLocalizeFunc : undefined;
-
+	if (!window.localize && window.registerLocalizationOnReady && Array.isArray(window.registerLocalizationOnReady)) {
+		window.registerLocalizationOnReady.push(localize => {
 			RunPage(localize);
 		});
+	}
+	else {
+		RunPage(window.localize);
 	}
 });

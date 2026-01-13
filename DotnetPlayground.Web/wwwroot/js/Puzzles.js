@@ -20,7 +20,7 @@ function PuzzlesOnLoad() {
 
 		const rotation = $("#rotation").val();
 		$("#target").css("--trans", "scale(" + size * 0.01 + ") rotateZ(" + rotation + "deg)");
-	})[0].focus();
+	}).first().trigger('change');
 
 	$("#rangeSize, #rotation").on('change', function () {
 		const size = $("#rangeSize").val();

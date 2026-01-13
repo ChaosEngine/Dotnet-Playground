@@ -2,10 +2,10 @@
 @inject Microsoft.Extensions.Configuration.IConfiguration Conf
 @using DotnetPlayground.Controllers
 @{
-    ViewBag.Title = "Blogs";
+    ViewBag.Title = "nav.items.blogs.name";
 }
 
-<h2>@ViewData["Title"]</h2>
+<h2>Blogs</h2>
 <p>
     <a href="~/@(BlogsController.ASPX)/@(nameof(BlogsController.Create))">Create New</a>
 </p>

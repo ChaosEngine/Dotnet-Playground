@@ -3,25 +3,25 @@
 @inject MySignInManager SignInManager
 @model LogoutModel
 @{
-    ViewData["Title"] = "Log out";
+    ViewData["Title"] = "logout.title";
 }
 
 @if (!SignInManager.IsSignedIn(User))
 {
 <header>
-    <h1>@ViewData["Title"]</h1>
-    <p>You have successfully logged out of the application. Click <a href="~/Identity/Account/Login">here</a> to log in again.</p>
+    <h1 data-i18n="logout.title">Log out</h1>
+    <p data-i18n="[html]logout.successMessage">You have successfully logged out of the application. Click <a href="Identity/Account/Login">here</a> to log in again.</p>
 </header>
 }
 else
 {
 <header>
-    <h1>@ViewData["Title"]</h1>
+    <h1 data-i18n="logout.title">Log out</h1>
 
     <form action="~/Identity/Account/Logout" method="post">
         <p>
-            You can log out here
-            <button type="submit" class="btn btn-primary">Logout</button>
+            <span data-i18n="logout.canLogoutHere">You can log out here</span>
+            <button type="submit" class="btn btn-primary" data-i18n="logout.logoutButton">Logout</button>
         </p>
     </form>
 </header>    

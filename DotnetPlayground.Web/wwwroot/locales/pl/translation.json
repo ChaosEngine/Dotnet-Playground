@@ -70,7 +70,8 @@
 				"long": "Praca w toku",
 				"puzzle": "Generator puzzli",
 				"beep": "Eksperyment dźwiękowy",
-				"importCsv": "Importuj CSV"
+				"importCsv": "Importuj CSV",
+				"enterprise": "Logowanie firmowe"
 			}
 		}
 	},
@@ -82,6 +83,42 @@
 	},
 	"footer": {
 		"noscript": "Twoja przeglądarka nie wspiera JavaScriptu! SERIO?!"
+	},
+	"error": {
+		"title": "Błąd",
+		"400": "Nieprawidłowe żądanie: Żądanie nie może zostać spełnione z powodu błędnej składni",
+		"403": "Zabronione",
+		"404": "Strona nie znaleziona",
+		"408": "Przekroczono limit czasu oczekiwania na żądanie",
+		"500": "Błąd wewnętrzny serwera - serwer nie był w stanie zakończyć przetwarzania żądania",
+		"503": "Usługa niedostępna - Serwer jest obecnie niedostępny (ponieważ jest przeciążony lub wyłączony w celu konserwacji). Zazwyczaj jest to stan tymczasowy",
+		"unknown": "To dziwne... Wydarzyło się coś, czego się nie spodziewaliśmy 😱"
+	},
+	"login": {
+		"title": "Zaloguj się",
+		"useLocalAccount": "Użyj lokalnego konta, aby się zalogować.",
+		"email": "Email",
+		"emailPlaceholder": "Wprowadź swój email",
+		"password": "Hasło",
+		"passwordPlaceholder": "Wprowadź swoje hasło",
+		"rememberMe": "Zapamiętaj mnie",
+		"loginButton": "Zaloguj się",
+		"forgotPassword": "Zapomniałeś hasła?",
+		"registerNewUser": "Zarejestruj się jako nowy użytkownik",
+		"useExternalService": "Użyj innej usługi do logowania.",
+		"noExternalServices": "Nie skonfigurowano żadnych zewnętrznych usług uwierzytelniania. Zobacz <a href='https://go.microsoft.com/fwlink/?LinkID=532715'>ten artykuł</a>, aby uzyskać szczegółowe informacje na temat konfigurowania tej aplikacji ASP.NET do obsługi logowania za pośrednictwem usług zewnętrznych.",
+		"noAccount": "Nie masz konta?",
+		"register": "Zarejestruj się",
+		"requiredField": "To pole jest wymagane",
+		"invalidEmail": "Proszę wprowadzić prawidłowy adres email"
+	},
+	"logout": {
+		"title": "Wyloguj się",
+		"successMessage": "Pomyślnie wylogowałeś się z aplikacji. Kliknij <a href='Login'>tutaj</a>, aby zalogować się ponownie.",
+		"canLogoutHere": "Możesz się tutaj wylogować",
+		"logoutButton": "Wyloguj",
+		"message": "Zostałeś wylogowany.",
+		"loginAgain": "Zaloguj się ponownie"
 	},
 	"puzzles": {
 		"title": "Generator Puzzli",

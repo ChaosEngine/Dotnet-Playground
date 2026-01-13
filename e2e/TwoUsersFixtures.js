@@ -1,4 +1,4 @@
-import { test as base/* , Page, Browser, Locator */ } from '@playwright/test';
+// import { test as base/* , Page, Browser, Locator */ } from '@playwright/test';
 export { expect } from '@playwright/test';
 
 export const FixtureUsers = [
@@ -20,37 +20,41 @@ export class PlaywrightUser {
 	/**
 	 * Creates and logs user to browser with possible previous browser storageStare
 	 * @param {import('@playwright/test').Browser} browser browser object
+	 * @param {string} locale locale for the browser context
 	 * @param {string} userName user name of logged on user
 	 * @returns {PlaywrightUser} created user class
 	 */
-	static async create(browser, userName) {
+	static async create(browser, locale, userName) {
 		const context = await browser.newContext({
 			ignoreHTTPSErrors: true,
-			storageState: `./e2e/storageStates/${userName}-storageState.json`
+			storageState: `./e2e/storageStates/${userName}-storageState.json`,
+			locale: locale
 		});
-		const page = await context.newPage();
+		const page = await context.newPage({ locale: locale });
 
 		return new PlaywrightUser(page, userName);
 	}
 }
 
+
+/*
 // Extend base test by providing "Playwright1" and "Playwright2".
 // This new "test" can be used in multiple test files, and each of them will get the fixtures.
 export const test = base.extend(
 	{
 		Playwright1: async ({ browser }, use) => {
-			await use(await PlaywrightUser.create(browser, FixtureUsers[0].userName));
+			await use(await PlaywrightUser.create(browser, use.locale, FixtureUsers[0].userName));
 		},
 		Playwright2: async ({ browser }, use) => {
-			await use(await PlaywrightUser.create(browser, FixtureUsers[1].userName));
+			await use(await PlaywrightUser.create(browser, use.locale, FixtureUsers[1].userName));
 		}
 	}
 
 	// Object.fromEntries(
 	// 	Object.entries(FixtureUsers)
-	// 		.map(([/* key */, val]) => [val.userName, async ({ browser }, use) => {
-	// 			await use(await PlaywrightUser.create(browser, val.userName));
+	// 		.map(([_key, val]) => [val.userName, async ({ browser }, use) => {
+	// 			await use(await PlaywrightUser.create(browser, use.locale, val.userName));
 	// 		}])
 	// )
 );
-
+ */

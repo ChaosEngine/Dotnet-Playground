@@ -1,0 +1,31 @@
+﻿@{
+	ViewBag.Title = "nav.items.wip.enterprise";
+	string username = base.User?.Identity?.Name ?? "anonymous";
+}
+
+<h2>Enterprise login of some kind</h2>
+<p>
+	Login test page for <code>/enterprise</code> auth code callback parameter extraction for user
+	<strong id="userName">@username</strong>
+</p>
+
+<div class="row mb-3">
+	<label for="authcodecallback" class="col-sm-3 col-form-label">Auth Code Callback param</label>
+	<div class="col-sm-12">
+		<input type="text" id="authcodecallback" name="authcodecallback" value=" - " class="form-control" />
+	</div>
+	<div class="col-auto mt-3">
+		<button id="submitBtn" type="submit" class="btn btn-primary" style="display:none">Submit login</button>
+	</div>
+</div>
+
+
+@section scripts
+{
+<environment include="Development">
+	<script type="text/javascript" src="~/js/Enterprise.js" asp-append-version="true"></script>
+</environment>
+<environment exclude="Development">
+	<script type="text/javascript" src="~/js/Enterprise.min.js" asp-append-version="true"></script>
+</environment>
+}

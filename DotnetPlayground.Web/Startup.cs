@@ -363,7 +363,7 @@ namespace DotnetPlayground
                 //options.RootPathBase = Configuration["AppRootPath"].TrimEnd('/');
                 options.TitleNavBarLinkTarget = Configuration["AppRootPath"];
             })
-            .AddIdentityMangerService<AspNetCoreIdentityManagerService<ApplicationUser, string, IdentityRole, string>>();
+            .AddIdentityMangerService<MyAspNetCoreIdentityManagerService<ApplicationUser, string, IdentityRole, string>>();
         }
 
         private void UseProxyForwardingAndDomainPathHelper(IApplicationBuilder app)
@@ -534,7 +534,23 @@ namespace DotnetPlayground
 
                 main.UseEndpoints(endpoints =>
                 {
-                    endpoints.MapStaticAssets();
+                    endpoints.MapStaticAssets().Add(endpointBuilder =>
+                    {
+                        var original = endpointBuilder.RequestDelegate;
+
+                        endpointBuilder.RequestDelegate = async ctx =>
+                        {
+                            ctx.Response.OnStarting(() =>
+                            {
+                                var h = ctx.Response.Headers;
+                                h.Remove("Cache-Control");
+                                return Task.CompletedTask;
+                            });
+
+                            if (original is not null)
+                                await original(ctx);
+                        };
+                    });
                     endpoints.PrepareSignalRForInkBall("/");
                     endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
                     endpoints.MapRazorPages()

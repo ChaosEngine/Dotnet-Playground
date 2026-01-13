@@ -1,13 +1,15 @@
 # syntax = docker/dockerfile:experimental
-FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
+ARG BASE_IMAGE_VARIANT=alpine
+FROM mcr.microsoft.com/dotnet/sdk:9.0-${BASE_IMAGE_VARIANT} AS build
 RUN --mount=type=cache,target=/root/.nuget --mount=type=cache,target=/root/.local/ --mount=type=cache,target=/root/.cache/ --mount=type=cache,target=./node_modules
-RUN apk add --update nodejs pnpm
+RUN apk add --update npm bash && npm i -g bun
 WORKDIR /build
 
 ENV DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/net9.0/Blogging.db"
 ARG SOURCE_COMMIT
 ARG SOURCE_BRANCH
 ARG BUILD_CONFIG=${BUILD_CONFIG:-Release}
+ARG RUNTIME_ID=${RUNTIME_ID:-linux-musl-x64}
 
 COPY ./InkBall/src/InkBall.Module/InkBall.Module.csproj ./InkBall/src/InkBall.Module/InkBall.Module.csproj
 COPY ./InkBall/test/InkBall.Tests/InkBall.Tests.csproj ./InkBall/test/InkBall.Tests/InkBall.Tests.csproj
@@ -19,25 +21,27 @@ COPY ./IdentityManager2/src/IdentityManager2/IdentityManager2.csproj ./IdentityM
 COPY ./IdentityManager2/src/IdentityManager2/Assets/ ./IdentityManager2/src/IdentityManager2/Assets/
 COPY ./DotnetPlayground.Web/DotnetPlayground.Web.csproj ./DotnetPlayground.Web/DotnetPlayground.Web.csproj
 COPY ./*.sln ./NuGet.config ./
-RUN dotnet restore -r linux-musl-x64 /p:Configuration=Release
+RUN dotnet restore -r $RUNTIME_ID /p:Configuration=Release
 
 COPY . .
 RUN sed -i -e "s/GIT_HASH/$SOURCE_COMMIT/g" -e "s/GIT_BRANCH/$SOURCE_BRANCH/g" DotnetPlayground.Web/wwwroot/js/site.js
 RUN dotnet test -v m
-RUN pnpm install --prod --unsafe-perm
-RUN dotnet publish -c $BUILD_CONFIG --self-contained -r linux-musl-x64 DotnetPlayground.Web
+RUN bun install --prod --unsafe-perm
+RUN dotnet publish -c $BUILD_CONFIG --self-contained -r $RUNTIME_ID DotnetPlayground.Web
 
 
 
 
 
-FROM mcr.microsoft.com/dotnet/runtime-deps:9.0-alpine
+ARG BASE_IMAGE_VARIANT=alpine
+FROM mcr.microsoft.com/dotnet/runtime-deps:9.0-${BASE_IMAGE_VARIANT}
 RUN apk add tzdata && \
 	ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 WORKDIR /app
 ENV USER=nobody
 ARG BUILD_CONFIG=${BUILD_CONFIG:-Release}
-COPY --from=build --chown="$USER":"$USER" /build/DotnetPlayground.Web/bin/$BUILD_CONFIG/net9.0/linux-musl-x64/publish/ /build/startApp.sh ./
+ARG RUNTIME_ID=${RUNTIME_ID:-linux-musl-x64}
+COPY --from=build --chown="$USER":"$USER" /build/DotnetPlayground.Web/bin/$BUILD_CONFIG/net9.0/$RUNTIME_ID/publish/ /build/startApp.sh ./
 
 USER "$USER"
 

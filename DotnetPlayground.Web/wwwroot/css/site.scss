@@ -34,6 +34,10 @@ body {
 	padding-top: 4.5rem;
 }
 
+.dropdown-menu{
+	border-radius: unset;
+}
+
 /* overriding Bootstrap-5 underlined links and others */
 a {
 	text-decoration: none;
@@ -145,22 +149,22 @@ footer.container > noscript {
 
 	& button[title='en'] > img,
 	& img[title='en'] {
-		content: svg-url.svg-url('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480"><path fill="#012169" d="M0 0h640v480H0z"/><path fill="#FFF" d="m75 0 244 181L562 0h78v62L400 241l240 178v61h-80L320 301 81 480H0v-60l239-178L0 64V0z"/><path fill="#C8102E" d="m424 281 216 159v40L369 281zm-184 20 6 35L54 480H0zM640 0v3L391 191l2-44L590 0zM0 0l239 176h-60L0 42z"/><path fill="#FFF" d="M241 0v480h160V0zM0 160v160h640V160z"/><path fill="#C8102E" d="M0 193v96h640v-96zM273 0v480h96V0z"/></svg>');
+		content: svg-url.svg-url('<svg xmlns="http://www.w3.org/2000/svg" viewBox="5 5 50 20"><path d="m0 0v30h60v-30z" fill="#012169"/><path d="m0 0 60 30m0-30-60 30" stroke="#fff" stroke-width="6"/><path d="m0 0 60 30m0-30-60 30" stroke="#c8102e" stroke-width="4"/><path d="m30 0v30m-30-15h60" stroke="#fff" stroke-width="9"/><path d="m30 0v30m-30-15h60" stroke="#c8102e" stroke-width="6"/></svg>');
 		display: inline-block;
 		/* background-repeat: no-repeat;
 		background-position: center; */
 		width: 2em;
-		height: 1em;
+		height: 1.2em;
 	}
 
 	& button[title='pl'] > img,
 	& img[title='pl'] {
-		content: svg-url.svg-url('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 5"><rect width="8" height="5" fill="red"/><rect width="8" height="2.5" fill="#fff"/></svg>');
+		content: svg-url.svg-url('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 2"><rect width="4" height="2" fill="red"/><rect width="4" height="1" fill="#fff"/></svg>');
 		display: inline-block;
 		/* background-repeat: no-repeat;
 		background-position: center; */
 		width: 2em;
-		height: 1em;
+		height: 1.2em;
 	}
 	
 }
@@ -294,8 +298,7 @@ Theme switcher:
 	//https://christianheilmann.com/2021/02/08/sharing-data-between-css-and-javascript-using-custom-properties/
 	#target
 	{
-		--bimg: url('../images/puzzles/fond-puzzle.svg');
-		// --trans: scale(2) rotateZ(180deg);
+		// --bimg: url('../images/puzzles/fond-puzzle.svg');
 
 		position: relative;
 		overflow: hidden;
@@ -345,9 +348,9 @@ Theme switcher:
 /***social login svg icons***/
 .registered-logins td, #external-account button {
 	background-repeat: no-repeat;
-  	// background-size: contain;
+	background-position-x: center;
 	border:none;
-	width:80px; height:72px
+	width:5em; height:5em
 }
 
 .warn-icon::before {
@@ -364,14 +367,15 @@ Http status codes:
  - Client error responses (400 – 499)
  - Server error responses (500 – 599)
 */
-.error > h1
-.s-400, .s-401, .s-402, .s-403, .s-404, .s-405, .s-406, .s-407, .s-408, .s-409, .s-410, .s-411, .s-412, .s-413, .s-414, .s-415, .s-416, .s-417, .s-418, .s-421, .s-422, .s-423, .s-424, .s-425, .s-426, .s-428, .s-429, .s-431, .s-451 {
-	color: orange;
-}
-.error > h1
-.s-500, .s-501, .s-502, .s-503, .s-504, .s-505, .s-506, .s-507, .s-508, .s-510, .s-511 {
-	color: red;
-	animation: blinkMe 1s linear infinite;
+.error > h1 {
+	& [class*="s-4"] {
+		color: orange;
+	}
+
+	& [class*="s-5"] {
+		color: red;
+		animation: blinkMe 1s linear infinite;
+	}
 }
 @keyframes blinkMe {
 	0% {

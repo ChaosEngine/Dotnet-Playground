@@ -1,7 +1,7 @@
 @page
 @model LoginModel
 @{
-	ViewData["Title"] = "Log in";
+	ViewData["Title"] = "login.title";
 }
 
 @section headElements
@@ -14,41 +14,42 @@
     </environment>
 }
 
-<h2>@ViewData["Title"]</h2>
+<h2 data-i18n="login.title">Log in</h2>
 <div class="row">
 	<div class="col-md-6">
 		<section>
-			<h4>Use a local account to log in.</h4>
+			<h4 data-i18n="login.useLocalAccount">Use a local account to log in.</h4>
 			<hr />
 			<form id="account" method="post" class="row g-3">
 				<div asp-validation-summary="All" class="text-danger"></div>
 				<div class="form-group">
-					<label asp-for="Input.Email" class="form-label"></label>
-					<input asp-for="Input.Email" class="form-control" />
+					<label asp-for="Input.Email" class="form-label" data-i18n="login.email"></label>
+					<input asp-for="Input.Email" class="form-control" data-i18n="[placeholder]login.emailPlaceholder" required type="email" />
 					<span asp-validation-for="Input.Email" class="text-danger"></span>
 				</div>
 				<div class="form-group">
-					<label asp-for="Input.Password" class="form-label"></label>
-					<input asp-for="Input.Password" class="form-control" />
+					<label asp-for="Input.Password" class="form-label" data-i18n="login.password"></label>
+					<input asp-for="Input.Password" class="form-control" data-i18n="[placeholder]login.passwordPlaceholder" required type="password" minlength="6" />
 					<span asp-validation-for="Input.Password" class="text-danger"></span>
 				</div>
 				<div class="form-group">
 					<div class="checkbox">
 						<label asp-for="Input.RememberMe" class="form-label">
 							<input class="form-check-input" asp-for="Input.RememberMe" />
-							@Html.DisplayNameFor(m => m.Input.RememberMe)
+							@* @Html.DisplayNameFor(m => m.Input.RememberMe) *@
+							<span data-i18n="login.rememberMe">Remember me?</span>
 						</label>
 					</div>
 				</div>
 				<div class="form-group">
-					<button type="submit" class="btn btn-primary">Log in</button>
+					<button type="submit" class="btn btn-primary" data-i18n="login.loginButton">Log in</button>
 				</div>
 				<div class="form-group">
 					<p>
-						<a id="forgot-password" href="ForgotPassword">Forgot your password?</a>
+						<a id="forgot-password" href="ForgotPassword" data-i18n="login.forgotPassword">Forgot your password?</a>
 					</p>
 					<p>
-						<a href="~/Identity/Account/Register?returnUrl=@Model.ReturnUrl">Register as a new user</a>
+						<a href="~/Identity/Account/Register?returnUrl=@Model.ReturnUrl" data-i18n="login.registerNewUser">Register as a new user</a>
 					</p>
 				</div>
 			</form>
@@ -56,13 +57,13 @@
 	</div>
 	<div class="col-md-6">
 		<section>
-			<h4>Use another service to log in.</h4>
+			<h4 data-i18n="login.useExternalService">Use another service to log in.</h4>
 			<hr />
 			@{
 				if ((Model.ExternalLogins?.Count ?? 0) == 0)
 				{
 					<div>
-						<p>
+						<p data-i18n="[html]login.noExternalServices">
 							There are no external authentication services configured. See <a href="https://go.microsoft.com/fwlink/?LinkID=532715">this article</a>
 							for details on setting up this ASP.NET application to support logging in via external services.
 						</p>
@@ -98,7 +99,3 @@
 		</section>
 	</div>
 </div>
-@section Scripts
-{
-	<partial name="_ValidationScriptsPartial" />
-}

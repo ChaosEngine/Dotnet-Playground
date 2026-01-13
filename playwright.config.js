@@ -47,7 +47,9 @@ const config = {
 		/* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
 		trace: 'on-first-retry',
 		// Tell all tests to load signed-in state from 'storageState.json'.
-		storageState: './e2e/storageStates/'
+		storageState: './e2e/storageStates/',
+		// Set locale to US English, safe for number and date formats used in tests
+		locale: 'en-US'
 	},
 
 	/* Configure projects for major browsers */

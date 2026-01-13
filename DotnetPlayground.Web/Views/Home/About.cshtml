@@ -1,7 +1,7 @@
 ﻿@{
-	ViewData["Title"] = "About";
+	ViewData["Title"] = "nav.items.main.about";
 }
-<h2>@ViewData["Title"].</h2>
+<h2>About</h2>
 <h3>@ViewData["Message"]</h3>
 
 <p>
@@ -89,7 +89,7 @@
 
 
 		<h2>Children's Privacy</h2>
-		<p>Our Service does not address anyone neccessarily over the age of 18 ("not Children").</p>
+		<p>Our Service does not address anyone necessarily over the age of 18 ("not Children").</p>
         <p>Still, we do not knowingly collect personally identifiable information from anyone under the age of 18. If you are a parent or guardian and you are aware that your Children has provided us with Personal Data, please contact us. If we become aware that we have collected Personal Data from children without verification of parental consent, on request we can take steps to remove that information from our servers.</p>
 
 
@@ -100,10 +100,25 @@
 	</div>
 </div>
 
-<p id="branchHash">
+<p id="hashesLnk">
 	BRANCH = <a href="https://github.com/ChaosEngine/Dotnet-Playground/commits/" target="_blank"><strong></strong></a>,
 	HASH = <a href="https://github.com/ChaosEngine/Dotnet-Playground/commit/" target="_blank"><strong></strong></a>
 </p>
+
+@section scripts
+{
 <script type="text/javascript">
-	window.addEventListener('load', () => handleAboutPageBranchHash());
+window.addEventListener('load', () => {
+	const anchors = $('#hashesLnk > a');
+	if (anchors.length > 1) {
+		let lnk = anchors.first();
+		lnk.attr('href', lnk.attr('href') + g_gitBranch);
+		lnk.find('strong').text(g_gitBranch);
+			
+		lnk = anchors.last();
+		lnk.attr('href', lnk.attr('href') + g_gitHash);
+		lnk.find('strong').text(g_gitHash);
+	}
+});
 </script>
+}

@@ -1,52 +1,26 @@
 ﻿@model int
 @{
-	ViewData["Title"] = "Error";
-
-	string status_message = "";
-	switch (Model)
-	{
-		case Microsoft.AspNetCore.Http.StatusCodes.Status400BadRequest:
-			status_message = "Bad request: The request cannot be fulfilled due to bad syntax";
-			break;
-
-		case Microsoft.AspNetCore.Http.StatusCodes.Status403Forbidden:
-			status_message = "Forbidden";
-			break;
-
-		case Microsoft.AspNetCore.Http.StatusCodes.Status404NotFound:
-			status_message = "Page not found";
-			break;
-
-		case Microsoft.AspNetCore.Http.StatusCodes.Status408RequestTimeout:
-			status_message = "The server timed out waiting for the request";
-			break;
-
-		case Microsoft.AspNetCore.Http.StatusCodes.Status500InternalServerError:
-			status_message = "Internal Server Error - server was unable to finish processing the request";
-			break;
-
-		case Microsoft.AspNetCore.Http.StatusCodes.Status503ServiceUnavailable:
-			status_message = "Service unavailable - The server is currently unavailable (because it is overloaded or down for maintenance). Generally, this is a temporary state";
-			break;
-
-		default:
-			status_message = "That’s odd... Something we didn't expect happened";
-			break;
-	}
+	ViewData["Title"] = "error.title";
 }
 
-@*<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
-
-<h3>Development Mode</h3>
-<p>
-	Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
-</p>
-<p>
-	<strong>Development environment should not be enabled in deployed applications</strong>, as it can result in sensitive information from exceptions being displayed to end users. For local debugging, development environment can be enabled by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>, and restarting the application.
-</p>*@
-
 <div class="error">
-	<h1 class="display-5 fw-bold">Error <span class="s-@Model">@Model</span></h1>
-	<h3>@status_message</h3>
+	<h1 class="display-5 fw-bold"><span data-i18n="error.title">Error</span> <span class="s-@Model">@Model</span></h1>
+	<h3></h3>
 </div>
+
+<script type="text/javascript">
+window.addEventListener('load', () => {
+	function execute(localize) {
+		const key = i18next.exists('error.@Model') ? 'error.@Model' : 'error.unknown';
+		document.querySelector('.error h3').setAttribute('data-i18n', key);
+		localize('.error');
+	}
+	if (!window.localize && window.registerLocalizationOnReady && Array.isArray(window.registerLocalizationOnReady)) {
+		window.registerLocalizationOnReady.push((localize) => {
+			execute(localize);
+		});
+	}
+	else
+		execute(window.localize);
+});
+</script>

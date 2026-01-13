@@ -5,27 +5,22 @@ import gulp from 'gulp';
 
 import process from 'node:process';
 import fs from 'node:fs/promises';
-// import { fileURLToPath } from 'url';
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
+import path from 'node:path';
 
 import * as dartSass from 'sass';
 import gulpSass from 'gulp-sass';
 const sass = gulpSass(dartSass);
 
 import replace from 'gulp-replace';
-import glob from "tiny-glob";
 import concat from "gulp-concat";
 import cleanCSS from "@aptuitiv/gulp-clean-css";
 import terser from "gulp-terser";
 //import babel from "gulp-babel",
 import rename from "gulp-rename";
 import sourcemaps from 'gulp-sourcemaps';
-import path from 'path';
 import webpack from 'webpack-stream';
-// import esmWebpackPlugin from '@purtuga/esm-webpack-plugin';
-import workerPlugin from 'worker-plugin';
-import TerserPlugin from 'terser-webpack-plugin';
+// import workerPlugin from 'worker-plugin';
+// import TerserPlugin from 'terser-webpack-plugin';
 import jsonMinify from 'gulp-json-minify';
 
 const webroot = "./DotnetPlayground.Web/wwwroot/";
@@ -73,12 +68,15 @@ const minCSS = function (sourcePattern, notPattern, dest) {
 };
 
 const rimraf = async function (globPattern) {
-	const found_files = await glob(globPattern);
+	//const found_files = await glob(globPattern);
+	let found_files = [];
+	for await (const file of fs.glob(globPattern))
+		found_files.push(file);
 
-	found_files.forEach(async file => {
+	await Promise.all(found_files.map(file => {
 		// console.log(file);
-		await fs.rm(file);
-	});
+		return fs.rm(file);
+	}));
 };
 
 ////////////// [Inkball Section] //////////////////
@@ -89,9 +87,6 @@ const inkballEntryPoint = function (min) {
 		//paths.inkBallJsRelative + 'shared.js',
 		//paths.inkBallJsRelative + 'AISource.js'
 	]).pipe(webpack({
-		// resolve: {
-		// 	modules: ['node_modules', `../../../../../${path.basename(__dirname)}/node_modules`]
-		// },
 		entry: {
 			'inkball': [
 				//'@babel/polyfill',
@@ -122,12 +117,12 @@ const inkballEntryPoint = function (min) {
 			}]
 		},
 		optimization: {
-			minimize: min,
-			minimizer: [
-				new TerserPlugin({
-					extractComments: false
-				})
-			]
+			minimize: min
+			//, minimizer: [
+			// 	new TerserPlugin({
+			// 		extractComments: false
+			// 	})
+			// ]
 		},
 		performance: {
 			hints: process.env.NODE_ENV === 'production' ? "warning" : false
@@ -142,9 +137,6 @@ const inkballEntryPoint = function (min) {
 const inkballAIWorker = function (doPollyfill) {
 	return gulp.src(paths.inkBallJsRelative + "AIWorker.js")
 		.pipe(webpack({
-			// resolve: {
-			// 	modules: ['node_modules', `../../../../../${path.basename(__dirname)}/node_modules`]
-			// },
 			entry: {
 				'AIWorker': doPollyfill === true ? [
 					'@babel/polyfill',
@@ -157,13 +149,12 @@ const inkballAIWorker = function (doPollyfill) {
 			output: {
 				filename: doPollyfill === true ? '[name].PolyfillBundle.js' : '[name].Bundle.js'
 			},
-			plugins: [
-				//new esmWebpackPlugin(),
-				new workerPlugin({
-					// use "self" as the global object when receiving hot updates.
-					globalObject: 'self' // <-- this is the default value
-				})
-			],
+			// plugins: [
+			// 	new workerPlugin({
+			// 		// use "self" as the global object when receiving hot updates.
+			// 		globalObject: 'self' // <-- this is the default value
+			// 	})
+			// ],
 			module: doPollyfill === true ? {
 				rules: [{
 					use: {
@@ -180,12 +171,12 @@ const inkballAIWorker = function (doPollyfill) {
 				}]
 			} : {},
 			optimization: {
-				// minimize: true,
-				minimizer: [
-					new TerserPlugin({
-						extractComments: false
-					})
-				]
+				minimize: true
+				//, minimizer: [
+				//	new TerserPlugin({
+				//		extractComments: false
+				//	})
+				//]
 			},
 			performance: {
 				hints: process.env.NODE_ENV === 'production' ? "warning" : false
@@ -427,7 +418,7 @@ const postinstall = async (cb) => {
 			return false;
 		}
 	});
-	
+
 	file_copy(`${nm}/bootstrap-table/dist/bootstrap-table.min.css`, `${dst}bootstrap-table/bootstrap-table.min.css`);
 	file_copy(`${nm}/bootstrap-table/dist/bootstrap-table.min.js`, `${dst}bootstrap-table/bootstrap-table.min.js`);
 
@@ -492,12 +483,16 @@ const postinstall = async (cb) => {
 	file_copy(`${nm}/ace-builds/src-min-noconflict/mode-csharp.js`, `${dst}ace-builds/mode-csharp.js`);
 	file_copy(`${nm}/ace-builds/src-min-noconflict/theme-chaos.js`, `${dst}ace-builds/theme-chaos.js`);
 	file_copy(`${nm}/ace-builds/src-min-noconflict/ext-searchbox.js`, `${dst}ace-builds/ext-searchbox.js`);
+	file_copy(`${nm}/ace-builds/src-min-noconflict/ext-settings_menu.js`, `${dst}ace-builds/ext-settings_menu.js`);
 	dir_copy(`${nm}/chance/dist`, `${dst}chance`);
 
 	file_copy(`${nm}/i18next/i18next.min.js`, `${dst}i18next/i18next.min.js`);
 	file_copy(`${nm}/loc-i18next/loc-i18next.min.js`, `${dst}loc-i18next/loc-i18next.min.js`);
 	file_copy(`${nm}/i18next-http-backend/i18nextHttpBackend.min.js`, `${dst}i18next-http-backend/i18nextHttpBackend.min.js`);
 	file_copy(`${nm}/i18next-browser-languagedetector/i18nextBrowserLanguageDetector.min.js`, `${dst}i18next-browser-languagedetector/i18nextBrowserLanguageDetector.min.js`);
+	file_copy(`${nm}/i18next-localstorage-backend/i18nextLocalStorageBackend.min.js`, `${dst}i18next-localstorage-backend/i18nextLocalStorageBackend.min.js`);
+	file_copy(`${nm}/i18next-chained-backend/i18nextChainedBackend.min.js`, `${dst}i18next-chained-backend/i18nextChainedBackend.min.js`);
+
 	file_copy(`${nm}/html2canvas/dist/html2canvas.min.js`, `${dst}html2canvas/html2canvas.min.js`);
 
 	await Promise.all(copy_promises);

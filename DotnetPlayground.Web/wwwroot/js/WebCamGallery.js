@@ -37,7 +37,7 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 	 * @param {string} imgType is image type to test support
 	 * @returns {Promise<boolean>} support flag
 	 */
-	async function checkImageFeature(imgType) {
+	function checkImageFeature(imgType) {
 		return new Promise((resolve, reject) => {
 			switch (imgType) {
 				case 'webp':
