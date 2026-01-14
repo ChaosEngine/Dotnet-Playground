@@ -29,6 +29,23 @@ window.addEventListener('load', () => {
 		return null;
 	}
 
+	// Validate that a URL is safe to redirect to (protocol and origin checks).
+	function isSafeRedirectUrl(urlObj) {
+		// Only allow http and https protocols
+		if (urlObj.protocol !== "http:" && urlObj.protocol !== "https:") {
+			return false;
+		}
+		// Optionally restrict to same origin to prevent open redirects
+		try {
+			if (urlObj.origin !== window.location.origin) {
+				return false;
+			}
+		} catch (e) {
+			return false;
+		}
+		return true;
+	}
+
 	// Unicode-safe base64 encoder
 	function base64EncodeUnicode(str) {
 		const bytes = new TextEncoder().encode(str);
@@ -44,6 +61,12 @@ window.addEventListener('load', () => {
 		//localStorage.setItem("authcodecallback", value);
 		// Remove all query params from the URL and reload without them
 		const acc = new URL(value);
+
+		// Ensure the callback URL is safe before using it
+		if (!isSafeRedirectUrl(acc)) {
+			$("#submitBtn").hide();
+			return;
+		}
 
 		// generate a UUID (use crypto.randomUUID)
 		const guid = crypto.randomUUID();
