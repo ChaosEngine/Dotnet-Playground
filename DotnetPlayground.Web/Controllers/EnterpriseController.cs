@@ -117,7 +117,9 @@ namespace DotnetPlayground.Controllers
             var redirectUrl = AppendQueryParameter(authcodecallback, "code", Guid.NewGuid().ToString());
 
             var safeOrgShortName = orgShortName.Replace("\r", " ").Replace("\n", " ");
-            _logger.LogWarning("Generating redirect URL for orgShortName: {orgShortName}, authcodecallback: {authcodecallback}, redirectUrl: {redirectUrl}", safeOrgShortName, authcodecallback, redirectUrl);
+            var safeAuthcodecallback = authcodecallback.Replace("\r", " ").Replace("\n", " ");
+            var safeRedirectUrl = redirectUrl.Replace("\r", " ").Replace("\n", " ");
+            _logger.LogWarning("Generating redirect URL for orgShortName: {orgShortName}, authcodecallback: {authcodecallback}, redirectUrl: {redirectUrl}", safeOrgShortName, safeAuthcodecallback, safeRedirectUrl);
 
             // return Content($"OrgShortName: {orgShortName}, code: {redirectUrl}");
             return Redirect(redirectUrl);
