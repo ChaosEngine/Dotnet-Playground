@@ -429,15 +429,9 @@ const postinstall = async (cb) => {
 			return false;
 		}
 	});
-	dir_copy(`${nm}/jquery/dist`, `${dst}jquery`, async (src) => {
-		if ((await fs.lstat(src)).isDirectory() || src.includes(`jquery.min`)) {
-			// console.log(`T:` + src);
-			return true;
-		} else {
-			// console.log(`F:` + src);
-			return false;
-		}
-	});
+	file_copy(`${nm}/jquery/dist/jquery.min.js`, `${dst}jquery/jquery.min.js`);
+	// file_copy(`${nm}/jquery/dist/jquery.min.map`, `${dst}jquery/jquery.min.map`);
+
 	file_copy(`${nm}/jquery-validation/dist/jquery.validate.min.js`, `${dst}jquery-validation/jquery.validate.min.js`);
 	file_copy(`${nm}/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js`, `${dst}jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js`);
 	dir_copy(`${nm}/blueimp-gallery/img`, `${dst}blueimp-gallery/img`);
