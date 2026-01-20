@@ -8,7 +8,7 @@
 		"@eslint/js": "^9.39.2",
 		"@playwright/test": "^1.57.0",
 		"eslint": "^9.39.2",
-		"eslint-plugin-jsdoc": "^62.1.0",
+		"eslint-plugin-jsdoc": "^62.2.0",
 		"globals": "17.0.0"
 	},
 	"dependencies": {
@@ -33,7 +33,7 @@
 		"html2canvas": "1.4.1",
 		"i18next": "25.7.4",
 		"i18next-browser-languagedetector": "8.2.0",
-		"i18next-chained-backend": "5.0.0",
+		"i18next-chained-backend": "5.0.1",
 		"i18next-http-backend": "3.0.2",
 		"i18next-localstorage-backend": "4.3.1",
 		"javascript-astar": "^0.4.1",
