@@ -1276,7 +1276,6 @@ namespace Integration
 		[InlineData("lib/chance/chance.min.js")]
 		[InlineData("lib/chance/chance.min.js.map")]
 		[InlineData("lib/jquery/jquery.min.js")]
-		[InlineData("lib/jquery/jquery.min.map")]
 		[InlineData("lib/jquery-validation/jquery.validate.min.js")]
 		[InlineData("lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js")]
 		[InlineData("lib/msgpack5/msgpack5.min.js")]
