@@ -8,19 +8,19 @@
 }
 @section headElements
 {
-    <link rel="preload" href="images/no_img.svg" as="image">
+	<link rel="preload" href="images/no_img.svg" as="image">
 	<environment include="Development">
 		<link rel="stylesheet" href="~/lib/blueimp-gallery/css/blueimp-gallery.min.css" />
 		<link rel="stylesheet" href="~/lib/video.js/video-js.min.css" />
 	</environment>
-    <environment exclude="Development">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.4.0/css/blueimp-gallery.min.css" integrity="sha512-8z9zEPEYVxCX7hdM+6hA0RMSW42V+XtqsyXSbNkujXYclFqhRV8J4+MasIpuYZODoHJuQgxGjcRKm//sWEQm6w==" crossorigin="anonymous" 
-              asp-fallback-href="~/lib/blueimp-gallery/css/blueimp-gallery.min.css"
-              asp-fallback-test-class="blueimp-gallery" asp-fallback-test-property="position" asp-fallback-test-value="fixed" />
+	<environment exclude="Development">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.4.0/css/blueimp-gallery.min.css" integrity="sha512-8z9zEPEYVxCX7hdM+6hA0RMSW42V+XtqsyXSbNkujXYclFqhRV8J4+MasIpuYZODoHJuQgxGjcRKm//sWEQm6w==" crossorigin="anonymous" 
+			  asp-fallback-href="~/lib/blueimp-gallery/css/blueimp-gallery.min.css"
+			  asp-fallback-test-class="blueimp-gallery" asp-fallback-test-property="position" asp-fallback-test-value="fixed" />
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/video.js@8.23.4/dist/video-js.min.css" integrity="sha256-aZM6nunxxsAVKRkQNSLoYiISSWTiGV0o6y0MBDwm9Zw=" crossorigin="anonymous" referrerpolicy="no-referrer"
-              asp-fallback-href="~/lib/video.js/video-js.min.css"
-              asp-fallback-test-class="video-js" asp-fallback-test-property="position" asp-fallback-test-value="relative" />
-    </environment>
+			  asp-fallback-href="~/lib/video.js/video-js.min.css"
+			  asp-fallback-test-class="video-js" asp-fallback-test-property="position" asp-fallback-test-value="relative" />
+	</environment>
 }
 
 <p id="secretAction" style='display: @(Model.IsAnnualMovieListAvailable() ? "block" : "none")'>
@@ -29,7 +29,7 @@
   		title="Show all annual movie clips" disabled>Annual movie clips</button>
 </p>
 <div class="collapse card card-body" id="divAnnualMovieGenerator">
-    <table id="tbAnnualMovieGenerator" class="table table-sm table-striped table-borderless table-hover"></table>
+	<table id="tbAnnualMovieGenerator" class="table table-sm table-striped table-borderless table-hover"></table>
 </div>
 
 <!-- Nav tabs -->
@@ -87,14 +87,14 @@
 			</div>
 			<!-- End VideoJS -->
 		</div>
-    }
-    if (!string.IsNullOrEmpty(Model.YouTubePlaylistId))
-    {
+	}
+	if (!string.IsNullOrEmpty(Model.YouTubePlaylistId))
+	{
 		<div class="tab-pane ratio ratio-4x3" id="youtube-tab" role="tabpanel" aria-labelledby="youtube-tab">
 			<iframe width="1280" height="960" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
 				data-src="https://www.youtube-nocookie.com/embed?listType=playlist&list=@(Model.YouTubePlaylistId)&autoplay=0" referrerpolicy="strict-origin-when-cross-origin" style="display:none" allowfullscreen loading="lazy"></iframe>
 		</div>
-    }
+	}
 	if (Model.ThumbnailJpgs != null)
 	{
 		@:<div class="tab-pane" id="gallery-tab" role="tabpanel" aria-labelledby="gallery-tab">
@@ -103,12 +103,7 @@
 			{
 				var thumbnail = img.Name;
 
-				@*<a href="~/WebCamImages/@(outo).jpg" title="@img.LastWriteTime.ToString("u")"><img alt='no img' class='inactive' /></a>*@
-				<a href="WebCamImages/@thumbnail" title="@img.LastWriteTime.ToString("u")">
-                    <picture>
-                        <img alt='no img' class='inactive' />
-                    </picture>
-				</a>
+<a href="WebCamImages/@thumbnail" title="@img.LastWriteTime.ToString("u")"><picture><img alt='no img' class='inactive' /></picture></a>
 			}
 			@:</div>
 			<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">
@@ -132,20 +127,20 @@
 		<script type="text/javascript" defer src="~/lib/video.js/alt/video.core.novtt.min.js"></script>
 		<script type="text/javascript" defer src="~/js/WebCamGallery.js" asp-append-version="true"></script>
 	</environment>
-    <environment exclude="Development">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.4.0/js/blueimp-gallery.min.js" integrity="sha512-Tt9Ui0O6Sg6FjAK5XpAIM7PCMhaXCL+i13IHLZYuluoDXlesfg+JzVI86rgUU2YnfEz2ZEDHXkRkPnHlyWnqzg==" crossorigin="anonymous"
-            asp-fallback-src="~/lib/blueimp-gallery/js/blueimp-gallery.min.js"
-            asp-fallback-test="window.blueimp"></script>
-        <script src="https://cdn.jsdelivr.net/npm/video.js@8.23.4/dist/alt/video.core.novtt.min.js" integrity="sha256-CWNmoRyTpxQNszUoHtqrZ/EbAq4glP70l7wjky6X/nc=" crossorigin="anonymous" referrerpolicy="no-referrer"
-            asp-fallback-src="~/lib/video.js/alt/video.core.novtt.min.js"
-            asp-fallback-test="videojs.options"></script>
+	<environment exclude="Development">
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.4.0/js/blueimp-gallery.min.js" integrity="sha512-Tt9Ui0O6Sg6FjAK5XpAIM7PCMhaXCL+i13IHLZYuluoDXlesfg+JzVI86rgUU2YnfEz2ZEDHXkRkPnHlyWnqzg==" crossorigin="anonymous"
+			asp-fallback-src="~/lib/blueimp-gallery/js/blueimp-gallery.min.js"
+			asp-fallback-test="window.blueimp"></script>
+		<script src="https://cdn.jsdelivr.net/npm/video.js@8.23.4/dist/alt/video.core.novtt.min.js" integrity="sha256-CWNmoRyTpxQNszUoHtqrZ/EbAq4glP70l7wjky6X/nc=" crossorigin="anonymous" referrerpolicy="no-referrer"
+			asp-fallback-src="~/lib/video.js/alt/video.core.novtt.min.js"
+			asp-fallback-test="videojs.options"></script>
 		<script type="text/javascript" src="~/js/WebCamGallery.min.js" asp-append-version="true"></script>
-    </environment>
-    <script type="text/javascript">
-        window.addEventListener('load', function () {
+	</environment>
+	<script type="text/javascript">
+		window.addEventListener('load', function () {
 			WebCamGalleryOnLoad(@DotnetPlayground.MjpgStreamerHttpClient.LiveImageExpireTimeInSeconds);
 		});
-    </script>
+	</script>
 }
 @{ 
 	serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("view", Model.Watch.ElapsedMilliseconds, "after view is generated"));

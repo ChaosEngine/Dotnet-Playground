@@ -104,7 +104,7 @@ window.addEventListener('DOMContentLoaded', function () {
 			// detect user language. learn more: https://github.com/i18next/i18next-browser-languageDetector
 			.use(i18nextBrowserLanguageDetector)
 			.init({
-				debug: isDev,
+				//debug: isDev,
 				fallbackLng: false, // default language if nothing found by detector or disable loading fallback
 				supportedLngs: ['en', 'pl'], // array of supported languages
 
