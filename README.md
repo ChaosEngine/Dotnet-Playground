@@ -1,6 +1,6 @@
 # .NET Playground
 
-[![Build & Test](https://github.com/ChaosEngine/Dotnet-Playground/workflows/build%20and%20test/badge.svg)](https://github.com/ChaosEngine/Dotnet-Playground/actions)
+[![Build & Test](https://github.com/ChaosEngine/Dotnet-Playground/workflows/.NET%20Core/badge.svg)](https://github.com/ChaosEngine/Dotnet-Playground/actions)
 
 An ASP.NET Core web application showcasing modern .NET patterns, integrations, and feature examples. Hosted live at https://haos.hopto.org/dotnet/
 
