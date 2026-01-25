@@ -15,12 +15,9 @@ import replace from 'gulp-replace';
 import concat from "gulp-concat";
 import cleanCSS from "@aptuitiv/gulp-clean-css";
 import terser from "gulp-terser";
-//import babel from "gulp-babel",
 import rename from "gulp-rename";
 import sourcemaps from 'gulp-sourcemaps';
 import webpack from 'webpack-stream';
-// import workerPlugin from 'worker-plugin';
-// import TerserPlugin from 'terser-webpack-plugin';
 import jsonMinify from 'gulp-json-minify';
 
 const webroot = "./DotnetPlayground.Web/wwwroot/";
@@ -67,15 +64,23 @@ const minCSS = function (sourcePattern, notPattern, dest) {
 		.pipe(gulp.dest("."));
 };
 
-const rimraf = async function (globPattern) {
-	//const found_files = await glob(globPattern);
+/**
+ * Deletes files matching the provided glob patterns.
+ * @param {Array<string>} globPatterns array of glob patterns
+ * @returns {Promise<void[]>} Promise that resolves when all files are deleted
+ */
+const rimraf = async function (globPatterns) {
 	let found_files = [];
-	for await (const file of fs.glob(globPattern))
-		found_files.push(file);
+	for (const pattern of globPatterns) {
+		for await (const file of fs.glob(pattern))
+			found_files.push(file);
+	}
+	if (found_files.length === 0)
+		return Promise.resolve();
 
-	await Promise.all(found_files.map(file => {
+	return Promise.all(found_files.map(file => {
 		// console.log(file);
-		return fs.rm(file);
+		return fs.rm(file, { force: true });
 	}));
 };
 
@@ -98,12 +103,6 @@ const inkballEntryPoint = function (min) {
 			chunkFilename: '[name].Bundle.js',
 			publicPath: '../js/'
 		},
-		//plugins: [
-		//	new workerPlugin({
-		//		// use "self" as the global object when receiving hot updates.
-		//		globalObject: 'self' // <-- this is the default value
-		//	})
-		//],
 		module: {
 			rules: [{
 				use: {
@@ -118,11 +117,6 @@ const inkballEntryPoint = function (min) {
 		},
 		optimization: {
 			minimize: min
-			//, minimizer: [
-			// 	new TerserPlugin({
-			// 		extractComments: false
-			// 	})
-			// ]
 		},
 		performance: {
 			hints: process.env.NODE_ENV === 'production' ? "warning" : false
@@ -134,7 +128,7 @@ const inkballEntryPoint = function (min) {
 		.pipe(gulp.dest(paths.inkBallJsRelative));
 };
 
-const inkballAIWorker = function (doPollyfill) {
+const inkballAIWorker = function (doPollyfill = false) {
 	return gulp.src(paths.inkBallJsRelative + "AIWorker.js")
 		.pipe(webpack({
 			entry: {
@@ -149,12 +143,6 @@ const inkballAIWorker = function (doPollyfill) {
 			output: {
 				filename: doPollyfill === true ? '[name].PolyfillBundle.js' : '[name].Bundle.js'
 			},
-			// plugins: [
-			// 	new workerPlugin({
-			// 		// use "self" as the global object when receiving hot updates.
-			// 		globalObject: 'self' // <-- this is the default value
-			// 	})
-			// ],
 			module: doPollyfill === true ? {
 				rules: [{
 					use: {
@@ -163,20 +151,12 @@ const inkballAIWorker = function (doPollyfill) {
 							presets: [
 								["@babel/preset-env", { "useBuiltIns": "entry", "corejs": 3 }]
 							]
-							//, plugins: [
-							//	"@babel/plugin-transform-runtime"
-							//]
 						}
 					}
 				}]
 			} : {},
 			optimization: {
 				minimize: true
-				//, minimizer: [
-				//	new TerserPlugin({
-				//		extractComments: false
-				//	})
-				//]
 			},
 			performance: {
 				hints: process.env.NODE_ENV === 'production' ? "warning" : false
@@ -188,15 +168,7 @@ const inkballAIWorker = function (doPollyfill) {
 		.pipe(gulp.dest(paths.inkBallJsRelative));
 };
 
-const webpackRun = gulp.parallel(function inkballWebWorkerEntryPoint(cb) {
-	// inkballAIWorker(true);
-	inkballAIWorker(false);
-	return cb();
-}/*, function inkballMainEntryPoint(cb) {
-	inkballEntryPoint(false);
-	inkballEntryPoint(true);
-	return cb();
-}*/);
+const webpackRun = inkballAIWorker;
 
 const fileMinifyJSFunction = function (src, dest, toplevel = false) {
 	return gulp.src([src, "!" + dest], { base: "." })
@@ -250,42 +222,33 @@ const minInkballTranslations = function concatJsDest() {
 
 const minInkball = gulp.parallel(minInkballJs, minInkballCss, minInkballTranslations);
 
-const cleanInkball = async function (cb) {
-	await Promise.all([
-		rimraf(paths.inkBallJsRelative + "*.min.js"),
-		rimraf(paths.inkBallCssRelative + "*.css"),
-		rimraf(paths.inkBallCssRelative + "*.map"),
-		rimraf(paths.inkBallJsRelative + "*Bundle.js"),
-		rimraf(paths.inkBallJsRelative + "*.map")
-	]);
-
-	cb();
-};
 ////////////// [/Inkball Section] //////////////////
 
-const cleanJs = gulp.series(cleanInkball, async function cleanMinJs(cb) {
-	await Promise.all([
-		rimraf(paths.minJs),
-		rimraf(paths.SWJsDest),
-		rimraf(paths.minTranslation),
-		rimraf(paths.inkBallMinTranslation),
-		rimraf(webroot + "js/**/*.map"),
-		rimraf(webroot + "*.map")
-	]);
-
-	cb();
-});
-
-const runCleanCss = async function (cb) {
-	await Promise.all([
-		rimraf(webroot + "css/*.css*"),
-		rimraf(webroot + "css/*.map")
-	]);
-
-	cb();
+const clean = function() {
+  return Promise.all([
+    rimraf([
+		paths.inkBallJsRelative + "*.min.js",
+		paths.inkBallJsRelative + "*Bundle.js",
+		paths.inkBallJsRelative + "*.map",
+		paths.inkBallMinTranslation
+	]),
+    rimraf([
+		paths.minJs,
+		paths.SWJsDest,
+		paths.minTranslation,
+		webroot + "js/**/*.map",
+		webroot + "*.map"
+	]),
+    rimraf([
+		paths.inkBallCssRelative + "*.css",
+		paths.inkBallCssRelative + "*.map"
+	]),
+	rimraf([
+		webroot + "css/*.css*",
+		webroot + "css/*.map"
+	])
+  ]);
 };
-
-const clean = gulp.series(cleanJs, runCleanCss);
 
 const minSWJsJs = function () {
 	return fileMinifyJSFunction(paths.SWJs, paths.SWJsDest);
@@ -395,7 +358,7 @@ const cssRun = gulp.parallel(minInkballCss, minScss);
 ///
 /// postinstall entry point (npm i)
 ///
-const postinstall = async (cb) => {
+const postinstall = () => {
 	const copy_promises = [];
 	const file_copy = (src, dst) => copy_promises.push(fs.cp(src, dst));
 	const dir_copy = (src, dst, filter = undefined) => copy_promises.push(fs.cp(src, dst, {
@@ -444,10 +407,8 @@ const postinstall = async (cb) => {
 	});
 	dir_copy(`${nm}/blueimp-gallery/js`, `${dst}blueimp-gallery/js`, async (src) => {
 		if ((await fs.lstat(src)).isDirectory() || src.includes(`${path.sep}blueimp-gallery.min.js`)) {
-			// console.log(`T:` + src);
 			return true;
 		} else {
-			// console.log(`F:` + src);
 			return false;
 		}
 	});
@@ -456,10 +417,8 @@ const postinstall = async (cb) => {
 	file_copy(`${nm}/qrcodejs/qrcode.min.js`, `${dst}qrcodejs/qrcode.min.js`);
 	dir_copy(`${nm}/@microsoft/signalr/dist/browser`, `${dst}signalr/browser`, async (src) => {
 		if ((await fs.lstat(src)).isDirectory() || src.includes(`signalr.min.js`)) {
-			// console.log(`T:` + src);
 			return true;
 		} else {
-			// console.log(`F:` + src);
 			return false;
 		}
 	});
@@ -489,9 +448,7 @@ const postinstall = async (cb) => {
 
 	file_copy(`${nm}/html2canvas/dist/html2canvas.min.js`, `${dst}html2canvas/html2canvas.min.js`);
 
-	await Promise.all(copy_promises);
-
-	return cb();
+	return Promise.all(copy_promises);
 };
 
 ///
