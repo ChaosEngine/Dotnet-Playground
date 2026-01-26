@@ -49,24 +49,58 @@ function BruteForceOnLoad() {
 
 			return chunks;
 		}
-
 		function createWorkerMonitor(index) {
 			const element = d.createElement('div');
 			element.id = 'worker-' + index;
-			element.classList.add('worker'); element.classList.add('col-md-4');
+			element.classList.add('worker', 'col-md-4');
 
-			element.innerHTML =
-			'<div class="card m-2">' +
-				`<h5 class="card-header title">WORKER ${index}</h5>` +
-				'<div class="card-body">' +
-					'<h5 class="card-title passphrase">Passphrase</h5>' +
-					'<p class="card-text value"></p>' +
-					'<h5 class="card-title hash">Hash</h5>' +
-					'<p class="card-text value"></p>' +
-					'<h5 class="card-title remaining">Combinations left</h5>' +
-					'<p class="card-text value"></p>' +
-				'</div>' +
-			'</div>';
+			// Create card container
+			const card = d.createElement('div');
+			card.classList.add('card', 'm-2');
+
+			// Create card header
+			const cardHeader = d.createElement('h5');
+			cardHeader.classList.add('card-header', 'title');
+			cardHeader.textContent = `WORKER ${index}`;
+			card.appendChild(cardHeader);
+
+			// Create card body
+			const cardBody = d.createElement('div');
+			cardBody.classList.add('card-body');
+
+			// Passphrase section
+			const passphraseTitle = d.createElement('h5');
+			passphraseTitle.classList.add('card-title', 'passphrase');
+			passphraseTitle.textContent = 'Passphrase';
+			cardBody.appendChild(passphraseTitle);
+
+			const passphraseValue = d.createElement('p');
+			passphraseValue.classList.add('card-text', 'value');
+			cardBody.appendChild(passphraseValue);
+
+			// Hash section
+			const hashTitle = d.createElement('h5');
+			hashTitle.classList.add('card-title', 'hash');
+			hashTitle.textContent = 'Hash';
+			cardBody.appendChild(hashTitle);
+
+			const hashValue = d.createElement('p');
+			hashValue.classList.add('card-text', 'value');
+			cardBody.appendChild(hashValue);
+
+			// Remaining section
+			const remainingTitle = d.createElement('h5');
+			remainingTitle.classList.add('card-title', 'remaining');
+			remainingTitle.textContent = 'Combinations left';
+			cardBody.appendChild(remainingTitle);
+
+			const remainingValue = d.createElement('p');
+			remainingValue.classList.add('card-text', 'value');
+			cardBody.appendChild(remainingValue);
+
+			// Assemble structure
+			card.appendChild(cardBody);
+			element.appendChild(card);
 
 			d.querySelector('.workers').appendChild(element);
 		}
