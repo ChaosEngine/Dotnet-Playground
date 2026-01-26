@@ -408,6 +408,11 @@ $(function () {
 	registerMyAlert();
 	//overriding window.alert with own implementation
 	window.alert = myAlert;
+
+	//if JQuery $ does not have parseJSON - add it. jquery.validate.unobtrusive depends on it.
+	if (typeof $.parseJSON !== "function") {
+		$.parseJSON = (data) => JSON.parse(data);
+	}
 });
 
 window.onerror = function (msg, url, line, col, error) {
