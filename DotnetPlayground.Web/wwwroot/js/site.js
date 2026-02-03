@@ -176,17 +176,22 @@ $(function () {
 
 		//alternative way - https://hemath.dev/blog/say-bye-with-javascript-beacon/?utm_source=unknownews
 		const data = new URLSearchParams();
-		if (level)
+
+		const rvt = $('input[name="__RequestVerificationToken"]');
+		if (rvt.length > 0)
+			data.set('__RequestVerificationToken', rvt.val());
+
+		if (level !== undefined && level !== null)
 			data.set('level', level);
 		if (message)
 			data.set('message', message);
 		if (url)
 			data.set('url', url);
-		if (line)
+		if (line !== undefined && line !== null)
 			data.set('line', line);
-		if (col)
+		if (col !== undefined && col !== null)
 			data.set('col', col);
-		if (error)
+		if (error !== undefined && error !== null)
 			data.set('error', error);
 		navigator.sendBeacon(logPath, data);
 	}
