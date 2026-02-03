@@ -143,6 +143,7 @@ namespace DotnetPlayground.Controllers
 		}
 
 		[HttpPost]
+		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> ClientsideLog([FromServices] BloggingContext dbContext,
 			LogLevel? level, string message, string url, string line, string col, string error)
 		{
