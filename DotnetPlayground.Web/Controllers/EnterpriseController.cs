@@ -104,6 +104,7 @@ namespace DotnetPlayground.Controllers
 
         [HttpPost("bi/{orgShortName}")]
         [Authorize()]
+        [ValidateAntiForgeryToken]
         public IActionResult RedirectWithCode([Required]string orgShortName, /* [FromQuery]  */string authcodecallback)
         {
             if (string.IsNullOrEmpty(orgShortName))

@@ -106,8 +106,8 @@ window.addEventListener('load', () => {
 			const { table: table_element, rawData } = csvToTable(csv_file, delimiter);
 			globalData = rawData;
 			if (table_element) {
-				document.getElementById('tableContainer').innerHTML = ''; // Clear existing content
-				document.getElementById('tableContainer').appendChild(table_element);
+				const tableContainer = document.getElementById('tableContainer');
+				tableContainer.replaceChildren(table_element); // Clear existing content and append new table
 				//show the table container
 				document.getElementById('tableContainer').classList.remove('d-none');
 

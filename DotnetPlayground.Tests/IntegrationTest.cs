@@ -95,6 +95,20 @@ namespace Integration
 			{
 				{ "action", "exception" }
 			};
+
+			// Act
+			using (var get_response = await _client.GetAsync($"{_client.BaseAddress}Home/{nameof(HomeController.UnintentionalErr)}"))
+			{
+				// Assert
+				Assert.NotNull(get_response);
+				Assert.True(get_response.IsSuccessStatusCode);
+
+				var antiforgery_token = await PostRequestHelper.ExtractAntiForgeryToken(get_response);
+				Assert.NotNull(antiforgery_token);
+
+				payload.Add("__RequestVerificationToken", antiforgery_token);
+			}
+
 			using (var content = new FormUrlEncodedContent(payload))
 			{
 				// Act
@@ -123,10 +137,20 @@ namespace Integration
 				{ "col", 1.ToString() },
 				{ "error", "some error" },
 			};
-			//// Serialize our concrete class into a JSON String
-			//var stringPayload = JsonConvert.SerializeObject(payload);
-			//// Wrap our JSON inside a StringContent which then can be used by the HttpClient class
-			//var content = new StringContent(stringPayload, Encoding.UTF8, "application/json");
+			
+			// Act
+			using (var get_response = await _client.GetAsync($"{_client.BaseAddress}Home/{nameof(HomeController.UnintentionalErr)}"))
+			{
+				// Assert
+				Assert.NotNull(get_response);
+				Assert.True(get_response.IsSuccessStatusCode);
+
+				var antiforgery_token = await PostRequestHelper.ExtractAntiForgeryToken(get_response);
+				Assert.NotNull(antiforgery_token);
+
+				payload.Add("__RequestVerificationToken", antiforgery_token);
+			}
+
 			using (var content = new FormUrlEncodedContent(payload))
 			{
 				// Act
@@ -840,9 +864,9 @@ namespace Integration
 			}//end using (var create_get_response
 		}
 
-        [GeneratedRegex(@"\<form method=""post"" class=""blogForm row g-3"" data-id=""([0-9].*)""\>")]
-        private static partial Regex MyRegex();
-    }
+		[GeneratedRegex(@"\<form method=""post"" class=""blogForm row g-3"" data-id=""([0-9].*)""\>")]
+		private static partial Regex MyRegex();
+	}
 
 	[Collection(nameof(TestServerCollection))]
 	public partial class WebCamGalleryPage
@@ -1015,9 +1039,9 @@ namespace Integration
 			}//end using
 		}
 
-        [GeneratedRegex(@"\<a href=""(.*thumbnail-.*\.jpg)"" title=""(.*)"">")]
-        private static partial Regex MyRegex();
-    }
+		[GeneratedRegex(@"\<a href=""(.*thumbnail-.*\.jpg)"" title=""(.*)"">")]
+		private static partial Regex MyRegex();
+	}
 
 	[Collection(nameof(TestServerCollection))]
 	public class IdentityManager2
@@ -1276,7 +1300,6 @@ namespace Integration
 		[InlineData("lib/chance/chance.min.js")]
 		[InlineData("lib/chance/chance.min.js.map")]
 		[InlineData("lib/jquery/jquery.min.js")]
-		[InlineData("lib/jquery/jquery.min.map")]
 		[InlineData("lib/jquery-validation/jquery.validate.min.js")]
 		[InlineData("lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js")]
 		[InlineData("lib/msgpack5/msgpack5.min.js")]
