@@ -9,7 +9,7 @@ import { devices } from '@playwright/test';
  */
 // require('dotenv').config();
 
-const baseUrl = 'https://localhost:4553/dotnet/';
+const baseUrl = process.env.BASE_URL || 'https://localhost:4553/dotnet/';
 
 /**
  * @see https://playwright.dev/docs/test-configuration
