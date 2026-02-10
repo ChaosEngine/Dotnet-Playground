@@ -8,7 +8,7 @@
 		"@eslint/js": "^10.0.1",
 		"@playwright/test": "^1.58.2",
 		"eslint": "^10.0.0",
-		"eslint-plugin-jsdoc": "^62.5.3",
+		"eslint-plugin-jsdoc": "^62.5.4",
 		"globals": "17.3.0"
 	},
 	"dependencies": {
@@ -46,7 +46,7 @@
 		"qrcodejs": "1.0.0",
 		"sass": "^1.97.3",
 		"video.js": "8.23.6",
-		"webpack": "^5.105.0",
+		"webpack": "^5.105.1",
 		"webpack-stream": "^7.0.0"
 	},
 	"scripts": {
