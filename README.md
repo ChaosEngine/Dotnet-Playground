@@ -4,6 +4,12 @@
 
 An ASP.NET Core web application showcasing modern .NET patterns, integrations, and feature examples. Hosted live at https://haos.hopto.org/dotnet/
 
+## Test Performance
+
+**New**: [Automated Performance Comparison Workflow](.github/workflows/TEST_PERFORMANCE_WORKFLOW.md) - CI/CD pipeline that demonstrates test execution speed improvements.
+
+For information on optimizing test execution speed in CLI and VSCode, see [TEST_PERFORMANCE.md](TEST_PERFORMANCE.md).
+
 ## Features
 
 - **InkBall Game** — Real-time multiplayer drawing game using SignalR with WebSocket support

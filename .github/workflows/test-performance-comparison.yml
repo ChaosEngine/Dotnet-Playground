@@ -1,0 +1,310 @@
+name: Test Performance Comparison
+
+on:
+  workflow_dispatch: # Allow manual trigger
+    inputs:
+      baseline_branch:
+        description: 'Baseline branch to compare against'
+        required: false
+        default: 'dev'
+      test_runs:
+        description: 'Number of test runs to average'
+        required: false
+        default: '3'
+  pull_request:
+    branches:
+      - master
+      - dev
+    paths:
+      - '**.csproj'
+      - '.runsettings'
+      - 'xunit.runner.json'
+      - 'Directory.Build.props'
+      - '.github/workflows/test-performance-comparison.yml'
+
+jobs:
+  baseline-tests:
+    name: Baseline Tests (dev branch)
+    runs-on: ubuntu-latest
+    outputs:
+      baseline_time: ${{ steps.test-baseline.outputs.execution_time }}
+      baseline_avg: ${{ steps.test-baseline.outputs.avg_time }}
+    
+    steps:
+    - name: Checkout baseline branch
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.inputs.baseline_branch || 'dev' }}
+        submodules: true
+        
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build
+      run: dotnet build --configuration Debug --no-restore
+      
+    - name: Run baseline tests (without .runsettings)
+      id: test-baseline
+      env:
+        DBKind: "sqlite"
+        ConnectionStrings__Sqlite: "Filename=./bin/Debug/net9.0/Blogging.db"
+        TEST_RUNS: ${{ github.event.inputs.test_runs || '3' }}
+      run: |
+        echo "Running baseline tests without .runsettings..."
+        
+        total_time=0
+        runs=$TEST_RUNS
+        
+        for i in $(seq 1 $runs); do
+          echo "=== Baseline Run $i/$runs ==="
+          start=$(date +%s)
+          
+          # Run tests WITHOUT .runsettings (baseline)
+          dotnet test --no-build --configuration Debug --verbosity minimal
+          
+          end=$(date +%s)
+          duration=$((end - start))
+          echo "Run $i duration: ${duration}s"
+          total_time=$((total_time + duration))
+        done
+        
+        avg_time=$((total_time / runs))
+        echo "=== Baseline Results ==="
+        echo "Total time: ${total_time}s"
+        echo "Average time: ${avg_time}s"
+        echo "Number of runs: $runs"
+        
+        echo "execution_time=${total_time}" >> $GITHUB_OUTPUT
+        echo "avg_time=${avg_time}" >> $GITHUB_OUTPUT
+        
+        # Save detailed results
+        echo "# Baseline Test Results" >> baseline_results.txt
+        echo "Branch: ${{ github.event.inputs.baseline_branch || 'dev' }}" >> baseline_results.txt
+        echo "Total time: ${total_time}s" >> baseline_results.txt
+        echo "Average time: ${avg_time}s" >> baseline_results.txt
+        echo "Runs: $runs" >> baseline_results.txt
+        
+    - name: Upload baseline results
+      uses: actions/upload-artifact@v4
+      with:
+        name: baseline-results
+        path: baseline_results.txt
+        
+  improved-tests:
+    name: Improved Tests (with .runsettings)
+    runs-on: ubuntu-latest
+    outputs:
+      improved_time: ${{ steps.test-improved.outputs.execution_time }}
+      improved_avg: ${{ steps.test-improved.outputs.avg_time }}
+    
+    steps:
+    - name: Checkout PR branch
+      uses: actions/checkout@v4
+      with:
+        submodules: true
+        
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build
+      run: dotnet build --configuration Debug --no-restore
+      
+    - name: Verify .runsettings exists
+      run: |
+        if [ -f ".runsettings" ]; then
+          echo "✓ .runsettings file found"
+          echo "Configuration:"
+          cat .runsettings | grep -A 5 "MaxCpuCount"
+        else
+          echo "✗ .runsettings file not found - tests will run without optimizations"
+          exit 1
+        fi
+        
+    - name: Verify xunit.runner.json exists
+      run: |
+        if [ -f "DotnetPlayground.Tests/xunit.runner.json" ]; then
+          echo "✓ xunit.runner.json file found"
+          echo "Configuration:"
+          cat DotnetPlayground.Tests/xunit.runner.json
+        else
+          echo "✗ xunit.runner.json file not found"
+        fi
+        
+    - name: Run improved tests (with .runsettings)
+      id: test-improved
+      env:
+        DBKind: "sqlite"
+        ConnectionStrings__Sqlite: "Filename=./bin/Debug/net9.0/Blogging.db"
+        TEST_RUNS: ${{ github.event.inputs.test_runs || '3' }}
+      run: |
+        echo "Running improved tests with .runsettings..."
+        
+        total_time=0
+        runs=$TEST_RUNS
+        
+        for i in $(seq 1 $runs); do
+          echo "=== Improved Run $i/$runs ==="
+          start=$(date +%s)
+          
+          # Run tests WITH .runsettings (improved)
+          dotnet test --no-build --configuration Debug --settings .runsettings --verbosity minimal
+          
+          end=$(date +%s)
+          duration=$((end - start))
+          echo "Run $i duration: ${duration}s"
+          total_time=$((total_time + duration))
+        done
+        
+        avg_time=$((total_time / runs))
+        echo "=== Improved Results ==="
+        echo "Total time: ${total_time}s"
+        echo "Average time: ${avg_time}s"
+        echo "Number of runs: $runs"
+        
+        echo "execution_time=${total_time}" >> $GITHUB_OUTPUT
+        echo "avg_time=${avg_time}" >> $GITHUB_OUTPUT
+        
+        # Save detailed results
+        echo "# Improved Test Results" >> improved_results.txt
+        echo "Branch: ${{ github.ref_name }}" >> improved_results.txt
+        echo "Total time: ${total_time}s" >> improved_results.txt
+        echo "Average time: ${avg_time}s" >> improved_results.txt
+        echo "Runs: $runs" >> improved_results.txt
+        
+    - name: Upload improved results
+      uses: actions/upload-artifact@v4
+      with:
+        name: improved-results
+        path: improved_results.txt
+
+  compare-results:
+    name: Compare Performance Results
+    runs-on: ubuntu-latest
+    needs: [baseline-tests, improved-tests]
+    
+    steps:
+    - name: Download baseline results
+      uses: actions/download-artifact@v4
+      with:
+        name: baseline-results
+        
+    - name: Download improved results
+      uses: actions/download-artifact@v4
+      with:
+        name: improved-results
+        
+    - name: Calculate and display comparison
+      env:
+        BASELINE_AVG: ${{ needs.baseline-tests.outputs.baseline_avg }}
+        IMPROVED_AVG: ${{ needs.improved-tests.outputs.improved_avg }}
+        BASELINE_TOTAL: ${{ needs.baseline-tests.outputs.baseline_time }}
+        IMPROVED_TOTAL: ${{ needs.improved-tests.outputs.improved_time }}
+      run: |
+        echo "# Test Performance Comparison Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # Display detailed results
+        echo "## Baseline (dev branch - without .runsettings)" >> $GITHUB_STEP_SUMMARY
+        cat baseline_results.txt | sed 's/^/  /' >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        echo "## Improved (with .runsettings)" >> $GITHUB_STEP_SUMMARY
+        cat improved_results.txt | sed 's/^/  /' >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # Calculate improvement
+        if [ "$BASELINE_AVG" -gt 0 ]; then
+          improvement=$(awk "BEGIN {printf \"%.2f\", (($BASELINE_AVG - $IMPROVED_AVG) / $BASELINE_AVG) * 100}")
+          speedup=$(awk "BEGIN {printf \"%.2f\", $BASELINE_AVG / $IMPROVED_AVG}")
+          
+          echo "## Performance Comparison" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Baseline | Improved | Difference |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|----------|----------|------------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Average Time | ${BASELINE_AVG}s | ${IMPROVED_AVG}s | ${improvement}% faster |" >> $GITHUB_STEP_SUMMARY
+          echo "| Total Time | ${BASELINE_TOTAL}s | ${IMPROVED_TOTAL}s | $((BASELINE_TOTAL - IMPROVED_TOTAL))s saved |" >> $GITHUB_STEP_SUMMARY
+          echo "| Speedup | 1.00x | ${speedup}x | - |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Add interpretation
+          if (( $(echo "$improvement > 10" | bc -l) )); then
+            echo "### ✅ Result: Significant Performance Improvement" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "The new test configuration shows a **${improvement}%** improvement (${speedup}x speedup)." >> $GITHUB_STEP_SUMMARY
+          elif (( $(echo "$improvement > 0" | bc -l) )); then
+            echo "### ⚠️ Result: Modest Performance Improvement" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "The new test configuration shows a **${improvement}%** improvement (${speedup}x speedup)." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Note**: Small improvements may be due to:" >> $GITHUB_STEP_SUMMARY
+            echo "- Limited number of test collections (xUnit already parallelizes within collections)" >> $GITHUB_STEP_SUMMARY
+            echo "- Fast-running tests where parallelization overhead exceeds benefits" >> $GITHUB_STEP_SUMMARY
+            echo "- I/O-bound tests that don't benefit much from CPU parallelization" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ❌ Result: No Performance Improvement" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "The new test configuration shows no improvement or is slower." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Possible reasons**:" >> $GITHUB_STEP_SUMMARY
+            echo "- Test suite has only one collection (xUnit already parallelizes within collections)" >> $GITHUB_STEP_SUMMARY
+            echo "- Tests are too fast (parallelization overhead exceeds benefits)" >> $GITHUB_STEP_SUMMARY
+            echo "- CI environment has limited CPU cores" >> $GITHUB_STEP_SUMMARY
+          fi
+        else
+          echo "⚠️ Unable to calculate comparison - baseline time is zero" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## Configuration Details" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "- **Baseline**: Tests run without \`.runsettings\` file (sequential collection execution)" >> $GITHUB_STEP_SUMMARY
+        echo "- **Improved**: Tests run with \`.runsettings\` file (parallel collection execution)" >> $GITHUB_STEP_SUMMARY
+        echo "- **Test Runs**: ${{ github.event.inputs.test_runs || '3' }} runs averaged for each configuration" >> $GITHUB_STEP_SUMMARY
+        echo "- **CI Environment**: \`ubuntu-latest\` (GitHub Actions)" >> $GITHUB_STEP_SUMMARY
+        
+    - name: Comment on PR (if applicable)
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      env:
+        BASELINE_AVG: ${{ needs.baseline-tests.outputs.baseline_avg }}
+        IMPROVED_AVG: ${{ needs.improved-tests.outputs.improved_avg }}
+      with:
+        script: |
+          const baseline = parseInt(process.env.BASELINE_AVG);
+          const improved = parseInt(process.env.IMPROVED_AVG);
+          
+          if (baseline > 0) {
+            const improvement = ((baseline - improved) / baseline * 100).toFixed(2);
+            const speedup = (baseline / improved).toFixed(2);
+            
+            const body = `## 📊 Test Performance Comparison Results
+            
+| Metric | Baseline (dev) | Improved (PR) | Difference |
+|--------|----------------|---------------|------------|
+| Average Time | ${baseline}s | ${improved}s | **${improvement}% faster** |
+| Speedup | 1.00x | **${speedup}x** | - |
+
+${improvement > 10 ? '✅ Significant performance improvement detected!' : 
+  improvement > 0 ? '⚠️ Modest performance improvement detected.' : 
+  '❌ No performance improvement detected.'}
+
+*See the [workflow run](${context.payload.repository.html_url}/actions/runs/${context.runId}) for detailed results.*
+`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+          }

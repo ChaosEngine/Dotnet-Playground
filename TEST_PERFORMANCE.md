@@ -1,5 +1,9 @@
 # Test Performance Optimization Guide
 
+## Quick Links
+- 🚀 [Automated Performance Comparison Workflow](.github/workflows/TEST_PERFORMANCE_WORKFLOW.md) - CI/CD pipeline to compare performance
+- 📋 [Verification Guide](TEST_VERIFICATION.md) - Manual verification steps
+
 ## Problem Statement
 
 Unit tests were running slower in VSCode (with Test Explorer) and CLI (`dotnet test`) compared to Visual Studio 2022/2026. This was caused by missing test runner configurations and parallelization settings.
