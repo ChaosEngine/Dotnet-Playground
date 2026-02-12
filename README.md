@@ -47,6 +47,8 @@ dotnet run --project DotnetPlayground.Web
 
 ### Run Tests
 
+For information on optimizing test execution speed in CLI and VSCode, see [TEST_PERFORMANCE.md](TEST_PERFORMANCE.md).
+
 ```bash
 # Unit and integration tests
 dotnet test

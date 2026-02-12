@@ -17,9 +17,11 @@ Added `xunit.runner.json` to all test projects with the following optimizations:
 - **`shadowCopy: false`** - Disables shadow copying for faster test execution
 
 These files are located in:
-- `DotnetPlayground.Tests/xunit.runner.json`
-- `InkBall/test/InkBall.Tests/xunit.runner.json`
-- `Caching-MySQL/test/Pomelo.Extensions.Caching.MySql.Tests/xunit.runner.json`
+- `DotnetPlayground.Tests/xunit.runner.json` ✅ (main repo)
+- `InkBall/test/InkBall.Tests/xunit.runner.json` ⚠️ (submodule - apply manually)
+- `Caching-MySQL/test/Pomelo.Extensions.Caching.MySql.Tests/xunit.runner.json` ⚠️ (submodule - apply manually)
+
+**Note**: The InkBall and Caching-MySQL projects are Git submodules. The xunit.runner.json configurations have been created for them, but need to be committed to their respective repositories separately.
 
 ### 2. Run Settings Configuration (`.runsettings`)
 
