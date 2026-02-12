@@ -160,6 +160,6 @@ If tests don't appear or run slowly:
 
 ## References
 
-- [xUnit Parallelization Documentation](https://xunit.net/docs/running-tests-in-parallel)
+- [xUnit Parallelization Documentation](https://xunit.net/docs/running-tests-in-parallel.html)
 - [VSTest Documentation](https://learn.microsoft.com/en-us/visualstudio/test/configure-unit-tests-by-using-a-dot-runsettings-file)
 - [MSBuild Parallel Builds](https://learn.microsoft.com/en-us/visualstudio/msbuild/building-multiple-projects-in-parallel-with-msbuild)

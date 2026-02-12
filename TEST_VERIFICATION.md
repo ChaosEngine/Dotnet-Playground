@@ -248,6 +248,6 @@ Expected improvements on various hardware:
 
 ## Additional Resources
 
-- [xUnit Parallelization Docs](https://xunit.net/docs/running-tests-in-parallel)
+- [xUnit Parallelization Docs](https://xunit.net/docs/running-tests-in-parallel.html)
 - [VSTest RunSettings Reference](https://learn.microsoft.com/en-us/visualstudio/test/configure-unit-tests-by-using-a-dot-runsettings-file)
 - [MSBuild Parallel Builds](https://learn.microsoft.com/en-us/visualstudio/msbuild/building-multiple-projects-in-parallel-with-msbuild)
