@@ -9,7 +9,7 @@
     <VSTestParallel>true</VSTestParallel>
     
     <!-- Optimize test discovery and execution -->
-    <VSTestCollect>Code Coverage</VSTestCollect>
+    <!--<VSTestCollect>Code Coverage</VSTestCollect>-->
     <VSTestBlame>false</VSTestBlame>
     
     <!-- Deterministic builds for better caching -->
