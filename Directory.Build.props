@@ -18,7 +18,7 @@
   </PropertyGroup>
   
   <!-- Test-specific properties -->
-  <PropertyGroup Condition="'$(IsTestProject)' == 'true' or '$(MSBuildProjectName.Contains(`Test`))' == 'true'">
+  <PropertyGroup Condition="'$(IsTestProject)' == 'true' or $(MSBuildProjectName.Contains('Test')) == 'true'">
     <!-- Enable parallel test execution -->
     <TestRunParameters>MaxCpuCount=0</TestRunParameters>
     

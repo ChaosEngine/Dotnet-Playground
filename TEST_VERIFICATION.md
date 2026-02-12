@@ -33,13 +33,23 @@ The build should now use parallel compilation (via `Directory.Build.props`).
 ```bash
 # If you have a backup branch without these changes
 git checkout main
+
+# Linux/macOS
 time dotnet test
+
+# Windows (PowerShell)
+Measure-Command { dotnet test }
 ```
 
 **After Optimization:**
 ```bash
 git checkout copilot/improve-test-execution-speed
+
+# Linux/macOS
 time dotnet test
+
+# Windows (PowerShell)
+Measure-Command { dotnet test }
 ```
 
 You should see:
@@ -239,5 +249,5 @@ Expected improvements on various hardware:
 ## Additional Resources
 
 - [xUnit Parallelization Docs](https://xunit.net/docs/running-tests-in-parallel)
-- [VSTest RunSettings Reference](https://docs.microsoft.com/en-us/visualstudio/test/configure-unit-tests-by-using-a-dot-runsettings-file)
-- [MSBuild Parallel Builds](https://docs.microsoft.com/en-us/visualstudio/msbuild/building-multiple-projects-in-parallel-with-msbuild)
+- [VSTest RunSettings Reference](https://learn.microsoft.com/en-us/visualstudio/test/configure-unit-tests-by-using-a-dot-runsettings-file)
+- [MSBuild Parallel Builds](https://learn.microsoft.com/en-us/visualstudio/msbuild/building-multiple-projects-in-parallel-with-msbuild)

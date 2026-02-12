@@ -9,9 +9,9 @@
     <!-- Disable in-process execution for better isolation and parallelization -->
     <InProcDataCollectionRunSettings>
       <InProcDataCollectors>
-        <InProcDataCollector friendlyName="DotNetRuntimeData" 
-                             assemblyQualifiedName="Coverlet.Collector.DataCollection.CoverletInProcDataCollector, coverlet.collector, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
-                             enabled="False" />
+        <!-- Coverlet collector disabled by default for performance -->
+        <!-- Enable only when collecting code coverage -->
+        <InProcDataCollector friendlyName="DotNetRuntimeData" enabled="False" />
       </InProcDataCollectors>
     </InProcDataCollectionRunSettings>
     
