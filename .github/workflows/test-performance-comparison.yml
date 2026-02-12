@@ -287,19 +287,25 @@ jobs:
             const improvement = ((baseline - improved) / baseline * 100).toFixed(2);
             const speedup = (baseline / improved).toFixed(2);
             
-            const body = `## 📊 Test Performance Comparison Results
+            let status = '';
+            if (improvement > 10) {
+              status = 'Significant performance improvement detected!';
+            } else if (improvement > 0) {
+              status = 'Modest performance improvement detected.';
+            } else {
+              status = 'No performance improvement detected.';
+            }
             
+            const body = `## Test Performance Comparison Results
+
 | Metric | Baseline (dev) | Improved (PR) | Difference |
 |--------|----------------|---------------|------------|
 | Average Time | ${baseline}s | ${improved}s | **${improvement}% faster** |
 | Speedup | 1.00x | **${speedup}x** | - |
 
-${improvement > 10 ? '✅ Significant performance improvement detected!' : 
-  improvement > 0 ? '⚠️ Modest performance improvement detected.' : 
-  '❌ No performance improvement detected.'}
+${status}
 
-*See the [workflow run](${context.payload.repository.html_url}/actions/runs/${context.runId}) for detailed results.*
-`;
+*See the [workflow run](${context.payload.repository.html_url}/actions/runs/${context.runId}) for detailed results.*`;
             
             github.rest.issues.createComment({
               issue_number: context.issue.number,
