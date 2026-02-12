@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <!-- General run configuration -->
+  <RunConfiguration>
+    <!-- Parallel execution settings -->
+    <!-- 0 = Auto-detect (use all available processors) -->
+    <MaxCpuCount>0</MaxCpuCount>
+    
+    <!-- Disable in-process execution for better isolation and parallelization -->
+    <InProcDataCollectionRunSettings>
+      <InProcDataCollectors>
+        <InProcDataCollector friendlyName="DotNetRuntimeData" 
+                             assemblyQualifiedName="Coverlet.Collector.DataCollection.CoverletInProcDataCollector, coverlet.collector, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+                             enabled="False" />
+      </InProcDataCollectors>
+    </InProcDataCollectionRunSettings>
+    
+    <!-- Test session timeout in milliseconds -->
+    <TestSessionTimeout>1800000</TestSessionTimeout>
+    
+    <!-- Disable result logger -->
+    <TreatTestAdapterErrorsAsWarnings>false</TreatTestAdapterErrorsAsWarnings>
+    
+    <!-- Target platform (x64 for better performance) -->
+    <TargetPlatform>x64</TargetPlatform>
+    
+    <!-- Use .NET target framework -->
+    <TargetFrameworkVersion>net9.0</TargetFrameworkVersion>
+    
+    <!-- Disable AppDomain creation for faster test execution -->
+    <DisableAppDomain>false</DisableAppDomain>
+    
+    <!-- Disable parallelization at the test host level (xUnit handles its own parallelization) -->
+    <DisableParallelization>false</DisableParallelization>
+    
+    <!-- Design mode for test execution -->
+    <DesignMode>false</DesignMode>
+    
+    <!-- Collect source information -->
+    <CollectSourceInformation>true</CollectSourceInformation>
+  </RunConfiguration>
+  
+  <!-- xUnit.net adapter settings -->
+  <xUnit>
+    <!-- Parallel execution settings -->
+    <ParallelizeAssembly>true</ParallelizeAssembly>
+    <ParallelizeTestCollections>true</ParallelizeTestCollections>
+    
+    <!-- 0 = Use all available processors, -1 = unlimited -->
+    <MaxParallelThreads>0</MaxParallelThreads>
+    
+    <!-- Method display options -->
+    <MethodDisplay>ClassAndMethod</MethodDisplay>
+    <MethodDisplayOptions>All</MethodDisplayOptions>
+    
+    <!-- Pre-enumerate theories for faster discovery -->
+    <PreEnumerateTheories>true</PreEnumerateTheories>
+    
+    <!-- Disable shadow copy for faster execution -->
+    <ShadowCopy>false</ShadowCopy>
+    
+    <!-- Diagnostic messages -->
+    <DiagnosticMessages>false</DiagnosticMessages>
+    <InternalDiagnosticMessages>false</InternalDiagnosticMessages>
+    
+    <!-- Stop on first failure -->
+    <StopOnFail>false</StopOnFail>
+    
+    <!-- Reporter type -->
+    <ReporterSwitch>-verbose</ReporterSwitch>
+  </xUnit>
+  
+  <!-- MSTest adapter settings (if any MSTest tests are added) -->
+  <MSTest>
+    <Parallelize>
+      <Workers>0</Workers>
+      <Scope>MethodLevel</Scope>
+    </Parallelize>
+  </MSTest>
+  
+  <!-- NUnit adapter settings (if any NUnit tests are added) -->
+  <NUnit>
+    <NumberOfTestWorkers>-1</NumberOfTestWorkers>
+  </NUnit>
+  
+  <!-- Logger configuration -->
+  <LoggerRunSettings>
+    <Loggers>
+      <Logger friendlyName="console">
+        <Configuration>
+          <Verbosity>minimal</Verbosity>
+        </Configuration>
+      </Logger>
+    </Loggers>
+  </LoggerRunSettings>
+</RunSettings>

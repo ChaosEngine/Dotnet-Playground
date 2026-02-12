@@ -2,5 +2,7 @@
 	"eslint.enable": true,
 	"eslint.validate": [ "javascript" ],
     "eslint.useFlatConfig": true,
-	"dotnet.defaultSolution": "Dotnet-Playground.sln"
+	"dotnet.defaultSolution": "Dotnet-Playground.sln",
+	"dotnet-test-explorer.testProjectPath": "**/*.Tests.csproj",
+	"dotnet.unitTests.runSettingsPath": "${workspaceFolder}/.runsettings"
 }

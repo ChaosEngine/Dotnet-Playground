@@ -1,0 +1,38 @@
+<Project>
+  <!-- Global MSBuild properties for all projects in the solution -->
+  
+  <PropertyGroup>
+    <!-- Enable parallel builds -->
+    <BuildInParallel>true</BuildInParallel>
+    
+    <!-- VSTest parallel execution settings -->
+    <VSTestParallel>true</VSTestParallel>
+    
+    <!-- Optimize test discovery and execution -->
+    <VSTestCollect>Code Coverage</VSTestCollect>
+    <VSTestBlame>false</VSTestBlame>
+    
+    <!-- Deterministic builds for better caching -->
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+  
+  <!-- Test-specific properties -->
+  <PropertyGroup Condition="'$(IsTestProject)' == 'true' or '$(MSBuildProjectName.Contains(`Test`))' == 'true'">
+    <!-- Enable parallel test execution -->
+    <TestRunParameters>MaxCpuCount=0</TestRunParameters>
+    
+    <!-- Optimize test assembly loading -->
+    <PreserveCompilationContext>false</PreserveCompilationContext>
+    <PreserveCompilationReferences>false</PreserveCompilationReferences>
+    
+    <!-- Speed up test builds by reducing unnecessary output -->
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    
+    <!-- Disable unnecessary warnings in test projects -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+  
+</Project>

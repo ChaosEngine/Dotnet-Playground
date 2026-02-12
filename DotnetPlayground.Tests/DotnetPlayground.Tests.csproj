@@ -31,5 +31,9 @@
     <ProjectReference Include="..\DotnetPlayground.Web\DotnetPlayground.Web.csproj" />
     <ProjectReference Include="..\InkBall\test\InkBall.Tests\InkBall.Tests.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 	
 </Project>
