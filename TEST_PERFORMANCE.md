@@ -55,29 +55,27 @@ Updated `.vscode/settings.json` to reference the `.runsettings` file:
 
 ### Visual Studio Code
 
-1. **Test Explorer**: Tests will automatically use the new configurations
-2. **Command Line**: Run tests with the settings file:
+1. **Test Explorer**: Tests will automatically use the new configurations IF you specify the settings file
+2. **Important**: You MUST use the settings file explicitly:
    ```bash
    dotnet test --settings .runsettings
    ```
+   
+   Or configure it globally in your project/solution.
 
 ### Command Line (CLI)
 
-The configurations are automatically picked up by the test runner. You can run:
+The configurations require explicit use of the settings file. You **must** run:
 
 ```bash
 # Standard test execution (uses xunit.runner.json automatically)
 dotnet test
 
-# With explicit settings file
+# With explicit settings file (REQUIRED for .runsettings parallelization)
 dotnet test --settings .runsettings
-
-# With parallel execution (now enabled by default)
-dotnet test --parallel
-
-# With specific number of processes
-dotnet test -m:4
 ```
+
+**Important**: Without `--settings .runsettings`, only the xunit.runner.json configuration will be used, which may provide limited parallelization benefits.
 
 ### Visual Studio 2022/2026
 
@@ -88,9 +86,13 @@ Visual Studio will automatically detect and use the `.runsettings` file if it's 
 
 ## Performance Improvements
 
+**Important Note**: Performance gains depend heavily on your test suite structure and must use `--settings .runsettings`:
+
 Expected improvements:
 
-- **2-4x faster** test execution on multi-core machines
+- **1.5-3x faster** test execution on multi-core machines (if you have multiple test collections)
+- **Minimal to no improvement** if you only have a single test collection (xUnit already parallelizes within collections)
+- **Must use**: `dotnet test --settings .runsettings` to enable all parallelization features
 - **Reduced test discovery time** with pre-enumeration
 - **Better resource utilization** with parallel execution
 - **Consistent performance** across VSCode, CLI, and Visual Studio
@@ -145,11 +147,19 @@ If tests fail due to shared state:
 
 ### Performance Not Improved
 
-Check:
+**Most Important**: You MUST use the .runsettings file explicitly:
+```bash
+dotnet test --settings .runsettings
+```
+
+Without this, the VSTest parallelization settings won't be applied.
+
+Also check:
 1. Number of tests - Parallelization benefits are more noticeable with more tests
 2. Test duration - Very fast tests may not benefit much from parallelization
 3. I/O bound tests - Tests waiting on I/O may not benefit as much
 4. CPU cores - Ensure your machine has multiple cores available
+5. **xUnit already parallelizes tests within collections by default** - You may only see improvement if you have multiple test collections
 
 ### VSCode Test Explorer Issues
 

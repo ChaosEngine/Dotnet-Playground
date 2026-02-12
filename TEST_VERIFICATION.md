@@ -29,27 +29,29 @@ The build should now use parallel compilation (via `Directory.Build.props`).
 
 ### 3. Run Tests and Measure Performance
 
+**CRITICAL**: You must use the `--settings` parameter to enable parallelization:
+
 **Before Optimization (baseline):**
 ```bash
 # If you have a backup branch without these changes
 git checkout main
 
 # Linux/macOS
-time dotnet test
+time dotnet test --settings .runsettings
 
 # Windows (PowerShell)
-Measure-Command { dotnet test }
+Measure-Command { dotnet test --settings .runsettings }
 ```
 
 **After Optimization:**
 ```bash
 git checkout copilot/improve-test-execution-speed
 
-# Linux/macOS
-time dotnet test
+# Linux/macOS  
+time dotnet test --settings .runsettings
 
 # Windows (PowerShell)
-Measure-Command { dotnet test }
+Measure-Command { dotnet test --settings .runsettings }
 ```
 
 You should see:
@@ -73,11 +75,8 @@ Look for messages indicating:
 ### 5. Test with Explicit Settings File
 
 ```bash
-# Use .runsettings explicitly
-dotnet test --settings .runsettings
-
-# Or with specific parameters
-dotnet test --parallel --logger "console;verbosity=normal"
+# Use .runsettings explicitly (this is important for parallel execution)
+dotnet test --settings .runsettings --logger "console;verbosity=normal"
 ```
 
 ## Detailed Verification
@@ -159,7 +158,7 @@ total=0
 for i in {1..3}; do
     echo "Run $i..."
     start=$(date +%s)
-    dotnet test --no-build > /dev/null 2>&1
+    dotnet test --no-build --settings .runsettings > /dev/null 2>&1
     end=$(date +%s)
     duration=$((end - start))
     echo "  Duration: ${duration}s"
