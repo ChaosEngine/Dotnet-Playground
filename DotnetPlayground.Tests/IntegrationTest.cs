@@ -38,7 +38,7 @@ namespace Integration
 		}
 	}
 
-	[Collection(nameof(TestServerCollection))]
+	[Collection("HomepageTests")]
 	public class HomePage
 	{
 		private readonly TestServerFixture<Startup> _fixture;
@@ -215,7 +215,7 @@ namespace Integration
 		}
 	}
 
-	[Collection(nameof(TestServerCollection))]
+	[Collection("HashTests")]
 	public class HashesPage
 	{
 		private readonly TestServerFixture<Startup> _fixture;
@@ -309,7 +309,7 @@ namespace Integration
 
 	}
 
-	[Collection(nameof(TestServerCollection))]
+	[Collection("HashTests")]
 	public class HashesDataTablePage
 	{
 		class TypedResult
@@ -458,7 +458,7 @@ namespace Integration
 		}
 	}
 
-	[Collection(nameof(TestServerCollection))]
+	[Collection("BlogTests")]
 	public partial class BlogsPage
 	{
 		private readonly TestServerFixture<Startup> _fixture;
@@ -868,7 +868,7 @@ namespace Integration
 		private static partial Regex MyRegex();
 	}
 
-	[Collection(nameof(TestServerCollection))]
+	[Collection("WebCamTests")]
 	public partial class WebCamGalleryPage
 	{
 		private readonly TestServerFixture<Startup> _fixture;
@@ -1043,7 +1043,7 @@ namespace Integration
 		private static partial Regex MyRegex();
 	}
 
-	[Collection(nameof(TestServerCollection))]
+	[Collection("PagesTests")]
 	public class IdentityManager2
 	{
 		private readonly TestServerFixture<Startup> _fixture;
@@ -1259,7 +1259,7 @@ namespace Integration
 		}
 	}
 
-	[Collection(nameof(TestServerCollection))]
+	[Collection("PagesTests")]
 	public class StaticAssetContent
 	{
 		private readonly TestServerFixture<Startup> _fixture;

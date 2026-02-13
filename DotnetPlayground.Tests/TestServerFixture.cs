@@ -224,4 +224,37 @@ namespace Integration
 		// to be the place to apply [CollectionDefinition] and all the
 		// ICollectionFixture<> interfaces.
 	}
+
+	// Additional collections for parallel test execution
+	// Each collection runs independently, enabling tests to execute in parallel
+
+	[CollectionDefinition("HomepageTests")]
+	public class HomepageTestsCollection : ICollectionFixture<TestServerFixture<DotnetPlayground.Startup>>
+	{
+	}
+
+	[CollectionDefinition("BlogTests")]
+	public class BlogTestsCollection : ICollectionFixture<TestServerFixture<DotnetPlayground.Startup>>
+	{
+	}
+
+	[CollectionDefinition("HashTests")]
+	public class HashTestsCollection : ICollectionFixture<TestServerFixture<DotnetPlayground.Startup>>
+	{
+	}
+
+	[CollectionDefinition("WebCamTests")]
+	public class WebCamTestsCollection : ICollectionFixture<TestServerFixture<DotnetPlayground.Startup>>
+	{
+	}
+
+	[CollectionDefinition("ImportTests")]
+	public class ImportTestsCollection : ICollectionFixture<TestServerFixture<DotnetPlayground.Startup>>
+	{
+	}
+
+	[CollectionDefinition("PagesTests")]
+	public class PagesTestsCollection : ICollectionFixture<TestServerFixture<DotnetPlayground.Startup>>
+	{
+	}
 }
