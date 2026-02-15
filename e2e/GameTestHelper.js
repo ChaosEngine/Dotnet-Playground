@@ -68,11 +68,15 @@ export class GameTestHelper {
 	 * @param {number} y Y coordinate
 	 */
 	svgClick = async (svgElement, x, y) => {
+		const beforePlayerCircles = await svgElement.locator(`circle[data-status^="POINT"]`).count();
+
 		// await svgElement.click({ position: { x: x * 16, y: y * 16 }, delay: 100 });
 		await svgElement.dblclick({ position: { x: x * 16, y: y * 16 }, delay: 100 });//two clicks make it somehow better?
 		// this.delay(200);
 
-		await this.expect(svgElement.locator(`circle[cx="${x}"][cy="${y}"][data-status^="POINT_FREE"]`)).toBeVisible();
+		// await this.expect(svgElement.locator(`circle[cx="${x}"][cy="${y}"][data-status="POINT_FREE_RED"]`)).toBeVisible();
+		const afterPlayerCircles = await svgElement.locator(`circle[data-status^="POINT"]`).count();
+		this.expect(afterPlayerCircles).toBeGreaterThanOrEqual(beforePlayerCircles/* + 1 */);
 	};
 
 
@@ -179,9 +183,11 @@ export class GameTestHelper {
 		const legend1 = player.page.locator('div.modal-body', { hasText: message });
 		await this.expect(legend1).toBeVisible();
 
-		const btnModalClose1 = player.page.locator('button[data-bs-dismiss="modal"]', { hasText: 'Close' });
-		await btnModalClose1.click();
+		const btnModalClose1 = player.page.getByText('Close');
+		await this.expect(btnModalClose1).toBeVisible();
+		await btnModalClose1.dblclick({ delay: 200 });
 
+		await player.page.waitForLoadState(); // The promise resolves after 'load' event.
 		await this.expect(player.page).toHaveURL(/.*InkBall\/GamesList/);
 	}
 

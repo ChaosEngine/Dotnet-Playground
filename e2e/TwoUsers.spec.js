@@ -156,18 +156,18 @@ test.describe('AI tests', () => {
 		await helper.svgClick(svg, randX + 21, randY + 17);
 
 		//put dummy 2 spread points just to trigger AI to do its work
-		for (let x = 2; x <= 36; x += 2) {
+		for (let x = 2; x <= 38; x += 2) {
+			if (x > 30 && await p1.page.locator('polyline[data-id][stroke="var(--bluish)"]').nth(4).isVisible())
+				break;
 			await helper.svgClick(svg, x, randY + 1);
+			if (x > 31 && await p1.page.locator('polyline[data-id][stroke="var(--bluish)"]').nth(4).isVisible())
+				break;
 			await helper.svgClick(svg, x, randY + 3);
 		}
 
-		await helper.delay(1 * 500);//wait for signalR to settle in (?)
+		await expect(p1.page.locator('polyline[data-id][stroke="var(--bluish)"]').nth(4)).toBeVisible();
+		await expect(p1.page.locator('div.modal-body', { hasText: 'And the winner is... blue.' })).toBeVisible();
 
-		const winMessageVisible = await p1.page.locator('div.modal-body', { hasText: 'And the winner is... blue.' }).isVisible();
-		if (!winMessageVisible) {
-			await helper.svgClick(svg, 38, randY + 3);//somehow we are lacking last point, put it just to be sure
-			// await helper.svgClick(svg, 38, randY + 3);//just to be sure
-		}
 
 		await helper.verifyWin(p1, 'And the winner is... blue.');
 	});
@@ -209,15 +209,14 @@ test.describe('AI tests', () => {
 			await helper.svgClick(svg, randX + x, randY + 10);
 
 		//put dummy 2 spread points just to trigger AI to do its work
-		for (let x = 2; x <= 26; x += 2)
+		for (let x = 2; x <= 38; x += 2) {
+			if (x > 20 && await p2.page.locator('polyline[data-id][stroke="var(--bluish)"]').isVisible())
+				break;
 			await helper.svgClick(svg, x, randY + 1);
-
-		await helper.delay(1 * 500);//wait for signalR to settle in (?)
-
-		const winMessageVisible = await p2.page.locator('div.modal-body', { hasText: 'And the winner is... blue.' }).isVisible();
-		if (!winMessageVisible) {
-			await helper.svgClick(svg, 38, randY + 3);//somehow we are lacking last point, put it just to be sure
 		}
+
+		// await helper.delay(1 * 500);//wait for signalR to settle in (?)
+		await expect(p2.page.locator('polyline[data-id][stroke="var(--bluish)"]')).toBeVisible();//expect 1 lines drawn by AI
 
 		await helper.verifyWin(p2, 'And the winner is... blue.');
 	});
