@@ -3,12 +3,10 @@ import { test, expect } from '@playwright/test';
 
 /**
  * Tests redirects to authorize requiring pages
- * @param {import('@playwright/test').Browser} browser playwright
+ * @param {import('@playwright/test').Page} page playwright page
  * @param {string} pageUrl url to page
  */
-async function notAllowedAndRedirectToLogin(browser, pageUrl) {
-	const page = await browser.newPage();
-
+async function notAllowedAndRedirectToLogin(page, pageUrl) {
 	await page.goto(pageUrl);
 
 	// Expects the URL to be Home because Game page redirect if no game present.
@@ -26,8 +24,7 @@ test.describe.configure({ mode: 'parallel' });
 
 test.use({ storageState: './e2e/storageStates/Anonymous-storageState.json', ignoreHTTPSErrors: true });
 
-test('Home as Anonymous', async ({ browser }) => {
-	const page = await browser.newPage();
+test('Home as Anonymous', async ({ page }) => {
 
 	await page.goto('InkBall/Home');
 
@@ -39,23 +36,21 @@ test('Home as Anonymous', async ({ browser }) => {
 	await expect(welcome).toContainText(/You are not logged in ... or allowed 😅/);
 });
 
-test('Game page as Anonymous with redirect to LogIn', async ({ browser }) => {
-	await notAllowedAndRedirectToLogin(browser, 'InkBall/Game');
+test('Game page as Anonymous with redirect to LogIn', async ({ page }) => {
+	await notAllowedAndRedirectToLogin(page, 'InkBall/Game');
 });
 
-test('GamesList page as Anonymous with redirect to LogIn', async ({ browser }) => {
-	await notAllowedAndRedirectToLogin(browser, 'InkBall/GamesList');
+test('GamesList page as Anonymous with redirect to LogIn', async ({ page }) => {
+	await notAllowedAndRedirectToLogin(page, 'InkBall/GamesList');
 });
 
-test('Highscores page as Anonymous with redirect to LogIn', async ({ browser }) => {
-	await notAllowedAndRedirectToLogin(browser, 'InkBall/Highscores');
+test('Highscores page as Anonymous with redirect to LogIn', async ({ page }) => {
+	await notAllowedAndRedirectToLogin(page, 'InkBall/Highscores');
 });
 
 /*
 //No use in that really
-test('NotExisting page as Anonymous with redirect to LogIn', async ({ browser }) => {
-	const page = await browser.newPage();
-
+test('NotExisting page as Anonymous with redirect to LogIn', async ({ page }) => {
 	const resp = await page.goto('InkBall/NotExisting');
 
 	// Expects the URL to be Home because Game page redirect if no game present.

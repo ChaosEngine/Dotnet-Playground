@@ -61,6 +61,12 @@ export class GameTestHelper {
 			await this.testPointExistenceForPlayer(otherPlayer, x, y);
 	};
 
+	/**
+	 * Clicks on svg element in given coordinates and expects that point is created for player
+	 * @param {import('@playwright/test').Locator} svgElement Playwright locator for svg element
+	 * @param {number} x X coordinate
+	 * @param {number} y Y coordinate
+	 */
 	svgClick = async (svgElement, x, y) => {
 		// await svgElement.click({ position: { x: x * 16, y: y * 16 }, delay: 100 });
 		await svgElement.dblclick({ position: { x: x * 16, y: y * 16 }, delay: 100 });//two clicks make it somehow better?
@@ -113,6 +119,9 @@ export class GameTestHelper {
 
 		await this.expect(player.page).toHaveURL(/.*InkBall\/Game/);
 
+		// // Listen for 'connected' console message to ensure SignalR connection is established before proceeding
+		// await player.page.waitForEvent('console', msg => msg.text().includes('connected;'));
+
 		await this.expect(player.page.locator('svg#screen')).toBeVisible();
 	}
 
@@ -132,6 +141,9 @@ export class GameTestHelper {
 		await btnJoin.click();
 
 		await this.expect(player.page).toHaveURL(/.*InkBall\/Game/);
+
+		// // Listen for 'connected' console message to ensure SignalR connection is established before proceeding
+		// await player.page.waitForEvent('console', msg => msg.text().includes('connected;'));
 
 		await this.expect(player.page.locator('svg#screen')).toBeVisible();
 	}
