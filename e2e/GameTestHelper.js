@@ -19,6 +19,7 @@ export class GameTestHelper {
 
 		// Example locator pointing to "Welcome User" greeting.
 		const greeting = page.locator('p.inkhome');
+		await this.expect(greeting).toBeVisible();
 		await this.expect(greeting).toHaveText(`Welcome ${userName}`);
 
 		// create a locator
@@ -56,7 +57,7 @@ export class GameTestHelper {
 
 	putPointForPlayer = async (player, x, y, otherPlayer = undefined) => {
 		// await player.page.locator('svg#screen').dblclick({ position: { x: x * 16, y: y * 16 } });
-		await player.page.locator('svg#screen').click({ position: { x: x * 16, y: y * 16 }, delay: 100 });//two clicks make it somehow better?
+		await player.page.locator('svg#screen').click({ position: { x: x * 16, y: y * 16 }, delay: 300 });//two clicks make it somehow better?
 		if (otherPlayer)
 			await this.testPointExistenceForPlayer(otherPlayer, x, y);
 	};
@@ -70,11 +71,11 @@ export class GameTestHelper {
 	svgClick = async (svgElement, x, y) => {
 		const beforePlayerCircles = await svgElement.locator(`circle[data-status^="POINT"]`).count();
 
-		// await svgElement.click({ position: { x: x * 16, y: y * 16 }, delay: 100 });
+		// await svgElement.click({ position: { x: x * 16, y: y * 16 }, delay: 200 });
 		await svgElement.dblclick({ position: { x: x * 16, y: y * 16 }, delay: 100 });//two clicks make it somehow better?
 		// this.delay(200);
-
 		// await this.expect(svgElement.locator(`circle[cx="${x}"][cy="${y}"][data-status="POINT_FREE_RED"]`)).toBeVisible();
+
 		const afterPlayerCircles = await svgElement.locator(`circle[data-status^="POINT"]`).count();
 		this.expect(afterPlayerCircles).toBeGreaterThanOrEqual(beforePlayerCircles/* + 1 */);
 	};
@@ -119,12 +120,18 @@ export class GameTestHelper {
 		//P1 creates new game and going into waiting-listening mode
 		const btnNewGame = player.page.locator('button[type=submit]', { hasText: 'New game' });
 		// await expect(btnNewGame).toBeVisible();
-		await btnNewGame.click();
 
+		// Listen for 'connected' console message to ensure SignalR connection is established before proceeding
+		const consolePromise = player.page.waitForEvent('console', msg => msg.text().includes('connected;'));
+
+		await btnNewGame.click();
 		await this.expect(player.page).toHaveURL(/.*InkBall\/Game/);
 
-		// // Listen for 'connected' console message to ensure SignalR connection is established before proceeding
-		// await player.page.waitForEvent('console', msg => msg.text().includes('connected;'));
+		await consolePromise; // Wait for the console message indicating SignalR connection is established
+
+		// // Listen for WebSocket connection to ensure SignalR connection is established before proceeding
+		// const webSocketPromise = player.page.waitForEvent('websocket', ws => ws.url().includes('wss://localhost:4553/dotnet/gameHub'));
+		// const ws = await webSocketPromise;
 
 		await this.expect(player.page.locator('svg#screen')).toBeVisible();
 	}
@@ -140,14 +147,15 @@ export class GameTestHelper {
 		const btnJoin = await player.page.locator('td.gtd', { hasText: otherPlayerNameWithGameToJoin })
 			.locator('..')
 			.locator('button[type=submit]', { hasText: 'Join' });
-
 		// await expect(btnJoin).toBeVisible();
-		await btnJoin.click();
 
+		// Listen for 'connected' console message to ensure SignalR connection is established before proceeding
+		const consolePromise = player.page.waitForEvent('console', msg => msg.text().includes('connected;'));
+
+		await btnJoin.click();
 		await this.expect(player.page).toHaveURL(/.*InkBall\/Game/);
 
-		// // Listen for 'connected' console message to ensure SignalR connection is established before proceeding
-		// await player.page.waitForEvent('console', msg => msg.text().includes('connected;'));
+		await consolePromise; // Wait for the console message indicating SignalR connection is established
 
 		await this.expect(player.page.locator('svg#screen')).toBeVisible();
 	}

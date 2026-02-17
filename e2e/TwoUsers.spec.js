@@ -156,7 +156,7 @@ test.describe('AI tests', () => {
 		await helper.svgClick(svg, randX + 21, randY + 17);
 
 		//put dummy 2 spread points just to trigger AI to do its work
-		for (let x = 2; x <= 38; x += 2) {
+		for (let x = 0; x <= 38; x += 2) {
 			if (x > 30 && await p1.page.locator('polyline[data-id][stroke="var(--bluish)"]').nth(4).isVisible())
 				break;
 			await helper.svgClick(svg, x, randY + 1);
@@ -167,7 +167,6 @@ test.describe('AI tests', () => {
 
 		await expect(p1.page.locator('polyline[data-id][stroke="var(--bluish)"]').nth(4)).toBeVisible();
 		await expect(p1.page.locator('div.modal-body', { hasText: 'And the winner is... blue.' })).toBeVisible();
-
 
 		await helper.verifyWin(p1, 'And the winner is... blue.');
 	});
@@ -201,16 +200,25 @@ test.describe('AI tests', () => {
 				randY += 26;
 		}
 
-		for (let x = 10; x >= 5; x--)
+		for (let x = 10; x >= 5; x--) {
+			if (await p2.page.locator('polyline[data-id][stroke="var(--bluish)"]').isVisible())
+				break;
 			await helper.svgClick(svg, randX + x, randY + 5);
-		for (let y = 5; y <= 10; y++)
+		}
+		for (let y = 5; y <= 10; y++) {
+			if (await p2.page.locator('polyline[data-id][stroke="var(--bluish)"]').isVisible())
+				break;
 			await helper.svgClick(svg, randX + 5, randY + y);
-		for (let x = 5; x <= 10; x++)
+		}
+		for (let x = 5; x <= 10; x++) {
+			if (await p2.page.locator('polyline[data-id][stroke="var(--bluish)"]').isVisible())
+				break;
 			await helper.svgClick(svg, randX + x, randY + 10);
+		}
 
 		//put dummy 2 spread points just to trigger AI to do its work
 		for (let x = 2; x <= 38; x += 2) {
-			if (x > 20 && await p2.page.locator('polyline[data-id][stroke="var(--bluish)"]').isVisible())
+			if (await p2.page.locator('polyline[data-id][stroke="var(--bluish)"]').isVisible())
 				break;
 			await helper.svgClick(svg, x, randY + 1);
 		}
