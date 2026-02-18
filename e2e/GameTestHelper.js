@@ -71,10 +71,10 @@ export class GameTestHelper {
 	svgClick = async (svgElement, x, y) => {
 		const beforePlayerCircles = await svgElement.locator(`circle[data-status^="POINT"]`).count();
 
-		// await svgElement.click({ position: { x: x * 16, y: y * 16 }, delay: 200 });
-		await svgElement.dblclick({ position: { x: x * 16, y: y * 16 }, delay: 100 });//two clicks make it somehow better?
+		await svgElement.click({ position: { x: x * 16, y: y * 16 }, delay: 200 });
+		// await svgElement.dblclick({ position: { x: x * 16, y: y * 16 }, delay: 100 });//two clicks make it somehow better?
 		// this.delay(200);
-		// await this.expect(svgElement.locator(`circle[cx="${x}"][cy="${y}"][data-status="POINT_FREE_RED"]`)).toBeVisible();
+		await svgElement.locator(`circle[cx="${x}"][cy="${y}"][data-status="POINT_FREE_RED"]`).waitFor();//wait for the point to be visible
 
 		const afterPlayerCircles = await svgElement.locator(`circle[data-status^="POINT"]`).count();
 		this.expect(afterPlayerCircles).toBeGreaterThanOrEqual(beforePlayerCircles/* + 1 */);

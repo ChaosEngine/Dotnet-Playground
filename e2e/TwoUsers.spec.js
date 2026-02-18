@@ -7,13 +7,7 @@ import { GameTestHelper } from './GameTestHelper';
 
 
 //init
-let //Playwright1, Playwright2, 
-	helper = new GameTestHelper(expect);
-
-// test.beforeAll(async ({ browser }) => {
-// 	Playwright1 = await PlaywrightUser.create(browser, 'en-US', FixtureUsers[0].userName);
-// 	Playwright2 = await PlaywrightUser.create(browser, 'en-US', FixtureUsers[1].userName);
-// });
+const helper = new GameTestHelper(expect);
 
 test.describe.configure({ mode: 'serial' });
 
@@ -166,7 +160,6 @@ test.describe('AI tests', () => {
 		}
 
 		await expect(p1.page.locator('polyline[data-id][stroke="var(--bluish)"]').nth(4)).toBeVisible();
-		await expect(p1.page.locator('div.modal-body', { hasText: 'And the winner is... blue.' })).toBeVisible();
 
 		await helper.verifyWin(p1, 'And the winner is... blue.');
 	});

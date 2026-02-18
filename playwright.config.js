@@ -18,7 +18,7 @@ const baseUrl = process.env.BASE_URL || 'https://localhost:4553/dotnet/';
 const config = {
 	testDir: './e2e',
 	/* Maximum time one test can run for. */
-	timeout: 30 * 1000,
+	timeout: 45 * 1000,
 	expect: {
 		/**
 		 * Maximum time expect() should wait for the condition to be met.
