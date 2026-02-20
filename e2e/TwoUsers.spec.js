@@ -26,8 +26,7 @@ test('Playwright1 and Playwright2 - GamesList', async ({ Playwright1/* , Playwri
 	await helper.testLoggedInGamesList(Playwright1.page);
 });
 
-test('P1 create game, P2 joins, P2 wins', async ({ Playwright1, Playwright2 }) => {
-	const p1 = Playwright1, p2 = Playwright2;
+test('P1 create game, P2 joins, P2 wins', async ({ Playwright1: p1, Playwright2: p2 }) => {
 	// ... interact with Playwright1 and/or Playwright2 ...
 	//create new game as p1
 	await helper.createGameFromHome(p1);
@@ -37,7 +36,7 @@ test('P1 create game, P2 joins, P2 wins', async ({ Playwright1, Playwright2 }) =
 
 	const randX = helper.getRandomInt(0, 8), randY = helper.getRandomInt(0, 19);
 	// await helper.delay(2 * 1000);//wait for signalR to settle in (?)
-	await expect(p1.page.getByText(`Player ${Playwright2.userName} joining`)).toBeVisible();
+	await expect(p1.page.getByText(`Player ${p2.userName} joining`)).toBeVisible();
 
 
 	//put 5x p1 points and 5x p2 point interchangeably and verify existence
@@ -93,8 +92,7 @@ test('P1 create game, P2 joins, P2 wins', async ({ Playwright1, Playwright2 }) =
 test.describe('AI tests', () => {
 	// test.describe.configure({ mode: 'parallel' });
 
-	test('Put 2x2 points and AI surrounds it', async ({ Playwright1 }) => {
-		const p1 = Playwright1;
+	test('Put 2x2 points and AI surrounds it', async ({ Playwright1: p1 }) => {
 
 		// ... interact as Playwright1 only ... create new AI game
 		await helper.createGameFromHome(p1, 'Advantage of 5 paths wins', '40 x 52', true);
@@ -165,8 +163,7 @@ test.describe('AI tests', () => {
 	});
 
 
-	test('Put C-like shape points and AI surrounds it', async ({ Playwright2 }) => {
-		const p2 = Playwright2;
+	test('Put C-like shape points and AI surrounds it', async ({ Playwright2: p2 }) => {
 
 		// ... interact as Playwright1 only ... create new AI game
 		await helper.createGameFromHome(p2, 'First capture wins', '40 x 52', true);
