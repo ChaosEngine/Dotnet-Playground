@@ -52,3 +52,6 @@ VOLUME /shared
 EXPOSE 8080
 
 ENTRYPOINT ["./DotnetPlayground.Web"]
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+	CMD wget -q --tries=1 --spider http://localhost:$ASPNETCORE_HTTP_PORTS/dotnet/js/site.min.js || exit 1
