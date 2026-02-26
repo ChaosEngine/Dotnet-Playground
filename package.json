@@ -4,11 +4,11 @@
 		"defaults"
 	],
 	"devDependencies": {
-		"@eslint/eslintrc": "^3.3.3",
+		"@eslint/eslintrc": "^3.3.4",
 		"@eslint/js": "^10.0.1",
 		"@playwright/test": "^1.58.2",
-		"eslint": "^10.0.1",
-		"eslint-plugin-jsdoc": "^62.7.0",
+		"eslint": "^10.0.2",
+		"eslint-plugin-jsdoc": "^62.7.1",
 		"globals": "17.3.0"
 	},
 	"dependencies": {
@@ -46,7 +46,7 @@
 		"qrcodejs": "1.0.0",
 		"sass": "^1.97.3",
 		"video.js": "8.23.7",
-		"webpack": "^5.105.2",
+		"webpack": "^5.105.3",
 		"webpack-stream": "^7.0.0"
 	},
 	"scripts": {
