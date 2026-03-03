@@ -9,7 +9,7 @@
 		"@playwright/test": "^1.58.2",
 		"eslint": "^10.0.2",
 		"eslint-plugin-jsdoc": "^62.7.1",
-		"globals": "17.3.0"
+		"globals": "17.4.0"
 	},
 	"dependencies": {
 		"@aptuitiv/gulp-clean-css": "^4.4.3",
@@ -46,7 +46,7 @@
 		"qrcodejs": "1.0.0",
 		"sass": "^1.97.3",
 		"video.js": "8.23.7",
-		"webpack": "^5.105.3",
+		"webpack": "^5.105.4",
 		"webpack-stream": "^7.0.0"
 	},
 	"scripts": {
