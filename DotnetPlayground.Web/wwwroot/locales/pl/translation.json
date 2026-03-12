@@ -120,6 +120,91 @@
 		"message": "Zostałeś wylogowany.",
 		"loginAgain": "Zaloguj się ponownie"
 	},
+	"accessDenied": {
+		"title": "Dostęp zabroniony",
+		"description": "Nie masz dostępu do tego zasobu."
+	},
+	"confirmEmail": {
+		"title": "Potwierdź email"
+	},
+	"externalLogin": {
+		"title": "Zarejestruj się",
+		"description": "Powiąż swoje konto zewnętrzne."
+	},
+	"forgotPassword": {
+		"title": "Zapomniałeś hasła?",
+		"description": "Wprowadź swój adres email."
+	},
+	"forgotPasswordConfirmation": {
+		"title": "Potwierdzenie resetowania hasła",
+		"description": "Sprawdź swoją pocztę e-mail, aby zresetować hasło."
+	},
+	"lockout": {
+		"title": "Konto zablokowane",
+		"description": "To konto zostało zablokowane, spróbuj ponownie później."
+	},
+	"loginWith2fa": {
+		"title": "Uwierzytelnianie dwuskładnikowe",
+		"description": "Twoje logowanie jest chronione aplikacją uwierzytelniania. Wprowadź poniżej kod z aplikacji uwierzytelniającej."
+	},
+	"loginWithRecoveryCode": {
+		"title": "Weryfikacja kodu odzyskiwania",
+		"description": "Żądasz zalogowania się kodem odzyskiwania."
+	},
+	"register": {
+		"title": "Zarejestruj się",
+		"description": "Utwórz nowe konto."
+	},
+	"resetPassword": {
+		"title": "Resetuj hasło",
+		"description": "Zresetuj swoje hasło."
+	},
+	"resetPasswordConfirmation": {
+		"title": "Potwierdzenie resetowania hasła",
+		"description": "Twoje hasło zostało zresetowane. Kliknij tutaj, aby się zalogować."
+	},
+	"changePassword": {
+		"title": "Zmień hasło"
+	},
+	"deletePersonalData": {
+		"title": "Usuń dane osobowe",
+		"description": "Usunięcie tych danych spowoduje trwałe usunięcie Twojego konta, co nie może być odwrócone."
+	},
+	"disable2fa": {
+		"title": "Wyłącz uwierzytelnianie dwuskładnikowe (2FA)",
+		"description": "Ta akcja wyłącza wyłącznie 2FA."
+	},
+	"downloadPersonalData": {
+		"title": "Pobierz swoje dane"
+	},
+	"enableAuthenticator": {
+		"title": "Skonfiguruj aplikację uwierzytelniającą"
+	},
+	"externalLogins": {
+		"title": "Zarządzaj logowaniami zewnętrznymi"
+	},
+	"generateRecoveryCodes": {
+		"title": "Wygeneruj kody odzyskiwania uwierzytelniania dwuskładnikowego (2FA)",
+		"description": "Przechowuj te kody w bezpiecznym miejscu."
+	},
+	"profile": {
+		"title": "Profil"
+	},
+	"personalData": {
+		"title": "Dane osobowe",
+		"description": "Twoje konto zawiera dane osobowe, które nam podałeś."
+	},
+	"resetAuthenticator": {
+		"title": "Zresetuj klucz uwierzytelniania",
+		"description": "Jeśli zresetujesz klucz uwierzytelniania, Twoja aplikacja uwierzytelniająca nie będzie działać, dopóki nie przeprowadzisz ponownej konfiguracji."
+	},
+	"setPassword": {
+		"title": "Ustaw hasło",
+		"description": "Nie masz lokalnego użytkownika/hasła na tej stronie. Dodaj konto lokalne, aby logować się bez zewnętrznego logowania."
+	},
+	"twoFactorAuthentication": {
+		"title": "Uwierzytelnianie dwuskładnikowe (2FA)"
+	},
 	"puzzles": {
 		"title": "Generator Puzzli",
 		"description": "Łączy obraz PNG/JPG/AVIF z wzorem puzzli SVG. Zastosuj skalowanie, obrót, przekształcenie, aby dopasować do swoich potrzeb.",

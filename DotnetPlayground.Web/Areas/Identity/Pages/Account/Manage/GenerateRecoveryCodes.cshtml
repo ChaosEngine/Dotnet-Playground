@@ -1,12 +1,12 @@
 ﻿@page
 @model GenerateRecoveryCodesModel
 @{
-	ViewData["Title"] = "Generate two-factor authentication (2FA) recovery codes";
+	ViewData["Title"] = "generateRecoveryCodes.title";
 	ViewData["ActivePage"] = ManageNavPages.TwoFactorAuthentication;
 }
 
 <partial name="_StatusMessage" for="StatusMessage" />
-<h4>@ViewData["Title"]</h4>
+<h4 data-i18n="generateRecoveryCodes.title">@ViewData["Title"]</h4>
 
 <div class="alert alert-warning d-flex align-items-top warn-icon" role="alert">
 	<div>
