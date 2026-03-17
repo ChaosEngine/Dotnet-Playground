@@ -84,6 +84,11 @@ test('P1 create game, P2 joins, P2 wins', async ({ Playwright1: p1, Playwright2:
 	await expect(p1.page.locator('polyline[data-id]')).toBeVisible();
 	await expect(p2.page.locator('polyline[data-id]')).toBeVisible();
 
+	const ownedCircles_p1 = await p1.page.locator(`circle[data-status="POINT_OWNED_BY_BLUE"]`).count();
+	const ownedCircles_p2 = await p2.page.locator(`circle[data-status="POINT_OWNED_BY_BLUE"]`).count();
+	expect(ownedCircles_p1).toBeGreaterThanOrEqual(1);
+	expect(ownedCircles_p2).toBeGreaterThanOrEqual(1);
+
 	await helper.verifyWin(p1, 'And the winner is... blue.');
 	await helper.verifyWin(p2, 'And the winner is... blue.');
 
@@ -123,27 +128,18 @@ test.describe('AI tests', () => {
 		}
 
 
-		// await helper.svgClick(svg, randX + 16, randY + 11);
 		await helper.svgClick(svg, randX + 15, randY + 12);
 		await helper.svgClick(svg, randX + 16, randY + 12);
 
-		// await helper.svgClick(svg, randX + 20, randY + 11);
-		// await helper.svgClick(svg, randX + 21, randY + 11);
 		await helper.svgClick(svg, randX + 20, randY + 12);
 		await helper.svgClick(svg, randX + 21, randY + 12);
 
-		// await helper.svgClick(svg, randX + 25, randY + 11);
-		// await helper.svgClick(svg, randX + 26, randY + 11);
 		await helper.svgClick(svg, randX + 25, randY + 12);
 		await helper.svgClick(svg, randX + 26, randY + 12);
 
-		// await helper.svgClick(svg, randX + 15, randY + 16);
-		// await helper.svgClick(svg, randX + 16, randY + 16);
 		await helper.svgClick(svg, randX + 15, randY + 17);
 		await helper.svgClick(svg, randX + 16, randY + 17);
 
-		// await helper.svgClick(svg, randX + 20, randY + 16);
-		// await helper.svgClick(svg, randX + 21, randY + 16);
 		await helper.svgClick(svg, randX + 20, randY + 17);
 		await helper.svgClick(svg, randX + 21, randY + 17);
 
@@ -151,10 +147,21 @@ test.describe('AI tests', () => {
 		for (let x = 0; x <= 38; x += 2) {
 			if (x > 30 && await p1.page.locator('polyline[data-id][stroke="var(--bluish)"]').nth(4).isVisible())
 				break;
-			await helper.svgClick(svg, x, randY + 1);
+
+			//check if point [x,randY + 0] is already taken, if not click it, otherwise click [x,randY + 4]
+			if (await svg.locator(`circle[cx="${x}"][cy="${randY + 0}"][data-status="POINT_FREE_BLUE"]`).isVisible())
+				await helper.svgClick(svg, x, randY + 4);
+			else
+				await helper.svgClick(svg, x, randY + 0);
+
 			if (x > 31 && await p1.page.locator('polyline[data-id][stroke="var(--bluish)"]').nth(4).isVisible())
 				break;
-			await helper.svgClick(svg, x, randY + 3);
+
+			//check if point [x,randY + 2] is already taken, if not click it, otherwise click [x,randY + 6]
+			if (await svg.locator(`circle[cx="${x}"][cy="${randY + 2}"][data-status="POINT_FREE_BLUE"]`).isVisible())
+				await helper.svgClick(svg, x, randY + 6);
+			else
+				await helper.svgClick(svg, x, randY + 2);
 		}
 
 		await expect(p1.page.locator('polyline[data-id][stroke="var(--bluish)"]').nth(4)).toBeVisible();
@@ -179,7 +186,6 @@ test.describe('AI tests', () => {
 
 		const svg = await p2.page.locator('svg#screen');
 
-		//put 4x p1 points and let AI surround it 5 times and win
 		await helper.svgClick(svg, randX + 10, randY + 5);//1st point
 
 		const firstOponentPoint = await svg.locator('circle[data-status="POINT_FREE_BLUE"]');//2nd point is AI
@@ -190,31 +196,51 @@ test.describe('AI tests', () => {
 				randY += 26;
 		}
 
+		let alreadyWon = false;
 		for (let x = 10; x >= 5; x--) {
-			if (await p2.page.locator('polyline[data-id][stroke="var(--bluish)"]').isVisible())
+			if (await p2.page.locator('polyline[data-id][stroke="var(--bluish)"]').isVisible()) {
+				alreadyWon = true;
 				break;
+			}
 			await helper.svgClick(svg, randX + x, randY + 5);
 		}
-		for (let y = 5; y <= 10; y++) {
-			if (await p2.page.locator('polyline[data-id][stroke="var(--bluish)"]').isVisible())
-				break;
-			await helper.svgClick(svg, randX + 5, randY + y);
+		if (!alreadyWon) {
+			for (let y = 5; y <= 10; y++) {
+				if (await p2.page.locator('polyline[data-id][stroke="var(--bluish)"]').isVisible()) {
+					alreadyWon = true;
+					break;
+				}
+				await helper.svgClick(svg, randX + 5, randY + y);
+			}
 		}
-		for (let x = 5; x <= 10; x++) {
-			if (await p2.page.locator('polyline[data-id][stroke="var(--bluish)"]').isVisible())
-				break;
-			await helper.svgClick(svg, randX + x, randY + 10);
+		if (!alreadyWon) {
+			for (let x = 5; x <= 10; x++) {
+				if (await p2.page.locator('polyline[data-id][stroke="var(--bluish)"]').isVisible()) {
+					alreadyWon = true;
+					break;
+				}
+				await helper.svgClick(svg, randX + x, randY + 10);
+			}
 		}
 
 		//put dummy 2 spread points just to trigger AI to do its work
-		for (let x = 2; x <= 38; x += 2) {
-			if (await p2.page.locator('polyline[data-id][stroke="var(--bluish)"]').isVisible())
-				break;
-			await helper.svgClick(svg, x, randY + 1);
-		}
+		if (!alreadyWon) {
+			for (let x = 2; x <= 38; x += 2) {
+				if (await p2.page.locator('polyline[data-id][stroke="var(--bluish)"]').isVisible())
+					break;
 
+				//check if point [x,randY + 1] is already taken, if not click it, otherwise click [x,randY + 3]
+				if (await svg.locator(`circle[cx="${x}"][cy="${randY + 1}"][data-status="POINT_FREE_BLUE"]`).isVisible())
+					await helper.svgClick(svg, x, randY + 3);
+				else
+					await helper.svgClick(svg, x, randY + 1);
+			}
+		}
 		// await helper.delay(1 * 500);//wait for signalR to settle in (?)
 		await expect(p2.page.locator('polyline[data-id][stroke="var(--bluish)"]')).toBeVisible();//expect 1 lines drawn by AI
+
+		const ownedCircles = await svg.locator(`circle[data-status="POINT_OWNED_BY_BLUE"]`).count();
+		expect(ownedCircles).toBeGreaterThanOrEqual(15);
 
 		await helper.verifyWin(p2, 'And the winner is... blue.');
 	});
