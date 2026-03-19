@@ -145,7 +145,7 @@ test.describe('AI tests', () => {
 
 		//put dummy 2 spread points just to trigger AI to do its work
 		for (let x = 0; x <= 38; x += 2) {
-			if (x > 30 && await p1.page.locator('polyline[data-id][stroke="var(--bluish)"]').nth(4).isVisible())
+			if (x > 20 && await p1.page.locator('polyline[data-id][stroke="var(--bluish)"]').nth(4).isVisible())
 				break;
 
 			//check if point [x,randY + 0] is already taken, if not click it, otherwise click [x,randY + 4]
@@ -154,7 +154,7 @@ test.describe('AI tests', () => {
 			else
 				await helper.svgClick(svg, x, randY + 0);
 
-			if (x > 31 && await p1.page.locator('polyline[data-id][stroke="var(--bluish)"]').nth(4).isVisible())
+			if (x > 21 && await p1.page.locator('polyline[data-id][stroke="var(--bluish)"]').nth(4).isVisible())
 				break;
 
 			//check if point [x,randY + 2] is already taken, if not click it, otherwise click [x,randY + 6]
