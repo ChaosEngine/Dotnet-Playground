@@ -278,7 +278,7 @@ const minTranslations = function concatJsDest() {
 };
 
 const processInputArgs = function () {
-	let colorTheme = undefined;//process.env.NODE_ENV === 'production' ? 'darkred' : 'darkslateblue';
+	let colorTheme;//process.env.NODE_ENV === 'production' ? 'darkred' : 'darkslateblue';
 	let env = undefined;
 	let projectVersion = undefined;
 	const argv = process.argv;

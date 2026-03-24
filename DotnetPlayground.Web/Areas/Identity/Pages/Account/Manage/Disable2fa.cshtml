@@ -1,12 +1,12 @@
 ﻿@page
 @model Disable2faModel
 @{
-    ViewData["Title"] = "Disable two-factor authentication (2FA)";
+    ViewData["Title"] = "disable2fa.title";
     ViewData["ActivePage"] = ManageNavPages.TwoFactorAuthentication;
 }
 
 <partial name="_StatusMessage" for="StatusMessage" />
-<h2>@ViewData["Title"]</h2>
+<h2 data-i18n="disable2fa.title">@ViewData["Title"]</h2>
 
 <div class="alert alert-warning" role="alert">
     <p>

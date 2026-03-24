@@ -1,11 +1,11 @@
 @page
 @model IndexModel
 @{
-	ViewData["Title"] = "Profile";
+	ViewData["Title"] = "profile.title";
 	ViewData["ActivePage"] = ManageNavPages.Index;
 }
 
-<h4>@ViewData["Title"]</h4>
+<h4 data-i18n="profile.title">@ViewData["Title"]</h4>
 <partial name="_StatusMessage" for="StatusMessage" />
 <form id="profile-form" method="post" action="~/Identity/Account/Manage" class="col-md-6 row g-2">
 	<div asp-validation-summary="All" class="text-danger"></div>

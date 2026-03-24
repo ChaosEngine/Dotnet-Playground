@@ -148,9 +148,8 @@ function BruteForceOnLoad() {
 						// Terminate all workers
 						workers.forEach(function (w) {
 							// Worker.terminate() to interrupt the web worker
-							if (w !== null) {
-								w.terminate(); w = null;
-							}
+							if (w !== null)
+								w.terminate();
 						});
 						workers = [];
 						// Add done class to all worker elements						

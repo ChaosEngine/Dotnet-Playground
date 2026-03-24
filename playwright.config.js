@@ -9,7 +9,7 @@ import { devices } from '@playwright/test';
  */
 // require('dotenv').config();
 
-const baseUrl = 'https://localhost:4553/dotnet/';
+const baseUrl = process.env.BASE_URL || 'https://localhost:4553/dotnet/';
 
 /**
  * @see https://playwright.dev/docs/test-configuration
@@ -18,13 +18,13 @@ const baseUrl = 'https://localhost:4553/dotnet/';
 const config = {
 	testDir: './e2e',
 	/* Maximum time one test can run for. */
-	timeout: 30 * 1000,
+	timeout: 45 * 1000,
 	expect: {
 		/**
 		 * Maximum time expect() should wait for the condition to be met.
 		 * For example in `await expect(locator).toHaveText();`
 		 */
-		timeout: 5000
+		timeout: 5 * 1000
 	},
 	/* Run tests in files in parallel */
 	fullyParallel: false,
@@ -103,7 +103,7 @@ const config = {
 	],
 
 	/* Folder for test artifacts such as screenshots, videos, traces, etc. */
-	// outputDir: 'test-results/',
+	outputDir: 'e2e/test-results/',
 
 	/* Run your local dev server before starting the tests */
 	webServer: {

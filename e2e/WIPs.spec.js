@@ -7,9 +7,7 @@ test.describe.configure({ mode: 'parallel' });
 
 test.use({ storageState: './e2e/storageStates/Anonymous-storageState.json', ignoreHTTPSErrors: true });
 
-test('ImportCsv - Open', async ({ browser }) => {
-	const page = await browser.newPage();
-
+test('ImportCsv - Open', async ({ page }) => {
 	await page.goto('ImportCsv');
 
 	// Expect a title "to contain" a substring.
@@ -21,9 +19,7 @@ test('ImportCsv - Open', async ({ browser }) => {
 });
 
 
-test('ImportCsv - Upload and Count', async ({ browser }) => {
-	const page = await browser.newPage();
-
+test('ImportCsv - Upload and Count', async ({ page }) => {
 	await page.goto('ImportCsv');
 
 	// Locate the file input element

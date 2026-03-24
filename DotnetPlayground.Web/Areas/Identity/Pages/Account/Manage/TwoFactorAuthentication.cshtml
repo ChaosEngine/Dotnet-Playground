@@ -1,12 +1,12 @@
 @page
 @model TwoFactorAuthenticationModel
 @{
-	ViewData["Title"] = "Two-factor authentication (2FA)";
+	ViewData["Title"] = "twoFactorAuthentication.title";
 	ViewData["ActivePage"] = ManageNavPages.TwoFactorAuthentication;
 }
 
 <partial name="_StatusMessage" for="StatusMessage" />
-<h4>@ViewData["Title"]</h4>
+<h4 data-i18n="twoFactorAuthentication.title">@ViewData["Title"]</h4>
 @if (Model.Is2faEnabled)
 {
 	if (Model.RecoveryCodesLeft == 0)

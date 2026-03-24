@@ -35,7 +35,8 @@ RUN dotnet publish -c $BUILD_CONFIG --self-contained -r $RUNTIME_ID DotnetPlaygr
 
 ARG BASE_IMAGE_VARIANT=alpine
 FROM mcr.microsoft.com/dotnet/runtime-deps:9.0-${BASE_IMAGE_VARIANT}
-RUN apk add tzdata && \
+RUN apk update && apk upgrade && \
+	apk add tzdata && \
 	ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 WORKDIR /app
 ENV USER=nobody
@@ -49,3 +50,6 @@ VOLUME /shared
 EXPOSE 8080
 
 ENTRYPOINT ["./DotnetPlayground.Web"]
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+	CMD wget -q --tries=1 --spider http://localhost:$ASPNETCORE_HTTP_PORTS/dotnet/js/site.min.js || exit 1

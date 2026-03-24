@@ -22,9 +22,7 @@
 			importScripts(data.libs2Load[i]);
 
 		// Save a timestamp when we started
-		let lastUpdateMilis = new Date().getTime(),
-			currentMilis = new Date().getTime(),
-			pass, hexHash;
+		let lastUpdateMilis = new Date().getTime(), currentMilis, pass, hexHash;
 
 		let products = new LazyProductExp(data.passCharacterLength, data.alphabet);
 
