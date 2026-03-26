@@ -53,6 +53,8 @@
 	"scripts": {
 		"postinstall": "gulp postinstall",
 		"gulp": "gulp",
-		"lint": "eslint ."
+		"lint": "eslint .",
+		"test:playwright": "playwright test",
+		"test:js-inkball": "bun test --concurrent InkBall/test/JS-tests/"
 	}
 }
