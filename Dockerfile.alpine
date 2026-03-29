@@ -25,8 +25,8 @@ RUN dotnet restore -r $RUNTIME_ID /p:Configuration=Release
 
 COPY . .
 RUN sed -i -e "s/GIT_HASH/$SOURCE_COMMIT/g" -e "s/GIT_BRANCH/$SOURCE_BRANCH/g" DotnetPlayground.Web/wwwroot/js/site.js
-RUN dotnet test -v m
-RUN bun install --prod --unsafe-perm
+RUN bun install --production --unsafe-perm
+RUN dotnet test -v m && bun run test:js-inkball
 RUN dotnet publish -c $BUILD_CONFIG --self-contained -r $RUNTIME_ID DotnetPlayground.Web
 
 
