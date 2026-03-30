@@ -14,7 +14,7 @@
 	window = self;
 
 	// This is the entry point for our worker
-	s.addEventListener('message', function (e) {
+	s.addEventListener('message', async function (e) {
 		const data = JSON.parse(arrayBufferToBinaryStringExp(e.data));
 
 		// In web workers we can use importScripts to load external javascripts
@@ -30,7 +30,7 @@
 		for (let i = data.range.low; i < data.range.high; i++) {
 			// Hash our number password with a salt and key stretching
 			pass = products.item(i);
-			hexHash = hashExp(pass);
+			hexHash = await hashExp(pass);
 
 			// Get current time for resporting the status
 			currentMilis = new Date().getTime();

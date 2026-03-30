@@ -227,7 +227,7 @@ function BruteForceOnLoad() {
 	}
 	////////////functions end/////////
 
-	$("#btnCrack").on("click", function () {
+	$("#btnCrack").on("click", async function () {
 		if (instance !== null) {
 			instance.clear();
 			instance = null;
@@ -247,7 +247,7 @@ function BruteForceOnLoad() {
 		const workerCount = $('#ddlWorkerCount').val();
 		const updateRate = $('#ddlUpdateRate').val();
 
-		const hashToCrack = hashExp(passToHash);
+		const hashToCrack = await hashExp(passToHash);
 		instance = new BruteForce(document,
 			workerCount,//worker count
 			updateRate,
