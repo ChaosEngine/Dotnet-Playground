@@ -107,7 +107,7 @@ jobs:
           name: Run Unit Tests
           command: |
             export DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/Blogging.db"
-            dotnet test -v n --results-directory:"./test_coverage" --collect:"Code Coverage" --logger "trx" DotnetPlayground.Tests
+            dotnet test -v m --results-directory:"./test_coverage" --collect:"Code Coverage" --logger "trx" DotnetPlayground.Tests
       - store_artifacts:
           path: ./test_coverage
       - run:
@@ -149,6 +149,7 @@ jobs:
           name: Install project dependencies
           command: |
             dotnet restore
+            export SSL_CERT_DIR="$HOME/.aspnet/dev-certs/trust:/usr/lib/ssl/certs"
             dotnet dev-certs https --trust
             bun i
             bun x playwright install --only-shell chromium
