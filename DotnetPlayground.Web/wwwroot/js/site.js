@@ -1,16 +1,30 @@
 /*eslint-disable no-console*/
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "clientValidate" }]*/
-/*global forge, bootstrap, i18next, i18nextBrowserLanguageDetector, i18nextHttpBackend, i18nextChainedBackend, i18nextLocalStorageBackend, locI18next*/
+/*global md5, bootstrap, i18next, i18nextBrowserLanguageDetector, i18nextHttpBackend, i18nextChainedBackend, i18nextLocalStorageBackend, locI18next*/
 "use strict";
 
 var g_AppRootPath = location.pathname.match(/\/([^/]+)\//)[0], g_isDevelopment = location.host.match(/:\d+/) !== null,
 	g_gitBranch = "GIT_BRANCH", g_gitHash = "GIT_HASH", localize = null;
 
+
+/**
+ * SHA-256 hashing using Web Crypto API
+ * usage: getSHA256(text).then((digestHex) => console.log(digestHex));
+ * @param {string} message string to be hashed using SHA-256
+ * @returns {Promise<string>} hashed message in hex format
+ */
+async function getSHA256(message) {
+	const msgUint8 = new TextEncoder().encode(message); // encode as (utf-8) Uint8Array
+	const hashBuffer = await window.crypto.subtle.digest("SHA-256", msgUint8); // hash the message
+	const hashHex = new Uint8Array(hashBuffer).toHex(); // Convert ArrayBuffer to hex string.
+	return hashHex;
+}
+
 /**
  * Client side hash validation of clicked single hash row
  * @param {HTMLButtonElement} button triggering action
  */
-function clientValidate(button) {
+async function clientValidate(button) {
 	const td = $(button).parent().parent().find("td");
 
 	const key = td.eq(0).text();
@@ -20,15 +34,11 @@ function clientValidate(button) {
 	if (orig_md5 === '' || orig_sha === '')
 		return;
 
-	let md = forge.md.md5.create();
-	md.update(key);
-	const md5 = md.digest().toHex();
-	md = forge.md.sha256.create();
-	md.update(key);
-	const sha = md.digest().toHex();
+	const md5sum = md5(key);
+	const sha = await getSHA256(key);
 
 	td.eq(1).css({
-		"color": (md5 === orig_md5 ? "green" : "red"),
+		"color": (md5sum === orig_md5 ? "green" : "red"),
 		'font-weight': 'bold'
 	});
 	td.eq(2).css({
@@ -40,8 +50,8 @@ function clientValidate(button) {
 /**
  * Client side hash validation of all hash rows
  */
-function clientValidateAll() {
-	$("button[value='Validate']").each((_, item) => clientValidate(item));
+async function clientValidateAll() {
+	$("button[value='Validate']").each(async (_, item) => await clientValidate(item));
 }
 
 /**
@@ -105,7 +115,7 @@ window.addEventListener('DOMContentLoaded', function () {
 			.use(i18nextBrowserLanguageDetector)
 			.init({
 				//debug: isDev,
-				showSupportNotice: false,
+				// showSupportNotice: false,
 				fallbackLng: false, // default language if nothing found by detector or disable loading fallback
 				supportedLngs: ['en', 'pl'], // array of supported languages
 

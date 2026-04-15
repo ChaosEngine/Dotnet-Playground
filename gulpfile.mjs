@@ -385,15 +385,14 @@ const postinstall = () => {
 	file_copy(`${nm}/bootstrap-table/dist/bootstrap-table.min.css`, `${dst}bootstrap-table/bootstrap-table.min.css`);
 	file_copy(`${nm}/bootstrap-table/dist/bootstrap-table.min.js`, `${dst}bootstrap-table/bootstrap-table.min.js`);
 
-	dir_copy(`${nm}/node-forge/dist`, `${dst}node-forge`, async (src) => {
-		if ((await fs.lstat(src)).isDirectory() || src.includes(`forge.min.js`)) {
+	dir_copy(`${nm}/blueimp-md5/js`, `${dst}blueimp-md5`, async (src) => {
+		if ((await fs.lstat(src)).isDirectory() || src.includes(`md5.min.js`)) {
 			return true;
 		} else {
 			return false;
 		}
 	});
 	file_copy(`${nm}/jquery/dist/jquery.min.js`, `${dst}jquery/jquery.min.js`);
-	// file_copy(`${nm}/jquery/dist/jquery.min.map`, `${dst}jquery/jquery.min.map`);
 
 	file_copy(`${nm}/jquery-validation/dist/jquery.validate.min.js`, `${dst}jquery-validation/jquery.validate.min.js`);
 	file_copy(`${nm}/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js`, `${dst}jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js`);

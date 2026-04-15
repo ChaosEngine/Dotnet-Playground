@@ -124,8 +124,8 @@ namespace Repositories
 					var repository = new BloggingRepository(context);
 					
 					await repository.Edit(
-						x => x.Url == "http://some.address.com/foo", 
-						b=> b.SetProperty(blob => blob.Url, "http://domain.com/bar")
+						x => x.Url == "http://some.address.com/foo",
+						b => { b.Url = "http://domain.com/bar"; }
 					);
 
 					await repository.SaveAsync();

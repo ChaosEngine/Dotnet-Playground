@@ -386,7 +386,7 @@ namespace DotnetPlayground
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
                 ForwardedHeaders = /*ForwardedHeaders.XForwardedHost | */ForwardedHeaders.XForwardedProto,
-                KnownNetworks = { new Microsoft.AspNetCore.HttpOverrides.IPNetwork(
+                KnownIPNetworks = { new System.Net.IPNetwork(
                     IPAddress.Parse(Configuration["Proxy:KnownNetworks:YOUR_NETWORK_IP"]),
                     int.Parse(Configuration["Proxy:KnownNetworks:YOUR_NETWORK_PREFIX_LENGTH"])
                 ) }

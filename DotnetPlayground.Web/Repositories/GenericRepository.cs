@@ -21,8 +21,7 @@ namespace DotnetPlayground.Repositories
 		Task<bool> Delete(Expression<Func<Ent, bool>> predicate);
 		void DeleteRange(IEnumerable<Ent> entities);
 		void DeleteAll();
-		Task<int> Edit(Expression<Func<Ent, bool>> predicate,
-            Expression<Func<SetPropertyCalls<Ent>, SetPropertyCalls<Ent>>> setPropertyCalls);
+		Task<int> Edit(Expression<Func<Ent, bool>> predicate, Action<Ent> applyChanges);
 		IQueryable<Ent> FindBy(Expression<Func<Ent, bool>> predicate);
 		Task<List<Ent>> FindByAsync(Expression<Func<Ent, bool>> predicate);
 		Task<Ent> GetSingleAsync(params object[] keyValues);
@@ -124,19 +123,21 @@ namespace DotnetPlayground.Repositories
 			_entities.Set<Ent>().ExecuteDelete();
 		}
 
-		public virtual async Task<int> Edit(Expression<Func<Ent, bool>> predicate,
-            Expression<Func<SetPropertyCalls<Ent>, SetPropertyCalls<Ent>>> setPropertyCalls
-            )
+		public virtual async Task<int> Edit(Expression<Func<Ent, bool>> predicate, Action<Ent> applyChanges)
 		{
-			//_entities.Entry(entity).State = EntityState.Modified;
+			// Load the matching entities, apply the provided action to each and save changes.
+			var list = await _entities.Set<Ent>().Where(predicate).ToListAsync();
+			if (list == null || list.Count == 0)
+				return 0;
 
-			var updated_count = await _entities.Set<Ent>()
-				.Where(predicate)
-                .ExecuteUpdateAsync(setPropertyCalls);
+			foreach (var item in list)
+			{
+				applyChanges(item);
+				_entities.Entry(item).State = EntityState.Modified;
+			}
 
-			return updated_count;
-        }
-
+			return await _entities.SaveChangesAsync();
+		}
         public virtual int Save()
 		{
 			return _entities.SaveChanges();

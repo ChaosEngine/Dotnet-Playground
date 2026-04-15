@@ -1,5 +1,4 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "Exp" }]*/
-/*global forge*/
 
 /**
  * Converts data buffer to string
@@ -38,13 +37,11 @@ function binaryStringToArrayBufferExp(bin) {
  * @param {string} passphrase to hash
  * @returns {string} hashed passphrase
  */
-function hashExp(passphrase) {
-	//var hash = CryptoJS.SHA256(passphrase)
-	//return hash.toString();
-	
-	let md = forge.md.sha256.create();
-	md.update(passphrase);
-	return md.digest().toHex();
+async function hashExp(passphrase) {
+	const msgUint8 = new TextEncoder().encode(passphrase); // encode as (utf-8) Uint8Array
+	const hashBuffer = await window.crypto.subtle.digest("SHA-256", msgUint8); // hash the message
+	const hashHex = new Uint8Array(hashBuffer).toHex(); // Convert ArrayBuffer to hex string.
+	return hashHex;
 }
 
 /**
@@ -57,7 +54,7 @@ function LazyProductExp(iCharNum, strAlphabet) {
 
 	this.length = Math.pow(len, iCharNum);
 	let chars = [];
-	
+
 	this.item = function (n) {
 		for (let i = iCharNum; i--;) {
 			const power = Math.pow(len, i);
