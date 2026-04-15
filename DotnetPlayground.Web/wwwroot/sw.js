@@ -47,7 +47,6 @@ self.addEventListener('install', function (/* event */) {
 		'images/puzzles/jigsaw10x14.svg',
 		'images/puzzles/puzzle.svg',
 		'img/homescreen.webp',
-		'img/homescreen.jpg',
 		'https://haos.hopto.org/webcamgallery/poster.jpeg',
 
 		//resources to cache
