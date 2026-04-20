@@ -44,7 +44,7 @@ WORKDIR /app
 ENV USER=nobody
 ARG BUILD_CONFIG=${BUILD_CONFIG:-Release}
 ARG RUNTIME_ID=${RUNTIME_ID:-linux-x64}
-COPY --from=build --chown="$USER":"$USER" /build/DotnetPlayground.Web/bin/$BUILD_CONFIG/net10.0/$RUNTIME_ID/publish/ /build/startApp.sh ./
+COPY --from=build --chown="$USER":"$USER" /build/DotnetPlayground.Web/bin/$BUILD_CONFIG/net10.0/$RUNTIME_ID/publish/ ./
 
 USER "$USER"
 
