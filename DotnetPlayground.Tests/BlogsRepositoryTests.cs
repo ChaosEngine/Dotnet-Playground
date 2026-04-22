@@ -125,10 +125,8 @@ namespace Repositories
 					
 					await repository.Edit(
 						x => x.Url == "http://some.address.com/foo",
-						b => { b.Url = "http://domain.com/bar"; }
+						b => b.SetProperty(x => x.Url, "http://domain.com/bar")
 					);
-
-					await repository.SaveAsync();
 				}
 
 				using (var context = new BloggingContext(DBFixture.Setup.DbOpts))

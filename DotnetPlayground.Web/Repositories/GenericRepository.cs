@@ -21,7 +21,7 @@ namespace DotnetPlayground.Repositories
 		Task<bool> Delete(Expression<Func<Ent, bool>> predicate);
 		void DeleteRange(IEnumerable<Ent> entities);
 		void DeleteAll();
-		Task<int> Edit(Expression<Func<Ent, bool>> predicate, Action<Ent> applyChanges);
+		Task<int> Edit(Expression<Func<Ent, bool>> predicate, Action<UpdateSettersBuilder<Ent>> setProperties);
 		IQueryable<Ent> FindBy(Expression<Func<Ent, bool>> predicate);
 		Task<List<Ent>> FindByAsync(Expression<Func<Ent, bool>> predicate);
 		Task<Ent> GetSingleAsync(params object[] keyValues);
@@ -39,13 +39,10 @@ namespace DotnetPlayground.Repositories
 	{
 		protected Cont _entities;
 
-		protected static IEnumerable<string> AllColumnNames
-		{
-			get
-			{
-				return typeof(Ent).GetProperties(BindingFlags.Public | BindingFlags.Instance).Select(p => p.Name);
-			}
-		}
+		private static readonly string[] _allColumnNames =
+			typeof(Ent).GetProperties(BindingFlags.Public | BindingFlags.Instance).Select(p => p.Name).ToArray();
+
+		protected static IEnumerable<string> AllColumnNames => _allColumnNames;
 
 		public GenericRepository(Cont context)
 		{
@@ -123,20 +120,9 @@ namespace DotnetPlayground.Repositories
 			_entities.Set<Ent>().ExecuteDelete();
 		}
 
-		public virtual async Task<int> Edit(Expression<Func<Ent, bool>> predicate, Action<Ent> applyChanges)
+		public virtual async Task<int> Edit(Expression<Func<Ent, bool>> predicate, Action<UpdateSettersBuilder<Ent>> setProperties)
 		{
-			// Load the matching entities, apply the provided action to each and save changes.
-			var list = await _entities.Set<Ent>().Where(predicate).ToListAsync();
-			if (list == null || list.Count == 0)
-				return 0;
-
-			foreach (var item in list)
-			{
-				applyChanges(item);
-				_entities.Entry(item).State = EntityState.Modified;
-			}
-
-			return await _entities.SaveChangesAsync();
+			return await _entities.Set<Ent>().Where(predicate).ExecuteUpdateAsync(setProperties);
 		}
         public virtual int Save()
 		{

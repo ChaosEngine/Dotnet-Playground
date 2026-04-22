@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using DotnetPlayground.Web.Helpers;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace DotnetPlayground.Controllers
 {
@@ -227,11 +228,8 @@ namespace DotnetPlayground.Controllers
 			if (blogId <= 0 || string.IsNullOrEmpty(post.Title) || string.IsNullOrEmpty(post.Content)) return BadRequest(ModelState);
 
 			int modified = await _repo.EditPosts(p => p.BlogId == blogId && p.PostId == post.PostId,
-				(s) =>
-				{
-					s.Title = post.Title;
-					s.Content = post.Content;
-				}
+				s => s.SetProperty(p => p.Title, post.Title)
+				       .SetProperty(p => p.Content, post.Content)
 			);
 
 			if (modified > 0)
@@ -259,7 +257,7 @@ namespace DotnetPlayground.Controllers
 
 			int modified = await _repo.Edit(b =>
 				b.BlogId == blogId,
-				(s) => s.Url = url
+				s => s.SetProperty(b => b.Url, url)
 			);
 			if (modified > 0)
 				return Json(new Blog
