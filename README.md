@@ -106,6 +106,36 @@ Uses Gulp + Webpack for bundling JavaScript (including workers) and SCSS compila
 bun x gulp
 ```
 
+### CDN SRI Validation
+Razor/HTML CDN tags with `integrity` attributes are validated by a local checker. It verifies both package-version alignment against `package.json` and hash correctness against CDN bytes.
+
+Detailed usage: [tools/sri/sri-tools.md](tools/sri/sri-tools.md)
+
+Current scan scope:
+- `DotnetPlayground.Web` (all `.cshtml`, `.razor`, `.html`, `.htm`)
+- `InkBall/src` (all `.cshtml`, `.razor`, `.html`, `.htm`)
+
+```bash
+# Validate all CDN integrity references in DotnetPlayground.Web
+npm run sri:check
+
+# Recompute and patch mismatched integrity values in-place
+npm run sri:update
+
+# Optional targeted update modes (Node)
+node tools/sri/sri-check.mjs --update --only bootstrap-table
+node tools/sri/sri-check.mjs --update --changed
+
+# Optional targeted update modes (Bun)
+bun tools/sri/sri-check.mjs --update --only bootstrap-table
+bun tools/sri/sri-check.mjs --update --changed
+```
+
+Notes:
+- Checker retries unreachable CDN URLs three times with exponential backoff.
+- In CI, network failures fail the job.
+- For local troubleshooting, `--allow-network-failures` downgrades network errors to warnings.
+
 ### Test Users (Debug Only)
 Seeded automatically in DEBUG builds:
 - `Playwright1@test.domain.com` / `Playwright1!`
