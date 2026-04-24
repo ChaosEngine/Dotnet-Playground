@@ -54,7 +54,7 @@
 		"postinstall": "gulp postinstall",
 		"gulp": "gulp",
 		"lint": "eslint .",
-		"sri:check": "bun tools/sri/sri-check.mjs",
+		"sri:check": "node tools/sri/sri-check.mjs",
 		"sri:update": "bun tools/sri/sri-check.mjs --update",
 		"test:playwright": "playwright test",
 		"test:js-inkball": "bun test --concurrent InkBall/test/JS-tests/",
