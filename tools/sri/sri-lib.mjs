@@ -204,7 +204,8 @@ function collectFilesRecursive(rootDir, predicate) {
     const children = fs.readdirSync(current, { withFileTypes: true });
 
     for (const child of children) {
-      if (child.name === "bin" || child.name === "obj" || child.name === ".git") {
+      if (child.name === "bin" || child.name === "obj" || child.name === ".git"
+        || child.name === "node_modules") {
         continue;
       }
 
