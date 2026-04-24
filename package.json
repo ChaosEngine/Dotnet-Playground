@@ -54,13 +54,10 @@
 		"postinstall": "gulp postinstall",
 		"gulp": "gulp",
 		"lint": "eslint .",
-		"sri:check": "node tools/sri/sri-check.mjs",
-		"sri:update": "node tools/sri/sri-check.mjs --update",
-		"sri:test": "node --test tools/sri/*.test.mjs",
-		"sri:check:bun": "bun tools/sri/sri-check.mjs",
-		"sri:update:bun": "bun tools/sri/sri-check.mjs --update",
-		"sri:test:bun": "bun test tools/sri/*.test.mjs",
+		"sri:check": "bun tools/sri/sri-check.mjs",
+		"sri:update": "bun tools/sri/sri-check.mjs --update",
 		"test:playwright": "playwright test",
-		"test:js-inkball": "bun test --concurrent InkBall/test/JS-tests/"
+		"test:js-inkball": "bun test --concurrent InkBall/test/JS-tests/",
+		"test:sri": "bun test tools/sri/*.test.mjs"
 	}
 }

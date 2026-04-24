@@ -15,6 +15,7 @@ import {
   fetchBytesWithRetry,
   loadPackageVersionMap,
   detectChangedPackagesFromHead,
+  substituteUrlVersion,
   updateIntegrityInContent
 } from "./sri-lib.mjs";
 
@@ -147,51 +148,79 @@ async function main() {
       continue;
     }
 
-    if (urlVersion && declaredVersion !== urlVersion) {
-      findings.versionMismatch.push(`${location} -> ${packageName} package.json=${declaredVersion}, url=${urlVersion}`);
-    }
+    const hasVersionMismatch = urlVersion && declaredVersion !== urlVersion;
 
-    const fetchUrl = normalizeUrlForFetch(entry.url);
-    if (!downloadCache.has(fetchUrl)) {
-      downloadCache.set(fetchUrl, { status: "pending" });
-      try {
-        const buffer = await fetchBytesWithRetry(fetchUrl, 3);
-        downloadCache.set(fetchUrl, { status: "ok", buffer });
-      } catch (error) {
-        downloadCache.set(fetchUrl, { status: "error", message: error.message || String(error) });
+    if (hasVersionMismatch && args.update) {
+      // Fetch the new-version URL (from package.json), not the stale one in the file.
+      const newUrl = substituteUrlVersion(entry.url, urlVersion, declaredVersion);
+      const targetFetchUrl = normalizeUrlForFetch(newUrl);
+
+      if (!downloadCache.has(targetFetchUrl)) {
+        downloadCache.set(targetFetchUrl, { status: "pending" });
+        try {
+          const buffer = await fetchBytesWithRetry(targetFetchUrl, 3);
+          downloadCache.set(targetFetchUrl, { status: "ok", buffer });
+        } catch (error) {
+          downloadCache.set(targetFetchUrl, { status: "error", message: error.message || String(error) });
+        }
       }
-    }
 
-    const result = downloadCache.get(fetchUrl);
-    if (result.status === "error") {
-      findings.unreachable.push(`${location} -> ${entry.url} (${result.message})`);
-      continue;
-    }
+      const result = downloadCache.get(targetFetchUrl);
+      if (result.status === "error") {
+        findings.unreachable.push(`${location} -> ${newUrl} (${result.message})`);
+        continue;
+      }
 
-    const tokens = parseIntegrityTokens(entry.integrity);
-    if (tokens.length === 0) {
-      findings.hashMismatch.push(`${location} -> malformed integrity value '${entry.integrity}'`);
-      continue;
-    }
+      const tokens = parseIntegrityTokens(entry.integrity);
+      const algorithm = tokens.length > 0 ? tokens[0].algorithm : "sha384";
+      const newIntegrity = computeIntegrity(result.buffer, algorithm);
 
-    const tokenMatches = tokens.some((token) => {
-      const calculated = computeIntegrity(result.buffer, token.algorithm);
-      return calculated === token.raw;
-    });
+      const updates = updatesByFile.get(entry.relativePath) || [];
+      updates.push({ tagStart: entry.tagStart, tagEnd: entry.tagEnd, newIntegrity, newUrl });
+      updatesByFile.set(entry.relativePath, updates);
+    } else {
+      if (hasVersionMismatch) {
+        findings.versionMismatch.push(`${location} -> ${packageName} package.json=${declaredVersion}, url=${urlVersion}`);
+      }
 
-    if (!tokenMatches) {
-      const preferredAlgorithm = tokens[0].algorithm;
-      const expectedIntegrity = computeIntegrity(result.buffer, preferredAlgorithm);
-      findings.hashMismatch.push(`${location} -> expected ${expectedIntegrity}, found ${entry.integrity}`);
+      const fetchUrl = normalizeUrlForFetch(entry.url);
+      if (!downloadCache.has(fetchUrl)) {
+        downloadCache.set(fetchUrl, { status: "pending" });
+        try {
+          const buffer = await fetchBytesWithRetry(fetchUrl, 3);
+          downloadCache.set(fetchUrl, { status: "ok", buffer });
+        } catch (error) {
+          downloadCache.set(fetchUrl, { status: "error", message: error.message || String(error) });
+        }
+      }
 
-      if (args.update) {
-        const updates = updatesByFile.get(entry.relativePath) || [];
-        updates.push({
-          tagStart: entry.tagStart,
-          tagEnd: entry.tagEnd,
-          newIntegrity: expectedIntegrity
-        });
-        updatesByFile.set(entry.relativePath, updates);
+      const result = downloadCache.get(fetchUrl);
+      if (result.status === "error") {
+        findings.unreachable.push(`${location} -> ${entry.url} (${result.message})`);
+        continue;
+      }
+
+      const tokens = parseIntegrityTokens(entry.integrity);
+      if (tokens.length === 0) {
+        findings.hashMismatch.push(`${location} -> malformed integrity value '${entry.integrity}'`);
+        continue;
+      }
+
+      const tokenMatches = tokens.some((token) => {
+        const calculated = computeIntegrity(result.buffer, token.algorithm);
+        return calculated === token.raw;
+      });
+
+      if (!tokenMatches) {
+        const preferredAlgorithm = tokens[0].algorithm;
+        const expectedIntegrity = computeIntegrity(result.buffer, preferredAlgorithm);
+        findings.hashMismatch.push(`${location} -> expected ${expectedIntegrity}, found ${entry.integrity}`);
+
+        if (args.update) {
+          const updates = updatesByFile.get(entry.relativePath) || [];
+          updates.push({ tagStart: entry.tagStart, tagEnd: entry.tagEnd, newIntegrity: expectedIntegrity });
+          updatesByFile.set(entry.relativePath, updates);
+        }
       }
     }
   }

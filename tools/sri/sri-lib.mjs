@@ -372,6 +372,19 @@ export function detectChangedPackagesFromHead(repoRoot) {
 
 /**
  *
+ * @param url
+ * @param oldVersion
+ * @param newVersion
+ */
+export function substituteUrlVersion(url, oldVersion, newVersion) {
+  // Handles jsdelivr/unpkg (@VERSION/) and cdnjs (/VERSION/) URL patterns.
+  return url
+    .replace(`@${oldVersion}/`, `@${newVersion}/`)
+    .replace(`/${oldVersion}/`, `/${newVersion}/`);
+}
+
+/**
+ *
  * @param content
  * @param updates
  */
@@ -385,7 +398,12 @@ export function updateIntegrityInContent(content, updates) {
 
   for (const item of sorted) {
     const originalTag = updatedContent.slice(item.tagStart, item.tagEnd);
-    const replacedTag = originalTag.replace(/(\bintegrity\s*=\s*["'])[^"']+(["'])/i, `$1${item.newIntegrity}$2`);
+    let replacedTag = originalTag.replace(/(\bintegrity\s*=\s*["'])[^"']+(["'])/i, `$1${item.newIntegrity}$2`);
+    if (item.newUrl) {
+      replacedTag = replacedTag
+        .replace(/(\bsrc\s*=\s*["'])[^"']+(["'])/i, `$1${item.newUrl}$2`)
+        .replace(/(\bhref\s*=\s*["'])[^"']+(["'])/i, `$1${item.newUrl}$2`);
+    }
     updatedContent = updatedContent.slice(0, item.tagStart) + replacedTag + updatedContent.slice(item.tagEnd);
   }
 
