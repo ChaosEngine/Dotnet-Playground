@@ -19,9 +19,7 @@ import {
   updateIntegrityInContent
 } from "./sri-lib.mjs";
 
-const EXIT_OK = 0;
-const EXIT_VALIDATION = 2;
-const EXIT_NETWORK = 3;
+const EXIT_OK = 0, EXIT_VALIDATION = 2, EXIT_NETWORK = 3;
 
 function parseArgs(argv) {
   const options = {

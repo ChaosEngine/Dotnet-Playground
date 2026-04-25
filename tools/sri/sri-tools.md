@@ -40,10 +40,6 @@ Node 20+ or Bun 1.3+ is recommended.
 npm run sri:check
 ```
 
-```bash
-bun run sri:check:bun
-```
-
 Behavior:
 
 - Exits with code 0 on success
@@ -56,10 +52,6 @@ Behavior:
 npm run sri:update
 ```
 
-```bash
-bun run sri:update:bun
-```
-
 Behavior:
 
 - Recomputes integrity from CDN bytes
@@ -70,10 +62,6 @@ Behavior:
 
 ```bash
 npm run sri:test
-```
-
-```bash
-bun run sri:test:bun
 ```
 
 ## Targeted modes

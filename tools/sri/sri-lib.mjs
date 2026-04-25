@@ -1,5 +1,3 @@
-/* eslint-disable jsdoc/require-param-description, jsdoc/require-param-type, jsdoc/require-returns */
-
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
@@ -16,8 +14,10 @@ export const CDN_ALIASES = {
 };
 
 /**
- *
- * @param versionSpec
+ * Normalizes a semantic version string to standard X.Y.Z format.
+ * Removes leading 'v' prefix and preserves prerelease/build metadata.
+ * @param {string|null} versionSpec - A version string with optional semver prefix or specifier (e.g., '^1.2.3', 'v1.2.3-alpha')
+ * @returns {string|null} The normalized version (e.g., '1.2.3-alpha') or null if invalid
  */
 export function normalizeVersionSpec(versionSpec) {
   if (!versionSpec || typeof versionSpec !== "string") {
@@ -30,8 +30,9 @@ export function normalizeVersionSpec(versionSpec) {
 }
 
 /**
- *
- * @param version
+ * Removes leading 'v' prefix from version strings in CDN URLs.
+ * @param {string|null} version - A version string that may start with 'v' (e.g., 'v1.2.3')
+ * @returns {string|null} The version without 'v' prefix (e.g., '1.2.3') or null if invalid
  */
 export function normalizeUrlVersion(version) {
   if (!version || typeof version !== "string") {
@@ -42,8 +43,10 @@ export function normalizeUrlVersion(version) {
 }
 
 /**
- *
- * @param assetUrl
+ * Extracts package name, version, and provider from a CDN asset URL.
+ * Supports jsDelivr, cdnjs, and unpkg CDN formats.
+ * @param {string} assetUrl - A full CDN URL (e.g., 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css')
+ * @returns {object} An object with {provider, packageName, urlVersion}; provider or packageName may be null if URL format unrecognized
  */
 export function extractCdnMetadata(assetUrl) {
   try {
@@ -105,8 +108,10 @@ export function extractCdnMetadata(assetUrl) {
 }
 
 /**
- *
- * @param packageName
+ * Converts Razor-escaped scoped npm package names back to standard format.
+ * In Razor, a literal '@' is written as '@@' in attributes; this reverses that escape.
+ * @param {string|null} packageName - A package name, possibly with Razor escaping (e.g., '@@scope/package')
+ * @returns {string|null} The normalized package name (e.g., '@scope/package') or the input if not escaped
  */
 export function normalizeScopedPackageName(packageName) {
   if (!packageName || typeof packageName !== "string") {
@@ -118,8 +123,10 @@ export function normalizeScopedPackageName(packageName) {
 }
 
 /**
- *
- * @param rawPackageName
+ * Maps a CDN package name to its local package.json equivalent using CDN_ALIASES.
+ * First normalizes Razor escaping, then looks up any custom alias.
+ * @param {string|null} rawPackageName - A package name from CDN metadata (may be Razor-escaped)
+ * @returns {string|null} The mapped local package name, or the normalized input if no alias exists
  */
 export function mapPackageName(rawPackageName) {
   if (!rawPackageName) {
@@ -136,8 +143,10 @@ function getLineNumberFromIndex(content, index) {
 }
 
 /**
- *
- * @param tagText
+ * Parses HTML/XML tag attributes into a key-value map.
+ * Handles both double and single quoted attribute values.
+ * @param {string} tagText - Raw HTML tag text (e.g., '<script src="..." integrity="...">')
+ * @returns {Map<string, string>} Attribute names (lowercased) mapped to their values
  */
 export function parseIntegrityTagAttributes(tagText) {
   const attrRegex = /\b([a-zA-Z_:][\w:.-]*)\s*=\s*("([^"]*)"|'([^']*)')/g;
@@ -155,9 +164,11 @@ export function parseIntegrityTagAttributes(tagText) {
 }
 
 /**
- *
- * @param content
- * @param relativePath
+ * Scans markup content for <script> and <link> tags with integrity attributes.
+ * Returns metadata for each tag: location, tag type, URL, integrity value, and position info.
+ * @param {string} content - HTML/Razor markup content
+ * @param {string} relativePath - Relative file path for diagnostic purposes
+ * @returns {Array<object>} Array of integrity entries with {relativePath, line, tagName, url, integrity, tagText, tagStart, tagEnd}
  */
 export function parseIntegrityEntriesFromContent(content, relativePath) {
   const entries = [];
@@ -225,8 +236,10 @@ function collectFilesRecursive(rootDir, predicate) {
 }
 
 /**
- *
- * @param repoRoot
+ * Recursively scans the repo for all Razor/HTML files and collects integrity entries from each.
+ * Searches DEFAULT_SCAN_ROOTS and ignores build/cache directories (bin, obj, .git, node_modules).
+ * @param {string} repoRoot - Absolute path to the repository root
+ * @returns {Array<object>} Array of all integrity entries found across all scanned files
  */
 export function collectRazorIntegrityEntries(repoRoot) {
   const entries = [];
@@ -250,8 +263,10 @@ export function collectRazorIntegrityEntries(repoRoot) {
 }
 
 /**
- *
- * @param integrity
+ * Parses an integrity attribute value into structured algorithm-digest tokens.
+ * Supports multiple space-separated tokens (e.g., 'sha384-xxx sha512-yyy').
+ * @param {string} integrity - Integrity attribute value (e.g., 'sha384-abc123def456')
+ * @returns {Array<object>} Array of {raw, algorithm, digest} objects; empty if malformed
  */
 export function parseIntegrityTokens(integrity) {
   const tokens = String(integrity)
@@ -278,9 +293,11 @@ export function parseIntegrityTokens(integrity) {
 }
 
 /**
- *
- * @param buffer
- * @param algorithm
+ * Computes an SRI integrity token for a buffer using the specified hash algorithm.
+ * Returns the token in standard SRI format: 'algorithm-base64digest'.
+ * @param {Buffer} buffer - Raw bytes to hash
+ * @param {string} algorithm - Hash algorithm name (e.g., 'sha384', 'sha512')
+ * @returns {string} SRI token (e.g., 'sha384-abc123def456...')
  */
 export function computeIntegrity(buffer, algorithm) {
   const digest = crypto.createHash(algorithm).update(buffer).digest("base64");
@@ -292,9 +309,12 @@ function sleep(ms) {
 }
 
 /**
- *
- * @param url
- * @param attempts
+ * Fetches URL content with exponential backoff retry on network failure.
+ * Throws an error if all attempts fail; retries add 500ms * 2^(attempt-1) delay between tries.
+ * @param {string} url - Full URL to fetch
+ * @param {number} attempts - Maximum fetch attempts (default: 3)
+ * @returns {Promise<Buffer>} The response body as a Buffer
+ * @throws {Error} If all attempts fail
  */
 export async function fetchBytesWithRetry(url, attempts = 3) {
   let lastError = null;
@@ -321,8 +341,9 @@ export async function fetchBytesWithRetry(url, attempts = 3) {
 }
 
 /**
- *
- * @param repoRoot
+ * Loads and merges all dependencies and devDependencies from package.json into a single version map.
+ * @param {string} repoRoot - Absolute path to the repository root
+ * @returns {object} A map of {packageName: versionSpec}
  */
 export function loadPackageVersionMap(repoRoot) {
   const packageJsonPath = path.join(repoRoot, "package.json");
@@ -334,8 +355,10 @@ export function loadPackageVersionMap(repoRoot) {
 }
 
 /**
- *
- * @param repoRoot
+ * Detects which packages have changed versions between HEAD and the current working directory.
+ * Uses 'git show HEAD:package.json' to compare versions; returns null if git fails.
+ * @param {string} repoRoot - Absolute path to the repository root
+ * @returns {Set<string>|null} A Set of package names with changed versions, or null if git command fails
  */
 export function detectChangedPackagesFromHead(repoRoot) {
   try {
@@ -372,10 +395,12 @@ export function detectChangedPackagesFromHead(repoRoot) {
 }
 
 /**
- *
- * @param url
- * @param oldVersion
- * @param newVersion
+ * Replaces a version segment in a CDN URL with a new version.
+ * Handles both jsDelivr/unpkg format (@version/) and cdnjs format (/version/).
+ * @param {string} url - Full CDN URL (e.g., 'https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/...')
+ * @param {string} oldVersion - Current version in the URL (e.g., '5.0.0')
+ * @param {string} newVersion - New version to substitute (e.g., '5.3.0')
+ * @returns {string} The URL with version replaced
  */
 export function substituteUrlVersion(url, oldVersion, newVersion) {
   // Handles jsdelivr/unpkg (@VERSION/) and cdnjs (/VERSION/) URL patterns.
@@ -385,9 +410,11 @@ export function substituteUrlVersion(url, oldVersion, newVersion) {
 }
 
 /**
- *
- * @param content
- * @param updates
+ * Applies a batch of integrity and/or URL updates to markup content.
+ * Processes updates in reverse document order (highest tagStart first) to preserve indices.
+ * @param {string} content - HTML/Razor markup content
+ * @param {Array<object>} updates - Array of {tagStart, tagEnd, newIntegrity, newUrl?} objects
+ * @returns {string} The updated content with all changes applied
  */
 export function updateIntegrityInContent(content, updates) {
   if (!updates.length) {
