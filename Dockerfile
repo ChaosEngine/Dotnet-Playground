@@ -4,7 +4,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0-${BASE_IMAGE_VARIANT} AS build
 RUN --mount=type=cache,target=/root/.nuget --mount=type=cache,target=/root/.local/ --mount=type=cache,target=/root/.cache/ --mount=type=cache,target=./node_modules
 RUN curl -SLO https://deb.nodesource.com/nsolid_setup_deb.sh && \
     chmod 500 nsolid_setup_deb.sh && \
-    ./nsolid_setup_deb.sh 22 && \
+    ./nsolid_setup_deb.sh 24 && \
     apt-get install -y nodejs && npm install -g bun
 WORKDIR /build
 
