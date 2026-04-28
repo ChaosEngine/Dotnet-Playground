@@ -58,6 +58,6 @@
 		"sri:update": "bun tools/sri/sri-check.mjs --update",
 		"test:playwright": "playwright test",
 		"test:js-inkball": "bun test --concurrent InkBall/test/JS-tests/",
-		"test:sri": "bun test tools/sri/*.test.mjs"
+		"test:sri": "bun test --concurrent tools/sri/"
 	}
 }
