@@ -20,7 +20,7 @@ jobs:
       with:
         node-version: lts/*
     - name: Install Node dependencies
-      run: npm ci
+      run: npm install
     - name: Verify CDN SRI references
       run: npm run sri:check
     - name: Setup .NET Core
