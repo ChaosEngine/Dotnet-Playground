@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+
 import {
   extractCdnMetadata,
   mapPackageName,
@@ -77,8 +78,8 @@ test("substituteUrlVersion replaces jsdelivr version", () => {
 });
 
 test("substituteUrlVersion replaces cdnjs version", () => {
-  const url = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.0/html2canvas.min.js";
-  assert.equal(substituteUrlVersion(url, "1.4.0", "1.4.1"), "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js");
+  const url = "https://unpkg.com/html2canvas@1.4.0/dist/html2canvas.min.js";
+  assert.equal(substituteUrlVersion(url, "1.4.0", "1.4.1"), "https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js");
 });
 
 test("substituteUrlVersion handles Razor-escaped scoped package", () => {

@@ -179,22 +179,22 @@ namespace Integration
 					OriginalPolicy = """
 				base-uri 'self'; report-uri /dotnet/CspPeport; default-src 'self'; 
 				manifest-src 'self'; upgrade-insecure-requests; block-all-mixed-content; 
-				script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://vjs.zencdn.net; 
-				style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; 
+				script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com https://vjs.zencdn.net; 
+				style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; 
 				img-src 'self' data: blob: https://i.ytimg.com; 
 				font-src 'self' data:; 
 				connect-src 'self'; 
-				media-src 'self' data: https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; 
+				media-src 'self' data: https://cdn.jsdelivr.net https://unpkg.com; 
 				frame-src 'self' https://www.youtube.com; 
 				child-src 'self'; 
 				form-action 'self' https://accounts.google.com https://github.com https://api.twitter.com https://www.facebook.com;
 				frame-ancestors 'none';
 				""",
 					// disposition = "enforce",
-					BlockedUri = "https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.4.0/img/next.svg",
+					BlockedUri = "https://unpkg.com/blueimp-gallery@3.4.0/img/next.svg",
 					LineNumber = 1,
 					ColumnNumber = 19546,
-					SourceFile = "https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.4.0/js/blueimp-gallery.min.js",
+					SourceFile = "https://unpkg.com/blueimp-gallery@3.4.0/js/blueimp-gallery.min.js",
 					StatusCode = 200,
 					// "script-sample": ""
 				}
