@@ -171,7 +171,7 @@ async function main() {
       }
 
       const tokens = parseIntegrityTokens(entry.integrity);
-      const algorithm = tokens.length > 0 ? tokens[0].algorithm : "sha384";
+      const algorithm = tokens.length > 0 ? tokens[0].algorithm : "sha256";
       const newIntegrity = computeIntegrity(result.buffer, algorithm);
 
       const updates = updatesByFile.get(entry.relativePath) || [];
