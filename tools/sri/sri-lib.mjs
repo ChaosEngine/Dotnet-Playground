@@ -9,6 +9,7 @@ export const DEFAULT_SCAN_ROOTS = [
   "DotnetPlayground.Web",
   "InkBall/src"
 ];
+const EXCLUDE_DIRS = new Set(["bin", "obj", ".git", "node_modules", ".vs", ".github", ".vscode"]);
 export const CDN_ALIASES = {
   qrcode_js: "qrcodejs"
 };
@@ -215,8 +216,7 @@ function collectFilesRecursive(rootDir, predicate) {
     const children = fs.readdirSync(current, { withFileTypes: true });
 
     for (const child of children) {
-      if (child.name === "bin" || child.name === "obj" || child.name === ".git"
-        || child.name === "node_modules") {
+      if (EXCLUDE_DIRS.has(child.name)) {
         continue;
       }
 
