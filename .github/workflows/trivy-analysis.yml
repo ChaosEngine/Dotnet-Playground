@@ -13,9 +13,26 @@ jobs:
         with:
           submodules: true # 'recursive' 'true' or 'false'
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Build an image from Dockerfile
-        run: |
-          DOCKER_BUILDKIT=1 docker build -t docker.io/chaosengine/dotnetplayground:${{ github.sha }} -f Dockerfile.alpine .
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile.alpine
+          load: true
+          tags: docker.io/chaosengine/dotnetplayground:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Cache Trivy DB
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/trivy
+          key: ${{ runner.os }}-trivy-${{ github.ref_name }}
+          restore-keys: |
+            ${{ runner.os }}-trivy-
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
