@@ -382,14 +382,22 @@ namespace DotnetPlayground
 				return next();
 			});*/
 #else
-            //Apache/nginx proxy schould pass "X-Forwarded-Proto"
-            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            //Apache/nginx proxy should pass "X-Forwarded-Proto"
+            // app.UseForwardedHeaders(new ForwardedHeadersOptions
+            // {
+            //     ForwardedHeaders = /*ForwardedHeaders.XForwardedHost | */ForwardedHeaders.XForwardedProto,
+            //     KnownIPNetworks = { new System.Net.IPNetwork(
+            //         IPAddress.Parse(Configuration["Proxy:KnownNetworks:YOUR_NETWORK_IP"]),
+            //         int.Parse(Configuration["Proxy:KnownNetworks:YOUR_NETWORK_PREFIX_LENGTH"])
+            //     ) }
+            // });
+
+            //https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/proxy-load-balancer?view=aspnetcore-10.0
+            //it isn't possible to add forwarded headers and all requests are secure, so just set the scheme to https for all requests
+            app.Use((context, next) =>
             {
-                ForwardedHeaders = /*ForwardedHeaders.XForwardedHost | */ForwardedHeaders.XForwardedProto,
-                KnownIPNetworks = { new System.Net.IPNetwork(
-                    IPAddress.Parse(Configuration["Proxy:KnownNetworks:YOUR_NETWORK_IP"]),
-                    int.Parse(Configuration["Proxy:KnownNetworks:YOUR_NETWORK_PREFIX_LENGTH"])
-                ) }
+                context.Request.Scheme = "https";
+                return next(context);
             });
 #endif
         }
@@ -510,7 +518,7 @@ namespace DotnetPlayground
 
             app.Map("/dotnet", main =>
             {
-                
+
                 // Adds request decompression middleware
                 // main.UseMiddleware<RequestDecompressionMiddleware>();
                 main.UseRequestDecompression();
