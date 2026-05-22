@@ -45,9 +45,9 @@
 		"loc-i18next": "0.1.6",
 		"msgpack5": "6.0.2",
 		"qrcodejs": "1.0.0",
-		"sass": "^1.99.0",
+		"sass": "^1.100.0",
 		"video.js": "8.23.7",
-		"webpack": "^5.107.0",
+		"webpack": "^5.107.1",
 		"webpack-stream": "^7.0.0"
 	},
 	"scripts": {
