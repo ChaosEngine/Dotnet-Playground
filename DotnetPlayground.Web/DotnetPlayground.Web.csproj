@@ -43,7 +43,7 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.8" Condition="$(DefineConstants.Contains('INCLUDE_SQLSERVER'))" />
 		<PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="10.0.8" Condition="$(DefineConstants.Contains('INCLUDE_SQLSERVER'))" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.8" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" Condition="$(DefineConstants.Contains('INCLUDE_POSTGRES'))" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" Condition="$(DefineConstants.Contains('INCLUDE_POSTGRES'))" />
 		<PackageReference Include="Microting.EntityFrameworkCore.MySql" Version="10.0.8" Condition="$(DefineConstants.Contains('INCLUDE_MYSQL'))" />
 		<PackageReference Include="Oracle.EntityFrameworkCore" Version="10.23.26200" Condition="$(DefineConstants.Contains('INCLUDE_ORACLE'))" />
 		<PackageReference Include="IdentityManager2.AspNetIdentity" Version="1.0.0" />
