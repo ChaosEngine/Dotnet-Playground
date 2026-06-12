@@ -55,7 +55,7 @@ export function extractCdnMetadata(assetUrl) {
     const host = parsed.hostname.toLowerCase();
     const pathname = parsed.pathname;
 
-    if (host.includes("cdn.jsdelivr.net")) {
+    if (host === "cdn.jsdelivr.net") {
       const match = pathname.match(/^\/npm\/((?:@[^/]+\/)?[^@/]+)@([^/]+)(?:\/|$)/);
       if (!match) {
         return { provider: "jsdelivr", packageName: null, urlVersion: null };
@@ -68,7 +68,7 @@ export function extractCdnMetadata(assetUrl) {
       };
     }
 
-    if (host.includes("cdnjs.cloudflare.com")) {
+    if (host === "cdnjs.cloudflare.com") {
       const match = pathname.match(/^\/ajax\/libs\/([^/]+)\/([^/]+)(?:\/|$)/);
       if (!match) {
         return { provider: "cdnjs", packageName: null, urlVersion: null };
@@ -81,7 +81,7 @@ export function extractCdnMetadata(assetUrl) {
       };
     }
 
-    if (host.includes("unpkg.com")) {
+    if (host === "unpkg.com") {
       const match = pathname.match(/^\/((?:@[^/]+\/)?[^@/]+)@([^/]+)(?:\/|$)/);
       if (!match) {
         return { provider: "unpkg", packageName: null, urlVersion: null };
