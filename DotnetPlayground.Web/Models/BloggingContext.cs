@@ -65,6 +65,7 @@ namespace DotnetPlayground.Models
 						return "sqliteconnection";
 					case "Microsoft.EntityFrameworkCore.SqlServer":
 						return "sqlconnection";
+					case "Microting.EntityFrameworkCore.MySql":
 					case "Pomelo.EntityFrameworkCore.MySql":
 						return "mysqlconnection";
 					case "Npgsql.EntityFrameworkCore.PostgreSQL":

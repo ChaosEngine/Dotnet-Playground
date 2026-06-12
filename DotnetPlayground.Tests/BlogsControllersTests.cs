@@ -81,30 +81,22 @@ namespace Controllers
 
 			mock.Setup(r => r.Edit(
 				Moq.It.IsAny<Expression<Func<Blog, bool>>>(),
-				Moq.It.IsAny<Action<Blog>>()
-				)).Returns<Expression<Func<Blog, bool>>, Action<Blog>>(
-				(predicate, setAction) =>
+				Moq.It.IsAny<Action<UpdateSettersBuilder<Blog>>>()
+				)).Returns<Expression<Func<Blog, bool>>, Action<UpdateSettersBuilder<Blog>>>(
+				(predicate, _) =>
 			{
 				var found = lst.Where(predicate.Compile()).ToList();
-				foreach (var item in found)
-				{
-					setAction(item);
-				}
-				return Task.FromResult(found.Count());
+				return Task.FromResult(found.Count);
 			});
 
 			mock.Setup(r => r.EditPosts(
 				Moq.It.IsAny<Expression<Func<Post, bool>>>(),
-				Moq.It.IsAny<Action<Post>>()
-				)).Returns<Expression<Func<Post, bool>>, Action<Post>>(
-				(predicate, setAction) =>
+				Moq.It.IsAny<Action<UpdateSettersBuilder<Post>>>()
+				)).Returns<Expression<Func<Post, bool>>, Action<UpdateSettersBuilder<Post>>>(
+				(predicate, _) =>
 				{
 					var found = lst.SelectMany(b => b.Post).Where(predicate.Compile()).ToList();
-					foreach (var post in found)
-					{
-						setAction(post);
-					}
-					return Task.FromResult(found.Count());
+					return Task.FromResult(found.Count);
 				});
 
 			mock.Setup(r => r.Delete(Moq.It.IsAny<Expression<Func<Blog, bool>>>())).Returns<Expression<Func<Blog, bool>>>((s) =>

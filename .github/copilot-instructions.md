@@ -1,20 +1,42 @@
 # Copilot Instructions
-- Repo is a playground solution with main web app in [DotnetPlayground.Web](DotnetPlayground.Web) targeting .NET 10; it pulls in submodules [Caching-MySQL](Caching-MySQL), [InkBall](InkBall), and [IdentityManager2](IdentityManager2) so run `git submodule update --init --recursive` before building.
-- Everything is hosted under the `/dotnet` path; `AppRootPath` in [DotnetPlayground.Web/appsettings.json](DotnetPlayground.Web/appsettings.json) and the pipeline in [DotnetPlayground.Web/Startup.cs](DotnetPlayground.Web/Startup.cs) map middleware/endpoints inside `app.Map("/dotnet", ...)`, and session cookies use that path.
-- Two DbContexts share the configured database: blogging data and Identity in [DotnetPlayground.Web/Models/BloggingContext.cs](DotnetPlayground.Web/Models/BloggingContext.cs) plus InkBall game data in the referenced module; migrations are applied at startup in DEBUG via [DotnetPlayground.Web/Helpers/ContextFactory.cs](DotnetPlayground.Web/Helpers/ContextFactory.cs) which also seeds Playwright test users.
-- Database provider is selected by `DBKind` (`sqlite` default) in config; [DotnetPlayground.Web/Helpers/ContextFactory.cs](DotnetPlayground.Web/Helpers/ContextFactory.cs) wires up SQLite/SQL Server/Postgres/MySQL/Oracle/Mongo (conditional symbols come from build configuration in [DotnetPlayground.Web/DotnetPlayground.Web.csproj](DotnetPlayground.Web/DotnetPlayground.Web.csproj)). Change `DBKind` and connection strings in appsettings or user-secrets.
-- Distributed cache backing store is also chosen in `ContextFactory`: SQL Server or MySQL add-ons are registered only when `DBKind` matches; otherwise session falls back to in-memory.
-- Identity is configured with ASP.NET Core Identity plus external providers (Google/Facebook/Twitter/GitHub) driven by the `Authentication` section in appsettings; IdentityManager2 admin UI is mounted under `/dotnet/idm` per [DotnetPlayground.Web/Startup.cs](DotnetPlayground.Web/Startup.cs).
-- InkBall UI and SignalR endpoints are registered via `AddInkBallCommonUI` and `endpoints.PrepareSignalRForInkBall` in [DotnetPlayground.Web/Startup.cs](DotnetPlayground.Web/Startup.cs); static assets for the game are served from the InkBall module’s wwwroot.
-- BackgroundTaskQueue is created in Startup to watch `ImageDirectory` for `video.webm` and enqueue YouTube uploads when `YouTubeAPI` secrets exist; leave settings empty to disable silently.
-- HTTP pipeline (inside `/dotnet`) enables request decompression, server timing, session, auth, static assets, and a default MVC route plus Razor Pages; non-dev enforces forwarded headers for reverse proxies.
-- DataProtection keys persist into the configured database (via `PersistKeysToDbContext`) and can be protected with a cert if `DataProtection:CertFile` is supplied.
-- Asset pipeline lives in [gulpfile.mjs](gulpfile.mjs) and uses bun/npm to run gulp: `bun install` (or `pnpm install`/`npm install`) then `bun x gulp` (or `npm run gulp`). `dotnet publish` triggers `bun x gulp --version=$(Version) --env=production` before packaging.
-- JS/CSS bundles and translations are generated under [DotnetPlayground.Web/wwwroot](DotnetPlayground.Web/wwwroot) and [InkBall/src/InkBall.Module/wwwroot](InkBall/src/InkBall.Module/wwwroot); clean/minify tasks exist for InkBall workers and styles.
-- Build/test workflows: use workspace tasks `build` (`dotnet build`) and `test` (`dotnet test`). Debug build defines all provider symbols; Release defines MySQL only; Oracle configuration exists separately.
-- Integration tests in [DotnetPlayground.Tests](DotnetPlayground.Tests) use `WebApplicationFactory` with `AppRootPath` set to `/dotnet/`, default SQLite DB, and skip certain cases when `DOTNET_RUNNING_IN_CONTAINER` is true. `ContextFactory.CreateDBApplyMigrationsAndSeedDebugUsers` migrates and seeds `Playwright1/2` users in DEBUG before the server runs.
-- Playwright e2e tests live in [e2e](e2e); config [playwright.config.js](playwright.config.js) starts the app via `dotnet run --project DotnetPlayground.Web/` at `https://localhost:4553/dotnet/`, ignores HTTPS errors, and stores auth state in `e2e/storageStates`. Default users: `Playwright1@test.domain.com` / `Playwright1!` and `Playwright2@test.domain.com` / `Playwright2!` (defined in [e2e/TwoUsersFixtures.js](e2e/TwoUsersFixtures.js)).
-- To refresh Playwright auth, delete `e2e/storageStates/*.json` and re-run tests; global setup will sign in users using seeded credentials.
-- When adding new endpoints/controllers, remember they execute under `/dotnet`; keep cookie paths and redirects aligned with `AppRootPath` to avoid auth/session issues.
-- If adding new DB providers or cache stores, extend `DBKind` handling in `ContextFactory` and adjust build constants in the csproj to include provider packages for the selected configuration.
-- For background or asset-related changes, update both the InkBall module and main web wwwroot, then rerun gulp so published outputs stay in sync.
+
+## Start Here
+- Initialize submodules before build: `git submodule update --init --recursive`.
+- Main app: [DotnetPlayground.Web](../DotnetPlayground.Web). Additional modules: [InkBall](../InkBall), [IdentityManager2](../IdentityManager2), [Caching-MySQL](../Caching-MySQL).
+- Canonical project overview and environment setup: [README.md](../README.md).
+
+## High-Value Commands
+- Build: `dotnet build` (or workspace task `build`).
+- Test: `dotnet test` (or workspace task `test`).
+- Lint JS: `npm run lint`.
+- Asset pipeline: `npm install` (runs `postinstall`) then `npm run gulp` (or `bun x gulp`).
+- CDN/SRI validation: `npm run sri:check`.
+- CDN/SRI rewrite: `npm run sri:update`.
+- E2E tests: `npm run test:playwright`.
+
+## Routing And Path Rules
+- App is mounted under `/dotnet`; do not introduce root-level routes by accident.
+- Keep cookie paths and redirects aligned with `AppRootPath` in [DotnetPlayground.Web/appsettings.json](../DotnetPlayground.Web/appsettings.json).
+- Request pipeline and endpoint mapping are under `app.Map("/dotnet", ...)` in [DotnetPlayground.Web/Startup.cs](../DotnetPlayground.Web/Startup.cs).
+
+## Data And Providers
+- Provider selection is driven by `DBKind` in config and wiring in [DotnetPlayground.Web/Helpers/ContextFactory.cs](../DotnetPlayground.Web/Helpers/ContextFactory.cs).
+- `BloggingContext` (app + Identity) and InkBall game context are both configured there.
+- Debug builds include all provider symbols; Release is MySQL-focused. Verify symbols in [DotnetPlayground.Web/DotnetPlayground.Web.csproj](../DotnetPlayground.Web/DotnetPlayground.Web.csproj) before adding provider-specific code.
+- Distributed cache falls back to in-memory unless `DBKind` is SQL Server or MySQL.
+
+## Tests And Seed Data
+- In DEBUG, startup applies migrations and seeds Playwright users in [DotnetPlayground.Web/Helpers/ContextFactory.cs](../DotnetPlayground.Web/Helpers/ContextFactory.cs).
+- Playwright config uses `https://localhost:4553/dotnet/` and launches the app via `dotnet run --project DotnetPlayground.Web/`; see [playwright.config.js](../playwright.config.js).
+- Test user fixtures and storage states are in [e2e/TwoUsersFixtures.js](../e2e/TwoUsersFixtures.js) and [e2e/storageStates](../e2e/storageStates).
+- If auth-state files are stale, delete `e2e/storageStates/*.json` and rerun Playwright.
+
+## Assets And Frontend Workflow
+- Bundles/translations are generated into both main app and InkBall module webroots via [gulpfile.mjs](../gulpfile.mjs).
+- `dotnet publish` depends on the gulp production pipeline; do not skip asset generation when changing frontend files.
+- For CDN package bumps in Razor/HTML, run SRI tooling in [tools/sri](../tools/sri) instead of manual edits.
+
+## Pitfalls To Avoid
+- Non-development environments rely on forwarded headers handling in [DotnetPlayground.Web/Startup.cs](../DotnetPlayground.Web/Startup.cs); keep proxy behavior intact.
+- IdentityManager2 is mounted under `/dotnet/idm`; changes to auth/routing should verify this path still works.
+- Background YouTube upload queue is optional and can no-op when secrets are absent; check config before debugging that path.
