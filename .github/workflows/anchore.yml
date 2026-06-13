@@ -44,6 +44,7 @@ jobs:
         file: ./Dockerfile.alpine
         load: true
         tags: localbuild/testimage:latest
+        no-cache: true
         cache-from: type=gha
         cache-to: type=gha,mode=max
     - name: Run the Anchore Grype scan action
@@ -53,6 +54,9 @@ jobs:
         image: "localbuild/testimage:latest"
         fail-build: true
         severity-cutoff: critical
+    - name: Debug Grype findings
+      if: always()
+      run: grype localbuild/testimage:latest --fail-on critical -o table
     - name: Upload vulnerability report
       uses: github/codeql-action/upload-sarif@v4
       with:
