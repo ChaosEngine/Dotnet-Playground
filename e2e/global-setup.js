@@ -20,7 +20,7 @@ async function signInUser(browser, loginURL, storageStatePath, locale, user) {
 
 /**
  * Playwright global setup handler. Setup users, session/cookie stores and prepares
- * logged on browsers and anonymous browsers to tun tests
+ * logged on browsers and anonymous browsers to run tests
  * @param {import('@playwright/test').Config} config playwright config
  */
 async function globalSetup(config) {
