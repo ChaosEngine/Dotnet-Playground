@@ -15,6 +15,7 @@ export default [
 			"**/coverage"
 		]
 	},
+	// Extend recommended configurations
 	js.configs.recommended,
 	jsdoc.configs["flat/recommended"],
 	{
@@ -58,6 +59,7 @@ export default [
 				ignoreRestSiblings: true
 			}],
 			"semi-spacing": "warn",
+			
 			"jsdoc/require-returns": "warn",
 			"jsdoc/require-jsdoc": ["warn", {
 				checkConstructors: false,

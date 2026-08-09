@@ -123,7 +123,7 @@ jobs:
 
   Playwright-tests:
     docker:
-      - image: mcr.microsoft.com/playwright:v1.60.0
+      - image: mcr.microsoft.com/playwright:v1.62.1
     # Steps for the job
     steps:
       - checkout
