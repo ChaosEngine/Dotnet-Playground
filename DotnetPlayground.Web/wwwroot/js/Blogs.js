@@ -6,6 +6,38 @@
  */
 function BlogsOnLoad() {
 	////////////functions start/////////////
+	async function parseJsonOrText(response) {
+		const contentType = response.headers.get("content-type") || "";
+		if (contentType.includes("application/json")) {
+			return response.json();
+		}
+
+		const text = await response.text();
+		try {
+			return JSON.parse(text);
+		} catch {
+			return text;
+		}
+	}
+
+	async function sendUrlEncodedRequest(url, method, formData, antiForgeryToken) {
+		const response = await fetch(url, {
+			method: method,
+			headers: {
+				"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+				"RequestVerificationToken": antiForgeryToken
+			},
+			body: formData,
+			credentials: "same-origin"
+		});
+
+		if (!response.ok) {
+			throw new Error(response.status + " " + response.statusText);
+		}
+
+		return parseJsonOrText(response);
+	}
+
 	function CreateAccordionPostContent(blogId, collapsible, resultArr) {
 		let acc = collapsible.querySelector(`#accordion_${blogId}`);
 		if (!acc) {
@@ -188,15 +220,9 @@ function BlogsOnLoad() {
 		}
 		const serialized_form = $(form).serialize();
 
-		const hedrs = { 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value };
+		const antiForgeryToken = document.querySelector('input[name="__RequestVerificationToken"]').value;
 
-		$.ajax({
-			method: operation === delete_operation ? 'DELETE' : 'POST',
-			url: `Blogs/${operation}/${blog_id}/true`,
-			dataType: 'json',
-			data: serialized_form,
-			headers: hedrs
-		}).done(function (result) {
+		sendUrlEncodedRequest(`Blogs/${operation}/${blog_id}/true`, operation === delete_operation ? 'DELETE' : 'POST', serialized_form, antiForgeryToken).then(function (result) {
 			if (result === "error") {
 				alert("error");
 				return;
@@ -210,9 +236,8 @@ function BlogsOnLoad() {
 				const collapsible = document.querySelector("#collapse_" + blog_id);
 				CreateAccordionPostContent(blog_id, collapsible, [result]);
 			}
-
-		}).fail(function (jqXHR, textStatus, errorThrown) {
-			alert("error: " + textStatus + " " + errorThrown);
+		}).catch(function (error) {
+			alert("error: " + error.message);
 		});
 	}
 
@@ -232,15 +257,9 @@ function BlogsOnLoad() {
 		if (operation !== delete_operation && (url === '' || url === tr.find('label.displaying').text()))
 			return;
 
-		const hedrs = { 'RequestVerificationToken': $(form).find('input[name="__RequestVerificationToken"]').val() };
+		const antiForgeryToken = $(form).find('input[name="__RequestVerificationToken"]').val();
 
-		$.ajax({
-			method: operation === delete_operation ? 'DELETE' : 'POST',
-			url: `Blogs/${operation}/${id}/true`,
-			dataType: 'json',
-			data: serialized_form,
-			headers: operation === delete_operation ? hedrs : null
-		}).done(function (blog) {
+		sendUrlEncodedRequest(`Blogs/${operation}/${id}/true`, operation === delete_operation ? 'DELETE' : 'POST', serialized_form, antiForgeryToken).then(function (blog) {
 			if (blog === "error") {
 				alert("error");
 				return;
@@ -255,8 +274,8 @@ function BlogsOnLoad() {
 				let display = tr.find('label.displaying');
 				display.text(blog.url);
 			}
-		}).fail(function (jqXHR, textStatus, errorThrown) {
-			alert("error: " + textStatus + " " + errorThrown);
+		}).catch(function (error) {
+			alert("error: " + error.message);
 		});
 	}
 	////////////functions end/////////
@@ -395,14 +414,9 @@ function BlogsOnLoad() {
 				return;
 
 			// Action to execute once the collapsible area is expanded
-			const hedrs = { 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value };
+			const antiForgeryToken = document.querySelector('input[name="__RequestVerificationToken"]').value;
 
-			$.ajax({
-				method: 'POST',
-				url: 'Blogs/GetPosts/' + blog_id,
-				dataType: 'json',
-				headers: hedrs
-			}).done(function (result) {
+			sendUrlEncodedRequest('Blogs/GetPosts/' + blog_id, 'POST', '', antiForgeryToken).then(function (result) {
 				if (result === "error") {
 					alert("error");
 					return;
@@ -410,9 +424,8 @@ function BlogsOnLoad() {
 				else if (result && result.length > 0) {
 					CreateAccordionPostContent(blog_id, collapsible, result);
 				}
-
-			}).fail(function (jqXHR, textStatus, errorThrown) {
-				alert("error: " + textStatus + " " + errorThrown);
+			}).catch(function (error) {
+				alert("error: " + error.message);
 			});
 		});
 	});

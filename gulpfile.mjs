@@ -392,7 +392,7 @@ const postinstall = () => {
 			return false;
 		}
 	});
-	file_copy(`${nm}/jquery/dist/jquery.min.js`, `${dst}jquery/jquery.min.js`);
+	file_copy(`${nm}/jquery/dist/jquery.slim.min.js`, `${dst}jquery/jquery.slim.min.js`);
 
 	file_copy(`${nm}/jquery-validation/dist/jquery.validate.min.js`, `${dst}jquery-validation/jquery.validate.min.js`);
 	file_copy(`${nm}/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js`, `${dst}jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js`);

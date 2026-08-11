@@ -39,22 +39,32 @@
 {
 <script type="text/javascript">
 	function FireDelay() {
+		const controller = new AbortController();
+		const timeoutId = setTimeout(function () {
+			controller.abort();
+		}, 1000);
 
-		$.ajax({
-			method: "GET", url: "@Conf.AppRootPath()Home/UnintentionalErr/delay",
-			timeout: 1000,
-			success: function (response)
-			{
-				alert("success: " + response);
-			},
-			error: function (jqXHR, textStatus, errorThrown)
-			{
-				if (textStatus === "timeout") {
-					alert("got timeout");
-				} else {
-					alert(textStatus);
-				}
+		fetch("@Conf.AppRootPath()Home/UnintentionalErr/delay", {
+			method: "GET",
+			signal: controller.signal,
+			credentials: "same-origin"
+		}).then(function (response) {
+			if (!response.ok) {
+				throw new Error(response.status + " " + response.statusText);
 			}
+
+			return response.text();
+		}).then(function (responseText) {
+			alert("success: " + responseText);
+		}).catch(function (error) {
+			if (error.name === "AbortError") {
+				alert("got timeout");
+			}
+			else {
+				alert(error.message || error.toString());
+			}
+		}).finally(function () {
+			clearTimeout(timeoutId);
 		});
 	}
 </script>

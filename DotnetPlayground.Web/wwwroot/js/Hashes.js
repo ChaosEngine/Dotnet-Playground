@@ -8,6 +8,43 @@ function HashesOnLoad() {
 
 	let g_LastTimeOfRun = new Date().getTime();
 
+	async function parseJsonOrText(response) {
+		const contentType = response.headers.get("content-type") || "";
+		if (contentType.includes("application/json")) {
+			return response.json();
+		}
+
+		const text = await response.text();
+		try {
+			return JSON.parse(text);
+		} catch {
+			return text;
+		}
+	}
+
+	async function postForm(url, antiForgeryToken, dataObj) {
+		const body = new URLSearchParams();
+		Object.keys(dataObj).forEach(function (key) {
+			body.append(key, dataObj[key]);
+		});
+
+		const response = await fetch(url, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+				"RequestVerificationToken": antiForgeryToken
+			},
+			body: body.toString(),
+			credentials: "same-origin"
+		});
+
+		if (!response.ok) {
+			throw new Error(response.status + " " + response.statusText);
+		}
+
+		return parseJsonOrText(response);
+	}
+
 	function AjaxifySearch() {
 		const divResult = $('#divResult');
 		const search = $('#txtSearch').val();
@@ -41,15 +78,13 @@ function HashesOnLoad() {
 		divResult.text('');
 		$('#result_tab').hide();
 
-		const hedrs = { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() };
+		const antiForgeryToken = $('input[name="__RequestVerificationToken"]').val();
 
-		$.ajax({
-			method: "POST", url: 'Search',
-			headers: hedrs,
-			data: {
-				"Search": search, "Kind": kind, "ajax": true
-			}
-		}).done(function (found) {
+		postForm('Search', antiForgeryToken, {
+			"Search": search,
+			"Kind": kind,
+			"ajax": true
+		}).then(function (found) {
 			button.prop('disabled', false);
 			button.text("Search");
 
@@ -68,6 +103,10 @@ function HashesOnLoad() {
 			$('#res_cel_sha256').text(found.hashSHA256);
 			$('#res_cel_clientValidate').html((found.hashMD5 === null || found.hashSHA256 === null) ? ''
 				: '<button class="btn btn-success btn-sm" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>');
+		}).catch(function (error) {
+			button.prop('disabled', false);
+			button.text("Search");
+			divResult.text("error: " + error.message);
 		});
 	}
 
@@ -105,13 +144,9 @@ function HashesOnLoad() {
 				button.prop('disabled', true);
 				button.html("<span class='spinner-border spinner-border-sm align-middle' role='status' aria-hidden='true'></span> Loading...");
 
-				const hedrs = { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() };
+				const antiForgeryToken = $('input[name="__RequestVerificationToken"]').val();
 
-				$.ajax({
-					method: "POST", url: 'Autocomplete',
-					headers: hedrs,
-					data: { "text": value, "ajax": true }
-				}).done(function (found) {
+				postForm('Autocomplete', antiForgeryToken, { "text": value, "ajax": true }).then(function (found) {
 					$('#result_tab').show();
 					$('#trFirstResult').hide();
 
@@ -131,6 +166,9 @@ function HashesOnLoad() {
 						).appendTo('#result_tab');
 						//console.log($tr.wrap('<p>').html());
 					});
+				}).catch(function (_error) {
+					button.prop('disabled', false);//simulate button click-like behaviour: enable
+					button.text("Search");
 				});
 			}
 		}

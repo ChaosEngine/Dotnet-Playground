@@ -10,6 +10,38 @@
 function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 	let last_refresh = new Date();
 	const btnReplAllImg = $('#btnReplAllImg');
+
+	async function parseJsonOrText(response) {
+		const contentType = response.headers.get("content-type") || "";
+		if (contentType.includes("application/json")) {
+			return response.json();
+		}
+
+		const text = await response.text();
+		try {
+			return JSON.parse(text);
+		} catch {
+			return text;
+		}
+	}
+
+	async function postJson(url, antiForgeryToken, payload) {
+		const response = await fetch(url, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"RequestVerificationToken": antiForgeryToken
+			},
+			body: payload,
+			credentials: "same-origin"
+		});
+
+		if (!response.ok) {
+			throw new Error(response.status + " " + response.statusText);
+		}
+
+		return parseJsonOrText(response);
+	}
 	/**
 	 * on live img refresh click
 	 */
@@ -249,7 +281,7 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 	}
 
 	function GenerateAnnualMovie(event) {
-		const hedrs = { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() };
+		const antiForgeryToken = $('input[name="__RequestVerificationToken"]').val();
 		const serialized_bag = JSON.stringify({ Result: "query", Product: ["qqq", "xxxx", "yyyy", "zzzzzz"] });
 		$('#tbAnnualMovieGenerator').html(
 			'<thead><tr>' +
@@ -262,14 +294,7 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 		if (window.localize)
 			window.localize("#tbAnnualMovieGenerator");
 
-		$.ajax({
-			method: 'POST',
-			url: 'AnnualTimelapse/?handler=SecretAction',
-			contentType: "application/json",
-			dataType: 'json',
-			data: serialized_bag,
-			headers: hedrs
-		}).done(function (response/*, textStatus, jqXHR*/) {
+		postJson('AnnualTimelapse/?handler=SecretAction', antiForgeryToken, serialized_bag).then(function (response/*, textStatus, jqXHR*/) {
 			console.log(response);
 			if (response.result === "Error0") {
 				alert(i18next.t('webCam.error'));
@@ -291,11 +316,11 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 					);
 				});
 			}
-		}).fail(function (_jqXHR, textStatus, errorThrown) {
-			alert(i18next.t('webCam.errorFollowing') + textStatus + " " + errorThrown);
+		}).catch(function (error) {
+			alert(i18next.t('webCam.errorFollowing') + error.message);
 			$('#tbAnnualMovieGenerator').html('');
-		}).always(function () {
-			event.target.disabled = '';
+		}).finally(function () {
+			event.target.disabled = false;
 		});
 	}
 

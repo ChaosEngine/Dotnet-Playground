@@ -66,7 +66,7 @@ self.addEventListener('install', function (/* event */) {
 	if (isDev) {
 		//external resources but installed locally
 		RESOURCES = RESOURCES.concat([
-			'lib/jquery/jquery.min.js',
+			'lib/jquery/jquery.slim.min.js',
 			'lib/bootstrap/css/bootstrap.min.css',
 			'lib/bootstrap/js/bootstrap.bundle.min.js',
 			'lib/blueimp-gallery/css/blueimp-gallery.min.css',
@@ -97,7 +97,7 @@ self.addEventListener('install', function (/* event */) {
 			'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.24.2/bootstrap-table.min.js',
 			//'https://cdn.jsdelivr.net/npm/chance@1.1.11/dist/chance.min.js',
 			'https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js',
-			'https://cdn.jsdelivr.net/npm/jquery@4.0.0/dist/jquery.min.js',
+			'https://code.jquery.com/jquery-4.0.0.slim.min.js',
 			'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js',
 			'https://cdn.jsdelivr.net/npm/jquery-validation@1.22.0/dist/jquery.validate.min.js',
 			'https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@4.0.0/dist/jquery.validate.unobtrusive.min.js'
