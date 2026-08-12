@@ -109,15 +109,15 @@
 {
 <script type="text/javascript">
 window.addEventListener('load', () => {
-	const anchors = $('#hashesLnk > a');
+	const anchors = Array.from(document.querySelectorAll('#hashesLnk > a'));
 	if (anchors.length > 1) {
-		let lnk = anchors.first();
-		lnk.attr('href', lnk.attr('href') + g_gitBranch);
-		lnk.find('strong').text(g_gitBranch);
-			
-		lnk = anchors.last();
-		lnk.attr('href', lnk.attr('href') + g_gitHash);
-		lnk.find('strong').text(g_gitHash);
+		let lnk = anchors[0];
+		lnk.href = lnk.href + g_gitBranch;
+		lnk.querySelector('strong').textContent = g_gitBranch;
+
+		lnk = anchors[anchors.length - 1];
+		lnk.href = lnk.href + g_gitHash;
+		lnk.querySelector('strong').textContent = g_gitHash;
 	}
 });
 </script>

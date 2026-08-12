@@ -30,17 +30,17 @@
 </environment>
 <script type="text/javascript">
 window.addEventListener('load', () => {
-	$('#spStreetName').text(chance.street());
-	$('#spCity').text(chance.city());
-	$('#spState').text(chance.state());
-	$('#spZipCode').text(chance.zip());
-	$('#spPhone').text(chance.phone());
-	const email0 = $('#aEmail0');
-	email0.text(chance.email());
-	email0.attr('href', "mailto:" + email0.text());
-	const email1 = $('#aEmail1');
-	email1.text(chance.email());
-	email1.attr('href', "mailto:" + email1.text());
+	document.getElementById('spStreetName').textContent = chance.street();
+	document.getElementById('spCity').textContent = chance.city();
+	document.getElementById('spState').textContent = chance.state();
+	document.getElementById('spZipCode').textContent = chance.zip();
+	document.getElementById('spPhone').textContent = chance.phone();
+	const email0 = document.getElementById('aEmail0');
+	email0.textContent = chance.email();
+	email0.href = "mailto:" + email0.textContent;
+	const email1 = document.getElementById('aEmail1');
+	email1.textContent = chance.email();
+	email1.href = "mailto:" + email1.textContent;
 });
 </script>
 }

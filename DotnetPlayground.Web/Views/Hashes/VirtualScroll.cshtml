@@ -4,62 +4,47 @@
 
 <div id="toolbar">
 	<button id="btninfo" class="btn btn-secondary" type="button">&#9432;&nbsp;<span data-i18n="virtScrol.rowInfo">Row info</span></button>
+	<button id="btnRefresh" class="btn btn-outline-secondary" type="button" data-i18n="virtScrol.bootstrapTable.formatRefresh">Refresh</button>
+	<input id="txtSearch" type="search" class="form-control d-inline-block w-auto" placeholder="Search" style="max-width: 22rem;" />
+	<select id="selPageSize" class="form-select d-inline-block w-auto" aria-label="Page size">
+		<option value="50">50</option>
+		<option value="500">500</option>
+		<option value="2000">2000</option>
+		<option value="10000">10000</option>
+	</select>
 	&nbsp;&nbsp;<span id="spStatus"></span>
 </div>
 
 <div class="container-fluid">
-	<table id="table"
-		data-unique-id="Key"
-		data-classes="table table-sm table-hover table-striped"
-		data-side-pagination="server"
-		data-url="Load"
-		data-pagination="true"
-		data-pagination-use-intermediate="true"
-		data-sort-reset="true"
-		data-show-refresh="true"
-		data-search="true"
-		data-toolbar="#toolbar"
-		data-icons-prefix="fa"
-		data-page-size="50"
-		data-page-list="[50,500,2000,10000]"
-		data-virtual-scroll="true"
-		data-height="600"
-		>
+	<table id="table" class="table table-sm table-hover table-striped">
 		<thead>
 			<tr>
-				<th data-field="key" data-sortable="true" data-halign="center" data-align="center"><span data-i18n="virtScrol.key">Key</span></th>
-				<th data-field="hashMD5" data-sortable="true"><span data-i18n="virtScrol.hashMD5">HashMD5</span></th>
-				<th data-field="hashSHA256" data-sortable="true"><span data-i18n="virtScrol.hashSHA256">HashSHA256</span></th>
-				<th data-field="Validate" data-sortable="false" data-halign="center" data-align="center">
+				<th data-sort-field="Key"><button type="button" class="btn btn-link p-0 text-decoration-none"><span data-i18n="virtScrol.key">Key</span></button></th>
+				<th data-sort-field="HashMD5"><button type="button" class="btn btn-link p-0 text-decoration-none"><span data-i18n="virtScrol.hashMD5">HashMD5</span></button></th>
+				<th data-sort-field="HashSHA256"><button type="button" class="btn btn-link p-0 text-decoration-none"><span data-i18n="virtScrol.hashSHA256">HashSHA256</span></button></th>
+				<th>
 					<button class="btn btn-success fw-bold text-nowrap pe-3" title="Validate all" value="ValidateAll" onclick="clientValidateAll()" data-i18n="[title]virtScrol.validateAllTitle;virtScrol.validateAll">ALL ⇩</button>
 				</th>
 			</tr>
 		</thead>
+		<tbody></tbody>
 	</table>
+	<div class="d-flex justify-content-between align-items-center mb-2">
+		<button id="btnPrevPage" class="btn btn-outline-secondary" type="button">&larr;</button>
+		<span id="spPageInfo"></span>
+		<button id="btnNextPage" class="btn btn-outline-secondary" type="button">&rarr;</button>
+	</div>
 </div>
 
 @section headElements
 {
-	<environment include="Development">
-		<link rel="stylesheet" href="~/lib/bootstrap-table/bootstrap-table.min.css" />
-	</environment>
-	<environment exclude="Development">
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-table@1.27.3/dist/bootstrap-table.min.css" integrity="sha256-y9sX0L8XW2HkEXX+etD42rEoL3L3UjowRtxXmyxYnUM=" crossorigin="anonymous" referrerpolicy="no-referrer"
-			asp-fallback-href="~/lib/bootstrap-table/bootstrap-table.min.css"
-			asp-fallback-test-class="bootstrap-table fullscreen" asp-fallback-test-property="position" asp-fallback-test-value="fixed" />
-	</environment>
 }
 @section scripts
 {
 	<environment include="Development">
-		<script src="~/lib/bootstrap-table/bootstrap-table.min.js"></script>
 		<script src="~/js/VirtualScroll.js" asp-append-version="true"></script>
 	</environment>
 	<environment exclude="Development">
-		<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.27.3/dist/bootstrap-table.min.js" integrity="sha256-aaqynVgrf6he5YP4wcobUceOkYzrjZwLOg0hsNCKMC0=" crossorigin="anonymous" referrerpolicy="no-referrer"
-				asp-fallback-src="~/lib/bootstrap-table/bootstrap-table.min.js"
-				asp-fallback-test="$ && $.fn && $.fn.bootstrapTable">
-		</script>
 		<script src="~/js/VirtualScroll.min.js" asp-append-version="true"></script>
 	</environment>
 

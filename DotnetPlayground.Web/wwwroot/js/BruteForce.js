@@ -227,25 +227,26 @@ function BruteForceOnLoad() {
 	}
 	////////////functions end/////////
 
-	$("#btnCrack").on("click", async function () {
+	const btnCrack = document.getElementById("btnCrack");
+	btnCrack.addEventListener("click", async function () {
 		if (instance !== null) {
 			instance.clear();
 			instance = null;
-			$("#btnCrack").text('Crack');
+			btnCrack.textContent = 'Crack';
 			return;
 		}
 
-		const passToHash = $('#txtHash').val();
-		const alphabet = $('#txtAlphabet').val();
+		const passToHash = document.getElementById('txtHash').value;
+		const alphabet = document.getElementById('txtAlphabet').value;
 
 		if (passToHash === null || passToHash === '' || alphabet === null || alphabet === '') {
-			$('.global-message').text('nothing to decode');
+			document.querySelector('.global-message').textContent = 'nothing to decode';
 			return;
 		}
-		$("#btnCrack").text('Cancel');
+		btnCrack.textContent = 'Cancel';
 
-		const workerCount = $('#ddlWorkerCount').val();
-		const updateRate = $('#ddlUpdateRate').val();
+		const workerCount = document.getElementById('ddlWorkerCount').value;
+		const updateRate = document.getElementById('ddlUpdateRate').value;
 
 		const hashToCrack = await hashExp(passToHash);
 		instance = new BruteForce(document,
@@ -255,7 +256,7 @@ function BruteForceOnLoad() {
 			hashToCrack,//hashToCrack
 			passToHash.length,//pass characters length
 			function () {
-				$("#btnCrack").text('Reset');
+				btnCrack.textContent = 'Reset';
 			}
 		);
 		instance.clear();

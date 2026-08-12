@@ -2,6 +2,3 @@
 /// <reference path="../../gulpfile.mjs" />
 /// <reference path="js/site.js" />
 /// <reference path="lib/bootstrap/js/bootstrap.bundle.min.js" />
-/// <reference path="lib/jquery/jquery.slim.min.js" />
-/// <reference path="lib/jquery-validation/jquery.validate.min.js" />
-/// <reference path="lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js" />

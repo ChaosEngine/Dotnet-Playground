@@ -66,7 +66,6 @@ self.addEventListener('install', function (/* event */) {
 	if (isDev) {
 		//external resources but installed locally
 		RESOURCES = RESOURCES.concat([
-			'lib/jquery/jquery.slim.min.js',
 			'lib/bootstrap/css/bootstrap.min.css',
 			'lib/bootstrap/js/bootstrap.bundle.min.js',
 			'lib/blueimp-gallery/css/blueimp-gallery.min.css',
@@ -76,8 +75,6 @@ self.addEventListener('install', function (/* event */) {
 			'lib/blueimp-md5/md5.min.js',
 			'lib/bootstrap-table/bootstrap-table.min.css',
 			'lib/bootstrap-table/bootstrap-table.min.js',
-			'lib/jquery-validation/jquery.validate.min.js',
-			'lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js',
 			'lib/ace-builds/ace.js',//questionable, only dev ?
 			'lib/ace-builds/mode-csharp.js'//questionable, only dev ?
 			//'lib/signalr/browser/signalr.min.js',//questionable, inkball ?
@@ -97,10 +94,8 @@ self.addEventListener('install', function (/* event */) {
 			'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.24.2/bootstrap-table.min.js',
 			//'https://cdn.jsdelivr.net/npm/chance@1.1.11/dist/chance.min.js',
 			'https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js',
-			'https://code.jquery.com/jquery-4.0.0.slim.min.js',
 			'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js',
-			'https://cdn.jsdelivr.net/npm/jquery-validation@1.22.0/dist/jquery.validate.min.js',
-			'https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@4.0.0/dist/jquery.validate.unobtrusive.min.js'
+
 			//'https://cdnjs.cloudflare.com/ajax/libs/ace/1.35.2/ace.js',//questionable, only dev ?
 			//'https://cdnjs.cloudflare.com/ajax/libs/ace/1.35.2/mode-csharp.min.js',//questionable, only dev ?
 			//'https://cdn.jsdelivr.net/npm/@microsoft/signalr@9.0.6/dist/browser/signalr.min.js',//questionable, inkball ?

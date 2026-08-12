@@ -6,47 +6,71 @@
  * Puzzles page onload event handler
  */
 function PuzzlesOnLoad() {
-	$('#customFile').on('change', function () {
-		const file = $(this)[0].files[0].name;
-		$(this).next('label').text(file);
+	const customFile = document.getElementById('customFile');
+	const target = document.getElementById('target');
+	const rangeSize = document.getElementById('rangeSize');
+	const rotation = document.getElementById('rotation');
+	const radioInputs = Array.from(document.querySelectorAll("input[type='radio'].form-check-input"));
+
+	if (customFile) {
+		customFile.addEventListener('change', function () {
+			const file = this.files && this.files[0] ? this.files[0].name : '';
+			const nextLabel = this.nextElementSibling;
+			if (nextLabel)
+				nextLabel.textContent = file;
+		});
+	}
+
+	function updateTransform() {
+		if (!target || !rangeSize || !rotation)
+			return;
+		target.style.setProperty("--trans", "scale(" + rangeSize.value * 0.01 + ") rotateZ(" + rotation.value + "deg)");
+	}
+
+	radioInputs.forEach(function (input) {
+		input.addEventListener('change', function () {
+			const label = this.nextElementSibling;
+			const img = label ? label.querySelector('img') : null;
+			if (img && target) {
+				target.style.setProperty("--bimg", "url(" + img.getAttribute('src') + ")");
+			}
+			updateTransform();
+		});
+	});
+	if (radioInputs.length > 0) {
+		radioInputs[0].dispatchEvent(new Event('change'));
+	}
+
+	[rangeSize, rotation].forEach(function (el) {
+		if (el) {
+			el.addEventListener('change', function () {
+				const size = rangeSize.value;
+				let lbl = document.querySelector("label[for='rangeSize']");
+
+				if (window.localize && lbl) {
+					lbl.dataset.i18nOptions = `{ 'size': ${size} }`;
+					window.localize("label[for='rangeSize']");
+				}
+				else if (lbl)
+					lbl.textContent = `Size ${size}`;
+
+				const rotValue = rotation.value;
+				lbl = document.querySelector("label[for='rotation']");
+
+				if (window.localize && lbl) {
+					lbl.dataset.i18nOptions = `{ 'rotation': ${rotValue} }`;
+					window.localize("label[for='rotation']");
+				}
+				else if (lbl)
+					lbl.textContent = `Rotation ${rotValue}`;
+
+				updateTransform();
+			});
+		}
 	});
 
-	$("input[type='radio'].form-check-input").on('change', function () {
-		const img = $(this).next('label').find('img');
-		const size = $('#rangeSize').val();
-
-		const img_path = img.attr('src');
-		$("#target").css("--bimg", "url(" + img_path + ")");
-
-		const rotation = $("#rotation").val();
-		$("#target").css("--trans", "scale(" + size * 0.01 + ") rotateZ(" + rotation + "deg)");
-	}).first().trigger('change');
-
-	$("#rangeSize, #rotation").on('change', function () {
-		const size = $("#rangeSize").val();
-		let lbl = $("label[for='rangeSize']");
-
-		if (window.localize) {
-			lbl[0].dataset.i18nOptions = `{ 'size': ${size} }`;
-			window.localize("label[for='rangeSize']");
-		}
-		else
-			lbl.text(`Size ${size}`);
-
-		const rotation = $("#rotation").val();
-		lbl = $("label[for='rotation']");
-
-		if (window.localize) {
-			lbl[0].dataset.i18nOptions = `{ 'rotation': ${rotation} }`;
-			window.localize("label[for='rotation']");
-		}
-		else
-			lbl.text(`Rotation ${rotation}`);
-
-		$("#target").css("--trans", "scale(" + size * 0.01 + ") rotateZ(" + rotation + "deg)");
-	});
-
-	$('input[type="file"]').on('change', function () {
+	Array.from(document.querySelectorAll('input[type="file"]')).forEach(function (fileInput) {
+		fileInput.addEventListener('change', function () {
 		if (this.files && this.files[0]) {
 			const img = document.createElement('img');
 			const blob = URL.createObjectURL(this.files[0]);
@@ -56,20 +80,20 @@ function PuzzlesOnLoad() {
 				const w = img.width;
 				const h = img.height;
 
-				const target = $("#target");
-				target.css("--uploadedImg", "url(" + blob + ")");
-				target.css("width", w);
-				target.css("height", h);
+				target.style.setProperty("--uploadedImg", "url(" + blob + ")");
+				target.style.width = w + "px";
+				target.style.height = h + "px";
 				//URL.revokeObjectURL(this.src);
 			};
 		}
+		});
 	});
 
-	$(".puzzles form").on("submit", async (event) => {
+	Array.from(document.querySelectorAll('.puzzles form')).forEach(function (form) {
+		form.addEventListener("submit", async (event) => {
 		event.preventDefault();
 
-		const target = $("#target")[0];
-		const button = $(event.target).find("button[type='submit']")[0];
+		const button = event.target.querySelector("button[type='submit']");
 		button.disabled = true;
 
 		if (window.localize) {
@@ -95,5 +119,6 @@ function PuzzlesOnLoad() {
 		});
 		link.click();
 
+		});
 	});
 }

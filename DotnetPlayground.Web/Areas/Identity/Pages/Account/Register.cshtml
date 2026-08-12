@@ -56,8 +56,8 @@
 
 	function StoreApplicationUserSettings() {
 		const settings = { 
-			DesktopNotifications: $("#Input_DesktopNotifications:checked").length >= 1,
-			ShowChatNotifications: $("#Input_ShowChatNotifications:checked").length >= 1
+			DesktopNotifications: document.getElementById("Input_DesktopNotifications")?.checked === true,
+			ShowChatNotifications: document.getElementById("Input_ShowChatNotifications")?.checked === true
 		};
 		const to_store = JSON.stringify(settings);
 		sessionStorage.setItem("ApplicationUserSettings", to_store);
@@ -65,8 +65,7 @@
 
 	window.addEventListener('load', function () {
 
-		$("#profile-form").submit(function(event) {
-			//event.preventDefault();
+		document.getElementById("profile-form").addEventListener("submit", function () {
 			StoreApplicationUserSettings();
 		});
 	});

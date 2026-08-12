@@ -6,17 +6,23 @@
 var g_AppRootPath = location.pathname.match(/\/([^/]+)\//)[0], g_isDevelopment = location.host.match(/:\d+/) !== null,
 	g_gitBranch = "GIT_BRANCH", g_gitHash = "GIT_HASH", localize = null;
 
+function qs(selector, root) {
+	return (root || document).querySelector(selector);
+}
+
+function qsa(selector, root) {
+	return Array.from((root || document).querySelectorAll(selector));
+}
 
 /**
  * SHA-256 hashing using Web Crypto API
- * usage: getSHA256(text).then((digestHex) => console.log(digestHex));
  * @param {string} message string to be hashed using SHA-256
  * @returns {Promise<string>} hashed message in hex format
  */
 async function getSHA256(message) {
-	const msgUint8 = new TextEncoder().encode(message); // encode as (utf-8) Uint8Array
-	const hashBuffer = await window.crypto.subtle.digest("SHA-256", msgUint8); // hash the message
-	const hashHex = new Uint8Array(hashBuffer).toHex(); // Convert ArrayBuffer to hex string.
+	const msgUint8 = new TextEncoder().encode(message);
+	const hashBuffer = await window.crypto.subtle.digest("SHA-256", msgUint8);
+	const hashHex = new Uint8Array(hashBuffer).toHex();
 	return hashHex;
 }
 
@@ -25,33 +31,33 @@ async function getSHA256(message) {
  * @param {HTMLButtonElement} button triggering action
  */
 async function clientValidate(button) {
-	const td = $(button).parent().parent().find("td");
+	const tr = button.closest("tr");
+	if (!tr) return;
+	const cells = tr.querySelectorAll("td");
+	if (cells.length < 3) return;
 
-	const key = td.eq(0).text();
-	const orig_md5 = td.eq(1).text();
-	const orig_sha = td.eq(2).text();
+	const key = cells[0].textContent || "";
+	const orig_md5 = cells[1].textContent || "";
+	const orig_sha = cells[2].textContent || "";
 
-	if (orig_md5 === '' || orig_sha === '')
-		return;
+	if (orig_md5 === "" || orig_sha === "") return;
 
 	const md5sum = md5(key);
 	const sha = await getSHA256(key);
 
-	td.eq(1).css({
-		"color": (md5sum === orig_md5 ? "green" : "red"),
-		'font-weight': 'bold'
-	});
-	td.eq(2).css({
-		"color": (sha === orig_sha ? "green" : "red"),
-		'font-weight': 'bold'
-	});
+	cells[1].style.color = md5sum === orig_md5 ? "green" : "red";
+	cells[1].style.fontWeight = "bold";
+	cells[2].style.color = sha === orig_sha ? "green" : "red";
+	cells[2].style.fontWeight = "bold";
 }
 
 /**
  * Client side hash validation of all hash rows
  */
 async function clientValidateAll() {
-	$("button[value='Validate']").each(async (_, item) => await clientValidate(item));
+	for (const item of qsa("button[value='Validate']")) {
+		await clientValidate(item);
+	}
 }
 
 /**
@@ -60,67 +66,52 @@ async function clientValidateAll() {
  * @param {string} title of the dialog
  * @param {(Element) => void} onCloseCallback callback executed on close
  */
-function myAlert(msg = 'Content', title = 'Modal title', onCloseCallback = undefined) {
-	const myModalEl = document.getElementById('divModal');
+function myAlert(msg = "Content", title = "Modal title", onCloseCallback = undefined) {
+	const myModalEl = document.getElementById("divModal");
 	const myModal = bootstrap.Modal.getOrCreateInstance(myModalEl, { keyboard: true, backdrop: true });
 
 	if (onCloseCallback) {
-		// on close action
-		myModalEl.addEventListener('hidden.bs.modal', function listener(e) {
-			// remove event listener
+		myModalEl.addEventListener("hidden.bs.modal", function listener(e) {
 			e.target.removeEventListener(e.type, listener);
-
-			// call handler with original context
 			return onCloseCallback.call(this, e);
 		});
 	}
 
-	myModalEl.querySelector('.modal-body').textContent = msg;
-	document.getElementById('divModalLabel').textContent = title;
+	myModalEl.querySelector(".modal-body").textContent = msg;
+	document.getElementById("divModalLabel").textContent = title;
 	myModal.show();
 }
 
-window.addEventListener('DOMContentLoaded', function () {
-	window.registerLocalizationOnReady = [];//empty array to store callbacks to be executed when localization is ready
+window.addEventListener("DOMContentLoaded", function () {
+	window.registerLocalizationOnReady = [];
 
 	function handleLocalization(isDev) {
 		function renderLocalize() {
-			localize('head,body');
-
-			// $('head,body').localize();
+			localize("head,body");
 		}
 
 		function loadPathFunc([lng], [namespace]) {
-			const loadFromCDN = localStorage.getItem('loadFromCDN') === 'true' && !isDev;
+			const loadFromCDN = localStorage.getItem("loadFromCDN") === "true" && !isDev;
 			switch (namespace) {
-				case 'ib':
-					return loadFromCDN ?
-						`https://cdn.jsdelivr.net/gh/ChaosEngine/InkBall@${g_gitBranch/* 'dev' */}/src/InkBall.Module/wwwroot/locales/${lng}/${namespace}.min.json`
-						:
-						`${g_AppRootPath}locales/${lng}/${namespace}${isDev ? '' : '.min'}.json`;
-
-				// case 'translation':
+				case "ib":
+					return loadFromCDN
+						? `https://cdn.jsdelivr.net/gh/ChaosEngine/InkBall@${g_gitBranch}/src/InkBall.Module/wwwroot/locales/${lng}/${namespace}.min.json`
+						: `${g_AppRootPath}locales/${lng}/${namespace}${isDev ? "" : ".min"}.json`;
 				default:
-					return loadFromCDN ?
-						`https://cdn.jsdelivr.net/gh/ChaosEngine/Dotnet-Playground@${g_gitBranch/* 'dev' */}/DotnetPlayground.Web/wwwroot/locales/${lng}/${namespace}.min.json`
-						:
-						`${g_AppRootPath}locales/${lng}/${namespace}${isDev ? '' : '.min'}.json`;
+					return loadFromCDN
+						? `https://cdn.jsdelivr.net/gh/ChaosEngine/Dotnet-Playground@${g_gitBranch}/DotnetPlayground.Web/wwwroot/locales/${lng}/${namespace}.min.json`
+						: `${g_AppRootPath}locales/${lng}/${namespace}${isDev ? "" : ".min"}.json`;
 			}
 		}
 
-		// use plugins and options as needed, for options, detail see: http://i18next.com/docs/
 		i18next
 			.use(i18nextChainedBackend)
-			// detect user language. learn more: https://github.com/i18next/i18next-browser-languageDetector
 			.use(i18nextBrowserLanguageDetector)
 			.init({
-				//debug: isDev,
-				// showSupportNotice: false,
-				fallbackLng: false, // default language if nothing found by detector or disable loading fallback
-				supportedLngs: ['en', 'pl'], // array of supported languages
-
-				ns: ['translation', ...(location.pathname.match(/InkBall/) ? ['ib'] : '')],
-				defaultNS: 'translation',
+				fallbackLng: false,
+				supportedLngs: ["en", "pl"],
+				ns: ["translation", ...(location.pathname.match(/InkBall/) ? ["ib"] : [])],
+				defaultNS: "translation",
 				parseMissingKeyHandler: (key, defaultValue) => {
 					console.warn(`Missing i18next localization key: ${key}`);
 					return defaultValue || key;
@@ -132,40 +123,30 @@ window.addEventListener('DOMContentLoaded', function () {
 					],
 					backendOptions: [
 						...(isDev ? [] : [{
-							//i18nextLocalStorageBackend opts
-							prefix: 'i18next_res_',
-							expirationTime:
-								7/* days */ * 24/* hours */ * 60/* mins */ * 60/* secs */ * 1000/* milliseconds */,
+							prefix: "i18next_res_",
+							expirationTime: 7 * 24 * 60 * 60 * 1000,
 							defaultVersion: g_gitHash
 						}]),
 						{
-							//i18nextHttpBackend opts
 							loadPath: loadPathFunc
 						}
 					]
 				}
-			}, function (/* err, t */) {
-				// for options see: https://github.com/i18next/jquery-i18next#initialize-the-plugin
-				// jqueryI18next.init(i18next, $, { useOptionsAttr: true });
-				// localize = (sel) => $(sel).localize();
-
-				localize = locI18next.init(i18next, { useOptionsAttr: true, optionsAttr: 'data-i18n-options' });
+			}, function () {
+				localize = locI18next.init(i18next, { useOptionsAttr: true, optionsAttr: "data-i18n-options" });
 
 				if (window.registerLocalizationOnReady.length > 0) {
 					window.registerLocalizationOnReady.forEach(callback => typeof callback === "function" && callback(localize));
 				}
-
-				// start localizing, details: https://github.com/i18next/jquery-i18next#usage-of-selector-function
 				renderLocalize();
 			});
 
-		// Language switcher
-		$('#langDropdown button[title]').on('click', function () {
-			const lang = $(this).attr("title");
-
-			i18next.changeLanguage(lang, function (/* err, t */) {
-				// Update the content after language change
-				renderLocalize();
+		qsa("#langDropdown button[title]").forEach(function (button) {
+			button.addEventListener("click", function () {
+				const lang = button.getAttribute("title");
+				i18next.changeLanguage(lang, function () {
+					renderLocalize();
+				});
 			});
 		});
 	}
@@ -173,202 +154,119 @@ window.addEventListener('DOMContentLoaded', function () {
 	handleLocalization(g_isDevelopment);
 });
 
-/**
- * Global document ready function
- */
-$(function () {
-
+window.addEventListener("DOMContentLoaded", function () {
 	function ajaxLog(level, message, url, line, col, error) {
 		const logPath = g_AppRootPath + "Home/ClientsideLog";
-
-		// $.post(logPath, {
-		// 	level, message, url, line, col, error
-		// });
-
-		//alternative way - https://hemath.dev/blog/say-bye-with-javascript-beacon/?utm_source=unknownews
 		const data = new URLSearchParams();
 
-		const rvt = $('input[name="__RequestVerificationToken"]');
-		if (rvt.length > 0)
-			data.set('__RequestVerificationToken', rvt.val());
+		const rvt = qs('input[name="__RequestVerificationToken"]');
+		if (rvt) data.set("__RequestVerificationToken", rvt.value);
 
-		if (level !== undefined && level !== null)
-			data.set('level', level);
-		if (message)
-			data.set('message', message);
-		if (url)
-			data.set('url', url);
-		if (line !== undefined && line !== null)
-			data.set('line', line);
-		if (col !== undefined && col !== null)
-			data.set('col', col);
-		if (error !== undefined && error !== null)
-			data.set('error', error);
+		if (level !== undefined && level !== null) data.set("level", level);
+		if (message) data.set("message", message);
+		if (url) data.set("url", url);
+		if (line !== undefined && line !== null) data.set("line", line);
+		if (col !== undefined && col !== null) data.set("col", col);
+		if (error !== undefined && error !== null) data.set("error", error);
 		navigator.sendBeacon(logPath, data);
 	}
 
-	/**
-	 * Enable/disable menu, dropdown links depending on login status
-	 */
 	function handleLogoutForm() {
-		//if we're not seeing logoutForm form - disable secure/authorized links, otherwise enable registration
-		const links2disable = $("#logoutForm").length === 0 ?
-			["aInkList", "aInkGame", "aInkGameHigh"] :
-			["aInkRegister"];
+		const links2disable = qs("#logoutForm") === null
+			? ["aInkList", "aInkGame", "aInkGameHigh"]
+			: ["aInkRegister"];
 
 		links2disable.forEach(id => {
-			const el = $(`#${id}`);
-			//el.removeAttr("href");
-			el.attr({
-				"tabindex": "-1",
-				"aria-disabled": "true"
-			});
-			el.addClass("disabled");
+			const el = document.getElementById(id);
+			if (!el) return;
+			el.setAttribute("tabindex", "-1");
+			el.setAttribute("aria-disabled", "true");
+			el.classList.add("disabled");
 		});
 	}
 
-	/**
-	 * Registers service worker globally
-	 * @param {string} rootPath is a path of all pages after FQDN name (ex. https://foo-bar.com/rootPath) or '/' if no root path
-	 * @param {boolean} isDev indicates whether this is development (tru) or production (false) like environment
-	 */
 	function registerServiceWorker(rootPath, isDev) {
-		if ('serviceWorker' in navigator
-			//&& (navigator.serviceWorker.controller === null || navigator.serviceWorker.controller.state !== "activated")
-		) {
-			const version = encodeURIComponent(g_gitBranch + '_' + g_gitHash);
-			const swUrl = `${rootPath}sw${(isDev ? '' : '.min')}.js?version=${version}`;
+		if ("serviceWorker" in navigator) {
+			const version = encodeURIComponent(g_gitBranch + "_" + g_gitHash);
+			const swUrl = `${rootPath}sw${(isDev ? "" : ".min")}.js?version=${version}`;
 
-			navigator.serviceWorker
-				.register(swUrl, { scope: rootPath })
-				.then(() => console.log("Service Worker Registered"));
-
-			navigator.serviceWorker
-				.ready.then(() => console.log('Service Worker Ready'));
+			navigator.serviceWorker.register(swUrl, { scope: rootPath }).then(() => console.log("Service Worker Registered"));
+			navigator.serviceWorker.ready.then(() => console.log("Service Worker Ready"));
 		}
 	}
 
 	function registerMyAlert() {
-		$('<div>')
-			.addClass('modal fade')
-			.attr({
-				'id': 'divModal',
-				'tabindex': '-1',
-				'aria-labelledby': 'divModalLabel',
-				'aria-hidden': 'true'
-			})
-			.html(
-				'<div class="modal-dialog">' +
-					'<div class="modal-content">' +
-						'<div class="modal-header">' +
-							`<h5 class="modal-title text-break" id="divModalLabel">Modal title</h5>` +
-							'<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
-						'</div>' +
-						`<div class="modal-body text-break">Content</div>` +
-						'<div class="modal-footer">' +
-							'<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>' +
-						'</div>' +
-					'</div>' +
-				'</div>'
-			).appendTo('body');
+		const wrapper = document.createElement("div");
+		wrapper.className = "modal fade";
+		wrapper.id = "divModal";
+		wrapper.tabIndex = -1;
+		wrapper.setAttribute("aria-labelledby", "divModalLabel");
+		wrapper.setAttribute("aria-hidden", "true");
+		wrapper.innerHTML = '<div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title text-break" id="divModalLabel">Modal title</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body text-break">Content</div><div class="modal-footer"><button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button></div></div></div>';
+		document.body.appendChild(wrapper);
 	}
 
 	function registerThemeChangeHandler() {
-		//Taken from https://anduin.aiursoft.com/post/2020/3/27/bootstrap-dark-theme-minimum-style
+		const html = document.documentElement;
+		const themeSwitcher = document.getElementById("themeSwitcher");
+
 		const initDarkTheme = function () {
-			if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-				// dark mode
-				$('html').attr("data-bs-theme", "dark");
+			if (window.matchMedia("(prefers-color-scheme: dark)").matches && localStorage.getItem("bs-theme") === null) {
+				html.setAttribute("data-bs-theme", "dark");
 			}
 		};
 		const initLightTheme = function () {
-			if (window.matchMedia('(prefers-color-scheme: light)').matches) {
-				// light mode
-				$('html').attr("data-bs-theme", "light");
+			if (window.matchMedia("(prefers-color-scheme: light)").matches && localStorage.getItem("bs-theme") === null) {
+				html.setAttribute("data-bs-theme", "light");
 			}
 		};
+
 		initDarkTheme();
-		window.matchMedia('(prefers-color-scheme: dark)').addEventListener("change", initDarkTheme);
-		window.matchMedia('(prefers-color-scheme: light)').addEventListener("change", initLightTheme);
+		window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", initDarkTheme);
+		window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", initLightTheme);
 
-
-
-
-
-		$('#themeSwitcher').on('click', function () {
-			const classes = $(this).attr('class').split(' ');
+		themeSwitcher.addEventListener("click", function () {
+			const classes = themeSwitcher.className.split(" ");
 			let cur_theme = classes.pop();
 			switch (cur_theme) {
-				case 'system':
-					cur_theme = 'light';
-					break;
-
-				case 'light':
-					cur_theme = 'dark';
-					break;
-
-				default:
-				case 'dark':
-					cur_theme = 'system';
-					break;
+				case "system": cur_theme = "light"; break;
+				case "light": cur_theme = "dark"; break;
+				default: cur_theme = "system"; break;
 			}
 			classes.push(cur_theme);
-			$(this).attr({
-				'class': classes.join(" "),
-				'data-i18n': `[title]nav.themeSwitcher.${cur_theme};[aria-label]nav.themeSwitcher.${cur_theme}`
-			});
-			localize('#themeSwitcher');
+			themeSwitcher.className = classes.join(" ");
+			themeSwitcher.setAttribute("data-i18n", `[title]nav.themeSwitcher.${cur_theme};[aria-label]nav.themeSwitcher.${cur_theme}`);
+			if (localize) localize("#themeSwitcher");
 
-
-			if (cur_theme === 'system') {
-				$('html').removeAttr('data-bs-theme');
-				localStorage.removeItem('bs-theme');
-			}
-			else {
-				$('html').attr('data-bs-theme', cur_theme);
-				localStorage.setItem('bs-theme', cur_theme);
+			if (cur_theme === "system") {
+				html.removeAttribute("data-bs-theme");
+				localStorage.removeItem("bs-theme");
+			} else {
+				html.setAttribute("data-bs-theme", cur_theme);
+				localStorage.setItem("bs-theme", cur_theme);
 			}
 		});
 
-		const cur_theme = localStorage.getItem('bs-theme') || 'system';
-		if (cur_theme === 'system')
-			$('html').removeAttr('data-bs-theme');
-		else
-			$('html').attr('data-bs-theme', cur_theme);
+		const cur_theme = localStorage.getItem("bs-theme") || "system";
+		if (cur_theme === "system") html.removeAttribute("data-bs-theme");
+		else html.setAttribute("data-bs-theme", cur_theme);
 
-
-
-		const btn = $('#themeSwitcher');
-		const classes = btn.attr('class').split(' ');
+		const classes = themeSwitcher.className.split(" ");
 		classes.pop();
 		classes.push(cur_theme);
-		btn.attr({
-			'class': classes.join(" "),
-			'data-i18n': `[title]nav.themeSwitcher.${cur_theme};[aria-label]nav.themeSwitcher.${cur_theme}`
-		});
-		// localize('#themeSwitcher');
-
-
-
-
+		themeSwitcher.className = classes.join(" ");
+		themeSwitcher.setAttribute("data-i18n", `[title]nav.themeSwitcher.${cur_theme};[aria-label]nav.themeSwitcher.${cur_theme}`);
 	}
 
 	function updateOnlineStatus() {
-		const offlineIndicator = $("#offlineIndicator");
-
-		if (offlineIndicator !== undefined) {
-			const state = navigator.onLine ? "common.online" : "common.offline";
-			// offlineIndicator.html(state);
-			offlineIndicator.attr('data-i18n', state);
-			localize("#offlineIndicator");
-			offlineIndicator.show();
-		}
+		const offlineIndicator = document.getElementById("offlineIndicator");
+		if (!offlineIndicator) return;
+		const state = navigator.onLine ? "common.online" : "common.offline";
+		offlineIndicator.setAttribute("data-i18n", state);
+		if (localize) localize("#offlineIndicator");
+		offlineIndicator.style.display = "";
 	}
 
-
-	/**
-	 * Mapped after Microsoft.Extensions.Logging
-	 */
 	const logLevel = {
 		Trace: 0,
 		Debug: 1,
@@ -379,69 +277,43 @@ $(function () {
 		None: 6
 	};
 
-	var org_trace = console.trace;
-	var org_debug = console.debug;
-	var org_info = console.info;
-	var org_warn = console.warn;
-	var org_error = console.error;
+	const org_trace = console.trace;
+	const org_debug = console.debug;
+	const org_info = console.info;
+	const org_warn = console.warn;
+	const org_error = console.error;
 
 	console.trace = function (message) {
 		ajaxLog(logLevel.Trace, message);
 		org_trace.call(this, arguments);
 	};
-
 	console.debug = function () {
-		//ajaxLog(logLevel.Debug, message);
 		org_debug.call(this, arguments);
 	};
-
 	console.info = function (message) {
 		ajaxLog(logLevel.Information, message);
 		org_info.call(this, arguments);
 	};
-
 	console.warn = function (message) {
 		ajaxLog(logLevel.Warning, message);
 		org_warn.call(this, arguments);
 	};
-
 	console.error = function (msg, url, line, col, error) {
 		ajaxLog(logLevel.Error, msg, url, line, col, error);
 		org_error.call(this, arguments);
 	};
 
 	registerServiceWorker(g_AppRootPath, g_isDevelopment);
-
 	handleLogoutForm();
-
-	window.addEventListener('online', updateOnlineStatus);
-	window.addEventListener('offline', updateOnlineStatus);
-	if (navigator.onLine === false)
-		updateOnlineStatus();
-
+	window.addEventListener("online", updateOnlineStatus);
+	window.addEventListener("offline", updateOnlineStatus);
+	if (navigator.onLine === false) updateOnlineStatus();
 	registerThemeChangeHandler();
-
 	registerMyAlert();
-	//overriding window.alert with own implementation
 	window.alert = myAlert;
-
-	//if JQuery $ does not have parseJSON - add it. jquery.validate.unobtrusive depends on it.
-	if (typeof $.parseJSON !== "function") {
-		$.parseJSON = (data) => JSON.parse(data);
-	}
 });
 
 window.onerror = function (msg, url, line, col, error) {
-	// Note that col & error are new to the HTML 5 spec and may not be 
-	// supported in every browser.  It worked for me in Chrome.
-	//let extra = !col ? '' : ('\ncolumn: ' + col);
-	//extra += !error ? '' : ('\nerror: ' + error);
-
-	// You can view the information in an alert to see things working like this:
-	//alert("Error: " + msg + "\nurl: " + url + "\nline: " + line + extra);
 	console.error(msg, url, line, col, error);
-
-	// If you return true, then error alerts (like in older versions of 
-	// Internet Explorer) will be suppressed.
 	return true;
 };

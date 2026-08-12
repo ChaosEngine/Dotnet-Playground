@@ -36,7 +36,7 @@ window.addEventListener('load', () => {
 		for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
 		return btoa(binary);
 	}
-	const el = $("#authcodecallback");
+	const el = document.getElementById("authcodecallback");
 	if (!el) return;
 
 	const value = getQueryParam("authcodecallback");
@@ -47,17 +47,17 @@ window.addEventListener('load', () => {
 
 		// generate a UUID (use crypto.randomUUID)
 		const guid = crypto.randomUUID();
-		const userPlusRand = $('#userName').text() + '.' + guid;
+		const userPlusRand = document.getElementById('userName').textContent + '.' + guid;
 		const base64 = base64EncodeUnicode(userPlusRand);
 
 		acc.searchParams.set("code", base64.toString());
-		el.val(acc.href);
-		//add submitBtn click handler with jquery
-		$("#submitBtn").show().on("click", function () {
-			const el = $("#authcodecallback");
-			window.location.href = el.val();
+		el.value = acc.href;
+		const submitBtn = document.getElementById("submitBtn");
+		submitBtn.style.display = "";
+		submitBtn.addEventListener("click", function () {
+			window.location.href = el.value;
 		});
 	} else {
-		$("#submitBtn").hide();
+		document.getElementById("submitBtn").style.display = "none";
 	}
 });

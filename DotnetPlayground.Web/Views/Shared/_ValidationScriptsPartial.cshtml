@@ -1,14 +1,1 @@
-﻿<environment names="Development">
-	<script src="~/lib/jquery-validation/jquery.validate.min.js"></script>
-	<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
-</environment>
-<environment names="Staging,Production">
-	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.22.1/dist/jquery.validate.min.js" integrity="sha256-1IuP7k/g+d98/r5+D1I2X2w+xhBVJJ+shT7D1kXXiYs=" crossorigin="anonymous" referrerpolicy="no-referrer"
-			asp-fallback-src="~/lib/jquery-validation/jquery.validate.min.js"
-			asp-fallback-test="$ && $.validator">
-	</script>
-	<script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@4.0.0/dist/jquery.validate.unobtrusive.min.js" integrity="sha256-RFWFWIIPsjB4DucR4jqwxTWw13ZmtI+s6tVR2LJmZXk=" crossorigin="anonymous"
-			asp-fallback-src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"
-			asp-fallback-test="$ && $.validator && $.validator.unobtrusive">
-	</script>
-</environment>
+﻿<script src="~/js/validation.js" asp-append-version="true"></script>
