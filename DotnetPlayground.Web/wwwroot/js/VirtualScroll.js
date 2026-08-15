@@ -132,142 +132,142 @@ window.addEventListener(/* 'DOMContentLoaded' */'load', function () {
 			const prefix = `virtScrol.bootstrapTable.`, i18nTFunc = i18next.t;
 
 			$.fn.bootstrapTable.locales[`${lng}-${lng.toUpperCase()}`] = $.fn.bootstrapTable.locales[lng] = {
-				formatAddLevel: function () {
+				formatAddLevel () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatAdvancedCloseButton: function () {
+				formatAdvancedCloseButton () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatAdvancedSearch: function () {
+				formatAdvancedSearch () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatAllRows: function () {
+				formatAllRows () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatAutoRefresh: function () {
+				formatAutoRefresh () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatCancel: function () {
+				formatCancel () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatClearSearch: function () {
+				formatClearSearch () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatColumn: function () {
+				formatColumn () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatColumns: function () {
+				formatColumns () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatColumnsToggleAll: function () {
+				formatColumnsToggleAll () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatCopyRows: function () {
+				formatCopyRows () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatDeleteLevel: function () {
+				formatDeleteLevel () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatDetailPagination: function (totalRows) {
+				formatDetailPagination (totalRows) {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`, { totalRows });
 				},
-				formatDuplicateAlertDescription: function () {
+				formatDuplicateAlertDescription () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatDuplicateAlertTitle: function () {
+				formatDuplicateAlertTitle () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatExport: function () {
+				formatExport () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatFilterControlSwitch: function () {
+				formatFilterControlSwitch () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatFilterControlSwitchHide: function () {
+				formatFilterControlSwitchHide () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatFilterControlSwitchShow: function () {
+				formatFilterControlSwitchShow () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatFullscreen: function () {
+				formatFullscreen () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatJumpTo: function () {
+				formatJumpTo () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatLoadingMessage: function () {
+				formatLoadingMessage () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatMultipleSort: function () {
+				formatMultipleSort () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatNoMatches: function () {
+				formatNoMatches () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatOrder: function () {
+				formatOrder () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatPaginationSwitch: function () {
+				formatPaginationSwitch () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatPaginationSwitchDown: function () {
+				formatPaginationSwitchDown () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatPaginationSwitchUp: function () {
+				formatPaginationSwitchUp () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatPrint: function () {
+				formatPrint () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatRecordsPerPage: function (previousHtml) {
+				formatRecordsPerPage (previousHtml) {
 					return previousHtml + i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatRefresh: function () {
+				formatRefresh () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatSRPaginationNextText: function () {
+				formatSRPaginationNextText () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatSRPaginationPageText: function (page) {
+				formatSRPaginationPageText (page) {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`, { page });
 				},
-				formatSRPaginationPreText: function () {
+				formatSRPaginationPreText () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatSearch: function () {
+				formatSearch () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatShowingRows: function (pageFrom, pageTo, totalRows, totalNotFiltered) {
+				formatShowingRows (pageFrom, pageTo, totalRows, totalNotFiltered) {
 					if (totalNotFiltered !== undefined && totalNotFiltered > 0 && totalNotFiltered > totalRows) {
 						return i18nTFunc(`${prefix}formatShowingRows0`, { pageFrom, pageTo, totalRows, totalNotFiltered });
 					}
 					return i18nTFunc(`${prefix}formatShowingRows1`, { pageFrom, pageTo, totalRows });
 				},
-				formatSort: function () {
+				formatSort () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatSortBy: function () {
+				formatSortBy () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatSortOrders: function () {
+				formatSortOrders () {
 					return {
 						asc: i18nTFunc(`${prefix}${arguments.callee.name}.asc`),
 						desc: i18nTFunc(`${prefix}${arguments.callee.name}.desc`)
 					};
 				},
-				formatThenBy: function () {
+				formatThenBy () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatToggleCustomViewOff: function () {
+				formatToggleCustomViewOff () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatToggleCustomViewOn: function () {
+				formatToggleCustomViewOn () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatToggleOff: function () {
+				formatToggleOff () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				},
-				formatToggleOn: function () {
+				formatToggleOn () {
 					return i18nTFunc(`${prefix}${arguments.callee.name}`);
 				}
 			};
