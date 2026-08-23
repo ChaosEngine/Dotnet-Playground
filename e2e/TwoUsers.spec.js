@@ -118,8 +118,8 @@ test.describe('AI tests', () => {
 
 		//put 4x p1 points and let AI surround it 5 times and win
 		await helper.svgClick(svg, randX + 15, randY + 11);//1st point
-
 		const firstOponentPoint = await svg.locator('circle[data-status="POINT_FREE_BLUE"]');//2nd point is AI
+
 		const cy = await firstOponentPoint.getAttribute('cy');
 		if (cy) {
 			const cyInt = parseInt(cy);
@@ -187,39 +187,48 @@ test.describe('AI tests', () => {
 		const svg = await p2.page.locator('svg#screen');
 
 		await helper.svgClick(svg, randX + 10, randY + 5);//1st point
-
 		const firstOponentPoint = await svg.locator('circle[data-status="POINT_FREE_BLUE"]');//2nd point is AI
+
 		const cy = await firstOponentPoint.getAttribute('cy');
 		if (cy) {
 			const cyInt = parseInt(cy);
 			if (cyInt < 26)
 				randY += 26;
 		}
-
 		let alreadyWon = false;
+
 		for (let x = 10; x >= 5; x--) {
+			if (await svg.locator(`circle[cx="${randX + x}"][cy="${randY + 5}"][data-status="POINT_FREE_BLUE"]`).isVisible())
+				await helper.svgClick(svg, randX + x, randY + 5 + 1);
+			else
+				await helper.svgClick(svg, randX + x, randY + 5);
 			if (await p2.page.locator('polyline[data-id][stroke="var(--bluish)"]').isVisible()) {
 				alreadyWon = true;
 				break;
 			}
-			await helper.svgClick(svg, randX + x, randY + 5);
 		}
 		if (!alreadyWon) {
 			for (let y = 5; y <= 10; y++) {
+				if (await svg.locator(`circle[cx="${randX + 5}"][cy="${randY + y}"][data-status="POINT_FREE_BLUE"]`).isVisible())
+					await helper.svgClick(svg, randX + 5 + 1, randY + y);
+				else
+					await helper.svgClick(svg, randX + 5, randY + y);
 				if (await p2.page.locator('polyline[data-id][stroke="var(--bluish)"]').isVisible()) {
 					alreadyWon = true;
 					break;
 				}
-				await helper.svgClick(svg, randX + 5, randY + y);
 			}
 		}
 		if (!alreadyWon) {
 			for (let x = 5; x <= 10; x++) {
+				if (await svg.locator(`circle[cx="${randX + x}"][cy="${randY + 10}"][data-status="POINT_FREE_BLUE"]`).isVisible())
+					await helper.svgClick(svg, randX + x, randY + 10 - 1);
+				else
+					await helper.svgClick(svg, randX + x, randY + 10);
 				if (await p2.page.locator('polyline[data-id][stroke="var(--bluish)"]').isVisible()) {
 					alreadyWon = true;
 					break;
 				}
-				await helper.svgClick(svg, randX + x, randY + 10);
 			}
 		}
 
