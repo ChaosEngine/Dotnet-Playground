@@ -189,11 +189,11 @@ namespace RazorPages
 				{
 					case ".avif":
 						Assert.IsType<PhysicalFileResult>(result);
-						Assert.Equal("image/avif", ((PhysicalFileResult)result).ContentType);
+						Assert.Equal(MediaTypeNames.Image.Avif, ((PhysicalFileResult)result).ContentType);
 						break;
 					case ".webp":
 						Assert.IsType<PhysicalFileResult>(result);
-						Assert.Equal("image/webp", ((PhysicalFileResult)result).ContentType);
+						Assert.Equal(MediaTypeNames.Image.Webp, ((PhysicalFileResult)result).ContentType);
 						break;
 					case ".jpg":
 						Assert.IsType<PhysicalFileResult>(result);

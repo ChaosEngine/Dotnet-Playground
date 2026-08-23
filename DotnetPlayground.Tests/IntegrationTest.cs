@@ -954,7 +954,7 @@ namespace Integration
 							Assert.IsType<StreamContent>(response.Content);
 							Assert.True(response.Content.Headers.TryGetValues("Content-Type", out c_type));
 							Assert.NotNull(c_type);
-							Assert.Equal("image/avif", response.Content.Headers.ContentType.MediaType);
+							Assert.Equal(MediaTypeNames.Image.Avif, response.Content.Headers.ContentType.MediaType);
 
 							Assert.NotNull(response.Headers.ETag);
 							_ = response.Headers.ETag.Tag;
@@ -965,7 +965,7 @@ namespace Integration
 							Assert.IsType<StreamContent>(response.Content);
 							Assert.True(response.Content.Headers.TryGetValues("Content-Type", out c_type));
 							Assert.NotNull(c_type);
-							Assert.Equal("image/webp", response.Content.Headers.ContentType.MediaType);
+							Assert.Equal(MediaTypeNames.Image.Webp, response.Content.Headers.ContentType.MediaType);
 
 							Assert.NotNull(response.Headers.ETag);
 							_ = response.Headers.ETag.Tag;
