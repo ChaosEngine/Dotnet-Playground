@@ -15,7 +15,7 @@ An ASP.NET Core web application showcasing modern .NET patterns, integrations, a
 - **Distributed Caching** — SQL Server or MySQL session cache backends
 - **Background Tasks** — YouTube upload integration with file watching
 - **End-to-End Tests** — Playwright test suite with pre-configured test users
-- **Asset Pipeline** — Gulp-based compilation for JS/CSS/translations with webpack bundling
+- **Asset Pipeline** — Node.js task runner for JS/CSS/translations with webpack bundling
 
 ## Quick Start
 
@@ -39,7 +39,7 @@ dotnet restore
 bun install  # or: npm install / pnpm install
 
 # Build assets
-bun x gulp  # or: npm run gulp
+node gulpfile.mjs  # or: npm run gulp
 
 # Run the app (listens on https://localhost:4553/dotnet/)
 dotnet run --project DotnetPlayground.Web
@@ -80,7 +80,7 @@ dotnet user-secrets set "Authentication:Google:ClientId" "your-client-id"
 ├── InkBall/                    # Game module (submodule)
 ├── IdentityManager2/           # Identity admin UI (submodule)
 ├── Caching-MySQL/              # MySQL distributed cache (submodule)
-└── gulpfile.mjs                # Asset build pipeline
+└── gulpfile.mjs                # Asset build pipeline (pure Node.js)
 ```
 
 ## Architecture Highlights
@@ -100,10 +100,10 @@ dotnet user-secrets set "Authentication:Google:ClientId" "your-client-id"
 - **Oracle** — Oracle provider only
 
 ### Asset Pipeline
-Uses Gulp + Webpack for bundling JavaScript (including workers) and SCSS compilation. Run after any JS/CSS changes:
+Uses a Node.js task runner + Webpack for bundling JavaScript (including workers) and SCSS compilation. Run after any JS/CSS changes:
 
 ```bash
-bun x gulp
+node gulpfile.mjs
 ```
 
 ### CDN SRI Validation
@@ -144,7 +144,7 @@ Seeded automatically in DEBUG builds:
 ## Deployment
 
 ```bash
-# Publish (triggers gulp build internally)
+# Publish (triggers asset build internally)
 dotnet publish -c Release -r win-x64 --self-contained
 
 # Or use Docker

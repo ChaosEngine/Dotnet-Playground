@@ -13,7 +13,6 @@
 		"globals": "17.12.0"
 	},
 	"dependencies": {
-		"@aptuitiv/gulp-clean-css": "^4.4.3",
 		"@microsoft/signalr": "10.0.11",
 		"@microsoft/signalr-protocol-msgpack": "10.0.11",
 		"ace-builds": "1.44.0",
@@ -22,16 +21,9 @@
 		"bootstrap": "5.3.8",
 		"bootstrap-table": "1.27.3",
 		"chance": "1.1.13",
+		"clean-css": "^5.3.3",
 		"concaveman": "2.0.0",
 		"density-clustering": "^1.3.0",
-		"gulp": "^5.0.1",
-		"gulp-concat": "^2.6.1",
-		"gulp-json-minify": "^1.2.3",
-		"gulp-rename": "^2.1.0",
-		"gulp-replace": "^1.1.4",
-		"gulp-sass": "^6.0.1",
-		"gulp-sourcemaps": "^3.0.0",
-		"gulp-terser": "^2.1.0",
 		"html2canvas": "1.4.1",
 		"i18next": "26.4.1",
 		"i18next-browser-languagedetector": "8.2.1",
@@ -46,13 +38,13 @@
 		"msgpack5": "6.0.2",
 		"qrcodejs": "1.0.0",
 		"sass": "^1.103.1",
+		"terser": "^5.50.0",
 		"video.js": "8.24.0",
-		"webpack": "^5.110.3",
-		"webpack-stream": "^7.0.0"
+		"webpack": "^5.109.2"
 	},
 	"scripts": {
-		"postinstall": "gulp postinstall",
-		"gulp": "gulp",
+		"postinstall": "node gulpfile.mjs postinstall",
+		"gulp": "node gulpfile.mjs",
 		"lint": "eslint .",
 		"sri:check": "node tools/sri/sri-check.mjs",
 		"sri:update": "bun tools/sri/sri-check.mjs --update",
