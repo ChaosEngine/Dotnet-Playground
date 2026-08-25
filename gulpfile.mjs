@@ -117,18 +117,23 @@ const minifyCssFile = async (src, dest) => {
 	let minifiedCss = result.styles;
 	const sourceMapComment = `/*# sourceMappingURL=${path.basename(dest)}.map */`;
 	if (!minifiedCss.includes('sourceMappingURL=')) {
-		minifiedCss = `${minifiedCss}\n${sourceMapComment}`;
+		minifiedCss = `${minifiedCss}\n${sourceMapComment}\n`;
 	}
 
 	await writeTextFile(dest, minifiedCss);
 	if (result.sourceMap) {
-		await writeTextFile(`${dest}.map`, result.sourceMap.toString());
+		const sourceMapJson = result.sourceMap.toJSON();
+		sourceMapJson.file = path.basename(dest);
+		await writeTextFile(`${dest}.map`, JSON.stringify(sourceMapJson));
 	}
 };
 
 const minifyJsFile = async (src, dest, toplevel = false) => {
 	const code = await fs.readFile(src, 'utf8');
-	const result = await terserMinify(code, {
+	const sourceName = path.basename(src);
+	const result = await terserMinify({
+		[sourceName]: code
+	}, {
 		toplevel,
 		sourceMap: {
 			filename: path.basename(dest),
@@ -140,7 +145,7 @@ const minifyJsFile = async (src, dest, toplevel = false) => {
 		throw new Error(`JS minification failed for '${src}'`);
 	}
 
-	await writeTextFile(dest, result.code);
+	await writeTextFile(dest, result.code+'\n');
 	if (result.map) {
 		await writeTextFile(`${dest}.map`, result.map);
 	}
@@ -160,6 +165,7 @@ const compileScssFile = async (src, dest, replacer) => {
 		url: pathToFileURL(path.resolve(src))
 	});
 	await writeTextFile(dest, compiled.css);
+	// compiled.sourceMap ????
 };
 
 const runWebpack = (config) => {
@@ -198,17 +204,72 @@ const rimraf = async function (globPatterns) {
 	}));
 };
 
-const webpackRun = async function (doPollyfill = false) {
+////////////// [Inkball Section] //////////////////
+// eslint-disable-next-line no-unused-vars
+const inkballEntryPoint = async function (min) {
 	await runWebpack({
 		entry: {
-			AIWorker: doPollyfill === true
-				? ['@babel/polyfill', path.resolve(paths.inkBallJsRelative, 'AIWorker.js')]
-				: [path.resolve(paths.inkBallJsRelative, 'AIWorker.js')]
+			'inkball': [
+				//'@babel/polyfill',
+				path.resolve(paths.inkBallJsRelative, 'inkball.js')
+			]
 		},
+		output: {
+			filename: '[name].Bundle.js',
+			chunkFilename: '[name].Bundle.js',
+			publicPath: '../js/'
+		},
+		module: {
+			rules: [{
+				use: {
+					loader: 'babel-loader',
+					options: {
+						presets: [
+							["@babel/preset-env", { "useBuiltIns": "entry", "corejs": 3 }]
+						]
+					}
+				}
+			}]
+		},
+		optimization: {
+			minimize: min
+		},
+		performance: {
+			hints: process.env.NODE_ENV === 'production' ? "warning" : false
+		},
+		mode: 'production',
+		stats: 'errors-warnings',
+		devtool: 'source-map'
+	});
+};
+
+const inkballAIWorker = async function (doPollyfill = false) {
+	await runWebpack({
+		entry: {
+			AIWorker: doPollyfill === true ? [
+				'@babel/polyfill',
+				path.resolve(paths.inkBallJsRelative, 'AIWorker.js')
+			] : [
+				path.resolve(paths.inkBallJsRelative, 'AIWorker.js')
+			]
+		},
+		// target: "webworker",
 		output: {
 			path: path.resolve(paths.inkBallJsRelative),
 			filename: doPollyfill === true ? '[name].PolyfillBundle.js' : '[name].Bundle.js'
 		},
+		module: doPollyfill === true ? {
+			rules: [{
+				use: {
+					loader: 'babel-loader',
+					options: {
+						presets: [
+							["@babel/preset-env", { "useBuiltIns": "entry", "corejs": 3 }]
+						]
+					}
+				}
+			}]
+		} : {},
 		optimization: {
 			minimize: true
 		},
@@ -220,6 +281,8 @@ const webpackRun = async function (doPollyfill = false) {
 		devtool: 'source-map'
 	});
 };
+
+const webpackRun = inkballAIWorker;
 
 const minInkballJs = async function () {
 	await Promise.all([
@@ -359,8 +422,8 @@ const cssRun = async function () {
 const postinstall = () => {
 	const copy_promises = [];
 	const file_copy = async (src, dst) => {
-		await ensureParentDir(dst);
-		return fs.cp(src, dst);
+		// await ensureParentDir(dst);
+		copy_promises.push(fs.cp(src, dst));
 	};
 	const dir_copy = (src, dst, filter = undefined) => copy_promises.push(fs.cp(src, dst, {
 		recursive: true, // needed to copy directories
@@ -383,8 +446,8 @@ const postinstall = () => {
 		}
 	});
 
-	copy_promises.push(file_copy(`${nm}/bootstrap-table/dist/bootstrap-table.min.css`, `${dst}bootstrap-table/bootstrap-table.min.css`));
-	copy_promises.push(file_copy(`${nm}/bootstrap-table/dist/bootstrap-table.min.js`, `${dst}bootstrap-table/bootstrap-table.min.js`));
+	file_copy(`${nm}/bootstrap-table/dist/bootstrap-table.min.css`, `${dst}bootstrap-table/bootstrap-table.min.css`);
+	file_copy(`${nm}/bootstrap-table/dist/bootstrap-table.min.js`, `${dst}bootstrap-table/bootstrap-table.min.js`);
 
 	dir_copy(`${nm}/blueimp-md5/js`, `${dst}blueimp-md5`, async (src) => {
 		if ((await fs.lstat(src)).isDirectory() || src.includes(`md5.min.js`)) {
@@ -393,10 +456,10 @@ const postinstall = () => {
 			return false;
 		}
 	});
-	copy_promises.push(file_copy(`${nm}/jquery/dist/jquery.min.js`, `${dst}jquery/jquery.min.js`));
+	file_copy(`${nm}/jquery/dist/jquery.min.js`, `${dst}jquery/jquery.min.js`);
 
-	copy_promises.push(file_copy(`${nm}/jquery-validation/dist/jquery.validate.min.js`, `${dst}jquery-validation/jquery.validate.min.js`));
-	copy_promises.push(file_copy(`${nm}/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js`, `${dst}jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js`));
+	file_copy(`${nm}/jquery-validation/dist/jquery.validate.min.js`, `${dst}jquery-validation/jquery.validate.min.js`);
+	file_copy(`${nm}/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js`, `${dst}jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js`);
 	dir_copy(`${nm}/blueimp-gallery/img`, `${dst}blueimp-gallery/img`);
 	dir_copy(`${nm}/blueimp-gallery/css`, `${dst}blueimp-gallery/css`, async (src) => {
 		if ((await fs.lstat(src)).isDirectory() || src.includes(`blueimp-gallery.min.css`)) {
@@ -412,9 +475,9 @@ const postinstall = () => {
 			return false;
 		}
 	});
-	copy_promises.push(file_copy(`${nm}/video.js/dist/video-js.min.css`, `${dst}video.js/video-js.min.css`));
-	copy_promises.push(file_copy(`${nm}/video.js/dist/alt/video.core.novtt.min.js`, `${dst}video.js/alt/video.core.novtt.min.js`));
-	copy_promises.push(file_copy(`${nm}/qrcodejs/qrcode.min.js`, `${dst}qrcodejs/qrcode.min.js`));
+	file_copy(`${nm}/video.js/dist/video-js.min.css`, `${dst}video.js/video-js.min.css`);
+	file_copy(`${nm}/video.js/dist/alt/video.core.novtt.min.js`, `${dst}video.js/alt/video.core.novtt.min.js`);
+	file_copy(`${nm}/qrcodejs/qrcode.min.js`, `${dst}qrcodejs/qrcode.min.js`);
 	dir_copy(`${nm}/@microsoft/signalr/dist/browser`, `${dst}signalr/browser`, async (src) => {
 		if ((await fs.lstat(src)).isDirectory() || src.includes(`signalr.min.js`)) {
 			return true;
@@ -431,22 +494,22 @@ const postinstall = () => {
 			return false;
 		}
 	});
-	copy_promises.push(file_copy(`${nm}/msgpack5/dist/msgpack5.min.js`, `${dst}msgpack5/msgpack5.min.js`));
-	copy_promises.push(file_copy(`${nm}/ace-builds/src-min-noconflict/ace.js`, `${dst}ace-builds/ace.js`));
-	copy_promises.push(file_copy(`${nm}/ace-builds/src-min-noconflict/mode-csharp.js`, `${dst}ace-builds/mode-csharp.js`));
-	copy_promises.push(file_copy(`${nm}/ace-builds/src-min-noconflict/theme-chaos.js`, `${dst}ace-builds/theme-chaos.js`));
-	copy_promises.push(file_copy(`${nm}/ace-builds/src-min-noconflict/ext-searchbox.js`, `${dst}ace-builds/ext-searchbox.js`));
-	copy_promises.push(file_copy(`${nm}/ace-builds/src-min-noconflict/ext-settings_menu.js`, `${dst}ace-builds/ext-settings_menu.js`));
+	file_copy(`${nm}/msgpack5/dist/msgpack5.min.js`, `${dst}msgpack5/msgpack5.min.js`);
+	file_copy(`${nm}/ace-builds/src-min-noconflict/ace.js`, `${dst}ace-builds/ace.js`);
+	file_copy(`${nm}/ace-builds/src-min-noconflict/mode-csharp.js`, `${dst}ace-builds/mode-csharp.js`);
+	file_copy(`${nm}/ace-builds/src-min-noconflict/theme-chaos.js`, `${dst}ace-builds/theme-chaos.js`);
+	file_copy(`${nm}/ace-builds/src-min-noconflict/ext-searchbox.js`, `${dst}ace-builds/ext-searchbox.js`);
+	file_copy(`${nm}/ace-builds/src-min-noconflict/ext-settings_menu.js`, `${dst}ace-builds/ext-settings_menu.js`);
 	dir_copy(`${nm}/chance/dist`, `${dst}chance`);
 
-	copy_promises.push(file_copy(`${nm}/i18next/i18next.min.js`, `${dst}i18next/i18next.min.js`));
-	copy_promises.push(file_copy(`${nm}/loc-i18next/loc-i18next.min.js`, `${dst}loc-i18next/loc-i18next.min.js`));
-	copy_promises.push(file_copy(`${nm}/i18next-http-backend/i18nextHttpBackend.min.js`, `${dst}i18next-http-backend/i18nextHttpBackend.min.js`));
-	copy_promises.push(file_copy(`${nm}/i18next-browser-languagedetector/i18nextBrowserLanguageDetector.min.js`, `${dst}i18next-browser-languagedetector/i18nextBrowserLanguageDetector.min.js`));
-	copy_promises.push(file_copy(`${nm}/i18next-localstorage-backend/i18nextLocalStorageBackend.min.js`, `${dst}i18next-localstorage-backend/i18nextLocalStorageBackend.min.js`));
-	copy_promises.push(file_copy(`${nm}/i18next-chained-backend/i18nextChainedBackend.min.js`, `${dst}i18next-chained-backend/i18nextChainedBackend.min.js`));
+	file_copy(`${nm}/i18next/i18next.min.js`, `${dst}i18next/i18next.min.js`);
+	file_copy(`${nm}/loc-i18next/loc-i18next.min.js`, `${dst}loc-i18next/loc-i18next.min.js`);
+	file_copy(`${nm}/i18next-http-backend/i18nextHttpBackend.min.js`, `${dst}i18next-http-backend/i18nextHttpBackend.min.js`);
+	file_copy(`${nm}/i18next-browser-languagedetector/i18nextBrowserLanguageDetector.min.js`, `${dst}i18next-browser-languagedetector/i18nextBrowserLanguageDetector.min.js`);
+	file_copy(`${nm}/i18next-localstorage-backend/i18nextLocalStorageBackend.min.js`, `${dst}i18next-localstorage-backend/i18nextLocalStorageBackend.min.js`);
+	file_copy(`${nm}/i18next-chained-backend/i18nextChainedBackend.min.js`, `${dst}i18next-chained-backend/i18nextChainedBackend.min.js`);
 
-	copy_promises.push(file_copy(`${nm}/html2canvas/dist/html2canvas.min.js`, `${dst}html2canvas/html2canvas.min.js`));
+	file_copy(`${nm}/html2canvas/dist/html2canvas.min.js`, `${dst}html2canvas/html2canvas.min.js`);
 
 	return Promise.all(copy_promises);
 };
@@ -458,18 +521,6 @@ const main = async function () {
 	await clean();
 	await webpackRun();
 	await min();
-};
-
-///
-/// Exports
-///
-export {
-	main as default,
-	clean,
-	webpackRun as webpack,
-	min,
-	cssRun as css,
-	postinstall
 };
 
 const tasks = {
