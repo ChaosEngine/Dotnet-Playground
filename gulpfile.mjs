@@ -537,9 +537,9 @@ const postinstall = () => {
 ///
 const main = async function () {
 	await clean();
-	// await webpackRun();
-	// await min();
-	await Promise.all([webpackRun(), min()]);
+	await webpackRun();
+	await min();
+	// await Promise.all([webpackRun(), min()]);
 };
 
 const tasks = {
