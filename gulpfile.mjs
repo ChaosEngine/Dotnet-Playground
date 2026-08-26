@@ -40,6 +40,10 @@ const paths = {
 	//</InkBall>
 };
 
+/**
+ * Parses command line arguments.
+ * @returns {{ task: string, flags: Record<string, string> }} - task and flags object
+ */
 const parseCliArgs = () => {
 	const args = process.argv.slice(2);
 	let task = 'main';
@@ -63,33 +67,43 @@ const parseCliArgs = () => {
 
 const cli = parseCliArgs();
 
-const listFiles = async (patterns) => {
-	const include = patterns.filter(x => !x.startsWith('!'));
-	const exclude = patterns
-		.filter(x => x.startsWith('!'))
-		.map(x => x.substring(1));
-
-	const out = new Set();
-	for (const pattern of include) {
-		for await (const file of fs.glob(pattern)) {
-			if (!exclude.some(ex => matchesGlob(file, ex))) {
-				out.add(file);
-			}
-		}
-	}
-
-	return Array.from(out);
-};
-
-const matchesGlob = (filePath, pattern) => {
-	const normalizedFile = filePath.replaceAll('\\\\', '/');
+/**
+ * Converts a glob pattern to a regular expression.
+ * @param {string} pattern - The glob pattern
+ * @returns {RegExp} - The corresponding regular expression
+ */
+const globToRegex = (pattern) => {
 	const normalizedPattern = pattern.replaceAll('\\\\', '/');
-	const regex = new RegExp('^' + normalizedPattern
+	return new RegExp('^' + normalizedPattern
 		.replace(/[.+^${}()|[\]\\]/g, '\\\\$&')
 		.replaceAll('**', ':::DOUBLE_STAR:::')
 		.replaceAll('*', '[^/]*')
 		.replaceAll(':::DOUBLE_STAR:::', '.*') + '$');
-	return regex.test(normalizedFile);
+};
+
+/**
+ * Lists files matching the given patterns.
+ * @param {string[]} patterns - Array of glob patterns
+ * @returns {Promise<string[]>} - Array of matching file paths
+ */
+const listFiles = async (patterns) => {
+	const include = patterns.filter(x => !x.startsWith('!'));
+
+	const excludeRegexes = patterns
+		.filter(x => x.startsWith('!'))
+		.map(x => globToRegex(x.substring(1)));
+
+	const batches = await Promise.all(include.map(async (pattern) => {
+		const files = [];
+		for await (const file of fs.glob(pattern)) {
+			if (!excludeRegexes.some(re => re.test(file))) {
+				files.push(file);
+			}
+		}
+		return files;
+	}));
+
+	return Array.from(new Set(batches.flat()));
 };
 
 const ensureParentDir = async (filePath) => {
@@ -145,7 +159,7 @@ const minifyJsFile = async (src, dest, toplevel = false) => {
 		throw new Error(`JS minification failed for '${src}'`);
 	}
 
-	await writeTextFile(dest, result.code+'\n');
+	await writeTextFile(dest, result.code + '\n');
 	if (result.map) {
 		await writeTextFile(`${dest}.map`, result.map);
 	}
@@ -160,7 +174,7 @@ const minifyJsonFile = async (src, dest) => {
 const compileScssFile = async (src, dest, replacer) => {
 	const rawScss = await fs.readFile(src, 'utf8');
 	const transformed = replacer ? replacer(rawScss) : rawScss;
-	const compiled = dartSass.compileString(transformed, {
+	const compiled = await dartSass.compileStringAsync(transformed, {
 		style: 'expanded',
 		url: pathToFileURL(path.resolve(src))
 	});
@@ -190,15 +204,15 @@ const runWebpack = (config) => {
  * @returns {Promise<void[]>} Promise that resolves when all files are deleted
  */
 const rimraf = async function (globPatterns) {
-	let found_files = [];
+	const found_files = new Set();
 	for (const pattern of globPatterns) {
 		for await (const file of fs.glob(pattern))
-			found_files.push(file);
+			found_files.add(file);
 	}
-	if (found_files.length === 0)
+	if (found_files.size === 0)
 		return Promise.resolve();
 
-	return Promise.all(found_files.map(file => {
+	return Promise.all(Array.from(found_files).map(file => {
 		// console.log(file);
 		return fs.rm(file, { force: true });
 	}));
@@ -309,28 +323,21 @@ const minInkball = async function () {
 };
 
 const clean = async function () {
-	await Promise.all([
-		rimraf([
-			paths.inkBallJsRelative + '*.min.js',
-			paths.inkBallJsRelative + '*Bundle.js',
-			paths.inkBallJsRelative + '*.map',
-			paths.inkBallMinTranslation
-		]),
-		rimraf([
-			paths.minJs,
-			paths.SWJsDest,
-			paths.minTranslation,
-			webroot + 'js/**/*.map',
-			webroot + '*.map'
-		]),
-		rimraf([
-			paths.inkBallCssRelative + '*.css',
-			paths.inkBallCssRelative + '*.map'
-		]),
-		rimraf([
-			webroot + 'css/*.css*',
-			webroot + 'css/*.map'
-		])
+	await rimraf([
+		paths.inkBallJsRelative + '*.min.js',
+		paths.inkBallJsRelative + '*Bundle.js',
+		paths.inkBallJsRelative + '*.map',
+		paths.inkBallMinTranslation
+		,
+		paths.minJs,
+		paths.SWJsDest,
+		paths.minTranslation,
+		webroot + '**/*.map'
+		,
+		paths.inkBallCssRelative + '*.css',
+		paths.inkBallCssRelative + '*.map'
+		,
+		webroot + 'css/*.css'
 	]);
 };
 
@@ -519,8 +526,9 @@ const postinstall = () => {
 ///
 const main = async function () {
 	await clean();
-	await webpackRun();
-	await min();
+	// await webpackRun();
+	// await min();
+	await Promise.all([webpackRun(), min()]);
 };
 
 const tasks = {
