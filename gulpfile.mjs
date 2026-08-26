@@ -100,6 +100,7 @@ const listFiles = async (patterns) => {
 				files.push(file);
 			}
 		}
+		//console.log(`Pattern: ${pattern}, Found: ${files.length} files ${files.length > 0 ? `(${files.join(', ')})` : ''}`);
 		return files;
 	}));
 
@@ -174,12 +175,20 @@ const minifyJsonFile = async (src, dest) => {
 const compileScssFile = async (src, dest, replacer) => {
 	const rawScss = await fs.readFile(src, 'utf8');
 	const transformed = replacer ? replacer(rawScss) : rawScss;
-	const compiled = await dartSass.compileStringAsync(transformed, {
+	const compiled = dartSass.compileString(transformed, {
 		style: 'expanded',
 		url: pathToFileURL(path.resolve(src))
+		//, sourceMap: false,
+		// sourceMapIncludeSources: true
 	});
 	await writeTextFile(dest, compiled.css);
-	// compiled.sourceMap ????
+	if (compiled.sourceMap) {
+		const sourceMapJson = compiled.sourceMap;
+		sourceMapJson.file = path.basename(dest).replace(/\.css$/i, '.min.css');
+		sourceMapJson.sources = sourceMapJson.sources.map(source => path.basename(source));
+		// console.log(`dest: ${dest}, sourceMapJson.file: ${sourceMapJson.file} target: ${path.basename(dest).replace(/\.css$/i, '.min.css.map')}`);
+		await writeTextFile(dest.replace(/\.css$/i, '.min.css.map'), JSON.stringify(sourceMapJson));
+	}
 };
 
 const runWebpack = (config) => {
@@ -332,12 +341,14 @@ const clean = async function () {
 		paths.minJs,
 		paths.SWJsDest,
 		paths.minTranslation,
-		webroot + '**/*.map'
+		webroot + 'js/**/*.map',
+		webroot + '*.map'
 		,
 		paths.inkBallCssRelative + '*.css',
 		paths.inkBallCssRelative + '*.map'
 		,
-		webroot + 'css/*.css'
+		webroot + 'css/*.css',
+		webroot + 'css/*.map'
 	]);
 };
 
