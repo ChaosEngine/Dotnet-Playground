@@ -1,4 +1,5 @@
-﻿"use strict";
+﻿/* eslint-disable no-console */
+"use strict";
 import process from 'node:process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -8,6 +9,41 @@ import * as dartSass from 'sass';
 import webpack from 'webpack';
 import { minify as terserMinify } from 'terser';
 import CleanCSS from 'clean-css';
+
+/**
+ * A utility class to measure and print the execution time of a code block.
+ */
+class ExecutionTimePrinter {
+	#value = Date.now();
+	#callerName;
+
+	constructor() {
+		this.#callerName = this.#getCallerName();
+		// [17:43:25] Starting 'inkBallScssToCSS'...
+		console.log(`[${new Date().toLocaleTimeString()}] Starting '${this.#callerName}'...`);
+	}
+
+	#getCallerName() {
+		const err = new Error();
+		// Stack lines:
+		// [0]: Error
+		// [1]: at getCallerName (...)
+		// [2]: at parseCliArgs (...)  <-- Current Function
+		// [3]: at main (...)          <-- Parent Caller
+		const stackLines = err.stack ? err.stack.split("\n") : [];
+		if (stackLines.length < 4) return "anonymous";
+
+		const callerLine = stackLines[3];
+		const match = callerLine.match(/at\s+([^\s]+)/);
+		return match && match[1] !== "Object.<anonymous>" ? match[1] : "top-level";
+	}
+
+	[Symbol.dispose]() {
+		const date = new Date();
+		//[17:43:27] Finished 'inkBallScssToCSS' after 1.5 s
+		console.log(`[${date.toLocaleTimeString()}] Finished '${this.#callerName}' after ${date - this.#value}ms`);
+	}
+}
 
 const webroot = "./DotnetPlayground.Web/wwwroot/";
 const IBwebroot = "./InkBall/src/InkBall.Module/wwwroot/";
@@ -44,7 +80,9 @@ const paths = {
  * Parses command line arguments.
  * @returns {{ task: string, flags: Record<string, string> }} - task and flags object
  */
-const parseCliArgs = () => {
+function parseCliArgs() {
+	// using _resource = new ExecutionTimePrinter();
+
 	const args = process.argv.slice(2);
 	let task = 'main';
 	const flags = {};
@@ -63,7 +101,7 @@ const parseCliArgs = () => {
 	}
 
 	return { task, flags };
-};
+}
 
 const cli = parseCliArgs();
 
@@ -72,21 +110,25 @@ const cli = parseCliArgs();
  * @param {string} pattern - The glob pattern
  * @returns {RegExp} - The corresponding regular expression
  */
-const globToRegex = (pattern) => {
+function globToRegex(pattern) {
+	// using _resource = new ExecutionTimePrinter();
+
 	const normalizedPattern = pattern.replaceAll('\\\\', '/');
 	return new RegExp('^' + normalizedPattern
 		.replace(/[.+^${}()|[\]\\]/g, '\\\\$&')
 		.replaceAll('**', ':::DOUBLE_STAR:::')
 		.replaceAll('*', '[^/]*')
 		.replaceAll(':::DOUBLE_STAR:::', '.*') + '$');
-};
+}
 
 /**
  * Lists files matching the given patterns.
  * @param {string[]} patterns - Array of glob patterns
  * @returns {Promise<string[]>} - Array of matching file paths
  */
-const listFiles = async (patterns) => {
+async function listFiles(patterns) {
+	// using _resource = new ExecutionTimePrinter();
+
 	const include = patterns.filter(x => !x.startsWith('!'));
 
 	const excludeRegexes = patterns
@@ -105,7 +147,7 @@ const listFiles = async (patterns) => {
 	}));
 
 	return Array.from(new Set(batches.flat()));
-};
+}
 
 const ensureParentDir = async (filePath) => {
 	await fs.mkdir(path.dirname(filePath), { recursive: true });
@@ -116,7 +158,9 @@ const writeTextFile = async (filePath, contents) => {
 	await fs.writeFile(filePath, contents, 'utf8');
 };
 
-const minifyCssFile = async (src, dest) => {
+async function minifyCssFile(src, dest) {
+	// using _resource = new ExecutionTimePrinter();
+
 	const css = await fs.readFile(src, 'utf8');
 	const result = new CleanCSS({
 		sourceMap: true,
@@ -141,9 +185,11 @@ const minifyCssFile = async (src, dest) => {
 		sourceMapJson.file = path.basename(dest);
 		await writeTextFile(`${dest}.map`, JSON.stringify(sourceMapJson));
 	}
-};
+}
 
-const minifyJsFile = async (src, dest, toplevel = false) => {
+async function minifyJsFile(src, dest, toplevel = false) {
+	// using _resource = new ExecutionTimePrinter();
+
 	const code = await fs.readFile(src, 'utf8');
 	const sourceName = path.basename(src);
 	const result = await terserMinify({
@@ -164,15 +210,19 @@ const minifyJsFile = async (src, dest, toplevel = false) => {
 	if (result.map) {
 		await writeTextFile(`${dest}.map`, result.map);
 	}
-};
+}
 
-const minifyJsonFile = async (src, dest) => {
+async function minifyJsonFile(src, dest) {
+	// using _resource = new ExecutionTimePrinter();
+
 	const raw = await fs.readFile(src, 'utf8');
 	const minified = JSON.stringify(JSON.parse(raw));
 	await writeTextFile(dest, minified);
-};
+}
 
-const compileScssFile = async (src, dest, replacer) => {
+async function compileScssFile(src, dest, replacer) {
+	using _resource = new ExecutionTimePrinter();
+
 	const rawScss = await fs.readFile(src, 'utf8');
 	const transformed = replacer ? replacer(rawScss) : rawScss;
 	const compiled = dartSass.compileString(transformed, {
@@ -189,7 +239,7 @@ const compileScssFile = async (src, dest, replacer) => {
 		// console.log(`dest: ${dest}, sourceMapJson.file: ${sourceMapJson.file} target: ${path.basename(dest).replace(/\.css$/i, '.min.css.map')}`);
 		await writeTextFile(dest.replace(/\.css$/i, '.min.css.map'), JSON.stringify(sourceMapJson));
 	}
-};
+}
 
 const runWebpack = (config) => {
 	return new Promise((resolve, reject) => {
@@ -229,7 +279,9 @@ const rimraf = async function (globPatterns) {
 
 ////////////// [Inkball Section] //////////////////
 // eslint-disable-next-line no-unused-vars
-const inkballEntryPoint = async function (min) {
+async function inkballEntryPoint(min) {
+	using _resource = new ExecutionTimePrinter();
+
 	await runWebpack({
 		entry: {
 			'inkball': [
@@ -264,9 +316,11 @@ const inkballEntryPoint = async function (min) {
 		stats: 'errors-warnings',
 		devtool: 'source-map'
 	});
-};
+}
 
-const inkballAIWorker = async function (doPollyfill = false) {
+async function inkballAIWorker(doPollyfill = false) {
+	using _resource = new ExecutionTimePrinter();
+
 	await runWebpack({
 		entry: {
 			AIWorker: doPollyfill === true ? [
@@ -303,35 +357,45 @@ const inkballAIWorker = async function (doPollyfill = false) {
 		stats: 'errors-warnings',
 		devtool: 'source-map'
 	});
-};
+}
 
 const webpackRun = inkballAIWorker;
 
-const minInkballJs = async function () {
+async function minInkballJs() {
+	using _resource = new ExecutionTimePrinter();
+
 	await Promise.all([
 		minifyJsFile(paths.inkBallJsRelative + 'inkball.js', paths.inkBallJsRelative + 'inkball.min.js', true),
 		minifyJsFile(paths.inkBallJsRelative + 'shared.js', paths.inkBallJsRelative + 'shared.min.js', true)
 	]);
-};
+}
 
-const minInkballCss = async function () {
+async function minInkballCss() {
+	using _resource = new ExecutionTimePrinter();
+
 	await compileScssFile(paths.inkBallCssRelative + 'inkball.scss', paths.inkBallCssRelative + 'inkball.css');
 	await minifyCssFile(paths.inkBallCssRelative + 'inkball.css', paths.inkBallCssRelative + 'inkball.min.css');
-};
+}
 
-const minInkballTranslations = async function () {
+async function minInkballTranslations() {
+	using _resource = new ExecutionTimePrinter();
+
 	const files = await listFiles([paths.inkBallTranslation, '!' + paths.inkBallMinTranslation]);
 	await Promise.all(files.map(file => {
 		const dest = file.replace(/\.json$/i, '.min.json');
 		return minifyJsonFile(file, dest);
 	}));
-};
+}
 
-const minInkball = async function () {
+async function minInkball() {
+	using _resource = new ExecutionTimePrinter();
+
 	await Promise.all([minInkballJs(), minInkballCss(), minInkballTranslations()]);
-};
+}
 
-const clean = async function () {
+async function clean() {
+	using _resource = new ExecutionTimePrinter();
+
 	await rimraf([
 		paths.inkBallJsRelative + '*.min.js',
 		paths.inkBallJsRelative + '*Bundle.js',
@@ -350,30 +414,36 @@ const clean = async function () {
 		webroot + 'css/*.css',
 		webroot + 'css/*.map'
 	]);
-};
+}
 
-const minSWJsJs = async function () {
+async function minSWJsJs() {
+	using _resource = new ExecutionTimePrinter();
+
 	await minifyJsFile(paths.SWJs, paths.SWJsDest);
-};
+}
 
-const minJs = async function () {
+async function minJs() {
+	using _resource = new ExecutionTimePrinter();
+
 	await minSWJsJs();
 	const jsFiles = await listFiles([paths.js, '!' + paths.minJs]);
 	await Promise.all(jsFiles.map(file => {
 		const dest = file.replace(/\.js$/i, '.min.js');
 		return minifyJsFile(file, dest);
 	}));
-};
+}
 
-const minTranslations = async function () {
+async function minTranslations() {
+	using _resource = new ExecutionTimePrinter();
+
 	const files = await listFiles([paths.translation, '!' + paths.minTranslation]);
 	await Promise.all(files.map(file => {
 		const dest = file.replace(/\.json$/i, '.min.json');
 		return minifyJsonFile(file, dest);
 	}));
-};
+}
 
-const processInputArgs = function () {
+function processInputArgs() {
 	let colorTheme;//process.env.NODE_ENV === 'production' ? 'darkred' : 'darkslateblue';
 	let env = undefined;
 	let projectVersion = undefined;
@@ -404,9 +474,11 @@ const processInputArgs = function () {
 	}
 
 	return { env, colorTheme, projectVersion };
-};
+}
 
-const processSCSS = async function (sourcePattern, notPattern) {
+async function processSCSS(sourcePattern, notPattern) {
+	using _resource = new ExecutionTimePrinter();
+
 	const { colorTheme, projectVersion } = processInputArgs();
 	const files = await listFiles([sourcePattern]);
 
@@ -418,21 +490,27 @@ const processSCSS = async function (sourcePattern, notPattern) {
 				.replaceAll('$projectVersion', `'${projectVersion}'`)
 		);
 	}));
-};
+}
 
-const minScss = async function () {
+async function minScss() {
+	using _resource = new ExecutionTimePrinter();
+
 	await processSCSS(paths.scss, paths.destCSSDir);
 	await minifyCssFile(webroot + 'css/site.css', webroot + 'css/site.min.css');
 	await minifyCssFile(webroot + 'css/icons.css', webroot + 'css/icons.min.css');
-};
+}
 
-const min = async function () {
+async function min() {
+	using _resource = new ExecutionTimePrinter();
+
 	await Promise.all([minJs(), minInkball(), minScss(), minTranslations()]);
-};
+}
 
-const cssRun = async function () {
+async function cssRun() {
+	using _resource = new ExecutionTimePrinter();
+
 	await Promise.all([minInkballCss(), minScss()]);
-};
+}
 
 ///
 /// postinstall entry point (npm i)
@@ -535,12 +613,14 @@ const postinstall = () => {
 ///
 /// Main entry point
 ///
-const main = async function () {
+async function main() {
+	using _resource = new ExecutionTimePrinter();
+
 	await clean();
 	await webpackRun();
 	await min();
 	// await Promise.all([webpackRun(), min()]);
-};
+}
 
 const tasks = {
 	main,
@@ -554,12 +634,10 @@ const tasks = {
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
 	const selectedTask = tasks[cli.task];
 	if (!selectedTask) {
-		// eslint-disable-next-line no-console
 		console.error(`Unknown task '${cli.task}'. Available tasks: ${Object.keys(tasks).join(', ')}`);
 		process.exitCode = 1;
 	} else {
 		selectedTask().catch(err => {
-			// eslint-disable-next-line no-console
 			console.error(err);
 			process.exitCode = 1;
 		});
