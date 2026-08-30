@@ -217,4 +217,3 @@ DotnetPlayground.Web/**/wwwroot/lib/
 docker-*.env
 package-lock.json
 pnpm-lock.yaml
-bun.lock

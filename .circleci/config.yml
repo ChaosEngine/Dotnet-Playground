@@ -150,7 +150,7 @@ jobs:
             dotnet restore
             export SSL_CERT_DIR="$HOME/.aspnet/dev-certs/trust:/usr/lib/ssl/certs"
             dotnet dev-certs https --trust
-            bun i
+            bun ci
             bun x playwright install --only-shell chromium
       - run:
           name: End-2-End Playwright browser tests
@@ -184,7 +184,7 @@ jobs:
       - run:
           name: "Build Application according to some given configuration"
           command: |
-            bun i --prod --unsafe-perm
+            bun install --production --frozen-lockfile
             dotnet publish -c Release --self-contained -r linux-x64 DotnetPlayground.Web
 
 
