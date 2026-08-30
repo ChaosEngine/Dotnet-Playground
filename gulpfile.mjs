@@ -7,8 +7,9 @@ import { pathToFileURL } from 'node:url';
 
 import * as dartSass from 'sass';
 import webpack from 'webpack';
-import { minify as terserMinify } from 'terser';
-import CleanCSS from 'clean-css';
+// import { minify as terserMinify } from 'terser';
+import * as esbuild from 'esbuild';
+// import CleanCSS from 'clean-css';
 
 /**
  * A utility class to measure and print the execution time of a code block.
@@ -161,54 +162,120 @@ const writeTextFile = async (filePath, contents) => {
 async function minifyCssFile(src, dest) {
 	// using _resource = new ExecutionTimePrinter();
 
-	const css = await fs.readFile(src, 'utf8');
-	const result = new CleanCSS({
-		sourceMap: true,
-		sourceMapInlineSources: false
-	}).minify({
-		[path.basename(src)]: {
-			styles: css
+	return minifyCssFile_EsBuild(src, dest);
+	// return minifyCssFile_CleanCSS(src, dest);
+
+	// eslint-disable-next-line no-unused-vars
+	async function minifyCssFile_CleanCSS(src, dest) {
+		const css = await fs.readFile(src, 'utf8');
+		// eslint-disable-next-line no-undef
+		const result = new CleanCSS({
+			sourceMap: true,
+			sourceMapInlineSources: false
+		}).minify({
+			[path.basename(src)]: {
+				styles: css
+			}
+		});
+		if (result.errors.length > 0) {
+			throw new Error(`CSS minification failed for '${src}': ${result.errors.join('; ')}`);
 		}
-	});
-	if (result.errors.length > 0) {
-		throw new Error(`CSS minification failed for '${src}': ${result.errors.join('; ')}`);
-	}
-	let minifiedCss = result.styles;
-	const sourceMapComment = `/*# sourceMappingURL=${path.basename(dest)}.map */`;
-	if (!minifiedCss.includes('sourceMappingURL=')) {
-		minifiedCss = `${minifiedCss}\n${sourceMapComment}\n`;
+		let minifiedCss = result.styles;
+		if (!minifiedCss.includes('sourceMappingURL=')) {
+			const sourceMapComment = `/*# sourceMappingURL=${path.basename(dest)}.map */`;
+			minifiedCss = `${minifiedCss}\n${sourceMapComment}\n`;
+		}
+
+		await writeTextFile(dest, minifiedCss);
+		if (result.sourceMap) {
+			const sourceMapJson = result.sourceMap.toJSON();
+			sourceMapJson.file = path.basename(dest);
+			await writeTextFile(`${dest}.map`, JSON.stringify(sourceMapJson));
+		}
 	}
 
-	await writeTextFile(dest, minifiedCss);
-	if (result.sourceMap) {
-		const sourceMapJson = result.sourceMap.toJSON();
-		sourceMapJson.file = path.basename(dest);
-		await writeTextFile(`${dest}.map`, JSON.stringify(sourceMapJson));
+	async function minifyCssFile_EsBuild(src, dest) {
+		const css = await fs.readFile(src, 'utf8');
+		const result = await esbuild.transform(css, {
+			loader: 'css',
+			sourcefile: path.basename(src),
+			minify: true,
+			sourcemap: true,
+			sourcesContent: false
+		});
+		if (!result.code.includes('sourceMappingURL=')) {
+			const sourceMapComment = `/*# sourceMappingURL=${path.basename(dest)}.map */`;
+			result.code = `${result.code}${sourceMapComment}\n`;
+		}
+
+		await writeTextFile(dest, result.code);
+		if (result.map) {
+			const mapJson = JSON.parse(result.map);
+			const destBasename = path.basename(dest);
+			mapJson.file = destBasename;
+			const mapContents = JSON.stringify(mapJson);
+			await writeTextFile(`${dest}.map`, mapContents);
+		}
 	}
 }
 
 async function minifyJsFile(src, dest, toplevel = false) {
 	// using _resource = new ExecutionTimePrinter();
 
-	const code = await fs.readFile(src, 'utf8');
-	const sourceName = path.basename(src);
-	const result = await terserMinify({
-		[sourceName]: code
-	}, {
-		toplevel,
-		sourceMap: {
-			filename: path.basename(dest),
-			url: `${path.basename(dest)}.map`
-		}
-	});
+	// return minifyJsFile_Terser(src, dest, toplevel);
+	return minifyJsFile_EsBuild(src, dest, toplevel);
 
-	if (!result.code) {
-		throw new Error(`JS minification failed for '${src}'`);
+	// eslint-disable-next-line no-unused-vars
+	async function minifyJsFile_Terser(src, dest, toplevel = false) {
+		const code = await fs.readFile(src, 'utf8');
+		const sourceName = path.basename(src);
+		// eslint-disable-next-line no-undef
+		const result = await terserMinify({
+			[sourceName]: code
+		}, {
+			toplevel,
+			sourceMap: {
+				filename: path.basename(dest),
+				url: `${path.basename(dest)}.map`
+			}
+		});
+
+		if (!result.code) {
+			throw new Error(`JS minification failed for '${src}'`);
+		}
+
+		await writeTextFile(dest, result.code + '\n');
+		if (result.map) {
+			await writeTextFile(`${dest}.map`, result.map);
+		}
 	}
 
-	await writeTextFile(dest, result.code + '\n');
-	if (result.map) {
-		await writeTextFile(`${dest}.map`, result.map);
+	async function minifyJsFile_EsBuild(src, dest, toplevel = false) {
+		const result = await esbuild.build({
+			entryPoints: [src],
+			outfile: dest,
+			sourcemap: 'linked',
+			minify: true,
+			keepNames: !toplevel,
+			legalComments: 'none',
+			sourcesContent: false,
+			write: false
+		});
+
+		let jsContents, mapContents;
+
+		for (const file of result.outputFiles) {
+			if (file.path.endsWith('.map')) {
+				const mapJson = JSON.parse(file.text);
+				const destBasename = path.basename(dest);
+				mapJson.file = destBasename;
+				mapContents = JSON.stringify(mapJson);
+			} else {
+				jsContents = file.text;
+			}
+		}
+
+		await Promise.all([writeTextFile(dest, jsContents), writeTextFile(`${dest}.map`, mapContents)]);
 	}
 }
 
@@ -321,42 +388,64 @@ async function inkballEntryPoint(min) {
 async function inkballAIWorker(doPollyfill = false) {
 	using _resource = new ExecutionTimePrinter();
 
-	await runWebpack({
-		entry: {
-			AIWorker: doPollyfill === true ? [
-				'@babel/polyfill',
-				path.resolve(paths.inkBallJsRelative, 'AIWorker.js')
-			] : [
-				path.resolve(paths.inkBallJsRelative, 'AIWorker.js')
-			]
-		},
-		// target: "webworker",
-		output: {
-			path: path.resolve(paths.inkBallJsRelative),
-			filename: doPollyfill === true ? '[name].PolyfillBundle.js' : '[name].Bundle.js'
-		},
-		module: doPollyfill === true ? {
-			rules: [{
-				use: {
-					loader: 'babel-loader',
-					options: {
-						presets: [
-							["@babel/preset-env", { "useBuiltIns": "entry", "corejs": 3 }]
-						]
+	return inkballAIWorker_WebPack(doPollyfill);
+	// return inkballAIWorker_Esbuild(doPollyfill);
+
+	// eslint-disable-next-line no-unused-vars
+	async function inkballAIWorker_Esbuild() {
+		await esbuild.build({
+			entryPoints: [path.resolve(paths.inkBallJsRelative, 'AIWorker.js')],
+			bundle: true,
+			minify: true,
+			sourcemap: true,
+			sourcesContent: false,
+			platform: 'browser',
+			format: 'esm',
+			// format: 'iife',
+			// target: ['chrome58', 'firefox57', 'safari11', 'edge16'],
+			outfile: path.resolve(paths.inkBallJsRelative, 'AIWorker.Bundle.js')
+		});
+	}
+
+	async function inkballAIWorker_WebPack(doPollyfill = false) {
+
+		await runWebpack({
+			entry: {
+				AIWorker: doPollyfill === true ? [
+					'@babel/polyfill',
+					path.resolve(paths.inkBallJsRelative, 'AIWorker.js')
+				] : [
+					path.resolve(paths.inkBallJsRelative, 'AIWorker.js')
+				]
+			},
+			// target: "webworker",
+			output: {
+				path: path.resolve(paths.inkBallJsRelative),
+				filename: doPollyfill === true ? '[name].PolyfillBundle.js' : '[name].Bundle.js'
+			},
+			module: doPollyfill === true ? {
+				rules: [{
+					use: {
+						loader: 'babel-loader',
+						options: {
+							presets: [
+								["@babel/preset-env", { "useBuiltIns": "entry", "corejs": 3 }]
+							]
+						}
 					}
-				}
-			}]
-		} : {},
-		optimization: {
-			minimize: true
-		},
-		performance: {
-			hints: process.env.NODE_ENV === 'production' ? 'warning' : false
-		},
-		mode: 'production',
-		stats: 'errors-warnings',
-		devtool: 'source-map'
-	});
+				}]
+			} : {},
+			optimization: {
+				minimize: true
+			},
+			performance: {
+				hints: process.env.NODE_ENV === 'production' ? 'warning' : false
+			},
+			mode: 'production',
+			stats: 'errors-warnings',
+			devtool: 'source-map'
+		});
+	}
 }
 
 const webpackRun = inkballAIWorker;
@@ -515,9 +604,11 @@ async function cssRun() {
 ///
 /// postinstall entry point (npm i)
 ///
-const postinstall = () => {
+async function postinstall() {
+	using _resource = new ExecutionTimePrinter();
+
 	const copy_promises = [];
-	const file_copy = async (src, dst) => {
+	const file_copy = (src, dst) => {
 		// await ensureParentDir(dst);
 		copy_promises.push(fs.cp(src, dst));
 	};
@@ -608,7 +699,7 @@ const postinstall = () => {
 	file_copy(`${nm}/html2canvas/dist/html2canvas.min.js`, `${dst}html2canvas/html2canvas.min.js`);
 
 	return Promise.all(copy_promises);
-};
+}
 
 ///
 /// Main entry point
