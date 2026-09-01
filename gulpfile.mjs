@@ -4,6 +4,7 @@ import process from 'node:process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+// import * as Bun from "bun";
 
 import * as dartSass from 'sass';
 import webpack from 'webpack';
@@ -388,7 +389,8 @@ async function inkballEntryPoint(min) {
 async function inkballAIWorker(doPollyfill = false) {
 	using _resource = new ExecutionTimePrinter();
 
-	return inkballAIWorker_WebPack(doPollyfill);
+	return inkballAIWorker_Bun(doPollyfill);
+	// return inkballAIWorker_WebPack(doPollyfill);
 	// return inkballAIWorker_Esbuild(doPollyfill);
 
 	// eslint-disable-next-line no-unused-vars
@@ -407,6 +409,7 @@ async function inkballAIWorker(doPollyfill = false) {
 		});
 	}
 
+	// eslint-disable-next-line no-unused-vars
 	async function inkballAIWorker_WebPack(doPollyfill = false) {
 
 		await runWebpack({
@@ -445,6 +448,51 @@ async function inkballAIWorker(doPollyfill = false) {
 			stats: 'errors-warnings',
 			devtool: 'source-map'
 		});
+	}
+
+	async function inkballAIWorker_Bun() {
+
+		const bun = await import("bun");
+		const Bun = bun.default ?? bun;
+
+		const result = await Bun.build({
+			entrypoints: [path.resolve(paths.inkBallJsRelative, 'AIWorker.js')],
+			sourcemap: 'linked',
+			minify: true,
+			platform: 'browser',
+			format: 'esm',
+			//outdir: paths.inkBallJsRelative,
+			naming: "[dir]/[name].Bundle.[ext]",
+		});
+
+		if (result.success) {
+			console.log(`Bun build result: ${result.success ? 'Success' : 'Failure'}, file count: ${result.outputs.length}`);
+
+			for (const output of result.outputs) {
+				console.log(`Output file path: ${output.path}, type: ${output.kind}`);
+
+				if (output.kind === 'entry-point') {
+					if (output.sourcemap) {
+						console.log(`Source map file path: ${output.sourcemap.path}`);
+
+						const mapJson = JSON.parse(await output.sourcemap.text());
+						// delete mapJson.sourcesContent; // Remove sourcesContent to reduce size
+						delete mapJson.debugId;// Remove debugId to reduce size
+						const mapContents = JSON.stringify(mapJson);
+						await writeTextFile(path.resolve(paths.inkBallJsRelative, output.sourcemap.path), mapContents);
+					}
+
+					// Ensure the minified JS file has a sourceMappingURL comment
+					//const jsContents = output.contents.toString();
+					//if (!jsContents.includes('sourceMappingURL=')) {
+					//	const sourceMapComment = `/*# sourceMappingURL=${path.basename(output.path)}.map */`;
+					//	await writeTextFile(output.path, `${jsContents}\n${sourceMapComment}\n`);
+					//}
+					//else
+					await writeTextFile(path.resolve(paths.inkBallJsRelative, output.path), await output.text());
+				}
+			}
+		}
 	}
 }
 
