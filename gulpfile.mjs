@@ -22,7 +22,8 @@ class ExecutionTimePrinter {
 	constructor() {
 		this.#callerName = this.#getCallerName();
 		// [17:43:25] Starting 'inkBallScssToCSS'...
-		console.log(`[${new Date().toLocaleTimeString()}] Starting '${this.#callerName}'...`);
+		//make the date purple color and caller name blue green color
+		console.log(`\x1b[35m[${new Date().toLocaleTimeString()}]\x1b[0m Starting '\x1b[36m${this.#callerName}\x1b[0m'...`);
 	}
 
 	#getCallerName() {
@@ -43,7 +44,8 @@ class ExecutionTimePrinter {
 	[Symbol.dispose]() {
 		const date = new Date();
 		//[17:43:27] Finished 'inkBallScssToCSS' after 1.5 s
-		console.log(`[${date.toLocaleTimeString()}] Finished '${this.#callerName}' after ${date - this.#value}ms`);
+		//make the date purple color and caller name blue green color and date - this.#value again purple color
+		console.log(`\x1b[35m[${date.toLocaleTimeString()}]\x1b[0m Finished '\x1b[36m${this.#callerName}\x1b[0m' after \x1b[35m${date - this.#value}ms\x1b[0m`);
 	}
 }
 
