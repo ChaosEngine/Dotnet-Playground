@@ -7,7 +7,7 @@ import { pathToFileURL } from 'node:url';
 // import * as Bun from "bun";
 
 import * as dartSass from 'sass';
-import webpack from 'webpack';
+// import webpack from 'webpack';
 // import { minify as terserMinify } from 'terser';
 import * as esbuild from 'esbuild';
 // import CleanCSS from 'clean-css';
@@ -311,6 +311,7 @@ async function compileScssFile(src, dest, replacer) {
 
 const runWebpack = (config) => {
 	return new Promise((resolve, reject) => {
+		// eslint-disable-next-line no-undef
 		webpack(config, (err, stats) => {
 			if (err) {
 				reject(err);
@@ -462,18 +463,18 @@ async function inkballAIWorker(doPollyfill = false) {
 			platform: 'browser',
 			format: 'esm',
 			//outdir: paths.inkBallJsRelative,
-			naming: "[dir]/[name].Bundle.[ext]",
+			naming: "[dir]/[name].Bundle.[ext]"
 		});
 
 		if (result.success) {
-			console.log(`Bun build result: ${result.success ? 'Success' : 'Failure'}, file count: ${result.outputs.length}`);
+			// console.log(`Bun build result: ${result.success ? 'Success' : 'Failure'}, file count: ${result.outputs.length}`);
 
 			for (const output of result.outputs) {
-				console.log(`Output file path: ${output.path}, type: ${output.kind}`);
+				// console.log(`Output file path: ${output.path}, type: ${output.kind}`);
 
 				if (output.kind === 'entry-point') {
 					if (output.sourcemap) {
-						console.log(`Source map file path: ${output.sourcemap.path}`);
+						// console.log(`Source map file path: ${output.sourcemap.path}`);
 
 						const mapJson = JSON.parse(await output.sourcemap.text());
 						// delete mapJson.sourcesContent; // Remove sourcesContent to reduce size
@@ -481,15 +482,11 @@ async function inkballAIWorker(doPollyfill = false) {
 						const mapContents = JSON.stringify(mapJson);
 						await writeTextFile(path.resolve(paths.inkBallJsRelative, output.sourcemap.path), mapContents);
 					}
-
-					// Ensure the minified JS file has a sourceMappingURL comment
-					//const jsContents = output.contents.toString();
-					//if (!jsContents.includes('sourceMappingURL=')) {
-					//	const sourceMapComment = `/*# sourceMappingURL=${path.basename(output.path)}.map */`;
-					//	await writeTextFile(output.path, `${jsContents}\n${sourceMapComment}\n`);
-					//}
-					//else
-					await writeTextFile(path.resolve(paths.inkBallJsRelative, output.path), await output.text());
+					
+					//remove \ndebugId.* from trailing output if present
+					const outputText = await output.text();
+					const cleanedOutputText = outputText.replace(/\n\/\/# debugId=.*\n?/g, '');
+					await writeTextFile(path.resolve(paths.inkBallJsRelative, output.path), cleanedOutputText);
 				}
 			}
 		}

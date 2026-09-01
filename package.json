@@ -38,12 +38,11 @@
 		"msgpack5": "6.0.2",
 		"qrcodejs": "1.0.0",
 		"sass": "^1.103.1",
-		"video.js": "8.24.0",
-		"webpack": "^5.110.1"
+		"video.js": "8.24.0"
 	},
 	"scripts": {
 		"postinstall": "node gulpfile.mjs postinstall",
-		"gulp": "node gulpfile.mjs",
+		"gulp": "bun --bun gulpfile.mjs",
 		"lint": "eslint .",
 		"sri:check": "node tools/sri/sri-check.mjs",
 		"sri:update": "bun tools/sri/sri-check.mjs --update",
