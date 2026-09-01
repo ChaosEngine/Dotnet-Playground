@@ -60,7 +60,7 @@
 	</ItemGroup>
 
 	<Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
-		<Exec Command="node gulpfile.mjs --version=$(Version) --env=production" />
+		<Exec Command="bun run gulp --version=$(Version) --env=production" />
 	</Target>
 
 	<ItemGroup>
