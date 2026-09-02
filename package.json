@@ -4,13 +4,13 @@
 		"defaults"
 	],
 	"devDependencies": {
-		"@eslint/eslintrc": "^3.3.6",
+		"@eslint/eslintrc": "^3.3.7",
 		"@eslint/js": "^10.0.1",
 		"@playwright/test": "^1.62.1",
 		"bun-types": "1.4.0",
 		"eslint": "^10.9.1",
 		"eslint-plugin-jsdoc": "^64.3.3",
-		"globals": "17.11.0"
+		"globals": "17.12.0"
 	},
 	"dependencies": {
 		"@aptuitiv/gulp-clean-css": "^4.4.3",
@@ -47,7 +47,7 @@
 		"qrcodejs": "1.0.0",
 		"sass": "^1.103.1",
 		"video.js": "8.24.0",
-		"webpack": "^5.110.2",
+		"webpack": "^5.110.3",
 		"webpack-stream": "^7.0.0"
 	},
 	"scripts": {
