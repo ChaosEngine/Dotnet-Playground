@@ -165,7 +165,8 @@ const writeTextFile = async (filePath, contents) => {
 async function minifyCssFile(src, dest) {
 	// using _resource = new ExecutionTimePrinter();
 
-	return minifyCssFile_EsBuild(src, dest);
+	return minifyCssFile_DartSass(src, dest);
+	// return minifyCssFile_EsBuild(src, dest);
 	// return minifyCssFile_CleanCSS(src, dest);
 
 	// eslint-disable-next-line no-unused-vars
@@ -197,6 +198,7 @@ async function minifyCssFile(src, dest) {
 		}
 	}
 
+	// eslint-disable-next-line no-unused-vars
 	async function minifyCssFile_EsBuild(src, dest) {
 		const css = await fs.readFile(src, 'utf8');
 		const result = await esbuild.transform(css, {
@@ -218,6 +220,29 @@ async function minifyCssFile(src, dest) {
 			mapJson.file = destBasename;
 			const mapContents = JSON.stringify(mapJson);
 			await writeTextFile(`${dest}.map`, mapContents);
+		}
+	}
+
+	async function minifyCssFile_DartSass(src, dest) {
+		const result = dartSass.compile(src, {
+			style: "compressed",
+			sourceMap: true,
+			sourceMapIncludeSources: false
+		});
+		let minifiedCss = result.css;
+		if (!minifiedCss.includes('sourceMappingURL=')) {
+			const sourceMapComment = `/*# sourceMappingURL=${path.basename(dest)}.map */`;
+			minifiedCss = `${minifiedCss}\n${sourceMapComment}\n`;
+		}
+
+		await fs.writeFile(dest, minifiedCss);
+
+		if (result.sourceMap) {
+			const sourceMapJson = result.sourceMap;
+			sourceMapJson.file = path.basename(dest);
+			sourceMapJson.sources = sourceMapJson.sources.map(source => path.basename(source));
+			// console.log(`dest: ${dest}, sourceMapJson.file: ${sourceMapJson.file} target: ${path.basename(dest).replace(/\.css$/i, '.min.css.map')}`);
+			await writeTextFile(dest.replace(/\.css$/i, '.css.map'), JSON.stringify(sourceMapJson));
 		}
 	}
 }
@@ -484,7 +509,7 @@ async function inkballAIWorker(doPollyfill = false) {
 						const mapContents = JSON.stringify(mapJson);
 						await writeTextFile(path.resolve(paths.inkBallJsRelative, output.sourcemap.path), mapContents);
 					}
-					
+
 					//remove \ndebugId.* from trailing output if present
 					const outputText = await output.text();
 					const cleanedOutputText = outputText.replace(/\n\/\/# debugId=.*\n?/g, '');
