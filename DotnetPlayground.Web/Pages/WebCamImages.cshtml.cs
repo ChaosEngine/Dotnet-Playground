@@ -40,47 +40,44 @@ namespace DotnetPlayground.Models
 			}
 
 			string path = Path.Combine(imageDirectory, fileName);
-			if (System.IO.File.Exists(path))
+			if (Path.GetDirectoryName(path) == imageDirectory && System.IO.File.Exists(path))
 			{
-				if (Path.GetDirectoryName(path) == imageDirectory)
+				var fi = new FileInfo(path);
+
+				string content_type = fi.Extension switch
 				{
-					var fi = new FileInfo(path);
+					".webp" => MediaTypeNames.Image.Webp,
+					".avif" => MediaTypeNames.Image.Avif,
+					".jpg" => MediaTypeNames.Image.Jpeg,
+					_ => throw new NotSupportedException("not supported content-type or extension"),
+				};
 
-					string content_type = fi.Extension switch
-					{
-						".webp" => "image/webp",
-						".avif" => "image/avif",
-						".jpg" => MediaTypeNames.Image.Jpeg,
-						_ => throw new NotSupportedException("not supported content-type or extension"),
-					};
+				var length = fi.Length;
+				DateTimeOffset last = fi.LastWriteTime;
+				// Truncate to the second.
+				var lastModified = new DateTimeOffset(last.Year, last.Month, last.Day, last.Hour, last.Minute, last.Second, last.Offset).ToUniversalTime();
 
-					var length = fi.Length;
-					DateTimeOffset last = fi.LastWriteTime;
-					// Truncate to the second.
-					var lastModified = new DateTimeOffset(last.Year, last.Month, last.Day, last.Hour, last.Minute, last.Second, last.Offset).ToUniversalTime();
+				long etagHash = lastModified.ToFileTime() ^ length;
+				var etag_str = $"\"{Convert.ToString(etagHash, 16)}\"";
 
-					long etagHash = lastModified.ToFileTime() ^ length;
-					var etag_str = $"\"{Convert.ToString(etagHash, 16)}\"";
+				if (Request.Headers.TryGetValue(HeaderNames.IfNoneMatch, out StringValues incomingEtag)
+					&& string.Compare(incomingEtag[0], etag_str) == 0)
+				{
+					Response.Clear();
+					Response.StatusCode = (int)HttpStatusCode.NotModified;
+					serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("GET", watch.ElapsedMilliseconds, "NotModified GET"));
 
-					if (Request.Headers.TryGetValue(HeaderNames.IfNoneMatch, out StringValues incomingEtag)
-						&& string.Compare(incomingEtag[0], etag_str) == 0)
-					{
-						Response.Clear();
-						Response.StatusCode = (int)HttpStatusCode.NotModified;
-						serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("GET", watch.ElapsedMilliseconds, "NotModified GET"));
-
-						return new StatusCodeResult((int)HttpStatusCode.NotModified);
-					}
-					var etag = new EntityTagHeaderValue(etag_str);
-
-
-					PhysicalFileResult pfr = base.PhysicalFile(path, content_type);
-					pfr.EntityTag = etag;
-					//pfr.LastModified = lastModified;
-					serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("GET", watch.ElapsedMilliseconds, "full file GET"));
-
-					return pfr;
+					return new StatusCodeResult((int)HttpStatusCode.NotModified);
 				}
+				var etag = new EntityTagHeaderValue(etag_str);
+
+
+				PhysicalFileResult pfr = base.PhysicalFile(path, content_type);
+				pfr.EntityTag = etag;
+				//pfr.LastModified = lastModified;
+				serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("GET", watch.ElapsedMilliseconds, "full file GET"));
+
+				return pfr;
 			}
 			serverTiming.Metrics.Add(new Lib.ServerTiming.Http.Headers.ServerTimingMetric("GET", watch.ElapsedMilliseconds, "not found GET"));
 			return NotFound();

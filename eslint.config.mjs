@@ -1,64 +1,71 @@
-import globals from "globals";
-import path from "node:path";
-import jsdoc from "eslint-plugin-jsdoc";
-import { fileURLToPath } from "node:url";
 import js from "@eslint/js";
-import { FlatCompat } from "@eslint/eslintrc";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.basename(path.dirname(__filename));
-
-const compat = new FlatCompat({
-	baseDirectory: __dirname,
-	recommendedConfig: js.configs.recommended,
-	allConfig: js.configs.all
-});
+import jsdoc from "eslint-plugin-jsdoc";
+import globals from "globals";
 
 export default [
 	// Ignore specific directories and files
 	{
-		ignores: ["**/bin", "**/obj", "**/wwwroot/lib", "**/*.min.js", "**/*Bundle.js"]
+		ignores: [
+			"**/bin",
+			"**/obj",
+			"**/wwwroot/lib",
+			"**/*.min.js",
+			"**/*Bundle.js",
+			"**/dist",
+			"**/coverage"
+		]
 	},
 	// Extend recommended configurations
-	...compat.extends("eslint:recommended"), 
-	jsdoc.configs['flat/recommended'],
+	js.configs.recommended,
+	jsdoc.configs["flat/recommended"],
 	{
+		files: ["**/*.{js,mjs,cjs}"],
 		languageOptions: {
+			ecmaVersion: "latest",
+			sourceType: "module",
+			parserOptions: {
+				ecmaFeatures: {
+					jsx: false
+				}
+			},
 			globals: {
 				...globals.browser,
 				...globals.jquery,
 				...globals.worker
-			},
-			ecmaVersion: 2022,
-			sourceType: "module"
+			}
 		},
 		plugins: {
 			jsdoc
 		},
-
-
+		linterOptions: {
+			reportUnusedDisableDirectives: true
+		},
 		rules: {
 			indent: ["off", "tab"],
-			"linebreak-style": ["off", "unix"],
-			quotes: ["off", "double"],
+			"linebreak-style": "off",
+			quotes: "off",
 			semi: ["error", "always"],
-			eqeqeq: "error",
-			"comma-dangle": "warn",
+			eqeqeq: ["error", "always"],
+			"comma-dangle": ["warn", "never"],
 			"no-console": "warn",
 			"no-debugger": "warn",
 			"no-extra-semi": "warn",
 			"no-extra-parens": "off",
 			"no-irregular-whitespace": "warn",
 			"no-undef": "error",
-			"no-unused-vars": "warn",
+			"no-unused-vars": ["warn", {
+				argsIgnorePattern: "^_",
+				varsIgnorePattern: "^_",
+				ignoreRestSiblings: true
+			}],
 			"semi-spacing": "warn",
-
+			
 			"jsdoc/require-returns": "warn",
-			"jsdoc/require-jsdoc": ["error", {
+			"jsdoc/require-jsdoc": ["warn", {
 				checkConstructors: false,
 				publicOnly: true,
 				require: {
-					'MethodDefinition': true
+					MethodDefinition: true
 				}
 			}]
 		}
