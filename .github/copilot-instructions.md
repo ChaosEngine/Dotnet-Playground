@@ -9,7 +9,7 @@
 - Build: `dotnet build` (or workspace task `build`).
 - Test: `dotnet test` (or workspace task `test`).
 - Lint JS: `npm run lint`.
-- Asset pipeline: `npm install` (runs `postinstall`) then `npm run gulp` (or `node gulpfile.mjs`).
+- Asset pipeline: `npm install` (runs `postinstall`) then `bun run gulp` (or `bun gulpfile.mjs`).
 - CDN/SRI validation: `npm run sri:check`.
 - CDN/SRI rewrite: `npm run sri:update`.
 - E2E tests: `npm run test:playwright`.
@@ -33,7 +33,7 @@
 
 ## Assets And Frontend Workflow
 - Bundles/translations are generated into both main app and InkBall module webroots via [gulpfile.mjs](../gulpfile.mjs).
-- `dotnet publish` depends on the gulp production pipeline; do not skip asset generation when changing frontend files.
+- `dotnet publish` depends on the bun build production pipeline; do not skip asset generation when changing frontend files.
 - For CDN package bumps in Razor/HTML, run SRI tooling in [tools/sri](../tools/sri) instead of manual edits.
 
 ## Pitfalls To Avoid

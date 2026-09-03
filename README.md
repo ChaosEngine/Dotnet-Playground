@@ -39,7 +39,7 @@ dotnet restore
 bun install  # or: npm install / pnpm install
 
 # Build assets
-node gulpfile.mjs  # or: npm run gulp
+bun gulpfile.mjs  # or: bun run gulp
 
 # Run the app (listens on https://localhost:4553/dotnet/)
 dotnet run --project DotnetPlayground.Web
@@ -103,7 +103,7 @@ dotnet user-secrets set "Authentication:Google:ClientId" "your-client-id"
 Uses a Node.js task runner + Webpack for bundling JavaScript (including workers) and SCSS compilation. Run after any JS/CSS changes:
 
 ```bash
-node gulpfile.mjs
+bun gulpfile.mjs
 ```
 
 ### CDN SRI Validation
