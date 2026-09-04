@@ -1,3 +1,4 @@
+/* global clientValidateAll, clientValidate */
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "HashesOnLoad" }]*/
 "use strict";
 
@@ -67,7 +68,7 @@ function HashesOnLoad() {
 			$('#res_cel_md5').text(found.hashMD5);
 			$('#res_cel_sha256').text(found.hashSHA256);
 			$('#res_cel_clientValidate').html((found.hashMD5 === null || found.hashSHA256 === null) ? ''
-				: '<button class="btn btn-success btn-sm" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>');
+				: '<button class="btn btn-success btn-sm js-client-validate" title="Validate" value="Validate">Validate</button>');
 		});
 	}
 
@@ -127,7 +128,7 @@ function HashesOnLoad() {
 							$('<td>').text(item.hashMD5),
 							$('<td>').text(item.hashSHA256),
 							$('<td>').html((item.hashMD5 === null || item.hashSHA256 === null) ? ''
-								: '<button class="btn btn-success btn-sm" title="Validate" value="Validate" onclick="clientValidate(this)">Validate</button>')
+								: '<button class="btn btn-success btn-sm js-client-validate" title="Validate" value="Validate">Validate</button>')
 						).appendTo('#result_tab');
 						//console.log($tr.wrap('<p>').html());
 					});
@@ -142,4 +143,12 @@ function HashesOnLoad() {
 		//https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat
 		spLastDate.text(new Date(spLastDate.text()).toLocaleString([], { dateStyle: 'medium', timeStyle: 'long' }));
 	}
+
+	$(document)
+		.on('click', '.js-client-validate-all', function () {
+			clientValidateAll();
+		})
+		.on('click', '.js-client-validate', function () {
+			clientValidate(this);
+		});
 }
