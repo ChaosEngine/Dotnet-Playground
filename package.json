@@ -35,7 +35,6 @@
 		"jquery-validation": "1.22.1",
 		"jquery-validation-unobtrusive": "4.0.0",
 		"loc-i18next": "0.1.6",
-		"msgpack5": "6.0.2",
 		"qrcodejs": "1.0.0",
 		"sass": "^1.104.0",
 		"video.js": "8.24.0"

@@ -81,7 +81,6 @@ self.addEventListener('install', function (/* event */) {
 			'lib/ace-builds/ace.js',//questionable, only dev ?
 			'lib/ace-builds/mode-csharp.js'//questionable, only dev ?
 			//'lib/signalr/browser/signalr.min.js',//questionable, inkball ?
-			//'lib/msgpack5/msgpack5.min.js',//questionable, inkball ?
 			//'lib/signalr-protocol-msgpack/browser/signalr-protocol-msgpack.min.js'//questionable, inkball ?
 		]);
 	}
@@ -104,7 +103,6 @@ self.addEventListener('install', function (/* event */) {
 			//'https://cdnjs.cloudflare.com/ajax/libs/ace/1.35.2/ace.js',//questionable, only dev ?
 			//'https://cdnjs.cloudflare.com/ajax/libs/ace/1.35.2/mode-csharp.min.js',//questionable, only dev ?
 			//'https://cdn.jsdelivr.net/npm/@microsoft/signalr@9.0.6/dist/browser/signalr.min.js',//questionable, inkball ?
-			//'https://cdn.jsdelivr.net/npm/msgpack5@6.0.2/dist/msgpack5.min.js',//questionable, inkball ?
 			//'https://cdn.jsdelivr.net/npm/@microsoft/signalr-protocol-msgpack@9.0.6/dist/browser/signalr-protocol-msgpack.min.js'//questionable, inkball ?
 		]);
 	}
