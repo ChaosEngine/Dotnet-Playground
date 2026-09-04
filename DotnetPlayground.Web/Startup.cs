@@ -519,6 +519,18 @@ namespace DotnetPlayground
             app.Map("/dotnet", main =>
             {
 
+                main.Use(async (context, next) =>
+                {
+                    // Inside this map branch, '/dotnet/idm' is visible as '/idm'.
+                    if (!context.Request.Path.StartsWithSegments("/idm", StringComparison.OrdinalIgnoreCase))
+                    {
+                        context.Response.Headers["Content-Security-Policy-Report-Only"] =
+                            "require-trusted-types-for 'script'; report-uri /dotnet/CspReport; trusted-types default";
+                    }
+
+                    await next();
+                });
+
                 // Adds request decompression middleware
                 // main.UseMiddleware<RequestDecompressionMiddleware>();
                 main.UseRequestDecompression();
