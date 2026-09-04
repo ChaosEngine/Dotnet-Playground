@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-/*global myAlert, i18next*/
+/* global myAlert, i18next, clientValidateAll, clientValidate */
 
 // Hook to i18n localization function ready
 window.addEventListener(/* 'DOMContentLoaded' */'load', function () {
@@ -124,7 +124,7 @@ window.addEventListener(/* 'DOMContentLoaded' */'load', function () {
 
 		function validateFormatter(value, row, index, field) {
 			return (field !== "Validate") ? '' :
-				'<button class="btn btn-success btn-sm" title="Validate" value="Validate" onclick="clientValidate(this)" data-i18n="[title]virtScrol.validate;virtScrol.validate">Validate</button>';
+				'<button class="btn btn-success btn-sm js-client-validate" title="Validate" value="Validate" data-i18n="[title]virtScrol.validate;virtScrol.validate">Validate</button>';
 		}
 
 		function setBootstrapLocaleFromI18Next(lng) {
@@ -331,6 +331,15 @@ window.addEventListener(/* 'DOMContentLoaded' */'load', function () {
 		$("button[name='refresh']").bindFirst('click', function () {
 			_refreshClicked = "refresh";
 		});
+
+		$(document)
+			.on('click', '.js-client-validate-all', function () {
+				clientValidateAll();
+			})
+			.on('click', '.js-client-validate', function () {
+				clientValidate(this);
+			});
+
 		table.on('refresh.bs.table', function (params) {
 			params.ExtraParam = "refresh";
 		})

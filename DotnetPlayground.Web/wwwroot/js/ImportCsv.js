@@ -4,6 +4,13 @@ window.addEventListener('load', () => {
 
 	let globalData = null;
 
+	const delimiterInput = document.getElementById('delimiter');
+	if (delimiterInput) {
+		delimiterInput.addEventListener('focus', function () {
+			this.select();
+		});
+	}
+
 	/**
 	 * Convert CSV content to HTML table
 	 * @see https://stackoverflow.com/a/1293163/1248177
