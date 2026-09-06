@@ -37,7 +37,9 @@
 		"loc-i18next": "0.1.6",
 		"qrcodejs": "1.0.0",
 		"sass": "^1.104.0",
-		"video.js": "8.24.0"
+		"video.js": "8.24.0",
+		"webpack": "^5.110.3",
+		"webpack-stream": "^7.0.0"
 	},
 	"scripts": {
 		"postinstall": "node gulpfile.mjs postinstall",
