@@ -5,14 +5,20 @@
  * Blogs page onload event handler
  */
 function BlogsOnLoad() {
+	//////////Enable page wide validators////////////
+	$.validator.setDefaults({
+		debug: false,
+		escapeHtml: true,
+		onsubmit: true
+	});
+
 	////////////functions start/////////////
 	function CreateAccordionPostContent(blogId, collapsible, resultArr) {
 		let acc = collapsible.querySelector(`#accordion_${blogId}`);
 		if (!acc) {
 			acc = document.createElement("div");
 			acc.id = "accordion_" + blogId;
-			acc.classList.add("accordion");
-			acc.classList.add("my-2");
+			acc.classList.add("accordion", "my-2");
 			collapsible.appendChild(acc);
 		}
 
@@ -149,16 +155,9 @@ function BlogsOnLoad() {
 				acc.appendChild(card);
 
 				//////////Enable validators for newly created forms////////////
-				$(`#collapse_${blogId}_${postId} > div > form`).validate({
-					debug: false,
-					submitHandler: function (form) {
-						if (form.classList.contains("postForm") === false)
-							BlogFormSubmit(form);
-						else
-							PostFormSubmit(form);
-						return false;
-					}
-				});
+				$.validator.unobtrusive.parse(form);// After adding new HTML elements via AJAX
+				$(form).validate();
+				form.onsubmit = PostFormSubmit;
 			}
 			else {
 				heading.querySelector(`#heading_${blogId}_${postId} > button`).innerText = title;
@@ -173,12 +172,16 @@ function BlogsOnLoad() {
 
 	/**
 	 * Post submit form
-	 * @param {HTMLFormElement} form html element
+	 * @param {SubmitEvent<HTMLFormElement>} event the submit event triggered by the form
+	 * @returns {boolean} false to prevent default form submission
 	 */
-	function PostFormSubmit(form) {
+	function PostFormSubmit(event) {
+		// debugger;
+		const form = event.target;
+		if ($(form).validate().valid() === false) return false;
+		
 		const blog_id = parseInt($(form).data("id"));
 		const post_id = parseInt($(form).find("input[name='PostId']").val());
-		//const operation = serialized_form.split('operation')[1].substr(1).trim();
 		const operation = document.activeElement.value;
 		const delete_operation = 'DeletePost';
 		//remove title and content for delete, no need
@@ -214,23 +217,28 @@ function BlogsOnLoad() {
 		}).fail(function (jqXHR, textStatus, errorThrown) {
 			alert("error: " + textStatus + " " + errorThrown);
 		});
+		return false;
 	}
 
 	/**
 	 * Blog submit form
-	 * @param {HTMLFormElement} form incoming form
+	 * @param {SubmitEvent<HTMLFormElement>} event the submit event triggered by the form
+	 * @returns {boolean} false to prevent default form submission
 	 */
-	function BlogFormSubmit(form) {
+	function BlogFormSubmit(event) {
+		// debugger;
+		const form = event.target;
+		if ($(form).validate().valid() === false) return false;
+
 		let tr = $(form).parents('tr:first');
 		const id = $(form).data('id');
 		const url = $(form).find('#inp_' + id).val();
 		const serialized_form = $(form).serialize();
-		//const operation = serialized_form.split('operation')[1].substr(1).trim();
 		const operation = document.activeElement.value;
 		const delete_operation = 'Delete';
 
 		if (operation !== delete_operation && (url === '' || url === tr.find('label.displaying').text()))
-			return;
+			return false;
 
 		const hedrs = { 'RequestVerificationToken': $(form).find('input[name="__RequestVerificationToken"]').val() };
 
@@ -258,20 +266,14 @@ function BlogsOnLoad() {
 		}).fail(function (jqXHR, textStatus, errorThrown) {
 			alert("error: " + textStatus + " " + errorThrown);
 		});
+		return false;
 	}
 	////////////functions end/////////
 
 	Array.prototype.slice.call(document.querySelectorAll("form.blogForm")).forEach(function (form) {
 		const blog_id = parseInt(form.dataset["id"]);
 		let el = document.createElement('div');
-		el.classList.add("col-sm-12");
-		el.classList.add("col-md-3");
-		el.classList.add("col-lg-1");
-		el.classList.add("mx-sm-1");
-		// el.classList.add("mx-md-1");
-		// el.classList.add("mx-lg-1");
-		el.classList.add("px-0");
-		el.classList.add("unloaded");
+		el.classList.add("col-sm-12", "col-md-3", "col-lg-1", "mx-sm-1", "px-0", "unloaded");
 		// Create "Posts" collapse toggle anchor
 		const postsLink = document.createElement('a');
 		postsLink.setAttribute('role', 'button');
@@ -378,15 +380,15 @@ function BlogsOnLoad() {
 		form.parentNode.insertBefore(el, form.nextSibling);
 
 		// Enable validators for the Add Post form
-		$(`#addPost_${blog_id} > form`).validate({
-			debug: false,
-			submitHandler: function (form) {
-				PostFormSubmit(form);
-				return false;
-			}
-		});
+		$.validator.unobtrusive.parse(addPostForm);// After adding new HTML elements via AJAX
+		$(addPostForm).validate();
+		addPostForm.onsubmit = PostFormSubmit;
+		
+		$.validator.unobtrusive.parse(form);// After adding new HTML elements via AJAX
+		$(form).validate();
+		form.onsubmit = BlogFormSubmit;
 
-		$("#collapse_" + blog_id).on("show.bs.collapse", function (event) {
+		$(el).on("show.bs.collapse", function (event) {
 			const collapsible = event.currentTarget;
 			if (collapsible.classList.contains("unloaded") === true) {
 				collapsible.classList.remove("unloaded");
@@ -415,18 +417,5 @@ function BlogsOnLoad() {
 				alert("error: " + textStatus + " " + errorThrown);
 			});
 		});
-	});
-
-	//////////Enable page wide validators////////////
-	//$(form).validate({
-	$.validator.setDefaults({
-		debug: false,
-		submitHandler: function (form) {
-			if (form.classList.contains("postForm") === false)
-				BlogFormSubmit(form);
-			else
-				PostFormSubmit(form);
-			return false;
-		}
 	});
 }
