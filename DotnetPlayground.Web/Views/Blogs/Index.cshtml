@@ -33,9 +33,7 @@
         <script type="text/javascript" src="~/js/Blogs.min.js" asp-append-version="true"></script>
     </environment>
     <script type="text/javascript">
-        window.addEventListener('DOMContentLoaded', function () {
-            BlogsOnLoad();
-        });
+        window.addEventListener('DOMContentLoaded', BlogsOnLoad);
     </script>
     @await Html.PartialAsync("_ValidationScriptsPartial")
 }

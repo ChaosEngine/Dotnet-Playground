@@ -227,50 +227,87 @@ $(function () {
 		});
 	}
 
+	// 1. Initialize a Trusted Types policy once (e.g., at app startup)
+	const ttPolicy = window.trustedTypes?.createPolicy('TTSecPolicy', {
+		createScriptURL: (url) => {
+			// Option A: Validate that the URL points to your expected SW file
+			const parsed = new URL(url, window.location.origin);
+			if (parsed.origin === window.location.origin && parsed.pathname.endsWith('sw.js') || parsed.pathname.endsWith('sw.min.js')) {
+				return url;
+			}
+			throw new Error('Trusted Types Violation: Unauthorized Service Worker URL');
+			
+			// Option B: If no strict origin checking is required in the policy itself:
+			// return url;
+		}
+	}) || { 
+		// Fallback object if Trusted Types API is unsupported in the current browser
+		createScriptURL: (url) => url 
+	};
+
 	/**
 	 * Registers service worker globally
 	 * @param {string} rootPath is a path of all pages after FQDN name (ex. https://foo-bar.com/rootPath) or '/' if no root path
-	 * @param {boolean} isDev indicates whether this is development (tru) or production (false) like environment
+	 * @param {boolean} isDev indicates whether this is development (true) or production (false) like environment
 	 */
 	function registerServiceWorker(rootPath, isDev) {
-		if ('serviceWorker' in navigator
-			//&& (navigator.serviceWorker.controller === null || navigator.serviceWorker.controller.state !== "activated")
-		) {
+		if ('serviceWorker' in navigator) {
 			const version = encodeURIComponent(g_gitBranch + '_' + g_gitHash);
-			const swUrl = `${rootPath}sw${(isDev ? '' : '.min')}.js?version=${version}`;
+			const rawSwUrl = `${rootPath}sw${(isDev ? '' : '.min')}.js?version=${version}`;
 
+			// 2. Convert the raw URL string into a TrustedScriptURL object
+			const trustedSwUrl = ttPolicy.createScriptURL(rawSwUrl);
+
+			// 3. Pass the TrustedScriptURL object to the sink
 			navigator.serviceWorker
-				.register(swUrl, { scope: rootPath })
-				.then(() => console.log("Service Worker Registered"));
+				.register(trustedSwUrl, { scope: rootPath })
+				.then(() => console.log("Service Worker Registered"))
+				.catch((err) => console.error("Service Worker Registration Failed:", err));
 
 			navigator.serviceWorker
 				.ready.then(() => console.log('Service Worker Ready'));
 		}
 	}
 
-	function registerMyAlert() {
-		$('<div>')
-			.addClass('modal fade')
-			.attr({
-				'id': 'divModal',
-				'tabindex': '-1',
-				'aria-labelledby': 'divModalLabel',
-				'aria-hidden': 'true'
-			})
-			.html(
-				'<div class="modal-dialog">' +
-					'<div class="modal-content">' +
-						'<div class="modal-header">' +
-							`<h5 class="modal-title text-break" id="divModalLabel">Modal title</h5>` +
-							'<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
-						'</div>' +
-						`<div class="modal-body text-break">Content</div>` +
-						'<div class="modal-footer">' +
-							'<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>' +
-						'</div>' +
-					'</div>' +
-				'</div>'
-			).appendTo('body');
+	function registerMyAlert(titleText = 'Modal title', bodyText = 'Content') {
+		const modalDialog = $('<div>', { class: 'modal-dialog' });
+		const modalContent = $('<div>', { class: 'modal-content' });
+
+		// Header
+		const header = $('<div>', { class: 'modal-header' })
+			.append($('<h5>', { class: 'modal-title text-break', id: 'divModalLabel', text: titleText }))
+			.append($('<button>', {
+				type: 'button',
+				class: 'btn-close',
+				'data-bs-dismiss': 'modal',
+				'aria-label': 'Close'
+			}));
+
+		// Body
+		const body = $('<div>', { class: 'modal-body text-break', text: bodyText });
+
+		// Footer
+		const footer = $('<div>', { class: 'modal-footer' })
+			.append($('<button>', {
+				type: 'button',
+				class: 'btn btn-primary',
+				'data-bs-dismiss': 'modal',
+				text: 'Close'
+			}));
+
+		// Assemble modal
+		modalContent.append(header, body, footer);
+		modalDialog.append(modalContent);
+
+		$('<div>', {
+			class: 'modal fade',
+			id: 'divModal',
+			tabindex: '-1',
+			'aria-labelledby': 'divModalLabel',
+			'aria-hidden': 'true'
+		})
+			.append(modalDialog) // .append() with jQuery elements doesn't trigger HTML sinks
+			.appendTo('body');
 	}
 
 	function registerThemeChangeHandler() {
