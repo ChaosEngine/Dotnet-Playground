@@ -525,7 +525,7 @@ namespace DotnetPlayground
                     if (!context.Request.Path.StartsWithSegments("/idm", StringComparison.OrdinalIgnoreCase))
                     {
                         context.Response.Headers["Content-Security-Policy-Report-Only"] =
-                            "require-trusted-types-for 'script'; report-uri /dotnet/CspReport; trusted-types default";
+                            "require-trusted-types-for 'script'; report-uri /dotnet/CspReport; trusted-types TTSecPolicy";
                     }
 
                     await next();
