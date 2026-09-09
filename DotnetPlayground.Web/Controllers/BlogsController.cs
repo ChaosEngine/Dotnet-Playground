@@ -12,6 +12,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using DotnetPlayground.Web.Helpers;
 using Microsoft.EntityFrameworkCore.Query;
+using System.Buffers.Text;
+using System.Text;
 
 namespace DotnetPlayground.Controllers
 {
@@ -80,8 +82,13 @@ namespace DotnetPlayground.Controllers
 
 			if (!ModelState.IsValid)
 			{
+				var urlBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(blog.Url));
+				_logger.LogError("Error: ModelState is invalid for blogId = {blogId}, url-base64 = {urlBase64}", blog.BlogId, urlBase64);
+
 				if (ajax)
+				{
 					return Json("error");
+				}
 				else
 				{
 					IEnumerable<DecoratedBlog> lst = await GetBlogs();
@@ -229,7 +236,7 @@ namespace DotnetPlayground.Controllers
 
 			int modified = await _repo.EditPosts(p => p.BlogId == blogId && p.PostId == post.PostId,
 				s => s.SetProperty(p => p.Title, post.Title)
-				       .SetProperty(p => p.Content, post.Content)
+					   .SetProperty(p => p.Content, post.Content)
 			);
 
 			if (modified > 0)
