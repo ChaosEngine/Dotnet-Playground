@@ -8,8 +8,7 @@
 
     <input type="hidden" id="ProtectedID_@Model.BlogId" name="ProtectedID" value="@Model.ProtectedID" />
     <div class="col-sm-12 col-md-12 col-lg-8 mx-sm-1 px-0">
-        <input asp-for="Url" value="@Model.Url" id="inp_@Model.BlogId" placeholder="Url"
-               class="edit form-control" />
+        <input asp-for="Url" value="@Model.Url" id="inp_@Model.BlogId" placeholder="Url" required class="edit form-control" />
     </div>
     <div class="col-sm-12 col-md-3 col-lg-1 mx-sm-1 mx-md-0 mx-lg-1 px-0">
         <input name="operation" type="submit" value="@(BlogActionEnum.Edit)"

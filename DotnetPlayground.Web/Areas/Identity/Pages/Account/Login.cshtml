@@ -63,9 +63,8 @@
 				if ((Model.ExternalLogins?.Count ?? 0) == 0)
 				{
 					<div>
-						<p data-i18n="[html]login.noExternalServices">
-							There are no external authentication services configured. See <a href="https://go.microsoft.com/fwlink/?LinkID=532715">this article</a>
-							for details on setting up this ASP.NET application to support logging in via external services.
+						<p>
+							<span data-i18n="login.noExternalServicesPref">There are no external authentication services configured. See </span><a href="https://go.microsoft.com/fwlink/?LinkID=532715" data-i18n="login.linkExtServicesHelp">this article</a><span data-i18n="login.noExternalServicesSuff"> for details on setting up this ASP.NET application to support logging in via external services.</span>
 						</p>
 					</div>
 				}
