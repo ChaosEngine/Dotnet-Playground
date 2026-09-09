@@ -717,8 +717,25 @@ async function postinstall() {
 	});
 	file_copy(`${nm}/jquery/dist/jquery.min.js`, `${dst}jquery/jquery.min.js`);
 
-	file_copy(`${nm}/jquery-validation/dist/jquery.validate.min.js`, `${dst}jquery-validation/jquery.validate.min.js`);
-	file_copy(`${nm}/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js`, `${dst}jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js`);
+	// file_copy(`${nm}/jquery-validation/dist/jquery.validate.min.js`, `${dst}jquery-validation/jquery.validate.min.js`);
+	dir_copy(`${nm}/jquery-validation/dist`, `${dst}jquery-validation`, async (src) => {
+		if (((await fs.lstat(src)).isDirectory() || src.includes(`jquery.validate`))
+		&& !src.includes(`localization`)
+		) {
+			return true;
+		} else {
+			return false;
+		}
+	});
+	// file_copy(`${nm}/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js`, `${dst}jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js`);
+	dir_copy(`${nm}/jquery-validation-unobtrusive/dist`, `${dst}jquery-validation-unobtrusive`, async (src) => {
+		if ((await fs.lstat(src)).isDirectory() || src.includes(`jquery.validate.unobtrusive`)) {
+			return true;
+		} else {
+			return false;
+		}
+	});
+	
 	dir_copy(`${nm}/blueimp-gallery/img`, `${dst}blueimp-gallery/img`);
 	dir_copy(`${nm}/blueimp-gallery/css`, `${dst}blueimp-gallery/css`, async (src) => {
 		if ((await fs.lstat(src)).isDirectory() || src.includes(`blueimp-gallery.min.css`)) {

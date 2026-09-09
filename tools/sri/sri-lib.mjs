@@ -305,7 +305,7 @@ export function computeIntegrity(buffer, algorithm) {
 }
 
 function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 /**
