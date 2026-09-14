@@ -49,7 +49,10 @@ const config = {
 		// Tell all tests to load signed-in state from 'storageState.json'.
 		storageState: './e2e/storageStates/',
 		// Set locale to US English, safe for number and date formats used in tests
-		locale: 'en-US'
+		locale: 'en-US',
+
+		/* Ignore SSL certificate errors in Playwright pages and contexts */
+		ignoreHTTPSErrors: true
 	},
 
 	/* Configure projects for major browsers */
@@ -57,7 +60,15 @@ const config = {
 		{
 			name: 'chromium',
 			use: {
-				...devices['Desktop Chrome']
+				...devices['Desktop Chrome'],
+
+				/* Pass CLI flags directly to Chromium network stack to bypass SW SSL checks */
+				launchOptions: {
+					args: [
+						'--ignore-certificate-errors',
+						'--allow-insecure-localhost'
+					]
+				}
 			}
 		}
 		// ,{
