@@ -9,12 +9,34 @@ function HashesOnLoad() {
 
 	let g_LastTimeOfRun = new Date().getTime();
 
+	function setButtonLoading(button) {
+		// 1. Create the spinner element
+		const spinner = $('<span>', {
+			class: 'spinner-border spinner-border-sm align-middle',
+			role: 'status',
+			'aria-hidden': 'true'
+		});
+
+		// 2. Disable button and update content safely
+		button
+			.prop('disabled', true)
+			.empty()               // Clear old content safely
+			.append(spinner)      // Append element
+			.append(' Loading...'); // Append text node safely
+	}
+
+	function resetButton(button, originalText = 'Search') {
+		button
+			.prop('disabled', false)
+			.text(originalText);   // .text() is completely safe from Trusted Types
+	}
+
 	function AjaxifySearch() {
 		const divResult = $('#divResult');
 		const search = $('#txtSearch').val();
 		if (search === null || search === '') {
 			divResult.text('no hash to decode');
-			return;
+			return false;
 		}
 
 		const kind = $('.hash-kind input[type="radio"]:checked').val();
@@ -22,23 +44,25 @@ function HashesOnLoad() {
 			case 'MD5':
 				if (search.length < 32) {
 					divResult.text('search.length < 32 characters, too short');
-					return;
+					return false;
 				}
 				break;
 			case 'SHA256':
 				if (search.length < 64) {
 					divResult.text('search.length < 64 characters, too short');
-					return;
+					return false;
 				}
 				break;
 			default:
 				divResult.text('no hash method selected');
-				return;
+				return false;
 		}
 
 		const button = $('#btnSearch');
 		button.prop('disabled', true);
-		button.html("<span class='spinner-border spinner-border-sm align-middle' role='status' aria-hidden='true'></span> Loading...");
+		// Enable loading state:
+		setButtonLoading(button);
+
 		divResult.text('');
 		$('#result_tab').hide();
 
@@ -51,8 +75,8 @@ function HashesOnLoad() {
 				"Search": search, "Kind": kind, "ajax": true
 			}
 		}).done(function (found) {
-			button.prop('disabled', false);
-			button.text("Search");
+			// Reset button state after AJAX call
+			resetButton(button, 'Search');
 
 			if (/^error.*/.test(found)) {
 				divResult.text(found);
@@ -67,9 +91,16 @@ function HashesOnLoad() {
 			$('#res_cel_key').text(found.key);
 			$('#res_cel_md5').text(found.hashMD5);
 			$('#res_cel_sha256').text(found.hashSHA256);
-			$('#res_cel_clientValidate').html((found.hashMD5 === null || found.hashSHA256 === null) ? ''
-				: '<button class="btn btn-success btn-sm js-client-validate" title="Validate" value="Validate">Validate</button>');
+			$('#res_cel_clientValidate').empty().append((found.hashMD5 === null || found.hashSHA256 === null) ? null
+				: $('<button>', {
+					class: 'btn btn-success btn-sm js-client-validate',
+					title: 'Validate',
+					value: 'Validate',
+					'aria-hidden': 'true'
+				}).text('Validate')
+			);
 		});
+		return false;
 	}
 
 	$.validator.addMethod('hashlength',
@@ -84,10 +115,7 @@ function HashesOnLoad() {
 	);
 
 	$("#theForm").validate();
-	$("#theForm").data("validator").settings.submitHandler = function (form) {
-		AjaxifySearch(form); return false;
-		//alert('submitted'); return false;
-	};
+	$("#theForm").on('submit', AjaxifySearch);
 
 	$("#txtSearch").on("input", function () {
 		//check if input was really changed from last time
@@ -103,8 +131,8 @@ function HashesOnLoad() {
 				g_LastTimeOfRun = new Date().getTime();
 
 				const button = $('#btnSearch');//simulate button click-like behaviour: disable
-				button.prop('disabled', true);
-				button.html("<span class='spinner-border spinner-border-sm align-middle' role='status' aria-hidden='true'></span> Loading...");
+				//Enable loading state:
+				setButtonLoading(button);
 
 				const hedrs = { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() };
 
@@ -116,21 +144,26 @@ function HashesOnLoad() {
 					$('#result_tab').show();
 					$('#trFirstResult').hide();
 
-					button.prop('disabled', false);//simulate button click-like behaviour: enable
-					button.text("Search");
+					// Reset button state after AJAX call
+					resetButton(button, 'Search');
 
 					let t = $('#result_tab tbody');
 					t.find('tr:visible').not('#trFirstResult').remove();
 
 					$.each(found, function (i, item) {
+						const valBtn = $('<button>', {
+							class: 'btn btn-success btn-sm js-client-validate',
+							title: 'Validate',
+							value: 'Validate',
+							'aria-hidden': 'true'
+						}).text('Validate');
+
 						$('<tr>').append(
 							$('<td>').text(item.key),
 							$('<td>').text(item.hashMD5),
 							$('<td>').text(item.hashSHA256),
-							$('<td>').html((item.hashMD5 === null || item.hashSHA256 === null) ? ''
-								: '<button class="btn btn-success btn-sm js-client-validate" title="Validate" value="Validate">Validate</button>')
+							$('<td>').append((item.hashMD5 === null || item.hashSHA256 === null) ? null : valBtn)
 						).appendTo('#result_tab');
-						//console.log($tr.wrap('<p>').html());
 					});
 				});
 			}
@@ -145,9 +178,7 @@ function HashesOnLoad() {
 	}
 
 	$(document)
-		.on('click', '.js-client-validate-all', function () {
-			clientValidateAll();
-		})
+		.on('click', '.js-client-validate-all', clientValidateAll)
 		.on('click', '.js-client-validate', function () {
 			clientValidate(this);
 		});

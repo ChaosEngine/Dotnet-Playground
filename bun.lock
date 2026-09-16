@@ -40,6 +40,9 @@
       },
     },
   },
+  "patchedDependencies": {
+    "jquery-validation-unobtrusive@4.0.0": "patches/jquery-validation-unobtrusive@4.0.0.patch",
+  },
   "packages": {
     "@babel/runtime": ["@babel/runtime@7.29.10", "", {}, "sha512-NpugTzbKgGrNe45Ui32cN8vCFFMxVtP/9rtfwv0nP5FRDAjvYBxJcLVpYA9mr1jxP6cnIT7x9LUzuDTbWYYNRA=="],
 
