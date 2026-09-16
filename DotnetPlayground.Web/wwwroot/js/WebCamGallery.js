@@ -1,6 +1,6 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "WebCamGalleryOnLoad" }]*/
 /* eslint-disable no-console */
-/*global g_AppRootPath, videojs, blueimp, i18next*/
+/*global g_AppRootPath, blueimp, i18next*/
 "use strict";
 ///////////////////WebCamGallery functions start/////////////////
 /**
@@ -10,6 +10,9 @@
 function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 	let last_refresh = new Date();
 	const btnReplAllImg = $('#btnReplAllImg');
+
+	window.WebVTT = true;//block loading of external vtt.js library
+
 	/**
 	 * on live img refresh click
 	 */
@@ -101,11 +104,11 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 	}
 
 	function LoadVideoJS() {
-		const my_player = document.getElementById('my-player');
-		const poster = my_player.dataset.poster;
-		my_player.setAttribute('poster', poster);
-		delete my_player.dataset.poster;
-		videojs('my-player');
+		// const my_player = document.getElementById('my-player');
+		// const poster = my_player.dataset.poster;
+		// my_player.setAttribute('poster', poster);
+		// delete my_player.dataset.poster;
+		// videojs('my-player');
 	}
 
 	function LoadYouTubeIFrame() {
@@ -251,14 +254,23 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 	function GenerateAnnualMovie(event) {
 		const hedrs = { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() };
 		const serialized_bag = JSON.stringify({ Result: "query", Product: ["qqq", "xxxx", "yyyy", "zzzzzz"] });
-		$('#tbAnnualMovieGenerator').html(
-			'<thead><tr>' +
-			'<th scope="col">#</th>' +
-			`<th scope="col" data-i18n='webCam.annColName'>Name</th>` +
-			`<th scope="col" data-i18n='webCam.annColHash'>Hash</th>` +
-			`<th scope="col" data-i18n='webCam.annColDate'>Date</th>` +
-			`</tr></thead><caption data-i18n='webCam.annLoading'>Loading...</caption><tbody></tbody>`
-		);
+
+		const table = $('#tbAnnualMovieGenerator');
+		table.empty();
+
+		const thead = $('<thead></thead>'), headerRow = $('<tr></tr>');
+		$('<th></th>').attr('scope', 'col').text('#').appendTo(headerRow);
+		$('<th></th>').attr({ scope: 'col', 'data-i18n': 'webCam.annColName' }).text('Name').appendTo(headerRow);
+		$('<th></th>').attr({ scope: 'col', 'data-i18n': 'webCam.annColHash' }).text('Hash').appendTo(headerRow);
+		$('<th></th>').attr({ scope: 'col', 'data-i18n': 'webCam.annColDate' }).text('Date').appendTo(headerRow);
+		headerRow.appendTo(thead);
+		thead.appendTo(table);
+
+		const caption = $('<caption></caption>').attr('data-i18n', 'webCam.annLoading').text('Loading...');
+		caption.appendTo(table);
+
+		$('<tbody></tbody>').appendTo(table);
+
 		if (window.localize)
 			window.localize("#tbAnnualMovieGenerator");
 
@@ -279,21 +291,20 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 				//const stringified = JSON.stringify(response.product, null, 2);
 				//display.text(stringified);
 
-				$('#tbAnnualMovieGenerator caption').remove();
-				$(response.product).each(function (index, item) {
-					$('#tbAnnualMovieGenerator tbody').append(
-						`<tr>
-						<td>${item[0]}</td>
-						<td>${item[1]}</td>
-						<td>${item[2]}</td>
-						<td>${item[3]}</td>
-						</tr>`
-					);
+				table.find('caption').remove();
+				const tbody = table.find('tbody');
+				$(response.product).each(function (_index, item) {
+					const row = $('<tr></tr>');
+					$('<td></td>').text(String(item[0])).appendTo(row);
+					$('<td></td>').text(String(item[1])).appendTo(row);
+					$('<td></td>').text(String(item[2])).appendTo(row);
+					$('<td></td>').text(String(item[3])).appendTo(row);
+					tbody.append(row);
 				});
 			}
 		}).fail(function (_jqXHR, textStatus, errorThrown) {
 			alert(i18next.t('webCam.errorFollowing') + textStatus + " " + errorThrown);
-			$('#tbAnnualMovieGenerator').html('');
+			table.empty();
 		}).always(function () {
 			event.target.disabled = '';
 		});

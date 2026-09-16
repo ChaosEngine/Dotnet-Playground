@@ -1,5 +1,5 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "BruteForce" }]*/
-/*global binaryStringToArrayBufferExp arrayBufferToBinaryStringExp libs2Load hashExp*/
+/*global binaryStringToArrayBufferExp arrayBufferToBinaryStringExp hashExp*/
 
 /**
  * BruteForce page on load event handler
@@ -7,8 +7,8 @@
 function BruteForceOnLoad() {
 	let instance = null;
 
-	const thisScriptSrc = [...document.scripts].find(s => s.src.indexOf('BruteForce') !== -1)?.src;
-	const versionSearch = thisScriptSrc ? new URL(thisScriptSrc).search : "";
+	const sharedScriptSrc = [...document.scripts].find(s => s.src.indexOf('workers/shared') !== -1)?.src;
+	const versionSearch = sharedScriptSrc ? new URL(sharedScriptSrc).search : "";
 
 
 	////////////functions start/////////////
@@ -113,9 +113,8 @@ function BruteForceOnLoad() {
 			updateTextContent('.global-message',
 				`Starting ${workerCount} workers to brute force the SHA256 hash ${hashToCrack}.`);
 
-			const suffix = libs2Load.indexOf("shared.js") === -1 ? '.min' : '';
-			const ind = libs2Load.findIndex(el => el.indexOf('shared.') !== -1);
-			libs2Load[ind] += versionSearch;
+			const suffix = [sharedScriptSrc.indexOf(".min") === -1 ? '' : '.min'];
+			const libs2Load = [`shared${suffix}.js${versionSearch}`];
 
 			// Splitting the limit number into pieces and distribute equally along the
 			// workers.

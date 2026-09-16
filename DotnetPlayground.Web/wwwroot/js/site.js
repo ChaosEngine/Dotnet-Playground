@@ -228,7 +228,7 @@ $(function () {
 	}
 
 	// 1. Initialize a Trusted Types policy once (e.g., at app startup)
-	const ttPolicy = window.trustedTypes?.createPolicy('TTSecPolicy', {
+	const ttPolicy = window.trustedTypes.createPolicy('default', {
 		createScriptURL: (url) => {
 			// Option A: Validate that the URL points to your expected SW file
 			const parsed = new URL(url, window.location.origin);
@@ -244,15 +244,23 @@ $(function () {
 			) {
 				return url;
 			}
-			throw new Error('Trusted Types Violation: Unauthorized Service Worker URL');
-			
-			// Option B: If no strict origin checking is required in the policy itself:
-			// return url;
+			//else...
+
+			// console.log("Trusted Types Violation: Unauthorized URL");
+			return null;
+		},
+		createHTML: (input) => {
+			if (input === ""){
+				//ace editor seen empty content
+				console.log("Please refactor this code");
+				return "";
+			}
+			//else...
+
+			// console.log("Trusted Types Violation: bad HTML input");
+			return null;
 		}
-	}) || { 
-		// Fallback object if Trusted Types API is unsupported in the current browser
-		createScriptURL: (url) => url 
-	};
+	});
 
 	/**
 	 * Registers service worker globally
