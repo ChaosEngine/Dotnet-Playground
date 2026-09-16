@@ -719,7 +719,7 @@ async function postinstall() {
 	// file_copy(`${nm}/jquery-validation/dist/jquery.validate.min.js`, `${dst}jquery-validation/jquery.validate.min.js`);
 	dir_copy(`${nm}/jquery-validation/dist`, `${dst}jquery-validation`, async (src) => {
 		if (((await fs.lstat(src)).isDirectory() || src.includes(`jquery.validate`))
-		&& !src.includes(`localization`)
+			&& !src.includes(`localization`)
 		) {
 			return true;
 		} else {
@@ -734,7 +734,7 @@ async function postinstall() {
 			return false;
 		}
 	});
-	
+
 	dir_copy(`${nm}/blueimp-gallery/img`, `${dst}blueimp-gallery/img`);
 	dir_copy(`${nm}/blueimp-gallery/css`, `${dst}blueimp-gallery/css`, async (src) => {
 		if ((await fs.lstat(src)).isDirectory() || src.includes(`blueimp-gallery.min.css`)) {

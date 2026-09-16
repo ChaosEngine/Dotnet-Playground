@@ -5,13 +5,6 @@
  * Blogs page onload event handler
  */
 function BlogsOnLoad() {
-	//////////Enable page wide validators////////////
-	$.validator.setDefaults({
-		debug: false,
-		escapeHtml: true,
-		onsubmit: true
-	});
-
 	////////////functions start/////////////
 	function CreateAccordionPostContent(blogId, collapsible, resultArr) {
 		let acc = collapsible.querySelector(`#accordion_${blogId}`);
