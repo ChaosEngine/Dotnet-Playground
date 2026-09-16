@@ -74,7 +74,7 @@ namespace DotnetPlayground.Controllers
 		public async Task<IActionResult> Contact()
 		{
 			await HttpContext.Session.LoadAsync(HttpContext.RequestAborted);
-		
+
 			var name = HttpContext.Session.GetString(SessionKeyName);
 			var yearsMember = HttpContext.Session.GetInt32(SessionKeyYearsMember);
 
@@ -100,7 +100,7 @@ namespace DotnetPlayground.Controllers
 		}
 
 		[HttpPost]
-        [ValidateAntiForgeryToken]
+		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> UnintentionalErr(string action)
 		{
 			switch (action?.Trim()?.ToLowerInvariant())
@@ -127,6 +127,12 @@ namespace DotnetPlayground.Controllers
 
 			var reExecute = HttpContext.Features.Get<IStatusCodeReExecuteFeature>();
 
+#if DEBUG
+			// Ignore requests for the Chrome DevTools app-specific JSON file (https://developer.chrome.com/docs/devtools/automatic-workspaces)
+			if (reExecute?.OriginalPath == "/.well-known/appspecific/com.chrome.devtools.json")
+				return await Task.FromResult(View(statusCode));
+#endif
+
 			_logger.LogError("Unexpected Status Code: {statusCode}, OriginalPath: {OriginalPath}", statusCode, reExecute?.OriginalPath);
 
 			CancellationToken token = HttpContext.RequestAborted;
@@ -144,7 +150,7 @@ namespace DotnetPlayground.Controllers
 		}
 
 		[HttpPost]
-        [ValidateAntiForgeryToken]
+		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> ClientsideLog([FromServices] BloggingContext dbContext,
 			LogLevel? level, string message, string url, string line, string col, string error)
 		{

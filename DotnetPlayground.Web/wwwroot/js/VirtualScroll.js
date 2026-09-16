@@ -2,7 +2,7 @@
 /* global myAlert, i18next, clientValidateAll, clientValidate */
 
 // Hook to i18n localization function ready
-window.addEventListener(/* 'DOMContentLoaded' */'load', function () {
+window.addEventListener('load', function () {
 
 	function RunPage(localizeSelectorFunc) {
 		////////////methods start/////////////
@@ -333,9 +333,7 @@ window.addEventListener(/* 'DOMContentLoaded' */'load', function () {
 		});
 
 		$(document)
-			.on('click', '.js-client-validate-all', function () {
-				clientValidateAll();
-			})
+			.on('click', '.js-client-validate-all', clientValidateAll)
 			.on('click', '.js-client-validate', function () {
 				clientValidate(this);
 			});

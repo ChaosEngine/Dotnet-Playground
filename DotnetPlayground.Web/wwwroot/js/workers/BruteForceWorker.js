@@ -9,6 +9,7 @@
 			binary += String.fromCharCode(bytes[i]);
 		return binary;
 	}
+
 	// https://github.com/digitalbazaar/forge/issues/818 - new build 0.10.0 version is not working inside web workers
 	/*eslint no-global-assign: "off"*/
 	window = self;
@@ -17,9 +18,35 @@
 	s.addEventListener('message', async function (e) {
 		const data = JSON.parse(arrayBufferToBinaryStringExp(e.data));
 
+
+		const ttPolicy = window.trustedTypes.createPolicy('TTSecPolicy', {
+			createScriptURL: (url) => {
+				// Option A: Validate that the URL points to your expected SW file
+				const parsed = new URL(url, window.location.origin);
+				if (parsed.origin === window.location.origin &&
+					(
+						parsed.pathname === '/shared.js' || parsed.pathname === '/shared.min.js'
+					)
+				) {
+					return url;
+				}
+				//else...
+
+				// console.log("Trusted Types Violation: Unauthorized URL");
+				return null;
+			}
+		});
+
+
 		// In web workers we can use importScripts to load external javascripts
-		for (let i = 0; i < data.libs2Load.length; ++i)
-			importScripts(data.libs2Load[i]);
+		for (const unsafeUrl of data.libs2Load) {
+			// console.log(`loading script: ${unsafeUrl}...`);
+			const trustedUrl = ttPolicy.createScriptURL(unsafeUrl);
+			if (trustedUrl?.toString() !== "") {
+				// console.log(`...trusted script URL: ${trustedUrl} loaded`);
+				importScripts(trustedUrl);
+			}
+		}
 
 		// Save a timestamp when we started
 		let lastUpdateMilis = new Date().getTime(), currentMilis, pass, hexHash;
