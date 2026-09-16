@@ -4,12 +4,9 @@ window.addEventListener('load', () => {
 
 	let globalData = null;
 
-	const delimiterInput = document.getElementById('delimiter');
-	if (delimiterInput) {
-		delimiterInput.addEventListener('focus', function () {
-			this.select();
-		});
-	}
+	document.getElementById('delimiter')?.addEventListener('focus', function () {
+		this.select();
+	});
 
 	/**
 	 * Convert CSV content to HTML table
