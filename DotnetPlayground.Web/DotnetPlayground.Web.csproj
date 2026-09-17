@@ -44,18 +44,18 @@
 		<PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="10.0.12" Condition="$(DefineConstants.Contains('INCLUDE_SQLSERVER'))" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.12" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" Condition="$(DefineConstants.Contains('INCLUDE_POSTGRES'))" />
-		<PackageReference Include="Microting.EntityFrameworkCore.MySql" Version="10.0.11" Condition="$(DefineConstants.Contains('INCLUDE_MYSQL'))" />
+		<PackageReference Include="Microting.EntityFrameworkCore.MySql" Version="10.0.12" Condition="$(DefineConstants.Contains('INCLUDE_MYSQL'))" />
 		<PackageReference Include="Oracle.EntityFrameworkCore" Version="10.23.26301" Condition="$(DefineConstants.Contains('INCLUDE_ORACLE'))" />
 		<PackageReference Include="IdentityManager2.AspNetIdentity" Version="1.0.0" />
 		<PackageReference Include="Lib.AspNetCore.ServerTiming" Version="6.0.0" />
 		<!--<PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.16.2" Condition="$(DefineConstants.Contains('INCLUDE_COSMOSDB'))" />-->
-		<PackageReference Include="MongoDB.Driver" Version="3.11.2" Condition="$(DefineConstants.Contains('INCLUDE_MONGODB'))" />
+		<PackageReference Include="MongoDB.Driver" Version="3.12.0" Condition="$(DefineConstants.Contains('INCLUDE_MONGODB'))" />
 		<PackageReference Include="Google.Apis.YouTube.v3" Version="1.76.0.4262" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="10.0.12" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="10.0.12" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="10.0.12" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="10.0.12" />
-		<PackageReference Include="MessagePack" Version="3.1.8" />
+		<PackageReference Include="MessagePack" Version="3.1.9" />
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.22.0" />
 	</ItemGroup>
 
