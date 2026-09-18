@@ -232,7 +232,16 @@ $(function () {
 		createScriptURL: (url) => {
 			// Option A: Validate that the URL points to your expected SW file
 			const parsed = new URL(url, window.location.origin);
-			if (parsed.origin === window.location.origin && parsed.pathname.endsWith('sw.js') || parsed.pathname.endsWith('sw.min.js')) {
+			const pathname = parsed.pathname;
+			if (parsed.origin === window.location.origin &&
+				(
+					pathname.endsWith('sw.js') || pathname.endsWith('sw.min.js') ||
+
+					pathname.endsWith('/js/workers/BruteForceWorker.js') || pathname.endsWith('/js/workers/BruteForceWorker.min.js') ||
+
+					pathname.endsWith('/js/AIWorker.min.js')
+				)
+			) {
 				return url;
 			}
 			throw new Error('Trusted Types Violation: Unauthorized Service Worker URL');

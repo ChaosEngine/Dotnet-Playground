@@ -433,7 +433,7 @@ async function inkballAIWorker(doPollyfill = false) {
 			format: 'esm',
 			// format: 'iife',
 			// target: ['chrome58', 'firefox57', 'safari11', 'edge16'],
-			outfile: path.resolve(paths.inkBallJsRelative, 'AIWorker.Bundle.js')
+			outfile: path.resolve(paths.inkBallJsRelative, 'AIWorker.min.js')
 		});
 	}
 
@@ -452,7 +452,7 @@ async function inkballAIWorker(doPollyfill = false) {
 			// target: "webworker",
 			output: {
 				path: path.resolve(paths.inkBallJsRelative),
-				filename: doPollyfill === true ? '[name].PolyfillBundle.js' : '[name].Bundle.js'
+				filename: doPollyfill === true ? '[name].PolyfillBundle.js' : '[name].min.js'
 			},
 			module: doPollyfill === true ? {
 				rules: [{
@@ -490,7 +490,7 @@ async function inkballAIWorker(doPollyfill = false) {
 			platform: 'browser',
 			format: 'esm',
 			//outdir: paths.inkBallJsRelative,
-			naming: "[dir]/[name].Bundle.[ext]"
+			naming: "[dir]/[name].min.[ext]"
 		});
 
 		if (result.success) {
@@ -559,7 +559,6 @@ async function clean() {
 
 	await rimraf([
 		paths.inkBallJsRelative + '*.min.js',
-		paths.inkBallJsRelative + '*Bundle.js',
 		paths.inkBallJsRelative + '*.map',
 		paths.inkBallMinTranslation
 		,
