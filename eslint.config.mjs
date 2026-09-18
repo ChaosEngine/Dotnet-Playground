@@ -10,7 +10,6 @@ export default [
 			"**/obj",
 			"**/wwwroot/lib",
 			"**/*.min.js",
-			"**/*Bundle.js",
 			"**/dist",
 			"**/coverage"
 		]
