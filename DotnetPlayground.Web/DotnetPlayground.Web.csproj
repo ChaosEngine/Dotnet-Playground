@@ -55,8 +55,8 @@
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="10.0.12" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="10.0.12" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="10.0.12" />
-		<PackageReference Include="MessagePack" Version="3.1.9" />
-		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.22.0" />
+		<PackageReference Include="MessagePack" Version="3.1.10" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.23.0" />
 	</ItemGroup>
 
 	<Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">

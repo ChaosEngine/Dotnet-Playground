@@ -8,8 +8,8 @@
 		"@eslint/js": "^10.0.1",
 		"@playwright/test": "^1.63.0",
 		"bun-types": "1.4.2",
-		"eslint": "^10.10.0",
-		"eslint-plugin-jsdoc": "^64.5.2",
+		"eslint": "^10.11.0",
+		"eslint-plugin-jsdoc": "^64.5.4",
 		"globals": "17.12.0"
 	},
 	"dependencies": {
@@ -36,7 +36,7 @@
 		"jquery-validation-unobtrusive": "4.0.0",
 		"loc-i18next": "0.1.6",
 		"qrcodejs": "1.0.0",
-		"sass": "^1.104.1",
+		"sass": "^1.105.0",
 		"video.js": "8.24.1"
 	},
 	"scripts": {
