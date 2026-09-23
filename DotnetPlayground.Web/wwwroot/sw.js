@@ -74,8 +74,6 @@ self.addEventListener('install', function (/* event */) {
 			// 'lib/video.js/video-js.min.css',
 			// 'lib/video.js/alt/video.core.novtt.min.js',
 			'lib/blueimp-md5/md5.min.js',
-			'lib/bootstrap-table/bootstrap-table.min.css',
-			'lib/bootstrap-table/bootstrap-table.min.js',
 			'lib/jquery-validation/jquery.validate.min.js',
 			'lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js',
 			'lib/ace-builds/ace.js',//questionable, only dev ?
