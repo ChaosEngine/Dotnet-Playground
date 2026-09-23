@@ -12,10 +12,10 @@ import {
 } from "./sri-lib.mjs";
 
 test("extracts jsdelivr package and version", () => {
-  const metadata = extractCdnMetadata("https://cdn.jsdelivr.net/npm/bootstrap-table@1.27.3/dist/bootstrap-table.min.js");
+  const metadata = extractCdnMetadata("https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js");
   assert.equal(metadata.provider, "jsdelivr");
-  assert.equal(metadata.packageName, "bootstrap-table");
-  assert.equal(metadata.urlVersion, "1.27.3");
+  assert.equal(metadata.packageName, "bootstrap");
+  assert.equal(metadata.urlVersion, "5.2.0");
 });
 
 test("extracts cdnjs package and version with query string", () => {
