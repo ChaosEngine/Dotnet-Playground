@@ -189,18 +189,7 @@ Theme switcher:
 	}
 }
 /***************VirtualScroll start***************/
-.fixed-table-loading {
-	background-color: rgba(128, 128, 128, 0.5) !important;
-}
-
-.bootstrap-table {
-	button.btn .fa-sync:after {
-		content: '↻';
-		display: block;
-		font-style: normal;
-		// font-weight: bold;
-	}
-
+#virtualGridWrap {
 	table tr.highlight {
 		border-top: groove;
 		border-bottom: groove;

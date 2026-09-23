@@ -6,6 +6,38 @@
 var g_AppRootPath = location.pathname.match(/\/([^/]+)\//)[0], g_isDevelopment = location.host.match(/:\d+/) !== null,
 	g_gitBranch = "GIT_BRANCH", g_gitHash = "GIT_HASH", localize = null;
 
+// 1. Initialize a Trusted Types policy once (e.g., at app startup)
+const g_ttPolicy = window.trustedTypes.createPolicy('default', {
+	createScriptURL: (url) => {
+		// Option A: Validate that the URL points to your expected SW file
+		const parsed = new URL(url, window.location.origin);
+		// const pathname = parsed.pathname;
+		if (parsed.origin === window.location.origin
+			// && (
+			// 	pathname.endsWith('sw.js') || pathname.endsWith('sw.min.js') ||
+			// 	pathname.endsWith('/js/workers/BruteForceWorker.js') || pathname.endsWith('/js/workers/BruteForceWorker.min.js') ||
+			// 	pathname.endsWith('/js/AIWorker.min.js')
+			// )
+		) {
+			return url;
+		}
+		//else...
+
+		console.log(`Trusted Types Violation: Unauthorized URL ${url}`);
+		return null;
+	},
+	createHTML: (input) => {
+		if (input === "") {
+			//ace editor seen empty content
+			console.log("Please refactor this code");
+			return "";
+		}
+		//else...
+
+		console.log(`Trusted Types Violation: bad HTML input ${input}`);
+		return null;
+	}
+});
 
 /**
  * SHA-256 hashing using Web Crypto API
@@ -227,41 +259,6 @@ $(function () {
 		});
 	}
 
-	// 1. Initialize a Trusted Types policy once (e.g., at app startup)
-	const ttPolicy = window.trustedTypes.createPolicy('default', {
-		createScriptURL: (url) => {
-			// Option A: Validate that the URL points to your expected SW file
-			const parsed = new URL(url, window.location.origin);
-			const pathname = parsed.pathname;
-			if (parsed.origin === window.location.origin &&
-				(
-					pathname.endsWith('sw.js') || pathname.endsWith('sw.min.js') ||
-
-					pathname.endsWith('/js/workers/BruteForceWorker.js') || pathname.endsWith('/js/workers/BruteForceWorker.min.js') ||
-
-					pathname.endsWith('/js/AIWorker.min.js')
-				)
-			) {
-				return url;
-			}
-			//else...
-
-			// console.log("Trusted Types Violation: Unauthorized URL");
-			return null;
-		},
-		createHTML: (input) => {
-			if (input === ""){
-				//ace editor seen empty content
-				console.log("Please refactor this code");
-				return "";
-			}
-			//else...
-
-			// console.log("Trusted Types Violation: bad HTML input");
-			return null;
-		}
-	});
-
 	/**
 	 * Registers service worker globally
 	 * @param {string} rootPath is a path of all pages after FQDN name (ex. https://foo-bar.com/rootPath) or '/' if no root path
@@ -273,7 +270,7 @@ $(function () {
 			const rawSwUrl = `${rootPath}sw${(isDev ? '' : '.min')}.js?version=${version}`;
 
 			// 2. Convert the raw URL string into a TrustedScriptURL object
-			const trustedSwUrl = ttPolicy.createScriptURL(rawSwUrl);
+			const trustedSwUrl = g_ttPolicy.createScriptURL(rawSwUrl);
 
 			// 3. Pass the TrustedScriptURL object to the sink
 			navigator.serviceWorker
@@ -347,8 +344,6 @@ $(function () {
 
 
 
-
-
 		$('#themeSwitcher').on('click', function () {
 			const classes = $(this).attr('class').split(' ');
 			let cur_theme = classes.pop();
@@ -401,10 +396,6 @@ $(function () {
 			'data-i18n': `[title]nav.themeSwitcher.${cur_theme};[aria-label]nav.themeSwitcher.${cur_theme}`
 		});
 		// localize('#themeSwitcher');
-
-
-
-
 	}
 
 	function updateOnlineStatus() {

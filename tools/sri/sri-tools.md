@@ -69,11 +69,11 @@ npm run sri:test
 ### Update only selected packages
 
 ```bash
-node tools/sri/sri-check.mjs --update --only bootstrap-table,i18next
+node tools/sri/sri-check.mjs --update --only bootstrap,i18next
 ```
 
 ```bash
-bun tools/sri/sri-check.mjs --update --only bootstrap-table,i18next
+bun tools/sri/sri-check.mjs --update --only bootstrap,i18next
 ```
 
 ### Update only dependencies changed from HEAD package.json

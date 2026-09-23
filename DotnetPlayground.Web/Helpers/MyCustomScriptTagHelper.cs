@@ -25,79 +25,91 @@ namespace DotnetPlayground
 	/// <remarks>
 	/// The tag helper won't process for cases with just the 'src' attribute.
 	/// </remarks>
-	//[HtmlTargetElement("script", Attributes = SrcIncludeAttributeName)]
-	//[HtmlTargetElement("script", Attributes = SrcExcludeAttributeName)]
-	//[HtmlTargetElement("script", Attributes = FallbackSrcAttributeName)]
-	//[HtmlTargetElement("script", Attributes = FallbackSrcIncludeAttributeName)]
-	//[HtmlTargetElement("script", Attributes = FallbackSrcExcludeAttributeName)]
-	//[HtmlTargetElement("script", Attributes = FallbackTestExpressionAttributeName)]
-	//[HtmlTargetElement("script", Attributes = AppendVersionAttributeName)]
-	public class MyCustomScriptTagHelper : UrlResolutionTagHelper
+	[HtmlTargetElement("script", Attributes = SrcIncludeAttributeName)]
+	[HtmlTargetElement("script", Attributes = SrcExcludeAttributeName)]
+	[HtmlTargetElement("script", Attributes = FallbackSrcAttributeName)]
+	[HtmlTargetElement("script", Attributes = FallbackSrcIncludeAttributeName)]
+	[HtmlTargetElement("script", Attributes = FallbackSrcExcludeAttributeName)]
+	[HtmlTargetElement("script", Attributes = FallbackTestExpressionAttributeName)]
+	[HtmlTargetElement("script", Attributes = AppendVersionAttributeName)]
+	[HtmlTargetElement("script", Attributes = TypeAttributeName)]
+	[HtmlTargetElement("script", Attributes = ImportMapAttributeName)]
+	public class ScriptTagHelper : UrlResolutionTagHelper
 	{
 		private const string SrcIncludeAttributeName = "asp-src-include";
 		private const string SrcExcludeAttributeName = "asp-src-exclude";
 		private const string FallbackSrcAttributeName = "asp-fallback-src";
 		private const string FallbackSrcIncludeAttributeName = "asp-fallback-src-include";
+		private const string SuppressFallbackIntegrityAttributeName = "asp-suppress-fallback-integrity";
 		private const string FallbackSrcExcludeAttributeName = "asp-fallback-src-exclude";
 		private const string FallbackTestExpressionAttributeName = "asp-fallback-test";
 		private const string SrcAttributeName = "src";
+		private const string IntegrityAttributeName = "integrity";
 		private const string AppendVersionAttributeName = "asp-append-version";
+		private const string TypeAttributeName = "type";
+		private const string ImportMapAttributeName = "asp-importmap";
+
 		private static readonly Func<Mode, Mode, int> Compare = (a, b) => a - b;
-		private FileVersionProvider _fileVersionProvider;
 		private StringWriter _stringWriter;
 
 		private static readonly ModeAttributes<Mode>[] ModeDetails = new[] {
-            // Regular src with file version alone
-            new ModeAttributes<Mode>(Mode.AppendVersion, new[] { AppendVersionAttributeName }),
-            // Globbed src (include only)
-            new ModeAttributes<Mode>(Mode.GlobbedSrc, new [] { SrcIncludeAttributeName }),
-            // Globbed src (include & exclude)
-            new ModeAttributes<Mode>(Mode.GlobbedSrc, new [] { SrcIncludeAttributeName, SrcExcludeAttributeName }),
-            // Fallback with static src
-            new ModeAttributes<Mode>(Mode.Fallback,
-				new[]
-				{
-					FallbackSrcAttributeName,
-					FallbackTestExpressionAttributeName
-				}),
-            // Fallback with globbed src (include only)
-            new ModeAttributes<Mode>(
-				Mode.Fallback,
-				new[]
-				{
-					FallbackSrcIncludeAttributeName,
-					FallbackTestExpressionAttributeName
-				}),
-            // Fallback with globbed src (include & exclude)
-            new ModeAttributes<Mode>(
-				Mode.Fallback,
-				new[]
-				{
-					FallbackSrcIncludeAttributeName,
-					FallbackSrcExcludeAttributeName,
-					FallbackTestExpressionAttributeName
-				}),
-		};
+				// Regular src with file version alone
+				new ModeAttributes<Mode>(Mode.AppendVersion, new[] { AppendVersionAttributeName }),
+				// Globbed src (include only)
+				new ModeAttributes<Mode>(Mode.GlobbedSrc, new [] { SrcIncludeAttributeName }),
+				// Globbed src (include & exclude)
+				new ModeAttributes<Mode>(Mode.GlobbedSrc, new [] { SrcIncludeAttributeName, SrcExcludeAttributeName }),
+				// Fallback with static src
+				new ModeAttributes<Mode>(Mode.Fallback,
+					new[]
+					{
+						FallbackSrcAttributeName,
+						FallbackTestExpressionAttributeName
+					}),
+				// Fallback with globbed src (include only)
+				new ModeAttributes<Mode>(
+					Mode.Fallback,
+					new[]
+					{
+						FallbackSrcIncludeAttributeName,
+						FallbackTestExpressionAttributeName
+					}),
+				// Fallback with globbed src (include & exclude)
+				new ModeAttributes<Mode>(
+					Mode.Fallback,
+					new[]
+					{
+						FallbackSrcIncludeAttributeName,
+						FallbackSrcExcludeAttributeName,
+						FallbackTestExpressionAttributeName
+					}),
+			};
 
 		/// <summary>
 		/// Creates a new <see cref="ScriptTagHelper"/>.
 		/// </summary>
 		/// <param name="hostingEnvironment">The <see cref="IHostingEnvironment"/>.</param>
-		/// <param name="cache">The <see cref="IMemoryCache"/>.</param>
+		/// <param name="cacheProvider">The <see cref="TagHelperMemoryCacheProvider"/>.</param>
+		/// <param name="fileVersionProvider">The <see cref="IFileVersionProvider"/>.</param>
 		/// <param name="htmlEncoder">The <see cref="HtmlEncoder"/>.</param>
 		/// <param name="javaScriptEncoder">The <see cref="JavaScriptEncoder"/>.</param>
 		/// <param name="urlHelperFactory">The <see cref="IUrlHelperFactory"/>.</param>
-		public MyCustomScriptTagHelper(
-			IHostingEnvironment hostingEnvironment,
-			IMemoryCache cache,
+		// Decorated with ActivatorUtilitiesConstructor since we want to influence tag helper activation
+		// to use this constructor in the default case.
+		public ScriptTagHelper(
+			IWebHostEnvironment hostingEnvironment,
+			TagHelperMemoryCacheProvider cacheProvider,
+			IFileVersionProvider fileVersionProvider,
 			HtmlEncoder htmlEncoder,
 			JavaScriptEncoder javaScriptEncoder,
 			IUrlHelperFactory urlHelperFactory)
 			: base(urlHelperFactory, htmlEncoder)
 		{
 			HostingEnvironment = hostingEnvironment;
-			Cache = cache;
+			Cache = cacheProvider.Cache;
 			JavaScriptEncoder = javaScriptEncoder;
+
+			FileVersionProvider = fileVersionProvider;
 		}
 
 		/// <inheritdoc />
@@ -111,6 +123,12 @@ namespace DotnetPlayground
 		/// </remarks>
 		[HtmlAttributeName(SrcAttributeName)]
 		public string Src { get; set; }
+
+		/// <summary>
+		/// Type of the script.
+		/// </summary>
+		[HtmlAttributeName(TypeAttributeName)]
+		public string Type { get; set; }
 
 		/// <summary>
 		/// A comma separated list of globbed file patterns of JavaScript scripts to load.
@@ -132,6 +150,12 @@ namespace DotnetPlayground
 		/// </summary>
 		[HtmlAttributeName(FallbackSrcAttributeName)]
 		public string FallbackSrc { get; set; }
+
+		/// <summary>
+		/// Boolean value that determines if an integrity hash will be compared with <see cref="FallbackSrc"/> value.
+		/// </summary>
+		[HtmlAttributeName(SuppressFallbackIntegrityAttributeName)]
+		public bool SuppressFallbackIntegrity { get; set; }
 
 		/// <summary>
 		/// Value indicating if file version should be appended to src urls.
@@ -165,12 +189,36 @@ namespace DotnetPlayground
 		[HtmlAttributeName(FallbackTestExpressionAttributeName)]
 		public string FallbackTestExpression { get; set; }
 
-		protected IHostingEnvironment HostingEnvironment { get; }
+		/// <summary>
+		/// The <see cref="ImportMapDefinition"/> to use for the document.
+		/// </summary>
+		/// <remarks>
+		/// If this is not set and the type value is "importmap",
+		/// the import map will be retrieved by default from the current <see cref="Endpoint.Metadata"/>.
+		/// </remarks>
+		[HtmlAttributeName(ImportMapAttributeName)]
+		public ImportMapDefinition ImportMap { get; set; }
 
-		protected IMemoryCache Cache { get; }
+		/// <summary>
+		/// Gets the <see cref="IWebHostEnvironment"/> for the application.
+		/// </summary>
+		protected internal IWebHostEnvironment HostingEnvironment { get; }
 
+		/// <summary>
+		/// Gets the <see cref="IMemoryCache"/> used to store globbed urls.
+		/// </summary>
+		protected internal IMemoryCache Cache { get; private set; }
+
+		internal IFileVersionProvider FileVersionProvider { get; private set; }
+
+		/// <summary>
+		/// Gets the <see cref="System.Text.Encodings.Web.JavaScriptEncoder"/> used to encode fallback information.
+		/// </summary>
 		protected JavaScriptEncoder JavaScriptEncoder { get; }
 
+		/// <summary>
+		/// Gets the <see cref="GlobbingUrlBuilder"/> used to populate included and excluded urls.
+		/// </summary>
 		// Internal for ease of use when testing.
 		protected internal GlobbingUrlBuilder GlobbingUrlBuilder { get; set; }
 
@@ -180,28 +228,62 @@ namespace DotnetPlayground
 			get
 			{
 				if (_stringWriter == null)
+				{
 					_stringWriter = new StringWriter();
+				}
+
 				return _stringWriter;
 			}
 		}
 
 		/// <inheritdoc />
-		public override void Process(TagHelperContext context, TagHelperOutput output)
+		public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
 		{
-			if (context == null)
-			{
-				throw new ArgumentNullException(nameof(context));
-			}
+			ArgumentNullException.ThrowIfNull(context);
+			ArgumentNullException.ThrowIfNull(output);
 
-			if (output == null)
+			if (string.Equals(Type, "importmap", StringComparison.OrdinalIgnoreCase))
 			{
-				throw new ArgumentNullException(nameof(output));
+				// Do not update the content if another tag helper targeting this element has already done so.
+				if (output.IsContentModified)
+				{
+					return;
+				}
+
+				// This is an importmap script, check if there's existing content first.
+				var childContent = await output.GetChildContentAsync();
+				if (!childContent.IsEmptyOrWhiteSpace)
+				{
+					// User provided existing content; preserve it.
+					output.Content.SetHtmlContent(childContent);
+					return;
+				}
+
+				// No existing content, so we can apply import map logic.
+				var importMap = ImportMap ?? ViewContext.HttpContext.GetEndpoint()?.Metadata.GetMetadata<ImportMapDefinition>();
+				if (importMap == null)
+				{
+					// No importmap found, nothing to do.
+					output.SuppressOutput();
+					return;
+				}
+
+				output.Content.SetHtmlContent(importMap.ToString());
+				output.TagName = "script";
+				output.TagMode = TagMode.StartTagAndEndTag;
+				output.Attributes.SetAttribute("type", "importmap");
+				return;
 			}
 
 			// Pass through attribute that is also a well-known HTML attribute.
 			if (Src != null)
 			{
 				output.CopyHtmlAttribute(SrcAttributeName, context);
+			}
+
+			if (Type != null)
+			{
+				output.CopyHtmlAttribute(TypeAttributeName, context);
 			}
 
 			// If there's no "src" attribute in output.Attributes this will noop.
@@ -212,7 +294,7 @@ namespace DotnetPlayground
 			// not function properly.
 			Src = output.Attributes[SrcAttributeName]?.Value as string;
 
-			if (!AttributeMatcher.TryDetermineMode(context, ModeDetails, Compare, out Mode mode))
+			if (!AttributeMatcher.TryDetermineMode(context, ModeDetails, Compare, out var mode))
 			{
 				// No attributes matched so we have nothing to do
 				return;
@@ -221,14 +303,14 @@ namespace DotnetPlayground
 			if (AppendVersion == true)
 			{
 				EnsureFileVersionProvider();
-
+				var versionedSrc = GetVersionedSrc(Src);
 				if (Src != null)
 				{
 					var index = output.Attributes.IndexOfName(SrcAttributeName);
 					var existingAttribute = output.Attributes[index];
 					output.Attributes[index] = new TagHelperAttribute(
 						existingAttribute.Name,
-						_fileVersionProvider.AddFileVersionToPath(Src),
+						versionedSrc,
 						existingAttribute.ValueStyle);
 				}
 			}
@@ -290,9 +372,9 @@ namespace DotnetPlayground
 			{
 				// Build the <script> tag that checks the test method and if it fails, renders the extra script.
 				builder.AppendHtml(Environment.NewLine)
-					   .AppendHtml("<script>(")
-					   .AppendHtml(FallbackTestExpression)
-					   .AppendHtml("||document.write(\"");
+					.AppendHtml("<script>(")
+					.AppendHtml(FallbackTestExpression)
+					.AppendHtml("||document.write(\"");
 
 				foreach (var src in fallbackSrcs)
 				{
@@ -303,19 +385,25 @@ namespace DotnetPlayground
 
 					var addSrc = true;
 
-					// Perf: Avoid allocating enumerator
-					for (var i = 0; i < attributes.Count; i++)
+					// Perf: Avoid allocating enumerator and read interface .Count once rather than per iteration
+					var attributesCount = attributes.Count;
+					for (var i = 0; i < attributesCount; i++)
 					{
 						var attribute = attributes[i];
-						if (attribute.Name.Equals(SrcAttributeName, StringComparison.OrdinalIgnoreCase))
+						if (!attribute.Name.Equals(SrcAttributeName, StringComparison.OrdinalIgnoreCase))
 						{
-							if (addSrc)
+							if (SuppressFallbackIntegrity && string.Equals(IntegrityAttributeName, attribute.Name, StringComparison.OrdinalIgnoreCase))
 							{
-								addSrc = false;
-								WriteVersionedSrc(attribute.Name, src, attribute.ValueStyle, StringWriter);
+								continue;
 							}
-							else
-								attributes.Remove(attribute);
+
+							StringWriter.Write(' ');
+							attribute.WriteTo(StringWriter, HtmlEncoder);
+						}
+						else
+						{
+							addSrc = false;
+							WriteVersionedSrc(attribute.Name, src, attribute.ValueStyle, StringWriter);
 						}
 					}
 
@@ -340,7 +428,19 @@ namespace DotnetPlayground
 		private string GetVersionedSrc(string srcValue)
 		{
 			if (AppendVersion == true)
-				srcValue = _fileVersionProvider.AddFileVersionToPath(srcValue);
+			{
+				var pathBase = ViewContext.HttpContext.Request.PathBase;
+				if (ResourceCollectionUtilities.TryResolveFromAssetCollection(ViewContext, srcValue, out var resolvedUrl))
+				{
+					srcValue = resolvedUrl;
+					return srcValue;
+				}
+
+				if (srcValue != null)
+				{
+					srcValue = FileVersionProvider.AddFileVersionToPath(pathBase, srcValue);
+				}
+			}
 
 			return srcValue;
 		}
@@ -384,12 +484,9 @@ namespace DotnetPlayground
 
 		private void EnsureFileVersionProvider()
 		{
-			if (_fileVersionProvider == null)
+			if (FileVersionProvider == null)
 			{
-				_fileVersionProvider = new FileVersionProvider(
-					HostingEnvironment.WebRootFileProvider,
-					Cache,
-					ViewContext.HttpContext.Request.PathBase);
+				FileVersionProvider = ViewContext.HttpContext.RequestServices.GetRequiredService<IFileVersionProvider>();
 			}
 		}
 
@@ -402,8 +499,9 @@ namespace DotnetPlayground
 
 			var addSrc = true;
 
-			// Perf: Avoid allocating enumerator
-			for (var i = 0; i < attributes.Count; i++)
+			// Perf: Avoid allocating enumerator and read interface .Count once rather than per iteration
+			var attributesCount = attributes.Count;
+			for (var i = 0; i < attributesCount; i++)
 			{
 				var attribute = attributes[i];
 				if (!attribute.Name.Equals(SrcAttributeName, StringComparison.OrdinalIgnoreCase))
