@@ -121,16 +121,7 @@ Theme switcher:
 }
 
 /***************VirtualScroll start***************/
-.fixed-table-loading {
-  background-color: rgba(128, 128, 128, 0.5) !important;
-}
-
-.bootstrap-table button.btn .fa-sync:after {
-  content: "↻";
-  display: block;
-  font-style: normal;
-}
-.bootstrap-table table tr.highlight {
+#virtualGridWrap table tr.highlight {
   border-top: groove;
   border-bottom: groove;
 }

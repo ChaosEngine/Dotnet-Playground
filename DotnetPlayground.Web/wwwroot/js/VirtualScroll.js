@@ -3,407 +3,521 @@
 
 // Hook to i18n localization function ready
 window.addEventListener('load', function () {
-
 	function RunPage(localizeSelectorFunc) {
-		////////////methods start/////////////
-		let _startTime = null, _refreshClicked = "cached";
+		let _startTime = null;
+		let _refreshClicked = "cached";
+		let _isLoading = false;
+		let _pendingScrollArmed = false;
+		let _selectedKey = "";
 
-		/**
-		 * https://stackoverflow.com/a/2641047/4429828
-		 * @param {string} name of event
-		 * @param {() => void} fn is a handler function
-		 */
-		$.fn.bindFirst = function (name, fn) {
-			// Bind as you normally would. Don't want to miss out on any jQuery magic
-			this.on(name, fn);
-
-			// Thanks to a comment by @@Martin, adding support for namespaced events too.
-			this.each(function () {
-				let handlers = $._data(this, 'events')[name.split('.')[0]];
-				// take out the handler we just inserted from the end
-				let handler = handlers.pop();
-				// move it at the beginning
-				handlers.splice(0, 0, handler);
-			});
+		const state = {
+			pageSize: 50,
+			pageNumber: 1,
+			sortName: "",
+			sortOrder: "",
+			searchText: "",
+			totalRows: 0,
+			currentRows: []
 		};
 
-		function getIdFromRowElement(rowEl) {
-			const result = $(rowEl).find("td:first").text();
-			return result;
+		const allowedSortNames = ["key", "hashMD5", "hashSHA256"];
+		const allowedSortOrders = ["asc", "desc"];
+
+		const $wrap = $('#virtualGridWrap');
+		const $body = $('#vsBody');
+		const $status = $('#spStatus');
+		const $pageInfo = $('#spPageInfo');
+		const $pageNumber = $('#spPageNumber');
+		const $search = $('#vsSearch');
+		const $pageSize = $('#vsPageSize');
+		const $overlay = $('#vsLoadingOverlay');
+		const $btnPrevPage = $('#btnPrevPage');
+		const $btnNextPage = $('#btnNextPage');
+		const $liPrevPage = $('#liPrevPage');
+		const $liNextPage = $('#liNextPage');
+		const $paginationList = $('#vsPaginationList');
+
+		function getOffset() {
+			return (state.pageNumber - 1) * state.pageSize;
 		}
 
-		function LoadParamsFromStore(jqTable, store) {
-			const virtOpts = JSON.parse(store.getItem("VirtOpts"));
-			if (virtOpts?.PageSize !== undefined) {
-				let num = parseInt(virtOpts.PageSize);
-				num = (isNaN(num) || num <= 0) ? 50 : num;
-				jqTable.data("page-size", num);
+		function getTotalPages() {
+			if (state.totalRows <= 0 || state.pageSize <= 0) {
+				return 1;
 			}
-			if (virtOpts?.SortOrder !== undefined && ["asc", "desc"].includes(virtOpts.SortOrder)) {
-				jqTable.data("sort-order", virtOpts.SortOrder);
-			}
-			if (virtOpts?.SortName !== undefined && ["key", "hashMD5", "hashSHA256"].includes(virtOpts.SortName)) {
-				jqTable.data("sort-name", virtOpts.SortName);
-			}
-			if (virtOpts?.PageNumber !== undefined) {
-				let num = parseInt(virtOpts.PageNumber);
-				num = (isNaN(num) || num <= 0) ? 1 : num;
-				jqTable.data("page-number", num);
-			}
-			if (virtOpts?.SearchText !== undefined && typeof virtOpts.SearchText === "string" && virtOpts.SearchText.length > 0) {
-				jqTable.data("search-text", virtOpts.SearchText);
-			}
+			return Math.max(1, Math.ceil(state.totalRows / state.pageSize));
 		}
 
-		function SaveParamsToStore(params, store) {
-			const virtOpts = JSON.parse(store.getItem("VirtOpts")) || {};
-			if (params.limit === undefined && virtOpts?.PageSize !== undefined) {
-				params.limit = virtOpts.PageSize;
-			} else if (params.limit !== virtOpts?.PageSize && params.limit !== "50") {
-				virtOpts.PageSize = params.limit;
-				virtOpts.set = true;
-			}
-			if (params.order !== virtOpts?.SortOrder) {
-				if (params.order === undefined)
-					delete virtOpts.SortOrder;
-				else
-					virtOpts.SortOrder = params.order;
-				virtOpts.set = true;
-			}
-			if (params.sort !== virtOpts?.SortName) {
-				if (params.sort === undefined)
-					delete virtOpts.SortName;
-				else
-					virtOpts.SortName = params.sort;
-				virtOpts.set = true;
-			}
-			if (params.offset === undefined && virtOpts?.PageNumber !== undefined) {
-				params.offset = virtOpts.PageNumber;
-			} else if ((params.offset / parseInt(params.limit) + 1) !== parseInt(virtOpts?.PageNumber)) {
-				virtOpts.PageNumber = (params.offset / parseInt(params.limit) + 1);
-				virtOpts.set = true;
-			}
-			if (params.search !== virtOpts?.SearchText) {
-				if (params.search === undefined || params.search.length <= 0)
-					delete virtOpts.SearchText;
-				else
-					virtOpts.SearchText = params.search;
-				virtOpts.set = true;
+		function loadStateFromStore() {
+			const virtOpts = JSON.parse(window.localStorage.getItem("VirtOpts") || "{}");
+
+			if (virtOpts.PageSize !== undefined) {
+				const parsedPageSize = parseInt(virtOpts.PageSize, 10);
+				if (!Number.isNaN(parsedPageSize) && parsedPageSize > 0) {
+					state.pageSize = parsedPageSize;
+				}
 			}
 
+			if (virtOpts.PageNumber !== undefined) {
+				const parsedPageNumber = parseInt(virtOpts.PageNumber, 10);
+				if (!Number.isNaN(parsedPageNumber) && parsedPageNumber > 0) {
+					state.pageNumber = parsedPageNumber;
+				}
+			}
 
-			if (virtOpts.set === true) {
-				delete virtOpts.set;
-				store.setItem("VirtOpts", JSON.stringify(virtOpts));
+			if (typeof virtOpts.SearchText === "string") {
+				state.searchText = virtOpts.SearchText;
+			}
+
+			if (typeof virtOpts.SortName === "string" && allowedSortNames.includes(virtOpts.SortName)) {
+				state.sortName = virtOpts.SortName;
+			}
+
+			if (typeof virtOpts.SortOrder === "string" && allowedSortOrders.includes(virtOpts.SortOrder)) {
+				state.sortOrder = virtOpts.SortOrder;
 			}
 		}
 
-		/**
-		 * queryParams: When requesting remote data, you can send additional parameters by modifying queryParams.
-		 * If queryParamsType = 'limit', the params object contains: limit, offset, search, sort, order.
-		 * Else, it contains: pageSize, pageNumber, searchText, sortName, sortOrder.
-		 * Return false to stop request. 
-		 * @param {object} params are the query params to modify or add
-		 * @returns {object} query params params
-		 */
-		function processQueryParams(params) {
-			_startTime = new Date().getTime();
-			params.ExtraParam = _refreshClicked;
-			_refreshClicked = "cached";
+		function saveStateToStore() {
+			const virtOpts = {};
 
-			$('#spStatus').attr("data-i18n", "virtScrol.loading");
-			if (localizeSelectorFunc)
+			if (state.pageSize !== 50) {
+				virtOpts.PageSize = String(state.pageSize);
+			}
+			if (state.pageNumber > 1) {
+				virtOpts.PageNumber = String(state.pageNumber);
+			}
+			if (state.searchText.length > 0) {
+				virtOpts.SearchText = state.searchText;
+			}
+			if (state.sortName.length > 0) {
+				virtOpts.SortName = state.sortName;
+			}
+			if (state.sortOrder.length > 0) {
+				virtOpts.SortOrder = state.sortOrder;
+			}
+
+			window.localStorage.setItem("VirtOpts", JSON.stringify(virtOpts));
+		}
+
+		function updateSortIndicators() {
+			$('.vs-sort-indicator').text('');
+			if (state.sortName.length > 0 && state.sortOrder.length > 0) {
+				const marker = state.sortOrder === 'asc' ? ' ▲' : ' ▼';
+				$(`.vs-sort-indicator[data-col='${state.sortName}']`).text(marker);
+			}
+		}
+
+		function renderPaginationNumbers(totalPages, currentPage) {
+			$paginationList.find('.vs-page-number-item').remove();
+
+			const maxVisiblePages = 10;
+			let pageStart = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+			let pageEnd = Math.min(totalPages, pageStart + maxVisiblePages - 1);
+
+			if ((pageEnd - pageStart + 1) < maxVisiblePages) {
+				pageStart = Math.max(1, pageEnd - maxVisiblePages + 1);
+			}
+
+			for (let pageIndex = pageStart; pageIndex <= pageEnd; pageIndex += 1) {
+				const $li = $('<li></li>').addClass('page-item vs-page-number-item');
+				const $button = $('<button></button>')
+					.attr({
+						type: 'button',
+						'data-page': String(pageIndex)
+					})
+					.addClass('page-link vs-page-index')
+					.text(String(pageIndex));
+
+				if (pageIndex === currentPage) {
+					$li.addClass('active');
+					$button.attr('aria-current', 'page');
+				}
+
+				$li.append($button).insertBefore($liNextPage);
+			}
+		}
+
+		function updatePaginationInfo() {
+			const totalPages = getTotalPages();
+			const currentPage = Math.min(Math.max(state.pageNumber, 1), totalPages);
+			$pageNumber.text(i18next.t('virtScrol.bootstrapTable.formatSRPaginationPageText', { currentPage, totalPages }));
+			renderPaginationNumbers(totalPages, currentPage);
+
+			const hasMultiplePages = totalPages > 1;
+			const prevDisabled = _isLoading || !hasMultiplePages/* || currentPage <= 1 */;
+			const nextDisabled = _isLoading || !hasMultiplePages/* || currentPage >= totalPages */;
+			$btnPrevPage.prop('disabled', prevDisabled);
+			$btnNextPage.prop('disabled', nextDisabled);
+			$liPrevPage.toggleClass('disabled', prevDisabled);
+			$liNextPage.toggleClass('disabled', nextDisabled);
+
+			if (state.totalRows <= 0) {
+				$pageInfo.text(i18next.t('virtScrol.bootstrapTable.formatNoMatches'));
+				return;
+			}
+
+			const pageFrom = getOffset() + 1;
+			const pageTo = Math.min(getOffset() + state.currentRows.length, state.totalRows);
+			$pageInfo.text(i18next.t('virtScrol.bootstrapTable.formatShowingRows1', {
+				pageFrom,
+				pageTo,
+				totalRows: state.totalRows
+			}));
+		}
+
+		function showLoadingOverlay() {
+			$overlay.removeClass('d-none').addClass('d-flex');
+			$overlay.attr('aria-busy', 'true');
+			if (localizeSelectorFunc) {
+				localizeSelectorFunc('#vsLoadingMessage');
+			}
+		}
+
+		function hideLoadingOverlay() {
+			$overlay.removeClass('d-flex').addClass('d-none');
+			$overlay.removeAttr('aria-busy');
+		}
+
+		function setLoadingStatus() {
+			$status.attr('data-i18n', 'virtScrol.loading');
+			$status.removeAttr('data-i18n-options');
+			if (localizeSelectorFunc) {
 				localizeSelectorFunc('#spStatus');
-
-			SaveParamsToStore(params, window.localStorage);
-			if (params.sort)
-				params.sort = params.sort[0].toUpperCase() + params.sort.substring(1);
-
-			return params;
-		}
-
-		function validateFormatter(value, row, index, field) {
-			return (field !== "Validate") ? '' :
-				'<button class="btn btn-success btn-sm js-client-validate" title="Validate" value="Validate" data-i18n="[title]virtScrol.validate;virtScrol.validate">Validate</button>';
-		}
-
-		function setBootstrapLocaleFromI18Next(lng) {
-
-			const prefix = `virtScrol.bootstrapTable.`, i18nTFunc = i18next.t;
-
-			$.fn.bootstrapTable.locales[`${lng}-${lng.toUpperCase()}`] = $.fn.bootstrapTable.locales[lng] = {
-				formatAddLevel () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatAdvancedCloseButton () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatAdvancedSearch () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatAllRows () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatAutoRefresh () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatCancel () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatClearSearch () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatColumn () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatColumns () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatColumnsToggleAll () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatCopyRows () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatDeleteLevel () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatDetailPagination (totalRows) {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`, { totalRows });
-				},
-				formatDuplicateAlertDescription () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatDuplicateAlertTitle () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatExport () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatFilterControlSwitch () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatFilterControlSwitchHide () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatFilterControlSwitchShow () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatFullscreen () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatJumpTo () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatLoadingMessage () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatMultipleSort () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatNoMatches () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatOrder () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatPaginationSwitch () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatPaginationSwitchDown () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatPaginationSwitchUp () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatPrint () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatRecordsPerPage (previousHtml) {
-					return previousHtml + i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatRefresh () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatSRPaginationNextText () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatSRPaginationPageText (page) {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`, { page });
-				},
-				formatSRPaginationPreText () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatSearch () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatShowingRows (pageFrom, pageTo, totalRows, totalNotFiltered) {
-					if (totalNotFiltered !== undefined && totalNotFiltered > 0 && totalNotFiltered > totalRows) {
-						return i18nTFunc(`${prefix}formatShowingRows0`, { pageFrom, pageTo, totalRows, totalNotFiltered });
-					}
-					return i18nTFunc(`${prefix}formatShowingRows1`, { pageFrom, pageTo, totalRows });
-				},
-				formatSort () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatSortBy () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatSortOrders () {
-					return {
-						asc: i18nTFunc(`${prefix}${arguments.callee.name}.asc`),
-						desc: i18nTFunc(`${prefix}${arguments.callee.name}.desc`)
-					};
-				},
-				formatThenBy () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatToggleCustomViewOff () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatToggleCustomViewOn () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatToggleOff () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				},
-				formatToggleOn () {
-					return i18nTFunc(`${prefix}${arguments.callee.name}`);
-				}
-			};
-
-			$.extend($.fn.bootstrapTable.defaults, $.fn.bootstrapTable.locales[lng]);
-		}
-		////////////methods end/////////////
-
-
-
-		////////////execution/////////////
-		const jqTable = $('#table');
-		//connecting events
-		jqTable.data("query-params", processQueryParams);
-		$("#table thead tr th:last").data("formatter", validateFormatter);
-
-		LoadParamsFromStore(jqTable, window.localStorage);
-
-		$.fn.bootstrapTable.methods.push('changeLocale');
-		$.BootstrapTable = class extends $.BootstrapTable {
-
-			changeLocale(localeId) {
-				this.options.locale = localeId;
-				this.initLocale();
-				this.initPagination();
-				this.initBody();
-				this.initToolbar();
-				this.initSearchText();
-
-				//click-bind button event, but first in line and indicate some variable
-				$("button[name='refresh']").bindFirst('click', function () {
-					_refreshClicked = "refresh";
-				});
-
-				setBootstrapLocaleFromI18Next(localeId);
 			}
-		};
+		}
 
-		setBootstrapLocaleFromI18Next(i18next.language);
+		function setErrorStatus() {
+			$status.attr('data-i18n', 'virtScrol.error');
+			$status.removeAttr('data-i18n-options');
+			if (localizeSelectorFunc) {
+				localizeSelectorFunc('#spStatus');
+			}
+		}
 
-		const table = jqTable.bootstrapTable();
-		//hook to i18n language change event
-		i18next.on("languageChanged", (lng) => {
-			table.bootstrapTable('changeLocale', lng);
-		});
-
-		let lastScroll = false;
-
-		$('#btninfo').on('click', function () {
-			const tr = table.find('tr.highlight');
-			const id = getIdFromRowElement(tr);
-
-			const msg = (id === undefined || id === "") ?
-				i18next.t('virtScrol.modalContNoSelection') :
-				i18next.t('virtScrol.modalContKeySelected', { id });
-
-			myAlert(msg, i18next.t('virtScrol.modalTit'));
-		});
-
-		//click-bind button event, but first in line and indicate some variable
-		$("button[name='refresh']").bindFirst('click', function () {
-			_refreshClicked = "refresh";
-		});
-
-		$(document)
-			.on('click', '.js-client-validate-all', clientValidateAll)
-			.on('click', '.js-client-validate', function () {
-				clientValidate(this);
+		function setLoadedStatus() {
+			$status.attr({
+				'data-i18n': 'virtScrol.tookMs',
+				'data-i18n-options': JSON.stringify({ time: (new Date().getTime() - _startTime) })
 			});
+			if (localizeSelectorFunc) {
+				localizeSelectorFunc('#spStatus');
+			}
+		}
 
-		table.on('refresh.bs.table', function (params) {
-			params.ExtraParam = "refresh";
-		})
-			// register row-click event
-			.on('click-row.bs.table', function (element, row, tr) {
-				tr.addClass('highlight').siblings().removeClass('highlight');
-			})
-			// load success
-			.on('load-success.bs.table', function () {
-				$('#spStatus').attr({
-					"data-i18n": "virtScrol.tookMs",
-					"data-i18n-options": JSON.stringify({ time: (new Date().getTime() - _startTime) })
-				});
-				if (localizeSelectorFunc) {
-					localizeSelectorFunc('#spStatus');
-					localizeSelectorFunc('#table');
+		function normalizeCellValue(value) {
+			if (value === null || value === undefined) {
+				return '';
+			}
+			return String(value);
+		}
+
+		function renderRows(rows) {
+			$body.empty();
+			rows.forEach(function (row) {
+				const $tr = $('<tr></tr>').attr('data-key', normalizeCellValue(row.key));
+
+				if (_selectedKey.length > 0 && _selectedKey === normalizeCellValue(row.key)) {
+					$tr.addClass('highlight');
 				}
 
-				lastScroll = false;
-				setTimeout(function () {
-					//console.log('event bind');
-					const epsilon = 2;
-					$('.fixed-table-body').scrollTop(epsilon).on('scroll', function () {
-						//console.log('scroll = ' + $('.fixed-table-body').scrollTop());
+				$('<td></td>').addClass('text-center').text(normalizeCellValue(row.key)).appendTo($tr);
+				$('<td></td>').text(normalizeCellValue(row.hashMD5)).appendTo($tr);
+				$('<td></td>').text(normalizeCellValue(row.hashSHA256)).appendTo($tr);
 
-						if (lastScroll &&
-							($(this).scrollTop() + $(this).innerHeight() + epsilon) >= $(this)[0].scrollHeight) {
-							console.log('end reached -> nextPage');
-							lastScroll = true;
+				const $validateButton = $('<button></button>')
+					.attr({
+						type: 'button',
+						title: 'Validate',
+						value: 'Validate',
+						'data-i18n': '[title]virtScrol.validate;virtScrol.validate'
+					})
+					.addClass('btn btn-success btn-sm js-client-validate')
+					.text('Validate');
 
-							const options = table.bootstrapTable('getOptions');
-							if (options.pageNumber >= options.totalPages)
-								table.bootstrapTable('selectPage', 1);
-							else
-								table.bootstrapTable('nextPage');
-							$(this).off('scroll');
-						}
-						else if (lastScroll && $(this).scrollTop() <= 0) {
-							console.log('top reached <- prevPage');
-							lastScroll = true;
-
-							const options = table.bootstrapTable('getOptions');
-							if (options.pageNumber <= 1)
-								table.bootstrapTable('selectPage', options.totalPages);
-							else
-								table.bootstrapTable('prevPage');
-							$(this).off('scroll');
-						}
-						else {
-							lastScroll = true;
-						}
-					});
-				}, 0);
-			})
-			// load error
-			.on('load-error.bs.table', function () {
-				$('#spStatus').attr("data-i18n", "virtScrol.error");
-
-				if (localizeSelectorFunc)
-					localizeSelectorFunc('#spStatus');
+				$('<td></td>').addClass('text-center').append($validateButton).appendTo($tr);
+				$tr.appendTo($body);
 			});
+
+			if (localizeSelectorFunc) {
+				localizeSelectorFunc('#table');
+			}
+		}
+
+		function buildRequestUrl() {
+			const params = new URLSearchParams();
+			const offset = getOffset();
+
+			params.set('Limit', String(state.pageSize));
+			params.set('Offset', String(offset));
+			params.set('ExtraParam', _refreshClicked);
+
+			if (state.searchText.length > 0) {
+				params.set('Search', state.searchText);
+			}
+			if (state.sortName.length > 0 && state.sortOrder.length > 0) {
+				const serverSort = state.sortName[0].toUpperCase() + state.sortName.substring(1);
+				params.set('Sort', serverSort);
+				params.set('Order', state.sortOrder);
+			}
+
+			return `Load?${params.toString()}`;
+		}
+
+		async function loadPage() {
+			if (_isLoading) {
+				return;
+			}
+
+			_isLoading = true;
+			_startTime = new Date().getTime();
+			showLoadingOverlay();
+			setLoadingStatus();
+			updatePaginationInfo();
+
+			const requestUrl = buildRequestUrl();
+			const usedExtraParam = _refreshClicked;
+			_refreshClicked = 'cached';
+
+			try {
+				const response = await fetch(requestUrl, {
+					method: 'GET',
+					headers: {
+						'Accept': 'application/json'
+					}
+				});
+
+				if (!response.ok) {
+					throw new Error(`Request failed: ${response.status}`);
+				}
+
+				const data = await response.json();
+				const rows = Array.isArray(data.rows) ? data.rows : [];
+
+				state.totalRows = Number.isFinite(data.total) ? data.total : 0;
+				state.currentRows = rows;
+
+				const totalPages = getTotalPages();
+				if (state.pageNumber > totalPages) {
+					state.pageNumber = totalPages;
+					saveStateToStore();
+					_isLoading = false;
+					await loadPage();
+					return;
+				}
+
+				renderRows(rows);
+				updateSortIndicators();
+				updatePaginationInfo();
+				setLoadedStatus();
+				saveStateToStore();
+
+				if (usedExtraParam === 'refresh') {
+					$wrap.scrollTop(0);
+				}
+			}
+			catch (err) {
+				console.error(err);
+				setErrorStatus();
+			}
+			finally {
+				_isLoading = false;
+				hideLoadingOverlay();
+				updatePaginationInfo();
+			}
+		}
+
+		function toggleSort(fieldName) {
+			if (state.sortName !== fieldName) {
+				state.sortName = fieldName;
+				state.sortOrder = 'asc';
+			}
+			else if (state.sortOrder === 'asc') {
+				state.sortOrder = 'desc';
+			}
+			else if (state.sortOrder === 'desc') {
+				state.sortName = '';
+				state.sortOrder = '';
+			}
+			else {
+				state.sortOrder = 'asc';
+			}
+
+			state.pageNumber = 1;
+			_refreshClicked = 'refresh';
+			loadPage();
+		}
+
+		function moveToNextPage() {
+			const totalPages = getTotalPages();
+			if (state.pageNumber < totalPages) {
+				state.pageNumber += 1;
+				loadPage();
+			}
+			else {
+				state.pageNumber = 1;
+				loadPage();
+			}
+		}
+
+		function moveToPreviousPage() {
+			if (state.pageNumber > 1) {
+				state.pageNumber -= 1;
+				loadPage();
+			}
+			else {
+				state.pageNumber = getTotalPages();
+				loadPage();
+			}
+		}
+
+		function bindEvents() {
+			let searchTimer = null;
+
+			$('#btnRefresh').on('click', function () {
+				_refreshClicked = 'refresh';
+				loadPage();
+			});
+
+			$search.on('input', function () {
+				const value = $(this).val();
+				state.searchText = typeof value === 'string' ? value.trim() : '';
+				state.pageNumber = 1;
+				_refreshClicked = 'refresh';
+
+				if (searchTimer !== null) {
+					clearTimeout(searchTimer);
+				}
+
+				searchTimer = setTimeout(function () {
+					loadPage();
+				}, 250);
+			});
+
+			$pageSize.on('change', function () {
+				const value = parseInt($(this).val(), 10);
+				if (!Number.isNaN(value) && value > 0) {
+					state.pageSize = value;
+					state.pageNumber = 1;
+					_refreshClicked = 'refresh';
+					loadPage();
+				}
+			});
+
+			$btnPrevPage.on('click', function () {
+				if (_isLoading) {
+					return;
+				}
+				moveToPreviousPage();
+			});
+
+			$btnNextPage.on('click', function () {
+				if (_isLoading) {
+					return;
+				}
+				moveToNextPage();
+			});
+
+			$paginationList.on('click', '.vs-page-index', function () {
+				if (_isLoading) {
+					return;
+				}
+
+				const selectedPage = parseInt($(this).attr('data-page'), 10);
+				if (!Number.isNaN(selectedPage) && selectedPage > 0 && selectedPage !== state.pageNumber) {
+					state.pageNumber = selectedPage;
+					loadPage();
+				}
+			});
+
+			$('#table thead').on('click', '.vs-sort', function () {
+				const sortField = $(this).attr('data-sort');
+				if (sortField && allowedSortNames.includes(sortField)) {
+					toggleSort(sortField);
+				}
+			});
+
+			$('#btninfo').on('click', function () {
+				const msg = _selectedKey.length === 0
+					? i18next.t('virtScrol.modalContNoSelection')
+					: i18next.t('virtScrol.modalContKeySelected', { id: _selectedKey });
+
+				myAlert(msg, i18next.t('virtScrol.modalTit'));
+			});
+
+			$body.on('click', 'tr', function (event) {
+				if ($(event.target).closest('button').length > 0) {
+					return;
+				}
+
+				$body.find('tr.highlight').removeClass('highlight');
+				$(this).addClass('highlight');
+
+				_selectedKey = normalizeCellValue($(this).find('td:first').text());
+			});
+
+			$(document)
+				.on('click', '.js-client-validate-all', clientValidateAll)
+				.on('click', '.js-client-validate', function () {
+					clientValidate(this);
+				});
+
+			$wrap.on('scroll', function () {
+				if (_isLoading) {
+					return;
+				}
+
+				const epsilon = 2;
+				const scrollTop = $wrap.scrollTop();
+				const viewportBottom = scrollTop + $wrap.innerHeight();
+				const contentHeight = $wrap[0].scrollHeight;
+
+				if (_pendingScrollArmed && viewportBottom + epsilon >= contentHeight) {
+					_pendingScrollArmed = false;
+					moveToNextPage();
+				}
+				else if (_pendingScrollArmed && scrollTop <= 0) {
+					_pendingScrollArmed = false;
+					moveToPreviousPage();
+				}
+				else {
+					_pendingScrollArmed = true;
+				}
+			});
+
+			i18next.on('languageChanged', function () {
+				if (localizeSelectorFunc) {
+					localizeSelectorFunc('#toolbar');
+					localizeSelectorFunc('#table');
+					localizeSelectorFunc('#spStatus');
+					localizeSelectorFunc('#vsFooter');
+					localizeSelectorFunc('#vsLoadingMessage');
+				}
+				updatePaginationInfo();
+			});
+		}
+
+		function initControls() {
+			$search.val(state.searchText);
+			$pageSize.val(String(state.pageSize));
+
+			if (localizeSelectorFunc) {
+				localizeSelectorFunc('#toolbar');
+				localizeSelectorFunc('#table');
+				localizeSelectorFunc('#vsFooter');
+				localizeSelectorFunc('#vsLoadingMessage');
+			}
+			updatePaginationInfo();
+		}
+
+		loadStateFromStore();
+		initControls();
+		bindEvents();
+		loadPage();
 	}
 
-	////////////execution/////////////
 	if (!window.localize && window.registerLocalizationOnReady && Array.isArray(window.registerLocalizationOnReady)) {
-		window.registerLocalizationOnReady.push(localize => {
+		window.registerLocalizationOnReady.push(function (localize) {
 			RunPage(localize);
 		});
 	}
