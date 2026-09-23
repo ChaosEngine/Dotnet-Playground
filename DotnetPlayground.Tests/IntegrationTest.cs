@@ -340,7 +340,7 @@ namespace Integration
 				var responseString = await response.Content.ReadAsStringAsync();
 				Assert.Contains(
 					"""
-						<button id="btninfo" class="btn btn-secondary" type="button">&#9432;&nbsp;<span data-i18n="virtScrol.rowInfo">Row info</span></button>
+						<button id="btninfo" class="btn btn-secondary me-2" type="button">&#9432; <span data-i18n="virtScrol.rowInfo">Row info</span></button>
 					""",
 					responseString);
 				Assert.Contains("id=\"vsPageSize\"", responseString);

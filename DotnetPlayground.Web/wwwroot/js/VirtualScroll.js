@@ -214,30 +214,44 @@ window.addEventListener('load', function () {
 
 		function renderRows(rows) {
 			$body.empty();
-			rows.forEach(function (row) {
-				const $tr = $('<tr></tr>').attr('data-key', normalizeCellValue(row.key));
+			if (rows.length > 0) {
+				rows.forEach(function (row) {
+					const $tr = $('<tr></tr>').attr('data-key', normalizeCellValue(row.key));
 
-				if (_selectedKey.length > 0 && _selectedKey === normalizeCellValue(row.key)) {
-					$tr.addClass('highlight');
-				}
+					if (_selectedKey.length > 0 && _selectedKey === normalizeCellValue(row.key)) {
+						$tr.addClass('highlight');
+					}
 
-				$('<td></td>').addClass('text-center').text(normalizeCellValue(row.key)).appendTo($tr);
-				$('<td></td>').text(normalizeCellValue(row.hashMD5)).appendTo($tr);
-				$('<td></td>').text(normalizeCellValue(row.hashSHA256)).appendTo($tr);
+					$('<td></td>').addClass('text-center').text(normalizeCellValue(row.key)).appendTo($tr);
+					$('<td></td>').text(normalizeCellValue(row.hashMD5)).appendTo($tr);
+					$('<td></td>').text(normalizeCellValue(row.hashSHA256)).appendTo($tr);
 
-				const $validateButton = $('<button></button>')
-					.attr({
-						type: 'button',
-						title: 'Validate',
-						value: 'Validate',
-						'data-i18n': '[title]virtScrol.validate;virtScrol.validate'
-					})
-					.addClass('btn btn-success btn-sm js-client-validate')
-					.text('Validate');
+					const $validateButton = $('<button></button>')
+						.attr({
+							type: 'button',
+							title: 'Validate',
+							value: 'Validate',
+							'data-i18n': '[title]virtScrol.validate;virtScrol.validate'
+						})
+						.addClass('btn btn-success btn-sm js-client-validate')
+						.text('Validate');
 
-				$('<td></td>').addClass('text-center').append($validateButton).appendTo($tr);
+					$('<td></td>').addClass('text-center').append($validateButton).appendTo($tr);
+					$tr.appendTo($body);
+				});
+			}
+			else {
+				const $tr = $('<tr></tr>');
+				$('<td></td>').attr({
+					'colspan': '4',
+					'data-i18n': 'virtScrol.bootstrapTable.formatNoMatches'
+				})
+				.addClass('text-center')
+				.text(i18next.t('virtScrol.bootstrapTable.formatNoMatches'))
+				.appendTo($tr);
+				
 				$tr.appendTo($body);
-			});
+			}
 
 			if (localizeSelectorFunc) {
 				localizeSelectorFunc('#table');
@@ -395,7 +409,7 @@ window.addEventListener('load', function () {
 			});
 
 			$pageSize.on('change', function () {
-				const value = parseInt($(this).val(), 10);
+				const value = parseInt($(this).val());
 				if (!Number.isNaN(value) && value > 0) {
 					state.pageSize = value;
 					state.pageNumber = 1;
@@ -423,7 +437,7 @@ window.addEventListener('load', function () {
 					return;
 				}
 
-				const selectedPage = parseInt($(this).attr('data-page'), 10);
+				const selectedPage = parseInt($(this).attr('data-page'));
 				if (!Number.isNaN(selectedPage) && selectedPage > 0 && selectedPage !== state.pageNumber) {
 					state.pageNumber = selectedPage;
 					loadPage();
