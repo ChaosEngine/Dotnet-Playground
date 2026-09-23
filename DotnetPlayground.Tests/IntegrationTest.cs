@@ -343,7 +343,8 @@ namespace Integration
 						<button id="btninfo" class="btn btn-secondary" type="button">&#9432;&nbsp;<span data-i18n="virtScrol.rowInfo">Row info</span></button>
 					""",
 					responseString);
-				Assert.Contains("data-page-list=\"[50,500,2000,10000]\"", responseString);
+				Assert.Contains("id=\"vsPageSize\"", responseString);
+				Assert.Contains("id=\"virtualGridWrap\"", responseString);
 			}
 		}
 
@@ -1295,8 +1296,6 @@ namespace Integration
 		[InlineData("lib/bootstrap/css/bootstrap.min.css.map")]
 		[InlineData("lib/bootstrap/js/bootstrap.bundle.min.js")]
 		[InlineData("lib/bootstrap/js/bootstrap.bundle.min.js.map")]
-		[InlineData("lib/bootstrap-table/bootstrap-table.min.css")]
-		[InlineData("lib/bootstrap-table/bootstrap-table.min.js")]
 		[InlineData("lib/chance/chance.min.js")]
 		[InlineData("lib/chance/chance.min.js.map")]
 		[InlineData("lib/jquery/jquery.min.js")]

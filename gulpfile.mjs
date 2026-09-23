@@ -704,9 +704,6 @@ async function postinstall() {
 		}
 	});
 
-	file_copy(`${nm}/bootstrap-table/dist/bootstrap-table.min.css`, `${dst}bootstrap-table/bootstrap-table.min.css`);
-	file_copy(`${nm}/bootstrap-table/dist/bootstrap-table.min.js`, `${dst}bootstrap-table/bootstrap-table.min.js`);
-
 	dir_copy(`${nm}/blueimp-md5/js`, `${dst}blueimp-md5`, async (src) => {
 		if ((await fs.lstat(src)).isDirectory() || src.includes(`md5.min.js`)) {
 			return true;

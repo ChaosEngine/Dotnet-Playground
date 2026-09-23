@@ -123,11 +123,11 @@ npm run sri:check
 npm run sri:update
 
 # Optional targeted update modes (Node)
-node tools/sri/sri-check.mjs --update --only bootstrap-table
+node tools/sri/sri-check.mjs --update --only html2canvas
 node tools/sri/sri-check.mjs --update --changed
 
 # Optional targeted update modes (Bun)
-bun tools/sri/sri-check.mjs --update --only bootstrap-table
+bun tools/sri/sri-check.mjs --update --only html2canvas
 bun tools/sri/sri-check.mjs --update --changed
 ```
 
