@@ -14,7 +14,8 @@
 	</div>
 </div>
 <div class="position-relative border">
-	<div id="virtualGridWrap" style="height: 60vh; overflow: auto">
+	<div id="virtualGridWrap" tabindex="0" role="region" aria-label="Virtual scroll grid" style="height: 60vh; overflow: auto; overflow-anchor: none">
+		<div id="vsSpacerTop" aria-hidden="true"></div>
 		<table id="table" class="table table-sm table-hover table-striped mb-0">
 			<thead class="sticky-top z-2" style="top: -1px">
 				<tr>
@@ -45,6 +46,7 @@
 			</thead>
 			<tbody id="vsBody"></tbody>
 		</table>
+		<div id="vsSpacerBottom" aria-hidden="true"></div>
 	</div>
 	<div id="vsFooter" class="d-flex align-items-center justify-content-between gap-2 p-2 border-top bg-body-tertiary">
 		<div class="d-flex align-items-center gap-2">
