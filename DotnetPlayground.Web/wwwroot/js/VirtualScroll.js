@@ -50,6 +50,7 @@ window.addEventListener('load', function () {
 			scrollRaf: 0,
 			isScrolling: false,
 			scrollEndTimer: 0,
+			lastScrollTop: 0,
 			startIndex: 0,
 			maxStartIndex: 0,
 			poolRows: []
@@ -284,6 +285,24 @@ window.addEventListener('load', function () {
 				return;
 			}
 
+			const previousScrollTop = virtualState.lastScrollTop || 0;
+			const direction = scrollTop > previousScrollTop ? 1 : scrollTop < previousScrollTop ? -1 : 0;
+			virtualState.lastScrollTop = scrollTop;
+
+			const edgeThreshold = Math.max(80, virtualState.rowHeight * 2);
+			const nearTop = scrollTop <= edgeThreshold;
+			const nearBottom = scrollTop + $wrap.innerHeight() >= $wrap[0].scrollHeight - edgeThreshold;
+
+			if (direction < 0 && nearTop && state.pageNumber > 1 && !_isLoading) {
+				moveToPreviousPage();
+				return;
+			}
+
+			if (direction > 0 && nearBottom && state.pageNumber < getTotalPages() && !_isLoading) {
+				moveToNextPage();
+				return;
+			}
+
 			virtualState.isScrolling = true;
 			if (virtualState.scrollEndTimer) {
 				clearTimeout(virtualState.scrollEndTimer);
@@ -502,6 +521,7 @@ window.addEventListener('load', function () {
 				setLoadedStatus();
 				saveStateToStore();
 				$wrap.scrollTop(0);
+				virtualState.lastScrollTop = 0;
 
 				if (usedExtraParam === 'refresh') {
 					if (virtualState.enabled) {
