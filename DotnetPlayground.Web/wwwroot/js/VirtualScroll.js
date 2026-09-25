@@ -7,7 +7,6 @@ window.addEventListener('load', function () {
 		let _startTime = null;
 		let _refreshClicked = "cached";
 		let _isLoading = false;
-		let _pendingScrollArmed = false;
 		let _selectedKey = "";
 
 		const state = {
@@ -36,6 +35,25 @@ window.addEventListener('load', function () {
 		const $liPrevPage = $('#liPrevPage');
 		const $liNextPage = $('#liNextPage');
 		const $paginationList = $('#vsPaginationList');
+		const $spacerTop = $('#vsSpacerTop');
+		const $spacerBottom = $('#vsSpacerBottom');
+		const MAX_TOTAL_TR = 750;
+		const MAX_DATA_ROWS = MAX_TOTAL_TR - 2;
+		const DEFAULT_ROW_HEIGHT = 36;
+		const VIRTUAL_BUFFER_ROWS = 20;
+
+		const virtualState = {
+			enabled: false,
+			rowHeight: DEFAULT_ROW_HEIGHT,
+			poolSize: 0,
+			overscan: VIRTUAL_BUFFER_ROWS,
+			scrollRaf: 0,
+			isScrolling: false,
+			scrollEndTimer: 0,
+			startIndex: 0,
+			maxStartIndex: 0,
+			poolRows: []
+		};
 
 		function getOffset() {
 			return (state.pageNumber - 1) * state.pageSize;
@@ -105,6 +123,210 @@ window.addEventListener('load', function () {
 			if (state.sortName.length > 0 && state.sortOrder.length > 0) {
 				const marker = state.sortOrder === 'asc' ? ' ▲' : ' ▼';
 				$(`.vs-sort-indicator[data-col='${state.sortName}']`).text(marker);
+			}
+		}
+
+		function createCell(text, className) {
+			const $cell = $('<td></td>').text(text);
+			if (className) {
+				$cell.addClass(className);
+			}
+			return $cell;
+		}
+
+		function createValidateButton() {
+			return $('<button></button>')
+				.attr({
+					type: 'button',
+					title: 'Validate',
+					value: 'Validate',
+					'data-i18n': '[title]virtScrol.validate;virtScrol.validate'
+				})
+				.addClass('btn btn-success btn-sm js-client-validate')
+				.text('Validate');
+		}
+
+		function createDataRow() {
+			const $tr = $('<tr></tr>').addClass('vs-data-row');
+			const $keyCell = createCell('', 'text-center');
+			const $md5Cell = createCell('');
+			const $shaCell = createCell('');
+			const $actionCell = $('<td></td>').addClass('text-center').append(createValidateButton());
+
+			$tr.append($keyCell, $md5Cell, $shaCell, $actionCell);
+			$tr.data('vsCells', {
+				key: $keyCell,
+				md5: $md5Cell,
+				sha: $shaCell
+			});
+
+			return $tr;
+		}
+
+		function setRowData($row, row, rowIndex) {
+			const key = normalizeCellValue(row.key);
+			const cells = $row.data('vsCells');
+
+			$row.attr({
+				'data-key': key,
+				'data-row-index': String(rowIndex)
+			});
+			cells.key.text(key);
+			cells.md5.text(normalizeCellValue(row.hashMD5));
+			cells.sha.text(normalizeCellValue(row.hashSHA256));
+			$row.toggleClass('highlight', _selectedKey.length > 0 && _selectedKey === key);
+		}
+
+		function setSpacerHeight($spacer, heightPx) {
+			$spacer.css('height', `${Math.max(0, Math.round(heightPx))}px`);
+		}
+
+		function measureRowHeight() {
+			const $firstRow = $body.find('> tr.vs-data-row:visible').first();
+			if ($firstRow.length > 0) {
+				const measured = Math.max($firstRow.outerHeight(true) || 0, DEFAULT_ROW_HEIGHT);
+				virtualState.rowHeight = measured;
+			}
+			return virtualState.rowHeight;
+		}
+
+		function renderNoRecordsRow() {
+			$body.empty();
+			setSpacerHeight($spacerTop, 0);
+			setSpacerHeight($spacerBottom, 0);
+			const $tr = $('<tr></tr>').addClass('no-records-found');
+			createCell(i18next.t('virtScrol.bootstrapTable.formatNoMatches')).attr({
+				colspan: '4',
+				'data-i18n': 'virtScrol.bootstrapTable.formatNoMatches'
+			}).addClass('text-center').appendTo($tr);
+			$body.append($tr);
+			virtualState.enabled = false;
+		}
+
+		function renderStaticRows(rows) {
+			$body.empty();
+			setSpacerHeight($spacerTop, 0);
+			setSpacerHeight($spacerBottom, 0);
+			rows.forEach(function (row, index) {
+				const $tr = createDataRow();
+				setRowData($tr, row, index);
+				$body.append($tr);
+			});
+			virtualState.enabled = false;
+		}
+
+		function initVirtualRows(rows) {
+			const viewportHeight = Math.max($wrap.innerHeight(), 1);
+			const estimatedRowHeight = virtualState.rowHeight || DEFAULT_ROW_HEIGHT;
+			const viewportRows = Math.max(1, Math.ceil(viewportHeight / estimatedRowHeight));
+			const overscan = Math.max(VIRTUAL_BUFFER_ROWS, Math.ceil(viewportRows / 2));
+			const poolSize = Math.min(MAX_DATA_ROWS, Math.max(50, viewportRows + overscan * 2));
+
+			virtualState.enabled = true;
+			virtualState.overscan = overscan;
+			virtualState.poolSize = Math.min(poolSize, rows.length);
+			virtualState.maxStartIndex = Math.max(rows.length - virtualState.poolSize, 0);
+			virtualState.startIndex = 0;
+			virtualState.poolRows = [];
+			virtualState.scrollRaf = 0;
+			virtualState.isScrolling = false;
+			virtualState.scrollEndTimer = 0;
+
+			$body.empty();
+
+			for (let i = 0; i < virtualState.poolSize; i += 1) {
+				const $row = createDataRow();
+				virtualState.poolRows.push($row);
+				$body.append($row);
+			}
+			setSpacerHeight($spacerTop, 0);
+			setSpacerHeight($spacerBottom, 0);
+		}
+
+		function renderVirtualWindow(startIndex, force) {
+			if (!virtualState.enabled) {
+				return;
+			}
+
+			const rows = state.currentRows;
+			const totalRows = rows.length;
+			const maxStartIndex = Math.max(totalRows - virtualState.poolSize, 0);
+			const nextStart = Math.max(0, Math.min(startIndex, maxStartIndex));
+
+			if (!force && nextStart === virtualState.startIndex) {
+				return;
+			}
+
+			virtualState.startIndex = nextStart;
+			virtualState.maxStartIndex = maxStartIndex;
+
+			const endIndex = Math.min(nextStart + virtualState.poolSize, totalRows);
+			const topOffset = nextStart * virtualState.rowHeight;
+			const bottomOffset = Math.max(totalRows - endIndex, 0) * virtualState.rowHeight;
+
+			setSpacerHeight($spacerTop, topOffset);
+			setSpacerHeight($spacerBottom, bottomOffset);
+
+			virtualState.poolRows.forEach(function ($row, poolIndex) {
+				const rowIndex = nextStart + poolIndex;
+				if (rowIndex < endIndex) {
+					setRowData($row, rows[rowIndex], rowIndex);
+					$row.show();
+				}
+				else {
+					$row.hide();
+				}
+			});
+		}
+
+		function handleVirtualScroll(scrollTop) {
+			if (!virtualState.enabled) {
+				return;
+			}
+
+			virtualState.isScrolling = true;
+			if (virtualState.scrollEndTimer) {
+				clearTimeout(virtualState.scrollEndTimer);
+			}
+			virtualState.scrollEndTimer = window.setTimeout(function () {
+				virtualState.isScrolling = false;
+				virtualState.scrollEndTimer = 0;
+				if (virtualState.scrollRaf) {
+					cancelAnimationFrame(virtualState.scrollRaf);
+					virtualState.scrollRaf = 0;
+				}
+			}, 100);
+
+			if (virtualState.scrollRaf) {
+				cancelAnimationFrame(virtualState.scrollRaf);
+			}
+
+			virtualState.scrollRaf = window.requestAnimationFrame(function () {
+				virtualState.scrollRaf = 0;
+				const rawIndex = Math.floor(scrollTop / virtualState.rowHeight);
+				const nextStart = Math.max(0, Math.min(rawIndex - virtualState.overscan, virtualState.maxStartIndex));
+				renderVirtualWindow(nextStart, false);
+			});
+		}
+
+		function renderRows(rows) {
+			if (!rows.length) {
+				renderNoRecordsRow();
+				return;
+			}
+
+			if (rows.length > MAX_DATA_ROWS) {
+				initVirtualRows(rows);
+				renderVirtualWindow(0, true);
+				measureRowHeight();
+				renderVirtualWindow(0, true);
+			}
+			else {
+				renderStaticRows(rows);
+			}
+
+			if (localizeSelectorFunc) {
+				localizeSelectorFunc('#table');
 			}
 		}
 
@@ -212,52 +434,6 @@ window.addEventListener('load', function () {
 			return String(value);
 		}
 
-		function renderRows(rows) {
-			$body.empty();
-			if (rows.length > 0) {
-				rows.forEach(function (row) {
-					const $tr = $('<tr></tr>').attr('data-key', normalizeCellValue(row.key));
-
-					if (_selectedKey.length > 0 && _selectedKey === normalizeCellValue(row.key)) {
-						$tr.addClass('highlight');
-					}
-
-					$('<td></td>').addClass('text-center').text(normalizeCellValue(row.key)).appendTo($tr);
-					$('<td></td>').text(normalizeCellValue(row.hashMD5)).appendTo($tr);
-					$('<td></td>').text(normalizeCellValue(row.hashSHA256)).appendTo($tr);
-
-					const $validateButton = $('<button></button>')
-						.attr({
-							type: 'button',
-							title: 'Validate',
-							value: 'Validate',
-							'data-i18n': '[title]virtScrol.validate;virtScrol.validate'
-						})
-						.addClass('btn btn-success btn-sm js-client-validate')
-						.text('Validate');
-
-					$('<td></td>').addClass('text-center').append($validateButton).appendTo($tr);
-					$tr.appendTo($body);
-				});
-			}
-			else {
-				const $tr = $('<tr></tr>');
-				$('<td></td>').attr({
-					'colspan': '4',
-					'data-i18n': 'virtScrol.bootstrapTable.formatNoMatches'
-				})
-				.addClass('text-center')
-				.text(i18next.t('virtScrol.bootstrapTable.formatNoMatches'))
-				.appendTo($tr);
-				
-				$tr.appendTo($body);
-			}
-
-			if (localizeSelectorFunc) {
-				localizeSelectorFunc('#table');
-			}
-		}
-
 		function buildRequestUrl() {
 			const params = new URLSearchParams();
 			const offset = getOffset();
@@ -325,9 +501,12 @@ window.addEventListener('load', function () {
 				updatePaginationInfo();
 				setLoadedStatus();
 				saveStateToStore();
+				$wrap.scrollTop(0);
 
 				if (usedExtraParam === 'refresh') {
-					$wrap.scrollTop(0);
+					if (virtualState.enabled) {
+						renderVirtualWindow(0, true);
+					}
 				}
 			}
 			catch (err) {
@@ -477,26 +656,11 @@ window.addEventListener('load', function () {
 				});
 
 			$wrap.on('scroll', function () {
-				if (_isLoading) {
+				if (_isLoading || !virtualState.enabled) {
 					return;
 				}
 
-				const epsilon = 2;
-				const scrollTop = $wrap.scrollTop();
-				const viewportBottom = scrollTop + $wrap.innerHeight();
-				const contentHeight = $wrap[0].scrollHeight;
-
-				if (_pendingScrollArmed && viewportBottom + epsilon >= contentHeight) {
-					_pendingScrollArmed = false;
-					moveToNextPage();
-				}
-				else if (_pendingScrollArmed && scrollTop <= 0) {
-					_pendingScrollArmed = false;
-					moveToPreviousPage();
-				}
-				else {
-					_pendingScrollArmed = true;
-				}
+				handleVirtualScroll($wrap.scrollTop());
 			});
 
 			i18next.on('languageChanged', function () {
