@@ -50,6 +50,7 @@ window.addEventListener('load', function () {
 			scrollRaf: 0,
 			isScrolling: false,
 			scrollEndTimer: 0,
+			lastScrollTop: 0,
 			startIndex: 0,
 			maxStartIndex: 0,
 			poolRows: []
@@ -280,6 +281,14 @@ window.addEventListener('load', function () {
 		}
 
 		function handleVirtualScroll(scrollTop) {
+			const previousScrollTop = virtualState.lastScrollTop || 0;
+			const direction = scrollTop > previousScrollTop ? 1 : scrollTop < previousScrollTop ? -1 : 0;
+			virtualState.lastScrollTop = scrollTop;
+
+			if (handleEdgePaging(scrollTop, direction)) {
+				return;
+			}
+
 			if (!virtualState.enabled) {
 				return;
 			}
@@ -307,6 +316,28 @@ window.addEventListener('load', function () {
 				const nextStart = Math.max(0, Math.min(rawIndex - virtualState.overscan, virtualState.maxStartIndex));
 				renderVirtualWindow(nextStart, false);
 			});
+		}
+
+		function handleEdgePaging(scrollTop, direction) {
+			if (_isLoading || direction === 0) {
+				return false;
+			}
+
+			const edgeThreshold = Math.max(80, virtualState.rowHeight * 2);
+			const nearTop = scrollTop <= edgeThreshold;
+			const nearBottom = scrollTop + $wrap.innerHeight() >= $wrap[0].scrollHeight - edgeThreshold;
+
+			if (direction < 0 && nearTop) {
+				moveToPreviousPage();
+				return true;
+			}
+
+			if (direction > 0 && nearBottom) {
+				moveToNextPage();
+				return true;
+			}
+
+			return false;
 		}
 
 		function renderRows(rows) {
@@ -502,6 +533,7 @@ window.addEventListener('load', function () {
 				setLoadedStatus();
 				saveStateToStore();
 				$wrap.scrollTop(0);
+				virtualState.lastScrollTop = 0;
 
 				if (usedExtraParam === 'refresh') {
 					if (virtualState.enabled) {
@@ -656,11 +688,53 @@ window.addEventListener('load', function () {
 				});
 
 			$wrap.on('scroll', function () {
-				if (_isLoading || !virtualState.enabled) {
+				if (_isLoading) {
 					return;
 				}
 
 				handleVirtualScroll($wrap.scrollTop());
+			});
+
+			$wrap.on('wheel', function (event) {
+				if (_isLoading) {
+					return;
+				}
+
+				const wheelEvent = event.originalEvent || event;
+				const deltaY = typeof wheelEvent.deltaY === 'number' ? wheelEvent.deltaY : 0;
+				if (deltaY === 0) {
+					return;
+				}
+
+				if (handleEdgePaging($wrap.scrollTop(), deltaY > 0 ? 1 : -1)) {
+					event.preventDefault();
+				}
+			});
+
+			$wrap.on('keydown', function (event) {
+				if (_isLoading) {
+					return;
+				}
+
+				let direction;
+				switch (event.key) {
+					case 'ArrowUp':
+					case 'PageUp':
+					case 'Home':
+						direction = -1;
+						break;
+					case 'ArrowDown':
+					case 'PageDown':
+					case 'End':
+						direction = 1;
+						break;
+					default:
+						return;
+				}
+
+				if (handleEdgePaging($wrap.scrollTop(), direction)) {
+					event.preventDefault();
+				}
 			});
 
 			i18next.on('languageChanged', function () {
