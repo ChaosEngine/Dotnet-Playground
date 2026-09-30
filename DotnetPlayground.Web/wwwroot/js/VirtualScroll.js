@@ -1,8 +1,12 @@
 /* eslint-disable no-console */
-/* global myAlert, i18next, clientValidateAll, clientValidate */
+/* global JQuery, myAlert, i18next, clientValidateAll, clientValidate */
 
-// Hook to i18n localization function ready
 window.addEventListener('load', function () {
+	/**
+	 * Initializes the virtual grid page and wires up all related behaviors.
+	 * Hook to i18n localization function ready
+	 * @param {function(string): void} localizeSelectorFunc Localization callback used to update translated DOM nodes.
+	 */
 	function RunPage(localizeSelectorFunc) {
 		let _startTime = null;
 		let _refreshClicked = "cached";
@@ -56,10 +60,18 @@ window.addEventListener('load', function () {
 			poolRows: []
 		};
 
+		/**
+		 * Calculates the offset for the current page.
+		 * @returns {number} The zero-based row offset.
+		 */
 		function getOffset() {
 			return (state.pageNumber - 1) * state.pageSize;
 		}
 
+		/**
+		 * Determines the total number of pages from the known row count.
+		 * @returns {number} The total number of pages, always at least 1.
+		 */
 		function getTotalPages() {
 			if (state.totalRows <= 0 || state.pageSize <= 0) {
 				return 1;
@@ -67,6 +79,9 @@ window.addEventListener('load', function () {
 			return Math.max(1, Math.ceil(state.totalRows / state.pageSize));
 		}
 
+		/**
+		 * Restores the persisted user state from local storage.
+		 */
 		function loadStateFromStore() {
 			const virtOpts = JSON.parse(window.localStorage.getItem("VirtOpts") || "{}");
 
@@ -97,6 +112,9 @@ window.addEventListener('load', function () {
 			}
 		}
 
+		/**
+		 * Saves the current table state to local storage.
+		 */
 		function saveStateToStore() {
 			const virtOpts = {};
 
@@ -119,6 +137,9 @@ window.addEventListener('load', function () {
 			window.localStorage.setItem("VirtOpts", JSON.stringify(virtOpts));
 		}
 
+		/**
+		 * Refreshes the sort direction markers in the header.
+		 */
 		function updateSortIndicators() {
 			$('.vs-sort-indicator').text('');
 			if (state.sortName.length > 0 && state.sortOrder.length > 0) {
@@ -127,14 +148,19 @@ window.addEventListener('load', function () {
 			}
 		}
 
-		function createCell(text, className) {
-			const $cell = $('<td></td>').text(text);
-			if (className) {
-				$cell.addClass(className);
-			}
-			return $cell;
+		/**
+		 * Creates a table cell with safe text insertion.
+		 * @param {string|number|null|undefined} text The content to set on the cell.
+		 * @returns {JQuery<HTMLElement>} The created table cell.
+		 */
+		function createCell(text) {
+			return $('<td></td>').text(text);
 		}
 
+		/**
+		 * Creates the validate action button for a row.
+		 * @returns {JQuery<HTMLElement>} The generated button element.
+		 */
 		function createValidateButton() {
 			return $('<button></button>')
 				.attr({
@@ -147,9 +173,13 @@ window.addEventListener('load', function () {
 				.text('Validate');
 		}
 
+		/**
+		 * Creates an empty data row which is later populated.
+		 * @returns {JQuery<HTMLElement>} The created row element.
+		 */
 		function createDataRow() {
 			const $tr = $('<tr></tr>').addClass('vs-data-row');
-			const $keyCell = createCell('', 'text-center');
+			const $keyCell = createCell('');
 			const $md5Cell = createCell('');
 			const $shaCell = createCell('');
 			const $actionCell = $('<td></td>').addClass('text-center').append(createValidateButton());
@@ -164,6 +194,12 @@ window.addEventListener('load', function () {
 			return $tr;
 		}
 
+		/**
+		 * Populates a row element from the server payload.
+		 * @param {JQuery<HTMLElement>} $row The row element to update.
+		 * @param {object} row The data object for the row.
+		 * @param {number} rowIndex The index of the row within the current result set.
+		 */
 		function setRowData($row, row, rowIndex) {
 			const key = normalizeCellValue(row.key);
 			const cells = $row.data('vsCells');
@@ -178,10 +214,19 @@ window.addEventListener('load', function () {
 			$row.toggleClass('highlight', _selectedKey.length > 0 && _selectedKey === key);
 		}
 
+		/**
+		 * Sets the height of a spacer node used by virtualization.
+		 * @param {JQuery<HTMLElement>} $spacer The spacer element to resize.
+		 * @param {number} heightPx The new height in pixels.
+		 */
 		function setSpacerHeight($spacer, heightPx) {
 			$spacer.css('height', `${Math.max(0, Math.round(heightPx))}px`);
 		}
 
+		/**
+		 * Measures the row height based on the rendered DOM.
+		 * @returns {number} The measured row height in pixels.
+		 */
 		function measureRowHeight() {
 			const $firstRow = $body.find('> tr.vs-data-row:visible').first();
 			if ($firstRow.length > 0) {
@@ -191,6 +236,9 @@ window.addEventListener('load', function () {
 			return virtualState.rowHeight;
 		}
 
+		/**
+		 * Renders the empty-state row when a query returns no matches.
+		 */
 		function renderNoRecordsRow() {
 			$body.empty();
 			setSpacerHeight($spacerTop, 0);
@@ -204,6 +252,10 @@ window.addEventListener('load', function () {
 			virtualState.enabled = false;
 		}
 
+		/**
+		 * Renders the table body in a non-virtualized mode.
+		 * @param {Array<object>} rows The data rows to render.
+		 */
 		function renderStaticRows(rows) {
 			$body.empty();
 			setSpacerHeight($spacerTop, 0);
@@ -216,6 +268,10 @@ window.addEventListener('load', function () {
 			virtualState.enabled = false;
 		}
 
+		/**
+		 * Initializes the virtualized row pool for large result sets.
+		 * @param {Array<object>} rows The rows that will be displayed.
+		 */
 		function initVirtualRows(rows) {
 			const viewportHeight = Math.max($wrap.innerHeight(), 1);
 			const estimatedRowHeight = virtualState.rowHeight || DEFAULT_ROW_HEIGHT;
@@ -244,6 +300,11 @@ window.addEventListener('load', function () {
 			setSpacerHeight($spacerBottom, 0);
 		}
 
+		/**
+		 * Renders the current virtual window offset in the scrollable dataset.
+		 * @param {number} startIndex The first row index to render.
+		 * @param {boolean} force Whether to ignore the current start index.
+		 */
 		function renderVirtualWindow(startIndex, force) {
 			if (!virtualState.enabled) {
 				return;
@@ -280,6 +341,10 @@ window.addEventListener('load', function () {
 			});
 		}
 
+		/**
+		 * Handles the virtual scroll position and triggers edge paging when needed.
+		 * @param {number} scrollTop The current vertical scroll position.
+		 */
 		function handleVirtualScroll(scrollTop) {
 			const previousScrollTop = virtualState.lastScrollTop || 0;
 			const direction = scrollTop > previousScrollTop ? 1 : scrollTop < previousScrollTop ? -1 : 0;
@@ -318,6 +383,12 @@ window.addEventListener('load', function () {
 			});
 		}
 
+		/**
+		 * Detects when the user is near the top or bottom edge of the scroll area.
+		 * @param {number} scrollTop The current scroll offset.
+		 * @param {number} direction The scroll direction; -1 for up, 1 for down, 0 for neutral.
+		 * @returns {boolean} True when the grid should page to the adjacent range.
+		 */
 		function handleEdgePaging(scrollTop, direction) {
 			if (_isLoading || direction === 0) {
 				return false;
@@ -340,6 +411,10 @@ window.addEventListener('load', function () {
 			return false;
 		}
 
+		/**
+		 * Renders the active rows and enables virtualization when the result count is large.
+		 * @param {Array<object>} rows The rows to display.
+		 */
 		function renderRows(rows) {
 			if (!rows.length) {
 				renderNoRecordsRow();
@@ -361,6 +436,11 @@ window.addEventListener('load', function () {
 			}
 		}
 
+		/**
+		 * Generates the numbered pagination list displayed at the footer.
+		 * @param {number} totalPages The overall number of pages.
+		 * @param {number} currentPage The currently selected page.
+		 */
 		function renderPaginationNumbers(totalPages, currentPage) {
 			$paginationList.find('.vs-page-number-item').remove();
 
@@ -391,6 +471,9 @@ window.addEventListener('load', function () {
 			}
 		}
 
+		/**
+		 * Updates the page summary and pagination controls.
+		 */
 		function updatePaginationInfo() {
 			const totalPages = getTotalPages();
 			const currentPage = Math.min(Math.max(state.pageNumber, 1), totalPages);
@@ -419,6 +502,9 @@ window.addEventListener('load', function () {
 			}));
 		}
 
+		/**
+		 * Shows the loading overlay while the page request is in progress.
+		 */
 		function showLoadingOverlay() {
 			$overlay.removeClass('d-none').addClass('d-flex');
 			$overlay.attr('aria-busy', 'true');
@@ -427,11 +513,17 @@ window.addEventListener('load', function () {
 			}
 		}
 
+		/**
+		 * Hides the loading overlay after the fetch is complete.
+		 */
 		function hideLoadingOverlay() {
 			$overlay.removeClass('d-flex').addClass('d-none');
 			$overlay.removeAttr('aria-busy');
 		}
 
+		/**
+		 * Sets the status text to the loading state.
+		 */
 		function setLoadingStatus() {
 			$status.attr('data-i18n', 'virtScrol.loading');
 			$status.removeAttr('data-i18n-options');
@@ -440,6 +532,9 @@ window.addEventListener('load', function () {
 			}
 		}
 
+		/**
+		 * Sets the status text to the error state.
+		 */
 		function setErrorStatus() {
 			$status.attr('data-i18n', 'virtScrol.error');
 			$status.removeAttr('data-i18n-options');
@@ -448,6 +543,9 @@ window.addEventListener('load', function () {
 			}
 		}
 
+		/**
+		 * Sets the status text to the loaded state with elapsed time data.
+		 */
 		function setLoadedStatus() {
 			$status.attr({
 				'data-i18n': 'virtScrol.tookMs',
@@ -458,6 +556,11 @@ window.addEventListener('load', function () {
 			}
 		}
 
+		/**
+		 * Normalizes null/undefined values to empty strings.
+		 * @param {object|string|number|boolean|null|undefined} value The value to normalize.
+		 * @returns {string} A string representation of the value, or an empty string.
+		 */
 		function normalizeCellValue(value) {
 			if (value === null || value === undefined) {
 				return '';
@@ -465,6 +568,10 @@ window.addEventListener('load', function () {
 			return String(value);
 		}
 
+		/**
+		 * Builds the request URL for the next page fetch.
+		 * @returns {string} The URL with query string parameters.
+		 */
 		function buildRequestUrl() {
 			const params = new URLSearchParams();
 			const offset = getOffset();
@@ -485,6 +592,10 @@ window.addEventListener('load', function () {
 			return `Load?${params.toString()}`;
 		}
 
+		/**
+		 * Fetches the active page from the server and refreshes the grid.
+		 * @returns {Promise<void>} Resolves when the request and render cycle complete.
+		 */
 		async function loadPage() {
 			if (_isLoading) {
 				return;
@@ -552,6 +663,10 @@ window.addEventListener('load', function () {
 			}
 		}
 
+		/**
+		 * Toggles the sort state of the named field.
+		 * @param {string} fieldName The field to sort by.
+		 */
 		function toggleSort(fieldName) {
 			if (state.sortName !== fieldName) {
 				state.sortName = fieldName;
@@ -573,6 +688,9 @@ window.addEventListener('load', function () {
 			loadPage();
 		}
 
+		/**
+		 * Advances the view to the next page.
+		 */
 		function moveToNextPage() {
 			const totalPages = getTotalPages();
 			if (state.pageNumber < totalPages) {
@@ -585,6 +703,9 @@ window.addEventListener('load', function () {
 			}
 		}
 
+		/**
+		 * Moves the view to the previous page.
+		 */
 		function moveToPreviousPage() {
 			if (state.pageNumber > 1) {
 				state.pageNumber -= 1;
@@ -596,14 +717,23 @@ window.addEventListener('load', function () {
 			}
 		}
 
+		/**
+		 * Binds all user interaction handlers to the page controls.
+		 */
 		function bindEvents() {
 			let searchTimer = null;
 
+			/**
+			 * Refresh button click handler.
+			 */
 			$('#btnRefresh').on('click', function () {
 				_refreshClicked = 'refresh';
 				loadPage();
 			});
 
+			/**
+			 * Search input handler.
+			 */
 			$search.on('input', function () {
 				const value = $(this).val();
 				state.searchText = typeof value === 'string' ? value.trim() : '';
@@ -619,6 +749,9 @@ window.addEventListener('load', function () {
 				}, 250);
 			});
 
+			/**
+			 * Page size change handler.
+			 */
 			$pageSize.on('change', function () {
 				const value = parseInt($(this).val());
 				if (!Number.isNaN(value) && value > 0) {
@@ -629,6 +762,9 @@ window.addEventListener('load', function () {
 				}
 			});
 
+			/**
+			 * Previous page button click handler.
+			 */
 			$btnPrevPage.on('click', function () {
 				if (_isLoading) {
 					return;
@@ -636,6 +772,9 @@ window.addEventListener('load', function () {
 				moveToPreviousPage();
 			});
 
+			/**
+			 * Next page button click handler.
+			 */
 			$btnNextPage.on('click', function () {
 				if (_isLoading) {
 					return;
@@ -643,6 +782,9 @@ window.addEventListener('load', function () {
 				moveToNextPage();
 			});
 
+			/**
+			 * Page index (number button) click handler.
+			 */
 			$paginationList.on('click', '.vs-page-index', function () {
 				if (_isLoading) {
 					return;
@@ -655,6 +797,9 @@ window.addEventListener('load', function () {
 				}
 			});
 
+			/**
+			 * Column header sort click handler.
+			 */
 			$('#table thead').on('click', '.vs-sort', function () {
 				const sortField = $(this).attr('data-sort');
 				if (sortField && allowedSortNames.includes(sortField)) {
@@ -662,6 +807,9 @@ window.addEventListener('load', function () {
 				}
 			});
 
+			/**
+			 * Info button click handler.
+			 */
 			$('#btninfo').on('click', function () {
 				const msg = _selectedKey.length === 0
 					? i18next.t('virtScrol.modalContNoSelection')
@@ -670,6 +818,9 @@ window.addEventListener('load', function () {
 				myAlert(msg, i18next.t('virtScrol.modalTit'));
 			});
 
+			/**
+			 * Table row click handler.
+			 */
 			$body.on('click', 'tr', function (event) {
 				if ($(event.target).closest('button').length > 0) {
 					return;
@@ -681,12 +832,18 @@ window.addEventListener('load', function () {
 				_selectedKey = normalizeCellValue($(this).find('td:first').text());
 			});
 
+			/**
+			 * Client validation button click handlers.
+			 */
 			$(document)
 				.on('click', '.js-client-validate-all', clientValidateAll)
 				.on('click', '.js-client-validate', function () {
 					clientValidate(this);
 				});
 
+			/**
+			 * Virtual scroll handler.
+			 */
 			$wrap.on('scroll', function () {
 				if (_isLoading) {
 					return;
@@ -695,6 +852,9 @@ window.addEventListener('load', function () {
 				handleVirtualScroll($wrap.scrollTop());
 			});
 
+			/**
+			 * Mouse wheel scroll handler.
+			 */
 			$wrap.on('wheel', function (event) {
 				if (_isLoading) {
 					return;
@@ -711,6 +871,9 @@ window.addEventListener('load', function () {
 				}
 			});
 
+			/**
+			 * Key down handler for edge paging.
+			 */
 			$wrap.on('keydown', function (event) {
 				if (_isLoading) {
 					return;
@@ -737,6 +900,9 @@ window.addEventListener('load', function () {
 				}
 			});
 
+			/**
+			 * Language change handler.
+			 */
 			i18next.on('languageChanged', function () {
 				if (localizeSelectorFunc) {
 					localizeSelectorFunc('#toolbar');
@@ -749,6 +915,9 @@ window.addEventListener('load', function () {
 			});
 		}
 
+		/**
+		 * Initializes the form controls from the current view state.
+		 */
 		function initControls() {
 			$search.val(state.searchText);
 			$pageSize.val(String(state.pageSize));
