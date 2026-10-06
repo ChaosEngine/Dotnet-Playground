@@ -10,9 +10,9 @@ var g_AppRootPath = location.pathname.match(/\/([^/]+)\//)[0], g_isDevelopment =
 const g_ttPolicy = window.trustedTypes.createPolicy('default', {
 	createScriptURL: (url) => {
 		// Option A: Validate that the URL points to your expected SW file
-		const parsed = new URL(url, window.location.origin);
+		const parsed = new URL(url, location.origin);
 		// const pathname = parsed.pathname;
-		if (parsed.origin === window.location.origin
+		if (parsed.origin === location.origin
 			// && (
 			// 	pathname.endsWith('sw.js') || pathname.endsWith('sw.min.js') ||
 			// 	pathname.endsWith('/js/workers/BruteForceWorker.js') || pathname.endsWith('/js/workers/BruteForceWorker.min.js') ||
@@ -32,8 +32,16 @@ const g_ttPolicy = window.trustedTypes.createPolicy('default', {
 			console.log("Please refactor this code");
 			return "";
 		}
+		else if (input.startsWith('<script src=')) {
+			//<script src="/dotnet/lib/jquery/jquery.min.js" integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao=" crossorigin="anonymous"></script>
+			const srcUrl = input.match(/src="([^"]+)"/)?.[1];
+			const parsed = new URL(srcUrl, location.origin);
+			if(parsed.origin === location.origin) {
+				return input;// allow this specific fallback script
+			}
+		}
 		//else...
-
+		
 		console.log(`Trusted Types Violation: bad HTML input ${input}`);
 		return null;
 	}
@@ -208,7 +216,7 @@ window.addEventListener('DOMContentLoaded', function () {
 /**
  * Global document ready function
  */
-$(function () {
+window.addEventListener('load', function () {
 
 	function ajaxLog(level, message, url, line, col, error) {
 		const logPath = g_AppRootPath + "Home/ClientsideLog";
