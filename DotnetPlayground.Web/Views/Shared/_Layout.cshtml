@@ -159,6 +159,7 @@
 		<p id="spVersion">&copy; 2026 - @Conf["AppTitleName"]</p>
 	</footer>
 	<environment include="Development">
+		<script src="~/js/site.js" asp-append-version="true"></script>
 		<script src="~/lib/jquery/jquery.min.js"></script>
 		<script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
 		<script src="~/lib/i18next/i18next.min.js"></script>
@@ -167,11 +168,11 @@
 		<script src="~/lib/i18next-browser-languagedetector/i18nextBrowserLanguageDetector.min.js"></script>
 		<script src="~/lib/i18next-http-backend/i18nextHttpBackend.min.js"></script>
 		<script src="~/lib/loc-i18next/loc-i18next.min.js"></script>
-		<script src="~/js/site.js" asp-append-version="true"></script>
 		@*This is the fix, to enforce manual loading, but why? https://github.com/dotnet/aspnetcore/issues/39715 *@
 		@* <script src="/_framework/aspnetcore-browser-refresh.js"></script> *@
 	</environment>
 	<environment exclude="Development">
+		<script src="~/js/site.min.js" asp-append-version="true"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/4.0.0/jquery.min.js" integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao=" crossorigin="anonymous"
 			asp-fallback-src="~/lib/jquery/jquery.min.js"
 			asp-fallback-test="$">
@@ -204,7 +205,6 @@
 			asp-fallback-src="~/lib/i18next-http-backend/i18nextHttpBackend.min.js"
 			asp-fallback-test="window.i18nextHttpBackend">
 		</script>
-		<script src="~/js/site.min.js" asp-append-version="true"></script>
 	</environment>
 
 	@RenderSection("scripts", required: false)

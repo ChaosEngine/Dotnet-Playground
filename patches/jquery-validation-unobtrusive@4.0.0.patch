@@ -1,7 +1,16 @@
 diff --git a/dist/jquery.validate.unobtrusive.js b/dist/jquery.validate.unobtrusive.js
-index 009306070a81c2db13112c4e7d5e5daa01b46f61..02afe28d6a2940cbe170e4703c76ec6fb5a12b32 100644
+index 009306070a81c2db13112c4e7d5e5daa01b46f61..09f778445ebc86002fdf9ad0c754f5d3462ee028 100644
 --- a/dist/jquery.validate.unobtrusive.js
 +++ b/dist/jquery.validate.unobtrusive.js
+@@ -3,7 +3,7 @@
+  * Unobtrusive validation support library for jQuery and jQuery Validate
+  * Copyright (c) .NET Foundation. All rights reserved.
+  * Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+- * @version v4.0.0
++ * @version <placeholder>
+  */
+ 
+ /*jslint white: true, browser: true, onevar: true, undef: true, nomen: true, eqeqeq: true, plusplus: true, bitwise: true, regexp: true, newcap: true, immed: true, strict: false */
 @@ -55,7 +55,7 @@
      function onError(error, inputElement) {  // 'this' is the form element
          var container = $(this).find("[data-valmsg-for='" + escapeAttributeValue(inputElement[0].name) + "']"),
