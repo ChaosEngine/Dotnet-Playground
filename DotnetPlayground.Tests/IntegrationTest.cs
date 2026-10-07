@@ -1300,7 +1300,7 @@ namespace Integration
 		[InlineData("lib/chance/chance.min.js.map")]
 		[InlineData("lib/jquery/jquery.min.js")]
 		[InlineData("lib/jquery-validation/jquery.validate.min.js")]
-		[InlineData("lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js")]
+		[InlineData("lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js")]
 		[InlineData("lib/blueimp-md5/md5.min.js")]
 		[InlineData("lib/blueimp-md5/md5.min.js.map")]
 		[InlineData("lib/qrcodejs/qrcode.min.js")]
