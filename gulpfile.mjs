@@ -724,13 +724,7 @@ async function postinstall() {
 		}
 	});
 	// file_copy(`${nm}/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js`, `${dst}jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js`);
-	dir_copy(`${nm}/jquery-validation-unobtrusive/dist`, `${dst}jquery-validation-unobtrusive`, async (src) => {
-		if ((await fs.lstat(src)).isDirectory() || src.includes(`jquery.validate.unobtrusive`)) {
-			return true;
-		} else {
-			return false;
-		}
-	});
+	file_copy(`${nm}/jquery-validation-unobtrusive/src/jquery.validate.unobtrusive.js`, `${dst}jquery-validation-unobtrusive/jquery.validate.unobtrusive.js`);
 
 	dir_copy(`${nm}/blueimp-gallery/img`, `${dst}blueimp-gallery/img`);
 	dir_copy(`${nm}/blueimp-gallery/css`, `${dst}blueimp-gallery/css`, async (src) => {
