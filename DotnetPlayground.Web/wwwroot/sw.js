@@ -75,7 +75,7 @@ self.addEventListener('install', function (/* event */) {
 			'lib/video.js/alt/video.core.novtt.min.js',
 			'lib/blueimp-md5/md5.min.js',
 			'lib/jquery-validation/jquery.validate.min.js',
-			'lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js',
+			'lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js',
 			'lib/ace-builds/ace.js',//questionable, only dev ?
 			'lib/ace-builds/mode-csharp.js'//questionable, only dev ?
 			//'lib/signalr/browser/signalr.min.js',//questionable, inkball ?
@@ -95,7 +95,7 @@ self.addEventListener('install', function (/* event */) {
 			'https://cdn.jsdelivr.net/npm/jquery@4.0.0/dist/jquery.min.js',
 			'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js',
 			'https://cdn.jsdelivr.net/npm/jquery-validation@1.22.0/dist/jquery.validate.min.js',
-			'https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@4.0.0/dist/jquery.validate.unobtrusive.min.js'
+			'https://cdn.jsdelivr.net/gh/ChaosEngine/jquery-validation-unobtrusive@honor-escape-html/src/jquery.validate.unobtrusive.js'
 			//'https://cdnjs.cloudflare.com/ajax/libs/ace/1.35.2/ace.js',//questionable, only dev ?
 			//'https://cdnjs.cloudflare.com/ajax/libs/ace/1.35.2/mode-csharp.min.js',//questionable, only dev ?
 			//'https://cdn.jsdelivr.net/npm/@microsoft/signalr@9.0.6/dist/browser/signalr.min.js',//questionable, inkball ?

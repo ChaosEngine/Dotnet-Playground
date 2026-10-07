@@ -23,7 +23,7 @@
         "javascript-astar": "^0.4.1",
         "jquery": "4.0.0",
         "jquery-validation": "1.22.1",
-        "jquery-validation-unobtrusive": "4.0.0",
+        "jquery-validation-unobtrusive": "github:ChaosEngine/jquery-validation-unobtrusive#honor-escape-html",
         "loc-i18next": "0.1.6",
         "qrcodejs": "1.0.0",
         "sass": "^1.105.1",
@@ -39,9 +39,6 @@
         "globals": "17.13.0",
       },
     },
-  },
-  "patchedDependencies": {
-    "jquery-validation-unobtrusive@4.0.0": "patches/jquery-validation-unobtrusive@4.0.0.patch",
   },
   "packages": {
     "@babel/runtime": ["@babel/runtime@7.29.7", "", {}, "sha512-Nq8OhGWiZIZGV6hLHoyAKLLcJihP/xFeBMGJoUrxTX2psI8dCifzLhZISFb+VWS3wFMRDmCGw5R+dOySCqPLhw=="],
@@ -354,7 +351,7 @@
 
     "jquery-validation": ["jquery-validation@1.22.1", "", { "peerDependencies": { "jquery": "^1.7 || ^2.0 || ^3.1 || ^4.0" } }, "sha512-ePLXLWK7Rh5eR652YsuIu7YPeGlCXrsJUteVw5iZopiU17yaMd3FaDggs6yyNMl56p8TYVeDRmKGK3fPZrMeQw=="],
 
-    "jquery-validation-unobtrusive": ["jquery-validation-unobtrusive@4.0.0", "", { "dependencies": { "jquery": "^3.6.0", "jquery-validation": ">=1.19" } }, "sha512-1ervYFFv6LX/rp7ktuLnMakHNG0piNRDyROI8Ir3hL1vPIwylAehB1AY3BPrYJnzW3WmwWryZq+Bz4sazZK9iQ=="],
+    "jquery-validation-unobtrusive": ["jquery-validation-unobtrusive@github:ChaosEngine/jquery-validation-unobtrusive#c18f0d0", { "dependencies": { "jquery": "^3.6.0", "jquery-validation": ">=1.19" } }, "ChaosEngine-jquery-validation-unobtrusive-c18f0d0", "sha512-AzbFqE28MWuWen/9Y7nD/keB8v4x/iS1aZAya9l67aFDncjCmzXG9yM0cEeKgES9NX31ZRDrCviSUoekPhL4+Q=="],
 
     "js-yaml": ["js-yaml@4.3.2", "", { "dependencies": { "argparse": "^2.0.1" }, "bin": { "js-yaml": "bin/js-yaml.js" } }, "sha512-SFNOvSJ+Dgf/9An904Yx+CgSlIPCkIpao4qo51lpee25TIRejdH3rhR4EZMGoNx3/TP3O+wzWuiTFl4sqbltzA=="],
 

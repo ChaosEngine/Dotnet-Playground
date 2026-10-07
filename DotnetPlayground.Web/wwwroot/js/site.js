@@ -33,6 +33,7 @@ const g_ttPolicy = window.trustedTypes.createPolicy('default', {
 			return "";
 		}
 		else if (input.startsWith('<script src=')) {
+			//example:
 			//<script src="/dotnet/lib/jquery/jquery.min.js" integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao=" crossorigin="anonymous"></script>
 			const srcUrl = input.match(/src="([^"]+)"/)?.[1];
 			const parsed = new URL(srcUrl, location.origin);

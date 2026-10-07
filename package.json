@@ -32,7 +32,7 @@
 		"javascript-astar": "^0.4.1",
 		"jquery": "4.0.0",
 		"jquery-validation": "1.22.1",
-		"jquery-validation-unobtrusive": "4.0.0",
+		"jquery-validation-unobtrusive": "github:ChaosEngine/jquery-validation-unobtrusive#honor-escape-html",
 		"loc-i18next": "0.1.6",
 		"qrcodejs": "1.0.0",
 		"sass": "^1.105.1",
@@ -47,8 +47,5 @@
 		"test:playwright": "playwright test",
 		"test:js-inkball": "bun test --concurrent InkBall/test/JS-tests/",
 		"test:sri": "bun test --concurrent tools/sri/"
-	},
-	"patchedDependencies": {
-		"jquery-validation-unobtrusive@4.0.0": "patches/jquery-validation-unobtrusive@4.0.0.patch"
 	}
 }
