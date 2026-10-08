@@ -5,11 +5,11 @@
 <environment names="Staging,Production">
 	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.22.1/dist/jquery.validate.min.js" integrity="sha256-1IuP7k/g+d98/r5+D1I2X2w+xhBVJJ+shT7D1kXXiYs=" crossorigin="anonymous" referrerpolicy="no-referrer"
 			asp-fallback-src="~/lib/jquery-validation/jquery.validate.min.js"
-			asp-fallback-test="$ && $.validator">
+			asp-fallback-test="window?.$?.validator">
 	</script>
 	<script src="https://cdn.jsdelivr.net/gh/ChaosEngine/jquery-validation-unobtrusive@honor-escape-html/src/jquery.validate.unobtrusive.js" integrity="sha256-DhQxqnJEnGE0X3Nw409/WQMPUj8dIu5tC5ia1aVxpI8=" crossorigin="anonymous" referrerpolicy="no-referrer"
 			asp-fallback-src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"
-			asp-fallback-test="$ && $.validator && $.validator.unobtrusive">
+			asp-fallback-test="window?.$?.validator?.unobtrusive">
 	</script>
 </environment>
  <script type="text/javascript">
