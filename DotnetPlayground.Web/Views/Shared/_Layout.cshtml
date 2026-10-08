@@ -6,11 +6,12 @@
 }
 <!DOCTYPE html>
 <html lang="en">
-<script type="text/javascript">
-	const theme = localStorage.getItem('bs-theme') || 'system';
-	if (theme !== 'system')
-		document.documentElement.setAttribute('data-bs-theme', theme);
-</script>
+<environment include="Development">
+	<script src="~/js/site.js" asp-append-version="true"></script>
+</environment>
+<environment exclude="Development">
+	<script src="~/js/site.min.js" asp-append-version="true"></script>
+</environment>
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -159,7 +160,6 @@
 		<p id="spVersion">&copy; 2026 - @Conf["AppTitleName"]</p>
 	</footer>
 	<environment include="Development">
-		<script src="~/js/site.js" asp-append-version="true"></script>
 		<script src="~/lib/jquery/jquery.min.js"></script>
 		<script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
 		<script src="~/lib/i18next/i18next.min.js"></script>
@@ -172,10 +172,9 @@
 		@* <script src="/_framework/aspnetcore-browser-refresh.js"></script> *@
 	</environment>
 	<environment exclude="Development">
-		<script src="~/js/site.min.js" asp-append-version="true"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/4.0.0/jquery.min.js" integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao=" crossorigin="anonymous"
 			asp-fallback-src="~/lib/jquery/jquery.min.js"
-			asp-fallback-test="$">
+			asp-fallback-test="window.$">
 		</script>
 		<script src="https://unpkg.com/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha256-5P1JGBOIxI7FBAvT/mb1fCnI5n/NhQKzNUuW7Hq0fMc=" crossorigin="anonymous"
 			asp-fallback-src="~/lib/bootstrap/js/bootstrap.bundle.min.js"
