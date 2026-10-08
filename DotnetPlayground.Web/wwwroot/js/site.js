@@ -6,6 +6,12 @@
 var g_AppRootPath = location.pathname.match(/\/([^/]+)\//)[0], g_isDevelopment = location.host.match(/:\d+/) !== null,
 	g_gitBranch = "GIT_BRANCH", g_gitHash = "GIT_HASH", localize = null;
 
+(() => {
+	const theme = localStorage.getItem('bs-theme') || 'system';
+	if (theme !== 'system')
+		document.documentElement.setAttribute('data-bs-theme', theme);
+})();
+
 // 1. Initialize a Trusted Types policy once (e.g., at app startup)
 const g_ttPolicy = window.trustedTypes.createPolicy('default', {
 	createScriptURL: (url) => {
@@ -37,6 +43,15 @@ const g_ttPolicy = window.trustedTypes.createPolicy('default', {
 			//<script src="/dotnet/lib/jquery/jquery.min.js" integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao=" crossorigin="anonymous"></script>
 			const srcUrl = input.match(/src="([^"]+)"/)?.[1];
 			const parsed = new URL(srcUrl, location.origin);
+			if(parsed.origin === location.origin) {
+				return input;// allow this specific fallback script
+			}
+		}
+		else if (input.startsWith('<link href=')) {
+			//example:
+			//<link href="/dotnet/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" integrity="sha256-2FMn2Zx6PuH5tdBQDRNwrOo60ts5wWPC9R8jK67b3t4=" crossorigin="anonymous" />
+			const hrefUrl = input.match(/href="([^"]+)"/)?.[1];
+			const parsed = new URL(hrefUrl, location.origin);
 			if(parsed.origin === location.origin) {
 				return input;// allow this specific fallback script
 			}
