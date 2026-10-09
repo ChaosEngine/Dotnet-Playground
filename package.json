@@ -9,7 +9,7 @@
 		"@playwright/test": "^1.64.0",
 		"bun-types": "1.4.2",
 		"eslint": "^10.12.0",
-		"eslint-plugin-jsdoc": "^65.2.0",
+		"eslint-plugin-jsdoc": "^65.2.2",
 		"globals": "17.13.0"
 	},
 	"dependencies": {
