@@ -162,15 +162,17 @@ window.addEventListener('load', function () {
 		 * @returns {JQuery<HTMLElement>} The generated button element.
 		 */
 		function createValidateButton() {
+			const validateTxt = 'Validate';
+
 			return $('<button></button>')
 				.attr({
 					type: 'button',
-					title: 'Validate',
-					value: 'Validate',
+					title: validateTxt,
+					value: validateTxt,
 					'data-i18n': '[title]virtScrol.validate;virtScrol.validate'
 				})
 				.addClass('btn btn-success btn-sm js-client-validate')
-				.text('Validate');
+				.text(validateTxt);
 		}
 
 		/**
