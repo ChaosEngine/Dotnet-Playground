@@ -8,6 +8,7 @@
 function HashesOnLoad() {
 
 	let g_LastTimeOfRun = new Date().getTime();
+	const validateTxt = 'Validate';
 
 	function setButtonLoading(button) {
 		// 1. Create the spinner element
@@ -94,10 +95,10 @@ function HashesOnLoad() {
 			$('#res_cel_clientValidate').empty().append((found.hashMD5 === null || found.hashSHA256 === null) ? null
 				: $('<button>', {
 					class: 'btn btn-success btn-sm js-client-validate',
-					title: 'Validate',
-					value: 'Validate',
-					'aria-hidden': 'true'
-				}).text('Validate')
+					title: validateTxt,
+					value: validateTxt
+					//, 'aria-hidden': 'true'
+				}).text(validateTxt)
 			);
 		});
 		return false;
@@ -153,10 +154,10 @@ function HashesOnLoad() {
 					$.each(found, function (i, item) {
 						const valBtn = $('<button>', {
 							class: 'btn btn-success btn-sm js-client-validate',
-							title: 'Validate',
-							value: 'Validate',
-							'aria-hidden': 'true'
-						}).text('Validate');
+							title: validateTxt,
+							value: validateTxt
+							// , 'aria-hidden': 'true'
+						}).text(validateTxt);
 
 						$('<tr>').append(
 							$('<td>').text(item.key),

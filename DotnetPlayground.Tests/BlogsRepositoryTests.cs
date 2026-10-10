@@ -4,6 +4,7 @@ using DotnetPlayground.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -42,6 +43,20 @@ namespace Repositories
 			{
 				throw;
 			}
+		}
+
+		[Fact]
+		public void Url_regex_allows_expected_urls_and_rejects_invalid_urls()
+		{
+			Assert.Matches(Blog.UrlRegexString, "https://example.com");
+			Assert.Matches(Blog.UrlRegexString, "https://www.example.com/path?x=1&y=2");
+			Assert.Matches(Blog.UrlRegexString, "http://sample.com/cats");
+			Assert.Matches(Blog.UrlRegexString, "https://github.com/ChilliCream/graphql-workshop");
+
+			Assert.DoesNotMatch(Blog.UrlRegexString, "example.com");
+			Assert.DoesNotMatch(Blog.UrlRegexString, "ftp://example.com");
+			Assert.DoesNotMatch(Blog.UrlRegexString, "not a valid url");
+			Assert.DoesNotMatch(Blog.UrlRegexString, "https://github.com/ChilliCream/graphql-workshop/<script>alert(1)</script>aaa");
 		}
 
 		[Fact]
