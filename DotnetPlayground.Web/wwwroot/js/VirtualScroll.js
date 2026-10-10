@@ -246,9 +246,9 @@ window.addEventListener('load', function () {
 			setSpacerHeight($spacerTop, 0);
 			setSpacerHeight($spacerBottom, 0);
 			const $tr = $('<tr></tr>').addClass('no-records-found');
-			createCell(i18next.t('virtScrol.bootstrapTable.formatNoMatches')).attr({
+			createCell(i18next.t('virtScrol.formatNoMatches')).attr({
 				colspan: '4',
-				'data-i18n': 'virtScrol.bootstrapTable.formatNoMatches'
+				'data-i18n': 'virtScrol.formatNoMatches'
 			}).addClass('text-center').appendTo($tr);
 			$body.append($tr);
 			virtualState.enabled = false;
@@ -479,7 +479,7 @@ window.addEventListener('load', function () {
 		function updatePaginationInfo() {
 			const totalPages = getTotalPages();
 			const currentPage = Math.min(Math.max(state.pageNumber, 1), totalPages);
-			$pageNumber.text(i18next.t('virtScrol.bootstrapTable.formatSRPaginationPageText', { currentPage, totalPages }));
+			$pageNumber.text(i18next.t('virtScrol.formatSRPaginationPageText', { currentPage, totalPages }));
 			renderPaginationNumbers(totalPages, currentPage);
 
 			const hasMultiplePages = totalPages > 1;
@@ -491,13 +491,13 @@ window.addEventListener('load', function () {
 			$liNextPage.toggleClass('disabled', nextDisabled);
 
 			if (state.totalRows <= 0) {
-				$pageInfo.text(i18next.t('virtScrol.bootstrapTable.formatNoMatches'));
+				$pageInfo.text(i18next.t('virtScrol.formatNoMatches'));
 				return;
 			}
 
 			const pageFrom = getOffset() + 1;
 			const pageTo = Math.min(getOffset() + state.currentRows.length, state.totalRows);
-			$pageInfo.text(i18next.t('virtScrol.bootstrapTable.formatShowingRows1', {
+			$pageInfo.text(i18next.t('virtScrol.formatShowingRows', {
 				pageFrom,
 				pageTo,
 				totalRows: state.totalRows

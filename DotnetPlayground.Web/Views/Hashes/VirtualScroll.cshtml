@@ -8,9 +8,9 @@
 		<span id="spStatus"></span>
 	</div>
 	<div>
-		<label for="vsSearch" class="m-2 me-1" data-i18n="virtScrol.bootstrapTable.formatSearch">Search</label>
+		<label for="vsSearch" class="m-2 me-1" data-i18n="virtScrol.formatSearch">Search</label>
 		<input id="vsSearch" type="search" class="form-control d-inline-block w-auto" autocomplete="off" />
-		<button id="btnRefresh" class="btn btn-secondary mb-2" type="button" data-i18n='[aria-label]virtScrol.bootstrapTable.formatRefresh;[title]virtScrol.bootstrapTable.formatRefresh'>↻</button>
+		<button id="btnRefresh" class="btn btn-secondary mb-2" type="button" data-i18n='[aria-label]virtScrol.formatRefresh;[title]virtScrol.formatRefresh'>↻</button>
 	</div>
 </div>
 <div class="position-relative border">
@@ -53,13 +53,13 @@
 			<ul id="vsPaginationList" class="pagination mb-0" aria-label="Virtual grid pagination">
 				<li id="liPrevPage" class="page-item">
 					<button id="btnPrevPage" type="button" class="page-link"
-						data-i18n='[aria-label]virtScrol.bootstrapTable.formatSRPaginationPreText;[title]virtScrol.bootstrapTable.formatSRPaginationPreText'>
+						data-i18n='[aria-label]virtScrol.formatSRPaginationPreText;[title]virtScrol.formatSRPaginationPreText'>
 						&lsaquo;
 					</button>
 				</li>
 				<li id="liNextPage" class="page-item">
 					<button id="btnNextPage" type="button" class="page-link"
-						data-i18n='[aria-label]virtScrol.bootstrapTable.formatSRPaginationNextText;[title]virtScrol.bootstrapTable.formatSRPaginationNextText'>
+						data-i18n='[aria-label]virtScrol.formatSRPaginationNextText;[title]virtScrol.formatSRPaginationNextText'>
 						&rsaquo;
 					</button>
 				</li>
@@ -68,7 +68,7 @@
 			<span id="spPageInfo"></span>
 		</div>
 		<div class="d-flex align-items-center gap-2">
-			<label for="vsPageSize" class="mb-0" data-i18n="virtScrol.bootstrapTable.formatRecordsPerPage">Rows per page</label>
+			<label for="vsPageSize" class="mb-0" data-i18n="virtScrol.formatRecordsPerPage">Rows per page</label>
 			<select id="vsPageSize" class="form-select w-auto">
 				<option value="50">50</option>
 				<option value="500">500</option>
@@ -79,7 +79,7 @@
 	</div>
 	<div id="vsLoadingOverlay" class="position-absolute top-0 start-0 w-100 h-100 d-none align-items-center justify-content-center bg-body bg-opacity-75 z-3">
 		<div>
-			<span id="vsLoadingMessage" class="fs-2 fw-semibold" data-i18n="virtScrol.bootstrapTable.formatLoadingMessage">Loading, please wait</span>
+			<span id="vsLoadingMessage" class="fs-2 fw-semibold" data-i18n="virtScrol.formatLoadingMessage">Loading, please wait</span>
 			<span class="spinner-grow spinner-grow-sm" role="status"></span>
 			<span class="spinner-grow spinner-grow-sm" role="status" style="animation-delay: -0.4s;"></span>
 			<span class="spinner-grow spinner-grow-sm" role="status" style="animation-delay: -0.6s;"></span>
