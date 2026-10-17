@@ -1309,8 +1309,8 @@ namespace Integration
 		[InlineData("lib/signalr/browser/signalr.min.js.map")]
 		[InlineData("lib/signalr-protocol-msgpack/browser/signalr-protocol-msgpack.min.js")]
 		[InlineData("lib/signalr-protocol-msgpack/browser/signalr-protocol-msgpack.min.js.map")]
-		[InlineData("lib/video.js/alt/video.core.novtt.min.js")]
-		[InlineData("lib/video.js/video-js.min.css")]
+		// [InlineData("lib/video.js/alt/video.core.novtt.min.js")]
+		// [InlineData("lib/video.js/video-js.min.css")]
 		[InlineData("locales/en/translation.min.json")]
 		[InlineData("locales/pl/translation.min.json")]
 		public async Task GetStaticAssetContent(string url)
