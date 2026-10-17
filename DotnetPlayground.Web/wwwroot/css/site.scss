@@ -222,21 +222,8 @@ Theme switcher:
 	}
 }
 
-#video-tab .vjs-default-skin .vjs-big-play-button {
-	top: 50%;
-	left: 50%;
-	margin: -1em auto auto -2em;
-	width: 80px;
-	height: 50px;
-}
-
 /* Extra large devices (large desktops, 1200px and up) */
 @media (min-width: 1200px) {
-	.video-js-box {
-		width: 1280px !important;
-		height: 960px !important;
-	}
-
 	#live.img-fluid {
 		max-width: 1280px !important;
 	}

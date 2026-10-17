@@ -11,15 +11,11 @@
 	<link rel="preload" href="images/no_img.svg" as="image">
 	<environment include="Development">
 		<link rel="stylesheet" href="~/lib/blueimp-gallery/css/blueimp-gallery.min.css" />
-		<link rel="stylesheet" href="~/lib/video.js/video-js.min.css" />
 	</environment>
 	<environment exclude="Development">
 		<link rel="stylesheet" href="https://unpkg.com/blueimp-gallery@3.4.0/css/blueimp-gallery.min.css" integrity="sha256-WWU2twBspG9xTh1GBdB+/0k2NzLmICIDhJutaEWvn3c=" crossorigin="anonymous" 
 			  asp-fallback-href="~/lib/blueimp-gallery/css/blueimp-gallery.min.css"
 			  asp-fallback-test-class="blueimp-gallery" asp-fallback-test-property="position" asp-fallback-test-value="fixed" />
-		<link rel="stylesheet" href="https://unpkg.com/video.js@8.24.1/dist/video-js.min.css" integrity="sha256-B2xINm6KGGvyQ9WTfzKpdBAEVhJim2/bq8OJq7bOXLk=" crossorigin="anonymous" referrerpolicy="no-referrer"
-			  asp-fallback-href="~/lib/video.js/video-js.min.css"
-			  asp-fallback-test-class="video-js" asp-fallback-test-property="position" asp-fallback-test-value="relative" />
 	</environment>
 }
 
@@ -77,7 +73,8 @@
 	{
   		<div class="tab-pane" id="video-tab" role="tabpanel" aria-labelledby="video-tab">
 			<!-- Begin VideoJS -->
-			<div class="video-js-box">
+
+			@* <div class="video-js-box">
 				<video id="my-player" width="1280" height="960" class="video-js vjs-default-skin vjs-4-3 vjs-fluid vjs-big-play-centered"
 					controls preload="none" data-poster="@Model.BaseWebCamURL/poster.jpeg">
 					<source src="@Model.BaseWebCamURL/video.av1.webm" type="video/webm; codecs=av01.0.05M.08" />
@@ -85,6 +82,26 @@
 					<source src="@Model.BaseWebCamURL/video.webm" type='video/webm; codecs="vp8, vorbis"' />
 				</video>
 			</div>
+
+			<video-player poster="@Model.BaseWebCamURL/poster.jpeg">
+				<video-neutral-skin style="display:block; width:100%; aspect-ratio: 4 / 3; --media-border-radius: 0rem">
+					<video id="my-player" width="1280" height="960" preload="none">
+						<source src="@Model.BaseWebCamURL/video.av1.webm" type="video/webm; codecs=av01.0.05M.08" />
+						<source src="@Model.BaseWebCamURL/video.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"' />
+						<source src="@Model.BaseWebCamURL/video.webm" type='video/webm; codecs="vp8, vorbis"' />
+					</video>
+				</video-neutral-skin>
+			</video-player> *@
+
+			<div class="ratio ratio-4x3">
+				<video id="my-player" width="1280" height="960" controls preload="none" poster="@Model.BaseWebCamURL/poster.jpeg"
+					style="aspect-ratio: 4 / 3">
+					<source src="@Model.BaseWebCamURL/video.av1.webm" type="video/webm; codecs=av01.0.05M.08" />
+					<source src="@Model.BaseWebCamURL/video.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"' />
+					<source src="@Model.BaseWebCamURL/video.webm" type='video/webm; codecs="vp8, vorbis"' />
+				</video>
+			</div>
+
 			<!-- End VideoJS -->
 		</div>
 	}
@@ -124,16 +141,13 @@
 {
 	<environment include="Development">
 		<script type="text/javascript" defer src="~/lib/blueimp-gallery/js/blueimp-gallery.min.js"></script>
-		<script type="text/javascript" defer src="~/lib/video.js/alt/video.core.novtt.min.js"></script>
+		@* <script type="module" src="https://cdn.jsdelivr.net/npm/@@videojs/cdn@10.1.0/video-neutral.js"></script> *@
 		<script type="text/javascript" defer src="~/js/WebCamGallery.js" asp-append-version="true"></script>
 	</environment>
 	<environment exclude="Development">
 		<script src="https://unpkg.com/blueimp-gallery@3.4.0/js/blueimp-gallery.min.js" integrity="sha256-zhqhSPiu6aPOJLi0nK5/QrLOCYV4Zmb9V87CErZE96I=" crossorigin="anonymous"
 			asp-fallback-src="~/lib/blueimp-gallery/js/blueimp-gallery.min.js"
 			asp-fallback-test="window.blueimp"></script>
-		<script src="https://unpkg.com/video.js@8.24.1/dist/alt/video.core.novtt.min.js" integrity="sha256-LsyFbIHyUU14apcrQDZTZDTMn3AQultyFv7cNnt9RuQ=" crossorigin="anonymous" referrerpolicy="no-referrer"
-			asp-fallback-src="~/lib/video.js/alt/video.core.novtt.min.js"
-			asp-fallback-test="videojs.options"></script>
 		<script type="text/javascript" src="~/js/WebCamGallery.min.js" asp-append-version="true"></script>
 	</environment>
 	<script type="text/javascript">

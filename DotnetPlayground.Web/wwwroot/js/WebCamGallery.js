@@ -1,6 +1,6 @@
 /*eslint no-unused-vars: ["error", { "varsIgnorePattern": "WebCamGalleryOnLoad" }]*/
 /* eslint-disable no-console */
-/*global g_AppRootPath, videojs, blueimp, i18next*/
+/*global g_AppRootPath, blueimp, i18next*/
 "use strict";
 ///////////////////WebCamGallery functions start/////////////////
 /**
@@ -9,6 +9,7 @@
  */
 function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 	let last_refresh = new Date();
+	let videoJSLoaded = false;
 	const btnReplAllImg = $('#btnReplAllImg');
 	/**
 	 * on live img refresh click
@@ -101,11 +102,38 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 	}
 
 	function LoadVideoJS() {
-		const my_player = document.getElementById('my-player');
-		const poster = my_player.dataset.poster;
-		my_player.setAttribute('poster', poster);
-		delete my_player.dataset.poster;
-		videojs('my-player');
+		// const my_player = document.getElementById('my-player');
+		// const poster = my_player.dataset.poster;
+		// my_player.setAttribute('poster', poster);
+		// delete my_player.dataset.poster;
+		//videojs('my-player');
+
+		//enable only on click event handler, only of not existing
+		if (!videoJSLoaded) {
+			const my_player = document.getElementById('my-player');
+			const handler = async function (event) {
+				// Toggle logic: if paused -> play, else -> pause
+				try {
+					// 1. Stop the browser from running its own 'click-to-play' logic
+					event.preventDefault();
+					// 2. Stop the event from bubbling up
+					event.stopPropagation();
+
+					// 3. Manually handle the toggle
+					if (my_player.paused || my_player.ended) {
+						await my_player.play();
+					} else {
+						my_player.pause();
+					}
+				} catch (err) {
+					console.error("Playback failed:", err);
+				}
+			};
+			my_player.addEventListener('click', handler);
+			my_player.addEventListener('touchend', handler);
+
+			videoJSLoaded = true;
+		}
 	}
 
 	function LoadYouTubeIFrame() {
