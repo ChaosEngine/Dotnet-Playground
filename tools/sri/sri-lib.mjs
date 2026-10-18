@@ -6,12 +6,12 @@ import { execSync } from "node:child_process";
 
 export const SCAN_EXTENSIONS = new Set([".cshtml", ".razor", ".html", ".htm"]);
 export const DEFAULT_SCAN_ROOTS = [
-  "DotnetPlayground.Web",
-  "InkBall/src"
+	"DotnetPlayground.Web",
+	"InkBall/src"
 ];
 const EXCLUDE_DIRS = new Set(["bin", "obj", ".git", "node_modules", ".vs", ".github", ".vscode"]);
 export const CDN_ALIASES = {
-  qrcode_js: "qrcodejs"
+	qrcode_js: "qrcodejs"
 };
 
 /**
@@ -21,13 +21,18 @@ export const CDN_ALIASES = {
  * @returns {string|null} The normalized version (e.g., '1.2.3-alpha') or null if invalid
  */
 export function normalizeVersionSpec(versionSpec) {
-  if (!versionSpec || typeof versionSpec !== "string") {
-    return null;
-  }
+	if (!versionSpec || typeof versionSpec !== "string") {
+		return null;
+	}
 
-  const trimmed = versionSpec.trim();
-  const match = trimmed.match(/\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?/);
-  return match ? match[0] : null;
+	const trimmed = versionSpec.trim();
+	const match = trimmed.match(/\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?/);
+	if (match)
+		return match[0];
+	else if (trimmed.startsWith('github:'))
+		return trimmed.replace("github:", "").replace("#", "@");//github:user/package#version -> user/package@version
+
+	return null;
 }
 
 /**
@@ -36,11 +41,11 @@ export function normalizeVersionSpec(versionSpec) {
  * @returns {string|null} The version without 'v' prefix (e.g., '1.2.3') or null if invalid
  */
 export function normalizeUrlVersion(version) {
-  if (!version || typeof version !== "string") {
-    return null;
-  }
+	if (!version || typeof version !== "string") {
+		return null;
+	}
 
-  return version.replace(/^v/i, "");
+	return version.replace(/^v/i, "");
 }
 
 /**
@@ -50,62 +55,73 @@ export function normalizeUrlVersion(version) {
  * @returns {object} An object with {provider, packageName, urlVersion}; provider or packageName may be null if URL format unrecognized
  */
 export function extractCdnMetadata(assetUrl) {
-  try {
-    const parsed = new URL(assetUrl);
-    const host = parsed.hostname.toLowerCase();
-    const pathname = parsed.pathname;
+	try {
+		const parsed = new URL(assetUrl);
+		const host = parsed.hostname.toLowerCase();
+		const pathname = parsed.pathname;
 
-    if (host === "cdn.jsdelivr.net") {
-      const match = pathname.match(/^\/npm\/((?:@[^/]+\/)?[^@/]+)@([^/]+)(?:\/|$)/);
-      if (!match) {
-        return { provider: "jsdelivr", packageName: null, urlVersion: null };
-      }
+		if (host === "cdn.jsdelivr.net") {
+			const match = pathname.match(/^\/npm\/((?:@[^/]+\/)?[^@/]+)@([^/]+)(?:\/|$)/);
+			if (match) {
+				return {
+					provider: "jsdelivr",
+					packageName: match[1],
+					urlVersion: normalizeUrlVersion(match[2])
+				};
+			} else if (pathname.startsWith("/gh/")) {
+				//match gh link like so
+				//https://cdn.jsdelivr.net/gh/ChaosEngine/jquery-validation-unobtrusive@12.3.4/src/jquery.validate.unobtrusive.js
+				const match = pathname.match(/^\/gh\/([^/@]+)\/([^/@]+)@([^/]+)/);
+				if (match) {
+					return {
+						provider: "jsdelivr",
+						packageName: match[2],
+						urlVersion: `${match[1]}/${match[2]}@${match[3]}`//ChaosEngine/jquery-validation-unobtrusive@12.3.4
+					};
+				}
+			}
 
-      return {
-        provider: "jsdelivr",
-        packageName: match[1],
-        urlVersion: normalizeUrlVersion(match[2])
-      };
-    }
+			return { provider: "jsdelivr", packageName: null, urlVersion: null };
+		}
 
-    if (host === "cdnjs.cloudflare.com") {
-      const match = pathname.match(/^\/ajax\/libs\/([^/]+)\/([^/]+)(?:\/|$)/);
-      if (!match) {
-        return { provider: "cdnjs", packageName: null, urlVersion: null };
-      }
+		if (host === "cdnjs.cloudflare.com") {
+			const match = pathname.match(/^\/ajax\/libs\/([^/]+)\/([^/]+)(?:\/|$)/);
+			if (!match) {
+				return { provider: "cdnjs", packageName: null, urlVersion: null };
+			}
 
-      return {
-        provider: "cdnjs",
-        packageName: match[1],
-        urlVersion: normalizeUrlVersion(match[2])
-      };
-    }
+			return {
+				provider: "cdnjs",
+				packageName: match[1],
+				urlVersion: normalizeUrlVersion(match[2])
+			};
+		}
 
-    if (host === "unpkg.com") {
-      const match = pathname.match(/^\/((?:@[^/]+\/)?[^@/]+)@([^/]+)(?:\/|$)/);
-      if (!match) {
-        return { provider: "unpkg", packageName: null, urlVersion: null };
-      }
+		if (host === "unpkg.com") {
+			const match = pathname.match(/^\/((?:@[^/]+\/)?[^@/]+)@([^/]+)(?:\/|$)/);
+			if (!match) {
+				return { provider: "unpkg", packageName: null, urlVersion: null };
+			}
 
-      return {
-        provider: "unpkg",
-        packageName: match[1],
-        urlVersion: normalizeUrlVersion(match[2])
-      };
-    }
+			return {
+				provider: "unpkg",
+				packageName: match[1],
+				urlVersion: normalizeUrlVersion(match[2])
+			};
+		}
 
-    return {
-      provider: "other",
-      packageName: null,
-      urlVersion: null
-    };
-  } catch {
-    return {
-      provider: "invalid-url",
-      packageName: null,
-      urlVersion: null
-    };
-  }
+		return {
+			provider: "other",
+			packageName: null,
+			urlVersion: null
+		};
+	} catch {
+		return {
+			provider: "invalid-url",
+			packageName: null,
+			urlVersion: null
+		};
+	}
 }
 
 /**
@@ -115,12 +131,12 @@ export function extractCdnMetadata(assetUrl) {
  * @returns {string|null} The normalized package name (e.g., '@scope/package') or the input if not escaped
  */
 export function normalizeScopedPackageName(packageName) {
-  if (!packageName || typeof packageName !== "string") {
-    return packageName;
-  }
+	if (!packageName || typeof packageName !== "string") {
+		return packageName;
+	}
 
-  // Razor escapes a literal '@' as '@@', which can appear in scoped npm package URLs.
-  return packageName.startsWith("@@") ? packageName.slice(1) : packageName;
+	// Razor escapes a literal '@' as '@@', which can appear in scoped npm package URLs.
+	return packageName.startsWith("@@") ? packageName.slice(1) : packageName;
 }
 
 /**
@@ -130,17 +146,17 @@ export function normalizeScopedPackageName(packageName) {
  * @returns {string|null} The mapped local package name, or the normalized input if no alias exists
  */
 export function mapPackageName(rawPackageName) {
-  if (!rawPackageName) {
-    return null;
-  }
+	if (!rawPackageName) {
+		return null;
+	}
 
-  const normalized = normalizeScopedPackageName(rawPackageName);
-  return CDN_ALIASES[normalized] || normalized;
+	const normalized = normalizeScopedPackageName(rawPackageName);
+	return CDN_ALIASES[normalized] || normalized;
 }
 
 function getLineNumberFromIndex(content, index) {
-  const before = content.slice(0, index);
-  return before.split("\n").length;
+	const before = content.slice(0, index);
+	return before.split("\n").length;
 }
 
 /**
@@ -150,18 +166,18 @@ function getLineNumberFromIndex(content, index) {
  * @returns {Map<string, string>} Attribute names (lowercased) mapped to their values
  */
 export function parseIntegrityTagAttributes(tagText) {
-  const attrRegex = /\b([a-zA-Z_:][\w:.-]*)\s*=\s*("([^"]*)"|'([^']*)')/g;
-  const attributes = new Map();
-  let match = attrRegex.exec(tagText);
+	const attrRegex = /\b([a-zA-Z_:][\w:.-]*)\s*=\s*("([^"]*)"|'([^']*)')/g;
+	const attributes = new Map();
+	let match = attrRegex.exec(tagText);
 
-  while (match) {
-    const name = match[1].toLowerCase();
-    const value = match[3] ?? match[4] ?? "";
-    attributes.set(name, value);
-    match = attrRegex.exec(tagText);
-  }
+	while (match) {
+		const name = match[1].toLowerCase();
+		const value = match[3] ?? match[4] ?? "";
+		attributes.set(name, value);
+		match = attrRegex.exec(tagText);
+	}
 
-  return attributes;
+	return attributes;
 }
 
 /**
@@ -172,67 +188,67 @@ export function parseIntegrityTagAttributes(tagText) {
  * @returns {Array<object>} Array of integrity entries with {relativePath, line, tagName, url, integrity, tagText, tagStart, tagEnd}
  */
 export function parseIntegrityEntriesFromContent(content, relativePath) {
-  const entries = [];
-  const tagRegex = /<(script|link)\b[\s\S]*?>/gi;
-  let tagMatch = tagRegex.exec(content);
+	const entries = [];
+	const tagRegex = /<(script|link)\b[\s\S]*?>/gi;
+	let tagMatch = tagRegex.exec(content);
 
-  while (tagMatch) {
-    const tagName = tagMatch[1].toLowerCase();
-    const tagText = tagMatch[0];
-    const tagStart = tagMatch.index;
-    const tagEnd = tagStart + tagText.length;
-    const attributes = parseIntegrityTagAttributes(tagText);
+	while (tagMatch) {
+		const tagName = tagMatch[1].toLowerCase();
+		const tagText = tagMatch[0];
+		const tagStart = tagMatch.index;
+		const tagEnd = tagStart + tagText.length;
+		const attributes = parseIntegrityTagAttributes(tagText);
 
-    if (attributes.has("integrity")) {
-      const assetUrl = attributes.get("src") || attributes.get("href");
-      const integrity = attributes.get("integrity");
+		if (attributes.has("integrity")) {
+			const assetUrl = attributes.get("src") || attributes.get("href");
+			const integrity = attributes.get("integrity");
 
-      if (assetUrl && /^https?:\/\//i.test(assetUrl)) {
-        entries.push({
-          relativePath,
-          line: getLineNumberFromIndex(content, tagStart),
-          tagName,
-          url: assetUrl,
-          integrity,
-          tagText,
-          tagStart,
-          tagEnd
-        });
-      }
-    }
+			if (assetUrl && /^https?:\/\//i.test(assetUrl)) {
+				entries.push({
+					relativePath,
+					line: getLineNumberFromIndex(content, tagStart),
+					tagName,
+					url: assetUrl,
+					integrity,
+					tagText,
+					tagStart,
+					tagEnd
+				});
+			}
+		}
 
-    tagMatch = tagRegex.exec(content);
-  }
+		tagMatch = tagRegex.exec(content);
+	}
 
-  return entries;
+	return entries;
 }
 
 function collectFilesRecursive(rootDir, predicate) {
-  const output = [];
-  const stack = [rootDir];
+	const output = [];
+	const stack = [rootDir];
 
-  while (stack.length > 0) {
-    const current = stack.pop();
-    const children = fs.readdirSync(current, { withFileTypes: true });
+	while (stack.length > 0) {
+		const current = stack.pop();
+		const children = fs.readdirSync(current, { withFileTypes: true });
 
-    for (const child of children) {
-      if (EXCLUDE_DIRS.has(child.name)) {
-        continue;
-      }
+		for (const child of children) {
+			if (EXCLUDE_DIRS.has(child.name)) {
+				continue;
+			}
 
-      const fullPath = path.join(current, child.name);
-      if (child.isDirectory()) {
-        stack.push(fullPath);
-        continue;
-      }
+			const fullPath = path.join(current, child.name);
+			if (child.isDirectory()) {
+				stack.push(fullPath);
+				continue;
+			}
 
-      if (predicate(fullPath)) {
-        output.push(fullPath);
-      }
-    }
-  }
+			if (predicate(fullPath)) {
+				output.push(fullPath);
+			}
+		}
+	}
 
-  return output;
+	return output;
 }
 
 /**
@@ -242,24 +258,24 @@ function collectFilesRecursive(rootDir, predicate) {
  * @returns {Array<object>} Array of all integrity entries found across all scanned files
  */
 export function collectRazorIntegrityEntries(repoRoot) {
-  const entries = [];
+	const entries = [];
 
-  for (const scanRoot of DEFAULT_SCAN_ROOTS) {
-    const absoluteRoot = path.join(repoRoot, scanRoot);
-    if (!fs.existsSync(absoluteRoot)) {
-      continue;
-    }
+	for (const scanRoot of DEFAULT_SCAN_ROOTS) {
+		const absoluteRoot = path.join(repoRoot, scanRoot);
+		if (!fs.existsSync(absoluteRoot)) {
+			continue;
+		}
 
-    const files = collectFilesRecursive(absoluteRoot, (fullPath) => SCAN_EXTENSIONS.has(path.extname(fullPath).toLowerCase()));
+		const files = collectFilesRecursive(absoluteRoot, (fullPath) => SCAN_EXTENSIONS.has(path.extname(fullPath).toLowerCase()));
 
-    for (const filePath of files) {
-      const content = fs.readFileSync(filePath, "utf8");
-      const relativePath = path.relative(repoRoot, filePath).replace(/\\/g, "/");
-      entries.push(...parseIntegrityEntriesFromContent(content, relativePath));
-    }
-  }
+		for (const filePath of files) {
+			const content = fs.readFileSync(filePath, "utf8");
+			const relativePath = path.relative(repoRoot, filePath).replace(/\\/g, "/");
+			entries.push(...parseIntegrityEntriesFromContent(content, relativePath));
+		}
+	}
 
-  return entries;
+	return entries;
 }
 
 /**
@@ -269,27 +285,27 @@ export function collectRazorIntegrityEntries(repoRoot) {
  * @returns {Array<object>} Array of {raw, algorithm, digest} objects; empty if malformed
  */
 export function parseIntegrityTokens(integrity) {
-  const tokens = String(integrity)
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((token) => {
-      const separator = token.indexOf("-");
-      if (separator <= 0) {
-        return null;
-      }
+	const tokens = String(integrity)
+		.trim()
+		.split(/\s+/)
+		.filter(Boolean)
+		.map((token) => {
+			const separator = token.indexOf("-");
+			if (separator <= 0) {
+				return null;
+			}
 
-      const algorithm = token.slice(0, separator).toLowerCase();
-      const digest = token.slice(separator + 1);
-      if (!algorithm || !digest) {
-        return null;
-      }
+			const algorithm = token.slice(0, separator).toLowerCase();
+			const digest = token.slice(separator + 1);
+			if (!algorithm || !digest) {
+				return null;
+			}
 
-      return { raw: token, algorithm, digest };
-    })
-    .filter(Boolean);
+			return { raw: token, algorithm, digest };
+		})
+		.filter(Boolean);
 
-  return tokens;
+	return tokens;
 }
 
 /**
@@ -300,12 +316,12 @@ export function parseIntegrityTokens(integrity) {
  * @returns {string} SRI token (e.g., 'sha384-abc123def456...')
  */
 export function computeIntegrity(buffer, algorithm) {
-  const digest = crypto.createHash(algorithm).update(buffer).digest("base64");
-  return `${algorithm}-${digest}`;
+	const digest = crypto.createHash(algorithm).update(buffer).digest("base64");
+	return `${algorithm}-${digest}`;
 }
 
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 /**
@@ -317,27 +333,27 @@ function sleep(ms) {
  * @throws {Error} If all attempts fail
  */
 export async function fetchBytesWithRetry(url, attempts = 3) {
-  let lastError = null;
+	let lastError = null;
 
-  for (let attempt = 1; attempt <= attempts; attempt += 1) {
-    try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
+	for (let attempt = 1; attempt <= attempts; attempt += 1) {
+		try {
+			const response = await fetch(url);
+			if (!response.ok) {
+				throw new Error(`HTTP ${response.status}`);
+			}
 
-      const arrayBuffer = await response.arrayBuffer();
-      return Buffer.from(arrayBuffer);
-    } catch (error) {
-      lastError = error;
-      if (attempt < attempts) {
-        const backoffMs = 500 * Math.pow(2, attempt - 1);
-        await sleep(backoffMs);
-      }
-    }
-  }
+			const arrayBuffer = await response.arrayBuffer();
+			return Buffer.from(arrayBuffer);
+		} catch (error) {
+			lastError = error;
+			if (attempt < attempts) {
+				const backoffMs = 500 * Math.pow(2, attempt - 1);
+				await sleep(backoffMs);
+			}
+		}
+	}
 
-  throw lastError;
+	throw lastError;
 }
 
 /**
@@ -346,12 +362,12 @@ export async function fetchBytesWithRetry(url, attempts = 3) {
  * @returns {object} A map of {packageName: versionSpec}
  */
 export function loadPackageVersionMap(repoRoot) {
-  const packageJsonPath = path.join(repoRoot, "package.json");
-  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
-  return {
-    ...(packageJson.dependencies || {}),
-    ...(packageJson.devDependencies || {})
-  };
+	const packageJsonPath = path.join(repoRoot, "package.json");
+	const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
+	return {
+		...(packageJson.dependencies || {}),
+		...(packageJson.devDependencies || {})
+	};
 }
 
 /**
@@ -361,37 +377,37 @@ export function loadPackageVersionMap(repoRoot) {
  * @returns {Set<string>|null} A Set of package names with changed versions, or null if git command fails
  */
 export function detectChangedPackagesFromHead(repoRoot) {
-  try {
-    const headPackageJson = execSync("git show HEAD:package.json", {
-      cwd: repoRoot,
-      stdio: ["ignore", "pipe", "pipe"],
-      encoding: "utf8"
-    });
+	try {
+		const headPackageJson = execSync("git show HEAD:package.json", {
+			cwd: repoRoot,
+			stdio: ["ignore", "pipe", "pipe"],
+			encoding: "utf8"
+		});
 
-    const currentPackageJson = fs.readFileSync(path.join(repoRoot, "package.json"), "utf8");
-    const oldPkg = JSON.parse(headPackageJson);
-    const newPkg = JSON.parse(currentPackageJson);
+		const currentPackageJson = fs.readFileSync(path.join(repoRoot, "package.json"), "utf8");
+		const oldPkg = JSON.parse(headPackageJson);
+		const newPkg = JSON.parse(currentPackageJson);
 
-    const oldVersions = {
-      ...(oldPkg.dependencies || {}),
-      ...(oldPkg.devDependencies || {})
-    };
-    const newVersions = {
-      ...(newPkg.dependencies || {}),
-      ...(newPkg.devDependencies || {})
-    };
+		const oldVersions = {
+			...(oldPkg.dependencies || {}),
+			...(oldPkg.devDependencies || {})
+		};
+		const newVersions = {
+			...(newPkg.dependencies || {}),
+			...(newPkg.devDependencies || {})
+		};
 
-    const changed = new Set();
-    for (const [name, version] of Object.entries(newVersions)) {
-      if (oldVersions[name] !== version) {
-        changed.add(name);
-      }
-    }
+		const changed = new Set();
+		for (const [name, version] of Object.entries(newVersions)) {
+			if (oldVersions[name] !== version) {
+				changed.add(name);
+			}
+		}
 
-    return changed;
-  } catch {
-    return null;
-  }
+		return changed;
+	} catch {
+		return null;
+	}
 }
 
 /**
@@ -403,10 +419,10 @@ export function detectChangedPackagesFromHead(repoRoot) {
  * @returns {string} The URL with version replaced
  */
 export function substituteUrlVersion(url, oldVersion, newVersion) {
-  // Handles jsdelivr/unpkg (@VERSION/) and cdnjs (/VERSION/) URL patterns.
-  return url
-    .replace(`@${oldVersion}/`, `@${newVersion}/`)
-    .replace(`/${oldVersion}/`, `/${newVersion}/`);
+	// Handles jsdelivr/unpkg (@VERSION/) and cdnjs (/VERSION/) URL patterns.
+	return url
+		.replace(`@${oldVersion}/`, `@${newVersion}/`)
+		.replace(`/${oldVersion}/`, `/${newVersion}/`);
 }
 
 /**
@@ -417,24 +433,24 @@ export function substituteUrlVersion(url, oldVersion, newVersion) {
  * @returns {string} The updated content with all changes applied
  */
 export function updateIntegrityInContent(content, updates) {
-  if (!updates.length) {
-    return content;
-  }
+	if (!updates.length) {
+		return content;
+	}
 
-  const sorted = [...updates].sort((a, b) => b.tagStart - a.tagStart);
-  let updatedContent = content;
+	const sorted = [...updates].sort((a, b) => b.tagStart - a.tagStart);
+	let updatedContent = content;
 
-  for (const item of sorted) {
-    const originalTag = updatedContent.slice(item.tagStart, item.tagEnd);
-    let replacedTag = originalTag.replace(/(\bintegrity\s*=\s*["'])[^"']+(["'])/i, `$1${item.newIntegrity}$2`);
-    if (item.newUrl) {
-      replacedTag = replacedTag
-        .replace(/(\bsrc\s*=\s*["'])[^"']+(["'])/i, `$1${item.newUrl}$2`)
-        .replace(/(\bhref\s*=\s*["'])[^"']+(["'])/i, `$1${item.newUrl}$2`);
-    }
-    updatedContent = updatedContent.slice(0, item.tagStart) + replacedTag + updatedContent.slice(item.tagEnd);
-  }
+	for (const item of sorted) {
+		const originalTag = updatedContent.slice(item.tagStart, item.tagEnd);
+		let replacedTag = originalTag.replace(/(\bintegrity\s*=\s*["'])[^"']+(["'])/i, `$1${item.newIntegrity}$2`);
+		if (item.newUrl) {
+			replacedTag = replacedTag
+				.replace(/(\bsrc\s*=\s*["'])[^"']+(["'])/i, `$1${item.newUrl}$2`)
+				.replace(/(\bhref\s*=\s*["'])[^"']+(["'])/i, `$1${item.newUrl}$2`);
+		}
+		updatedContent = updatedContent.slice(0, item.tagStart) + replacedTag + updatedContent.slice(item.tagEnd);
+	}
 
-  return updatedContent;
+	return updatedContent;
 }
 
