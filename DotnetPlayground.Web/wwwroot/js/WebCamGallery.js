@@ -12,8 +12,6 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 	let videoJSLoaded = false;
 	const btnReplAllImg = $('#btnReplAllImg');
 
-	window.WebVTT = true;//block loading of external vtt.js library
-
 	/**
 	 * on live img refresh click
 	 */

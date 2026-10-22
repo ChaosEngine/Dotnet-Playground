@@ -521,8 +521,8 @@ namespace DotnetPlayground
 
                 main.Use(async (context, next) =>
                 {
-                    context.Response.Headers["Content-Security-Policy-Report-Only"] =
-                        "require-trusted-types-for 'script'; report-uri /dotnet/CspReport; trusted-types default TTSecPolicy";
+                    context.Response.Headers["Content-Security-Policy"] =
+                        "require-trusted-types-for 'script'; report-to /dotnet/CspReport; trusted-types default TTSecPolicy";
 
                     await next();
                 });
