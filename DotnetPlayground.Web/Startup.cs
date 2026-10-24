@@ -518,7 +518,7 @@ namespace DotnetPlayground
 
             app.Map("/dotnet", main =>
             {
-
+#if DEBUG
                 main.Use(async (context, next) =>
                 {
                     context.Response.Headers["Content-Security-Policy"] =
@@ -526,7 +526,7 @@ namespace DotnetPlayground
 
                     await next();
                 });
-
+#endif
                 // Adds request decompression middleware
                 // main.UseMiddleware<RequestDecompressionMiddleware>();
                 main.UseRequestDecompression();
