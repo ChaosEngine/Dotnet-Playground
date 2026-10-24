@@ -177,9 +177,9 @@ namespace Integration
 					ViolatedDirective = "img-src",
 					EffectiveDirective = "img-src",
 					OriginalPolicy = """
-				base-uri 'self'; report-uri /dotnet/CspPeport; default-src 'self'; 
+				base-uri 'self'; report-to /dotnet/CspPeport; default-src 'self'; 
 				manifest-src 'self'; upgrade-insecure-requests; block-all-mixed-content; 
-				script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com https://vjs.zencdn.net; 
+				script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; 
 				style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; 
 				img-src 'self' data: blob: https://i.ytimg.com; 
 				font-src 'self' data:; 
