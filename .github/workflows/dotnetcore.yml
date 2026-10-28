@@ -26,8 +26,8 @@ jobs:
         key: ${{ runner.os }}-npm-${{ hashFiles('package.json', 'pnpm-lock.yaml') }}
         restore-keys: |
           ${{ runner.os }}-npm-
-    - name: Install Node dependencies
-      run: npm install
+    # - name: Install Node dependencies
+    #   run: npm install
     - name: Verify CDN SRI references
       run: npm run sri:check
     - name: Setup .NET Core
