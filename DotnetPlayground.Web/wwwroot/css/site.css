@@ -196,6 +196,7 @@ Theme switcher:
   left: -50%;
   z-index: -1;
   background: var(--bimg) repeat;
+  background-size: 5%;
   transform: var(--trans);
 }
 .puzzles #target::after {
