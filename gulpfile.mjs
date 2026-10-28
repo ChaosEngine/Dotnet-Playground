@@ -1,24 +1,53 @@
-﻿"use strict";
-
-import gulp from 'gulp';
-// const { series, parallel, src, dest, task } = gulp;
-
+﻿/* eslint-disable no-console */
+"use strict";
 import process from 'node:process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+// import * as Bun from "bun";
 
 import * as dartSass from 'sass';
-import gulpSass from 'gulp-sass';
-const sass = gulpSass(dartSass);
+// import webpack from 'webpack';
+// import { minify as terserMinify } from 'terser';
+import * as esbuild from 'esbuild';
+// import CleanCSS from 'clean-css';
 
-import replace from 'gulp-replace';
-import concat from "gulp-concat";
-import cleanCSS from "@aptuitiv/gulp-clean-css";
-import terser from "gulp-terser";
-import rename from "gulp-rename";
-import sourcemaps from 'gulp-sourcemaps';
-import webpack from 'webpack-stream';
-import jsonMinify from 'gulp-json-minify';
+/**
+ * A utility class to measure and print the execution time of a code block.
+ */
+class ExecutionTimePrinter {
+	#value = Date.now();
+	#callerName;
+
+	constructor() {
+		this.#callerName = this.#getCallerName();
+		// [17:43:25] Starting 'inkBallScssToCSS'...
+		//make the date purple color and caller name blue green color
+		console.log(`\x1b[35m[${new Date().toLocaleTimeString()}]\x1b[0m Starting '\x1b[36m${this.#callerName}\x1b[0m'...`);
+	}
+
+	#getCallerName() {
+		const err = new Error();
+		// Stack lines:
+		// [0]: Error
+		// [1]: at getCallerName (...)
+		// [2]: at parseCliArgs (...)  <-- Current Function
+		// [3]: at main (...)          <-- Parent Caller
+		const stackLines = err.stack ? err.stack.split("\n") : [];
+		if (stackLines.length < 4) return "anonymous";
+
+		const callerLine = stackLines[3];
+		const match = callerLine.match(/at\s+([^\s]+)/);
+		return match && match[1] !== "Object.<anonymous>" ? match[1] : "top-level";
+	}
+
+	[Symbol.dispose]() {
+		const date = new Date();
+		//[17:43:27] Finished 'inkBallScssToCSS' after 1.5 s
+		//make the date purple color and caller name blue green color and date - this.#value again purple color
+		console.log(`\x1b[35m[${date.toLocaleTimeString()}]\x1b[0m Finished '\x1b[36m${this.#callerName}\x1b[0m' after \x1b[35m${date - this.#value}ms\x1b[0m`);
+	}
+}
 
 const webroot = "./DotnetPlayground.Web/wwwroot/";
 const IBwebroot = "./InkBall/src/InkBall.Module/wwwroot/";
@@ -51,17 +80,277 @@ const paths = {
 	//</InkBall>
 };
 
-const minCSS = function (sourcePattern, notPattern, dest) {
-	return gulp.src([sourcePattern, "!" + notPattern])
-		.pipe(concat(dest))
-		.pipe(sourcemaps.init())
-		.pipe(cleanCSS())
-		.pipe(sourcemaps.mapSources(function (sourcePath, file) {
-			// console.log(`OMG-mapSources A '${sourcePath}', '${file.basename}' Z`);
-			return file.basename.replace('.min', '');
-		}))
-		.pipe(sourcemaps.write('./', { includeContent: false }))
-		.pipe(gulp.dest("."));
+/**
+ * Parses command line arguments.
+ * @returns {{ task: string, flags: Record<string, string> }} - task and flags object
+ */
+function parseCliArgs() {
+	// using _resource = new ExecutionTimePrinter();
+
+	const args = process.argv.slice(2);
+	let task = 'main';
+	const flags = {};
+
+	for (const arg of args) {
+		if (arg.startsWith('--')) {
+			const [rawKey, ...rest] = arg.slice(2).split('=');
+			flags[rawKey] = rest.length > 0 ? rest.join('=') : 'true';
+		} else if (task === 'main') {
+			task = arg;
+		}
+	}
+
+	if (typeof flags.task === 'string' && flags.task.length > 0) {
+		task = flags.task;
+	}
+
+	return { task, flags };
+}
+
+const cli = parseCliArgs();
+
+/**
+ * Converts a glob pattern to a regular expression.
+ * @param {string} pattern - The glob pattern
+ * @returns {RegExp} - The corresponding regular expression
+ */
+function globToRegex(pattern) {
+	// using _resource = new ExecutionTimePrinter();
+
+	const normalizedPattern = pattern.replaceAll('\\\\', '/');
+	return new RegExp('^' + normalizedPattern
+		.replace(/[.+^${}()|[\]\\]/g, '\\\\$&')
+		.replaceAll('**', ':::DOUBLE_STAR:::')
+		.replaceAll('*', '[^/]*')
+		.replaceAll(':::DOUBLE_STAR:::', '.*') + '$');
+}
+
+/**
+ * Lists files matching the given patterns.
+ * @param {string[]} patterns - Array of glob patterns
+ * @returns {Promise<string[]>} - Array of matching file paths
+ */
+async function listFiles(patterns) {
+	// using _resource = new ExecutionTimePrinter();
+
+	const include = patterns.filter(x => !x.startsWith('!'));
+
+	const excludeRegexes = patterns
+		.filter(x => x.startsWith('!'))
+		.map(x => globToRegex(x.substring(1)));
+
+	const batches = await Promise.all(include.map(async (pattern) => {
+		const files = [];
+		for await (const file of fs.glob(pattern)) {
+			if (!excludeRegexes.some(re => re.test(file))) {
+				files.push(file);
+			}
+		}
+		//console.log(`Pattern: ${pattern}, Found: ${files.length} files ${files.length > 0 ? `(${files.join(', ')})` : ''}`);
+		return files;
+	}));
+
+	return Array.from(new Set(batches.flat()));
+}
+
+const ensureParentDir = async (filePath) => {
+	await fs.mkdir(path.dirname(filePath), { recursive: true });
+};
+
+const writeTextFile = async (filePath, contents) => {
+	await ensureParentDir(filePath);
+	await fs.writeFile(filePath, contents, 'utf8');
+};
+
+async function minifyCssFile(src, dest) {
+	// using _resource = new ExecutionTimePrinter();
+
+	return minifyCssFile_DartSass(src, dest);
+	// return minifyCssFile_EsBuild(src, dest);
+	// return minifyCssFile_CleanCSS(src, dest);
+
+	// eslint-disable-next-line no-unused-vars
+	async function minifyCssFile_CleanCSS(src, dest) {
+		const css = await fs.readFile(src, 'utf8');
+		// eslint-disable-next-line no-undef
+		const result = new CleanCSS({
+			sourceMap: true,
+			sourceMapInlineSources: false
+		}).minify({
+			[path.basename(src)]: {
+				styles: css
+			}
+		});
+		if (result.errors.length > 0) {
+			throw new Error(`CSS minification failed for '${src}': ${result.errors.join('; ')}`);
+		}
+		let minifiedCss = result.styles;
+		if (!minifiedCss.includes('sourceMappingURL=')) {
+			const sourceMapComment = `/*# sourceMappingURL=${path.basename(dest)}.map */`;
+			minifiedCss = `${minifiedCss}\n${sourceMapComment}\n`;
+		}
+
+		await writeTextFile(dest, minifiedCss);
+		if (result.sourceMap) {
+			const sourceMapJson = result.sourceMap.toJSON();
+			sourceMapJson.file = path.basename(dest);
+			await writeTextFile(`${dest}.map`, JSON.stringify(sourceMapJson));
+		}
+	}
+
+	// eslint-disable-next-line no-unused-vars
+	async function minifyCssFile_EsBuild(src, dest) {
+		const css = await fs.readFile(src, 'utf8');
+		const result = await esbuild.transform(css, {
+			loader: 'css',
+			sourcefile: path.basename(src),
+			minify: true,
+			sourcemap: true,
+			sourcesContent: false
+		});
+		if (!result.code.includes('sourceMappingURL=')) {
+			const sourceMapComment = `/*# sourceMappingURL=${path.basename(dest)}.map */`;
+			result.code = `${result.code}${sourceMapComment}\n`;
+		}
+
+		await writeTextFile(dest, result.code);
+		if (result.map) {
+			const mapJson = JSON.parse(result.map);
+			const destBasename = path.basename(dest);
+			mapJson.file = destBasename;
+			const mapContents = JSON.stringify(mapJson);
+			await writeTextFile(`${dest}.map`, mapContents);
+		}
+	}
+
+	async function minifyCssFile_DartSass(src, dest) {
+		const result = dartSass.compile(src, {
+			style: "compressed",
+			sourceMap: true,
+			sourceMapIncludeSources: false
+		});
+		let minifiedCss = result.css;
+		if (!minifiedCss.includes('sourceMappingURL=')) {
+			const sourceMapComment = `/*# sourceMappingURL=${path.basename(dest)}.map */`;
+			minifiedCss = `${minifiedCss}\n${sourceMapComment}\n`;
+		}
+
+		await fs.writeFile(dest, minifiedCss);
+
+		if (result.sourceMap) {
+			const sourceMapJson = result.sourceMap;
+			sourceMapJson.file = path.basename(dest);
+			sourceMapJson.sources = sourceMapJson.sources.map(source => path.basename(source));
+			// console.log(`dest: ${dest}, sourceMapJson.file: ${sourceMapJson.file} target: ${path.basename(dest).replace(/\.css$/i, '.min.css.map')}`);
+			await writeTextFile(dest.replace(/\.css$/i, '.css.map'), JSON.stringify(sourceMapJson));
+		}
+	}
+}
+
+async function minifyJsFile(src, dest, toplevel = false) {
+	// using _resource = new ExecutionTimePrinter();
+
+	// return minifyJsFile_Terser(src, dest, toplevel);
+	return minifyJsFile_EsBuild(src, dest, toplevel);
+
+	// eslint-disable-next-line no-unused-vars
+	async function minifyJsFile_Terser(src, dest, toplevel = false) {
+		const code = await fs.readFile(src, 'utf8');
+		const sourceName = path.basename(src);
+		// eslint-disable-next-line no-undef
+		const result = await terserMinify({
+			[sourceName]: code
+		}, {
+			toplevel,
+			sourceMap: {
+				filename: path.basename(dest),
+				url: `${path.basename(dest)}.map`
+			}
+		});
+
+		if (!result.code) {
+			throw new Error(`JS minification failed for '${src}'`);
+		}
+
+		await writeTextFile(dest, result.code + '\n');
+		if (result.map) {
+			await writeTextFile(`${dest}.map`, result.map);
+		}
+	}
+
+	async function minifyJsFile_EsBuild(src, dest, toplevel = false) {
+		const result = await esbuild.build({
+			entryPoints: [src],
+			outfile: dest,
+			sourcemap: 'linked',
+			minify: true,
+			keepNames: !toplevel,
+			legalComments: 'none',
+			sourcesContent: false,
+			write: false
+		});
+
+		let jsContents, mapContents;
+
+		for (const file of result.outputFiles) {
+			if (file.path.endsWith('.map')) {
+				const mapJson = JSON.parse(file.text);
+				const destBasename = path.basename(dest);
+				mapJson.file = destBasename;
+				mapContents = JSON.stringify(mapJson);
+			} else {
+				jsContents = file.text;
+			}
+		}
+
+		await Promise.all([writeTextFile(dest, jsContents), writeTextFile(`${dest}.map`, mapContents)]);
+	}
+}
+
+async function minifyJsonFile(src, dest) {
+	// using _resource = new ExecutionTimePrinter();
+
+	const raw = await fs.readFile(src, 'utf8');
+	const minified = JSON.stringify(JSON.parse(raw));
+	await writeTextFile(dest, minified);
+}
+
+async function compileScssFile(src, dest, replacer) {
+	using _resource = new ExecutionTimePrinter();
+
+	const rawScss = await fs.readFile(src, 'utf8');
+	const transformed = replacer ? replacer(rawScss) : rawScss;
+	const compiled = dartSass.compileString(transformed, {
+		style: 'expanded',
+		url: pathToFileURL(path.resolve(src))
+		//, sourceMap: false,
+		// sourceMapIncludeSources: true
+	});
+	await writeTextFile(dest, compiled.css);
+	if (compiled.sourceMap) {
+		const sourceMapJson = compiled.sourceMap;
+		sourceMapJson.file = path.basename(dest).replace(/\.css$/i, '.min.css');
+		sourceMapJson.sources = sourceMapJson.sources.map(source => path.basename(source));
+		// console.log(`dest: ${dest}, sourceMapJson.file: ${sourceMapJson.file} target: ${path.basename(dest).replace(/\.css$/i, '.min.css.map')}`);
+		await writeTextFile(dest.replace(/\.css$/i, '.min.css.map'), JSON.stringify(sourceMapJson));
+	}
+}
+
+const runWebpack = (config) => {
+	return new Promise((resolve, reject) => {
+		// eslint-disable-next-line no-undef
+		webpack(config, (err, stats) => {
+			if (err) {
+				reject(err);
+				return;
+			}
+			if (stats?.hasErrors()) {
+				reject(new Error(stats.toString('errors-warnings')));
+				return;
+			}
+			resolve(stats);
+		});
+	});
 };
 
 /**
@@ -70,15 +359,15 @@ const minCSS = function (sourcePattern, notPattern, dest) {
  * @returns {Promise<void[]>} Promise that resolves when all files are deleted
  */
 const rimraf = async function (globPatterns) {
-	let found_files = [];
+	const found_files = new Set();
 	for (const pattern of globPatterns) {
 		for await (const file of fs.glob(pattern))
-			found_files.push(file);
+			found_files.add(file);
 	}
-	if (found_files.length === 0)
+	if (found_files.size === 0)
 		return Promise.resolve();
 
-	return Promise.all(found_files.map(file => {
+	return Promise.all(Array.from(found_files).map(file => {
 		// console.log(file);
 		return fs.rm(file, { force: true });
 	}));
@@ -86,16 +375,14 @@ const rimraf = async function (globPatterns) {
 
 ////////////// [Inkball Section] //////////////////
 // eslint-disable-next-line no-unused-vars
-const inkballEntryPoint = function (min) {
-	return gulp.src([
-		paths.inkBallJsRelative + 'inkball.js'
-		//paths.inkBallJsRelative + 'shared.js',
-		//paths.inkBallJsRelative + 'AISource.js'
-	]).pipe(webpack({
+async function inkballEntryPoint(min) {
+	using _resource = new ExecutionTimePrinter();
+
+	await runWebpack({
 		entry: {
 			'inkball': [
 				//'@babel/polyfill',
-				paths.inkBallJsRelative + 'inkball.js'
+				path.resolve(paths.inkBallJsRelative, 'inkball.js')
 			]
 		},
 		output: {
@@ -121,26 +408,50 @@ const inkballEntryPoint = function (min) {
 		performance: {
 			hints: process.env.NODE_ENV === 'production' ? "warning" : false
 		},
-		mode: "production",
-		stats: "errors-warnings"
-	}))
-		.pipe(rename({ suffix: min ? '.min' : '' }))
-		.pipe(gulp.dest(paths.inkBallJsRelative));
-};
+		mode: 'production',
+		stats: 'errors-warnings',
+		devtool: 'source-map'
+	});
+}
 
-const inkballAIWorker = function (doPollyfill = false) {
-	return gulp.src(paths.inkBallJsRelative + "AIWorker.js")
-		.pipe(webpack({
+async function inkballAIWorker(doPollyfill = false) {
+	using _resource = new ExecutionTimePrinter();
+
+	return inkballAIWorker_Bun(doPollyfill);
+	// return inkballAIWorker_WebPack(doPollyfill);
+	// return inkballAIWorker_Esbuild(doPollyfill);
+
+	// eslint-disable-next-line no-unused-vars
+	async function inkballAIWorker_Esbuild() {
+		await esbuild.build({
+			entryPoints: [path.resolve(paths.inkBallJsRelative, 'AIWorker.js')],
+			bundle: true,
+			minify: true,
+			sourcemap: true,
+			sourcesContent: false,
+			platform: 'browser',
+			format: 'esm',
+			// format: 'iife',
+			// target: ['chrome58', 'firefox57', 'safari11', 'edge16'],
+			outfile: path.resolve(paths.inkBallJsRelative, 'AIWorker.Bundle.js')
+		});
+	}
+
+	// eslint-disable-next-line no-unused-vars
+	async function inkballAIWorker_WebPack(doPollyfill = false) {
+
+		await runWebpack({
 			entry: {
-				'AIWorker': doPollyfill === true ? [
+				AIWorker: doPollyfill === true ? [
 					'@babel/polyfill',
-					paths.inkBallJsRelative + 'AIWorker.js'
+					path.resolve(paths.inkBallJsRelative, 'AIWorker.js')
 				] : [
-					paths.inkBallJsRelative + 'AIWorker.js'
+					path.resolve(paths.inkBallJsRelative, 'AIWorker.js')
 				]
 			},
 			// target: "webworker",
 			output: {
+				path: path.resolve(paths.inkBallJsRelative),
 				filename: doPollyfill === true ? '[name].PolyfillBundle.js' : '[name].Bundle.js'
 			},
 			module: doPollyfill === true ? {
@@ -159,151 +470,149 @@ const inkballAIWorker = function (doPollyfill = false) {
 				minimize: true
 			},
 			performance: {
-				hints: process.env.NODE_ENV === 'production' ? "warning" : false
+				hints: process.env.NODE_ENV === 'production' ? 'warning' : false
 			},
-			mode: "production",
-			stats: "errors-warnings",
+			mode: 'production',
+			stats: 'errors-warnings',
 			devtool: 'source-map'
-		}))
-		.pipe(gulp.dest(paths.inkBallJsRelative));
-};
+		});
+	}
+
+	async function inkballAIWorker_Bun() {
+
+		const bun = await import("bun");
+		const Bun = bun.default ?? bun;
+
+		const result = await Bun.build({
+			entrypoints: [path.resolve(paths.inkBallJsRelative, 'AIWorker.js')],
+			sourcemap: 'linked',
+			minify: true,
+			platform: 'browser',
+			format: 'esm',
+			//outdir: paths.inkBallJsRelative,
+			naming: "[dir]/[name].Bundle.[ext]"
+		});
+
+		if (result.success) {
+			// console.log(`Bun build result: ${result.success ? 'Success' : 'Failure'}, file count: ${result.outputs.length}`);
+
+			for (const output of result.outputs) {
+				// console.log(`Output file path: ${output.path}, type: ${output.kind}`);
+
+				if (output.kind === 'entry-point') {
+					if (output.sourcemap) {
+						// console.log(`Source map file path: ${output.sourcemap.path}`);
+
+						const mapJson = JSON.parse(await output.sourcemap.text());
+						// delete mapJson.sourcesContent; // Remove sourcesContent to reduce size
+						delete mapJson.debugId;// Remove debugId to reduce size
+						const mapContents = JSON.stringify(mapJson);
+						await writeTextFile(path.resolve(paths.inkBallJsRelative, output.sourcemap.path), mapContents);
+					}
+
+					//remove \ndebugId.* from trailing output if present
+					const outputText = await output.text();
+					const cleanedOutputText = outputText.replace(/\n\/\/# debugId=.*\n?/g, '');
+					await writeTextFile(path.resolve(paths.inkBallJsRelative, output.path), cleanedOutputText);
+				}
+			}
+		}
+	}
+}
 
 const webpackRun = inkballAIWorker;
 
-const fileMinifyJSFunction = function (src, dest, toplevel = false) {
-	return gulp.src([src, "!" + dest], { base: "." })
-		.pipe(concat(dest))
-		.pipe(sourcemaps.init())
-		.pipe(terser({
-			toplevel: toplevel
-		}))
-		.pipe(sourcemaps.mapSources(function (sourcePath, file) {
-			// console.log(`OMG-mapSources A '${sourcePath}', '${file.basename}' Z`);
-			return file.basename.replace('.min', '');
-		}))
-		.pipe(sourcemaps.write('./', { includeContent: false }))
-		.pipe(gulp.dest("."));
-};
+async function minInkballJs() {
+	using _resource = new ExecutionTimePrinter();
 
-const fileMinifySCSSFunction = function (src, dest) {
-	return gulp.src([src, "!" + dest], { base: "." })
-		.pipe(concat(dest))
-		.pipe(sass().on('error', sass.logError))
-		.pipe(gulp.dest("."));
-};
+	await Promise.all([
+		minifyJsFile(paths.inkBallJsRelative + 'inkball.js', paths.inkBallJsRelative + 'inkball.min.js', true),
+		minifyJsFile(paths.inkBallJsRelative + 'shared.js', paths.inkBallJsRelative + 'shared.min.js', true)
+	]);
+}
 
-const minInkballJs = gulp.parallel(
-	function inkballJs() {
-		return fileMinifyJSFunction(paths.inkBallJsRelative + "inkball.js",
-			paths.inkBallJsRelative + "inkball.min.js", true);
-	},
-	function inkballSharedJs() {
-		return fileMinifyJSFunction(paths.inkBallJsRelative + "shared.js",
-			paths.inkBallJsRelative + "shared.min.js", true);
-	}
-);
+async function minInkballCss() {
+	using _resource = new ExecutionTimePrinter();
 
-const minInkballCss = gulp.series(
-	function inkBallScssToCSS() {
-		return fileMinifySCSSFunction(paths.inkBallCssRelative + "inkball.scss", paths.inkBallCssRelative + "inkball.css");
-	},
-	function inkBallCssToMinCSS() {
-		return minCSS(paths.inkBallCssRelative + "inkball.css", paths.inkBallCssRelative + "inkball.min.css",
-			paths.inkBallCssRelative + "inkball.min.css");
-	}
-);
+	await compileScssFile(paths.inkBallCssRelative + 'inkball.scss', paths.inkBallCssRelative + 'inkball.css');
+	await minifyCssFile(paths.inkBallCssRelative + 'inkball.css', paths.inkBallCssRelative + 'inkball.min.css');
+}
 
-const minInkballTranslations = function concatJsDest() {
-	return gulp.src([paths.inkBallTranslation, "!" + paths.inkBallMinTranslation], { base: "." })
-		.pipe(jsonMinify())
-		.pipe(rename({ suffix: '.min' }))
-		.pipe(gulp.dest("."));
-};
+async function minInkballTranslations() {
+	using _resource = new ExecutionTimePrinter();
 
-const minInkball = gulp.parallel(minInkballJs, minInkballCss, minInkballTranslations);
+	const files = await listFiles([paths.inkBallTranslation, '!' + paths.inkBallMinTranslation]);
+	await Promise.all(files.map(file => {
+		const dest = file.replace(/\.json$/i, '.min.json');
+		return minifyJsonFile(file, dest);
+	}));
+}
 
-////////////// [/Inkball Section] //////////////////
+async function minInkball() {
+	using _resource = new ExecutionTimePrinter();
 
-const clean = function() {
-  return Promise.all([
-    rimraf([
-		paths.inkBallJsRelative + "*.min.js",
-		paths.inkBallJsRelative + "*Bundle.js",
-		paths.inkBallJsRelative + "*.map",
+	await Promise.all([minInkballJs(), minInkballCss(), minInkballTranslations()]);
+}
+
+async function clean() {
+	using _resource = new ExecutionTimePrinter();
+
+	await rimraf([
+		paths.inkBallJsRelative + '*.min.js',
+		paths.inkBallJsRelative + '*Bundle.js',
+		paths.inkBallJsRelative + '*.map',
 		paths.inkBallMinTranslation
-	]),
-    rimraf([
+		,
 		paths.minJs,
 		paths.SWJsDest,
 		paths.minTranslation,
-		webroot + "js/**/*.map",
-		webroot + "*.map"
-	]),
-    rimraf([
-		paths.inkBallCssRelative + "*.css",
-		paths.inkBallCssRelative + "*.map"
-	]),
-	rimraf([
-		webroot + "css/*.css*",
-		webroot + "css/*.map"
-	])
-  ]);
-};
+		webroot + 'js/**/*.map',
+		webroot + '*.map'
+		,
+		paths.inkBallCssRelative + '*.css',
+		paths.inkBallCssRelative + '*.map'
+		,
+		webroot + 'css/*.css',
+		webroot + 'css/*.map'
+	]);
+}
 
-const minSWJsJs = function () {
-	return fileMinifyJSFunction(paths.SWJs, paths.SWJsDest);
-};
+async function minSWJsJs() {
+	using _resource = new ExecutionTimePrinter();
 
-const minJs = gulp.series(minSWJsJs,
-	function concatJsDest() {
-		return gulp.src([paths.js, "!" + paths.minJs], { base: "." })
-			//.pipe(concat(paths.concatJsDest))
-			.pipe(sourcemaps.init())
-			.pipe(terser())
-			.pipe(rename({ suffix: '.min' }))
-			.pipe(sourcemaps.mapSources(function (sourcePath, file) {
-				// console.log(`OMG-mapSources A '${sourcePath}', '${file.basename}' Z`);
-				return file.basename.replace('.min', '');
-			}))
-			.pipe(sourcemaps.write('./', { includeContent: false }))
-			.pipe(gulp.dest("."));
-	}
-);
+	await minifyJsFile(paths.SWJs, paths.SWJsDest);
+}
 
-const minTranslations = function concatJsDest() {
-	return gulp.src([paths.translation, "!" + paths.minTranslation], { base: "." })
-		.pipe(jsonMinify())
-		.pipe(rename({ suffix: '.min' }))
-		.pipe(gulp.dest("."));
-};
+async function minJs() {
+	using _resource = new ExecutionTimePrinter();
 
-const processInputArgs = function () {
+	await minSWJsJs();
+	const jsFiles = await listFiles([paths.js, '!' + paths.minJs]);
+	await Promise.all(jsFiles.map(file => {
+		const dest = file.replace(/\.js$/i, '.min.js');
+		return minifyJsFile(file, dest);
+	}));
+}
+
+async function minTranslations() {
+	using _resource = new ExecutionTimePrinter();
+
+	const files = await listFiles([paths.translation, '!' + paths.minTranslation]);
+	await Promise.all(files.map(file => {
+		const dest = file.replace(/\.json$/i, '.min.json');
+		return minifyJsonFile(file, dest);
+	}));
+}
+
+function processInputArgs() {
 	let colorTheme;//process.env.NODE_ENV === 'production' ? 'darkred' : 'darkslateblue';
 	let env = undefined;
 	let projectVersion = undefined;
-	const argv = process.argv;
-	//console.log('pure argv = ' + JSON.stringify(argv));
-	const interestingArgs = argv.length > 2 ? argv.splice(2).filter(x => x.startsWith('--')) : undefined;
 
-	if (interestingArgs !== undefined && interestingArgs.length > 0) {
-		const params = interestingArgs.map(item => item.split('=', 2)).map(kv => {
-			let xxx = {};
-			//console.log(kv[0], kv[1]);
-			xxx[kv[0].substring(2)] = kv[1];
-			return xxx;
-		});
-		if (params !== null && params.length > 0) {
-			for (const par of params) {
-				//console.log('par = '+par);
-				if (par['version'] !== undefined && par['version'].length > 0)
-					projectVersion = par['version'];
-				if (par['env'] !== undefined && par['env'].length > 0)
-					env = par['env'];
-			}
-		}
-		// eslint-disable-next-line no-console
-		console.log('Argv => ' + JSON.stringify(params));
-	}
+	if (typeof cli.flags.version === 'string' && cli.flags.version.length > 0)
+		projectVersion = cli.flags.version;
+	if (typeof cli.flags.env === 'string' && cli.flags.env.length > 0)
+		env = cli.flags.env;
 
 	if (projectVersion !== undefined && projectVersion.length > 0)
 		projectVersion = ', Version: ' + projectVersion;
@@ -326,41 +635,55 @@ const processInputArgs = function () {
 	}
 
 	return { env, colorTheme, projectVersion };
-};
+}
 
-const processSCSS = function (sourcePattern, notPattern) {
+async function processSCSS(sourcePattern, notPattern) {
+	using _resource = new ExecutionTimePrinter();
+
 	const { colorTheme, projectVersion } = processInputArgs();
+	const files = await listFiles([sourcePattern]);
 
-	return gulp.src([sourcePattern, "!" + notPattern])
-		// .pipe(header('$themeColor: ${color};\n$projectVersion: ${version};\n', { color: colorTheme, version: `'${projectVersion}'` }))
-		.pipe(replace('$themeColor', colorTheme))
-		.pipe(replace('$projectVersion', `'${projectVersion}'`))
-		.pipe(sass().on('error', sass.logError))
-		.pipe(gulp.dest(notPattern));
-};
+	await Promise.all(files.map(file => {
+		const outFile = path.join(notPattern, path.basename(file).replace(/\.scss$/i, '.css'));
+		return compileScssFile(file, outFile, input =>
+			input
+				.replaceAll('$themeColor', colorTheme)
+				.replaceAll('$projectVersion', `'${projectVersion}'`)
+		);
+	}));
+}
 
-const minScss = gulp.series(
-	function scssToCss() {
-		return processSCSS(paths.scss, paths.destCSSDir);
-	},
-	function runTaskMinSiteCSS() {
-		return minCSS(webroot + "css/site.css", webroot + "css/site.min.css", webroot + "css/site.min.css");
-	},
-	function runTaskMinIconsCSS() {
-		return minCSS(webroot + "css/icons.css", webroot + "css/icons.min.css", webroot + "css/icons.min.css");
-	}
-);
+async function minScss() {
+	using _resource = new ExecutionTimePrinter();
 
-const min = gulp.parallel(minJs, minInkball, minScss, minTranslations);
+	await processSCSS(paths.scss, paths.destCSSDir);
+	await minifyCssFile(webroot + 'css/site.css', webroot + 'css/site.min.css');
+	await minifyCssFile(webroot + 'css/icons.css', webroot + 'css/icons.min.css');
+}
 
-const cssRun = gulp.parallel(minInkballCss, minScss);
+async function min() {
+	using _resource = new ExecutionTimePrinter();
+
+	await Promise.all([minJs(), minInkball(), minScss(), minTranslations()]);
+}
+
+async function cssRun() {
+	using _resource = new ExecutionTimePrinter();
+
+	await Promise.all([minInkballCss(), minScss()]);
+}
 
 ///
 /// postinstall entry point (npm i)
 ///
-const postinstall = () => {
+async function postinstall() {
+	using _resource = new ExecutionTimePrinter();
+
 	const copy_promises = [];
-	const file_copy = (src, dst) => copy_promises.push(fs.cp(src, dst));
+	const file_copy = (src, dst) => {
+		// await ensureParentDir(dst);
+		copy_promises.push(fs.cp(src, dst));
+	};
 	const dir_copy = (src, dst, filter = undefined) => copy_promises.push(fs.cp(src, dst, {
 		recursive: true, // needed to copy directories
 		filter           // your filter function
@@ -411,8 +734,8 @@ const postinstall = () => {
 			return false;
 		}
 	});
-	file_copy(`${nm}/video.js/dist/video-js.min.css`, `${dst}video.js/video-js.min.css`);
-	file_copy(`${nm}/video.js/dist/alt/video.core.novtt.min.js`, `${dst}video.js/alt/video.core.novtt.min.js`);
+	// file_copy(`${nm}/video.js/dist/video-js.min.css`, `${dst}video.js/video-js.min.css`);
+	// file_copy(`${nm}/video.js/dist/alt/video.core.novtt.min.js`, `${dst}video.js/alt/video.core.novtt.min.js`);
 	file_copy(`${nm}/qrcodejs/qrcode.min.js`, `${dst}qrcodejs/qrcode.min.js`);
 	dir_copy(`${nm}/@microsoft/signalr/dist/browser`, `${dst}signalr/browser`, async (src) => {
 		if ((await fs.lstat(src)).isDirectory() || src.includes(`signalr.min.js`)) {
@@ -430,7 +753,7 @@ const postinstall = () => {
 			return false;
 		}
 	});
-	file_copy(`${nm}/msgpack5/dist/msgpack5.min.js`, `${dst}msgpack5/msgpack5.min.js`);
+	// file_copy(`${nm}/msgpack5/dist/msgpack5.min.js`, `${dst}msgpack5/msgpack5.min.js`);
 	file_copy(`${nm}/ace-builds/src-min-noconflict/ace.js`, `${dst}ace-builds/ace.js`);
 	file_copy(`${nm}/ace-builds/src-min-noconflict/mode-csharp.js`, `${dst}ace-builds/mode-csharp.js`);
 	file_copy(`${nm}/ace-builds/src-min-noconflict/theme-chaos.js`, `${dst}ace-builds/theme-chaos.js`);
@@ -448,25 +771,38 @@ const postinstall = () => {
 	file_copy(`${nm}/html2canvas/dist/html2canvas.min.js`, `${dst}html2canvas/html2canvas.min.js`);
 
 	return Promise.all(copy_promises);
-};
+}
 
 ///
 /// Main entry point
 ///
-const main = gulp.series(
-	clean,
-	webpackRun,
-	min
-);
+async function main() {
+	using _resource = new ExecutionTimePrinter();
 
-///
-/// Exports
-///
-export {
-	main as default,
+	await clean();
+	await webpackRun();
+	await min();
+	// await Promise.all([webpackRun(), min()]);
+}
+
+const tasks = {
+	main,
 	clean,
-	webpackRun as webpack,
+	webpack: webpackRun,
 	min,
-	cssRun as css,
+	css: cssRun,
 	postinstall
 };
+
+if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
+	const selectedTask = tasks[cli.task];
+	if (!selectedTask) {
+		console.error(`Unknown task '${cli.task}'. Available tasks: ${Object.keys(tasks).join(', ')}`);
+		process.exitCode = 1;
+	} else {
+		selectedTask().catch(err => {
+			console.error(err);
+			process.exitCode = 1;
+		});
+	}
+}

@@ -71,8 +71,8 @@ self.addEventListener('install', function (/* event */) {
 			'lib/bootstrap/js/bootstrap.bundle.min.js',
 			'lib/blueimp-gallery/css/blueimp-gallery.min.css',
 			'lib/blueimp-gallery/js/blueimp-gallery.min.js',
-			'lib/video.js/video-js.min.css',
-			'lib/video.js/alt/video.core.novtt.min.js',
+			// 'lib/video.js/video-js.min.css',
+			// 'lib/video.js/alt/video.core.novtt.min.js',
 			'lib/blueimp-md5/md5.min.js',
 			'lib/bootstrap-table/bootstrap-table.min.css',
 			'lib/bootstrap-table/bootstrap-table.min.js',
@@ -81,7 +81,6 @@ self.addEventListener('install', function (/* event */) {
 			'lib/ace-builds/ace.js',//questionable, only dev ?
 			'lib/ace-builds/mode-csharp.js'//questionable, only dev ?
 			//'lib/signalr/browser/signalr.min.js',//questionable, inkball ?
-			//'lib/msgpack5/msgpack5.min.js',//questionable, inkball ?
 			//'lib/signalr-protocol-msgpack/browser/signalr-protocol-msgpack.min.js'//questionable, inkball ?
 		]);
 	}
@@ -89,11 +88,11 @@ self.addEventListener('install', function (/* event */) {
 		//cdn resources
 		RESOURCES = RESOURCES.concat([
 			'https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.4.0/css/blueimp-gallery.min.css',
-			'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.17.4/video-js.min.css',
 			'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.24.2/bootstrap-table.min.css',
 			'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
 			'https://cdnjs.cloudflare.com/ajax/libs/blueimp-gallery/3.4.0/js/blueimp-gallery.min.js',
-			'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.17.4/alt/video.core.novtt.min.js',
+			// 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.17.4/video-js.min.css',
+			// 'https://cdnjs.cloudflare.com/ajax/libs/video.js/8.17.4/alt/video.core.novtt.min.js',
 			'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.24.2/bootstrap-table.min.js',
 			//'https://cdn.jsdelivr.net/npm/chance@1.1.11/dist/chance.min.js',
 			'https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js',
@@ -104,7 +103,6 @@ self.addEventListener('install', function (/* event */) {
 			//'https://cdnjs.cloudflare.com/ajax/libs/ace/1.35.2/ace.js',//questionable, only dev ?
 			//'https://cdnjs.cloudflare.com/ajax/libs/ace/1.35.2/mode-csharp.min.js',//questionable, only dev ?
 			//'https://cdn.jsdelivr.net/npm/@microsoft/signalr@9.0.6/dist/browser/signalr.min.js',//questionable, inkball ?
-			//'https://cdn.jsdelivr.net/npm/msgpack5@6.0.2/dist/msgpack5.min.js',//questionable, inkball ?
 			//'https://cdn.jsdelivr.net/npm/@microsoft/signalr-protocol-msgpack@9.0.6/dist/browser/signalr-protocol-msgpack.min.js'//questionable, inkball ?
 		]);
 	}
