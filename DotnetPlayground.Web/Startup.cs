@@ -49,9 +49,6 @@ using Microsoft.AspNetCore.StaticFiles;
 
 
 
-#if INCLUDE_MONGODB
-using DotnetPlayground.Repositories.Mongo;
-#endif
 //[assembly: UserSecretsId("aspnet-DotnetPlayground-20161230022416")]
 
 namespace DotnetPlayground
@@ -202,39 +199,6 @@ namespace DotnetPlayground
             services.AddScoped<IBloggingRepository, BloggingRepository>();
 
             string dbs_config;
-#if INCLUDE_COSMOSDB
-			if (Configuration.GetSection("CosmosDB")?["enabled"] == true.ToString())
-			{
-				services.AddScoped<IHashesRepositoryPure, ThinHashesDocumentDBRepository>(serviceProvider =>
-				{
-					var conf = Configuration.GetSection("CosmosDB");
-					string endpoint = conf["Endpoint"];
-					string key = conf["Key"];
-					string databaseId = conf["DatabaseId"];
-					string collectionId = conf["CollectionId"];
-
-					var db = new ThinHashesDocumentDBRepository(endpoint, key, databaseId, collectionId);
-					return db;
-				});
-				dbs_config = Configuration["DBKind"]?.ToLower() + "+CosmosDB";
-
-				services.AddScoped<IThinHashesDocumentDBRepository, ThinHashesDocumentDBRepository>();
-			}
-			else 
-#elif INCLUDE_MONGODB
-            if (Configuration.GetSection("MongoDB")?["enabled"] == true.ToString())
-            {
-                services.Configure<MongoDBSettings>(Configuration.GetSection("MongoDB"));
-
-                services.AddSingleton<IMongoDBSettings>(sp => sp.GetRequiredService<IOptions<MongoDBSettings>>().Value);
-
-                services.AddSingleton<MongoService>();
-                dbs_config = Configuration["DBKind"]?.ToLower() + "+MongoDB";
-
-                services.AddScoped<IHashesRepositoryPure, MongoDBRepository>();
-            }
-            else
-#endif
             {
                 services.AddScoped<IHashesRepositoryPure, HashesRepository>();
                 dbs_config = Configuration["DBKind"]?.ToLower();
