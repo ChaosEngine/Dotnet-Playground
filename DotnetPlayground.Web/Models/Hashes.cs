@@ -1,7 +1,4 @@
-﻿#if INCLUDE_MONGODB
-using MongoDB.Bson.Serialization.Attributes;
-#endif
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -18,9 +15,6 @@ namespace DotnetPlayground.Models
 	{
 		[Key]
 		[Required]
-#if INCLUDE_MONGODB
-		[BsonId]
-#endif
 		public string Key { get; set; }
 
 		[Required]
@@ -65,9 +59,6 @@ namespace DotnetPlayground.Models
 	public class HashesInfo
 	{
 		[DatabaseGenerated(DatabaseGeneratedOption.None)]
-#if INCLUDE_MONGODB
-		[BsonId]
-#endif
 		public int ID { get; set; } = 0;
 		public int Count { get; set; } = 0;
 		public int KeyLength { get; set; }

@@ -11,7 +11,7 @@ An ASP.NET Core web application showcasing modern .NET patterns, integrations, a
 - **Hash Generator** — Compute and search MD5/SHA256 hashes with caching
 - **Identity Management** — User authentication with ASP.NET Core Identity + OAuth providers (Google, Facebook, GitHub, Twitter)
 - **Admin UI** — IdentityManager2 integration for user/role management at `/dotnet/idm`
-- **Multi-Database Support** — Switch between SQLite, SQL Server, PostgreSQL, MySQL, Oracle, or MongoDB via configuration
+- **Multi-Database Support** — Switch between SQLite, SQL Server, PostgreSQL, MySQL, Oracle via configuration
 - **Distributed Caching** — SQL Server or MySQL session cache backends
 - **Background Tasks** — YouTube upload integration with file watching
 - **End-to-End Tests** — Playwright test suite with pre-configured test users
@@ -61,7 +61,7 @@ npm run test  # or: bunx playwright test
 Edit `DotnetPlayground.Web/appsettings.json` or use user-secrets:
 
 ```bash
-dotnet user-secrets set "DBKind" "sqlite"  # sqlite|sqlserver|postgres|mysql|oracle|mongodb
+dotnet user-secrets set "DBKind" "sqlite"  # sqlite|sqlserver|postgres|mysql|oracle
 dotnet user-secrets set "Authentication:Google:ClientId" "your-client-id"
 ```
 
@@ -95,7 +95,7 @@ dotnet user-secrets set "Authentication:Google:ClientId" "your-client-id"
 ## Development
 
 ### Build Configurations
-- **Debug** — All database providers enabled (INCLUDE_ORACLE, INCLUDE_MONGODB, INCLUDE_SQLSERVER, INCLUDE_POSTGRES, INCLUDE_MYSQL)
+- **Debug** — All database providers enabled (INCLUDE_ORACLE, INCLUDE_SQLSERVER, INCLUDE_POSTGRES, INCLUDE_MYSQL)
 - **Release** — MySQL only (production-optimized)
 - **Oracle** — Oracle provider only
 
