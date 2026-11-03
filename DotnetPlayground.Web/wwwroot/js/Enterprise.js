@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 window.addEventListener('load', () => {
 
 	function getQueryParam(name) {
@@ -29,23 +30,6 @@ window.addEventListener('load', () => {
 		return null;
 	}
 
-	// Validate that a URL is safe to redirect to (protocol and origin checks).
-	function isSafeRedirectUrl(urlObj) {
-		// Only allow http and https protocols
-		if (urlObj.protocol !== "http:" && urlObj.protocol !== "https:") {
-			return false;
-		}
-		// Optionally restrict to same origin to prevent open redirects
-		try {
-			if (urlObj.origin !== window.location.origin) {
-				return false;
-			}
-		} catch (e) {
-			return false;
-		}
-		return true;
-	}
-
 	// Unicode-safe base64 encoder
 	function base64EncodeUnicode(str) {
 		const bytes = new TextEncoder().encode(str);
@@ -53,6 +37,23 @@ window.addEventListener('load', () => {
 		for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
 		return btoa(binary);
 	}
+	function isSafeRedirectUrl(rawUrl) {
+		if (!rawUrl || typeof rawUrl !== "string") return false;
+
+		try {
+			const url = new URL(rawUrl);
+			if (url.protocol !== "https:") return false;
+
+			const currentOrigin = window.location.origin;
+			if (url.origin === currentOrigin) return true;
+
+			const localHosts = new Set(["localhost", "127.0.0.1", "[::1]"]);
+			return localHosts.has(url.hostname.toLowerCase()) && url.port === window.location.port;
+		} catch {
+			return false;
+		}
+	}
+
 	const el = $("#authcodecallback");
 	if (!el) return;
 
@@ -62,8 +63,7 @@ window.addEventListener('load', () => {
 		// Remove all query params from the URL and reload without them
 		const acc = new URL(value);
 
-		// Ensure the callback URL is safe before using it
-		if (!isSafeRedirectUrl(acc)) {
+		if (acc.protocol !== "https:") {
 			$("#submitBtn").hide();
 			return;
 		}
@@ -77,8 +77,13 @@ window.addEventListener('load', () => {
 		el.val(acc.href);
 		//add submitBtn click handler with jquery
 		$("#submitBtn").show().on("click", function () {
-			const el = $("#authcodecallback");
-			window.location.href = el.val();
+			const nextUrl = $("#authcodecallback").val();
+			if (!isSafeRedirectUrl(nextUrl)) {
+				console.warn("Blocked unsafe redirect URL.");
+				return;
+			}
+
+			window.location.assign(nextUrl);
 		});
 	} else {
 		$("#submitBtn").hide();
