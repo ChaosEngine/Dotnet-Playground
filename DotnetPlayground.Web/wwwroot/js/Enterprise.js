@@ -83,7 +83,12 @@ window.addEventListener('load', () => {
 				return;
 			}
 
-			window.location.assign(nextUrl);
+			try {
+				const parsedNextUrl = new URL(nextUrl);
+				window.location.assign(parsedNextUrl.href);
+			} catch {
+				console.warn("Blocked invalid redirect URL.");
+			}
 		});
 	} else {
 		$("#submitBtn").hide();
