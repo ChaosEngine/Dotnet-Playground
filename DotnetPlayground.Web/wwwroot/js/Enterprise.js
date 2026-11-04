@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 window.addEventListener('load', () => {
 
 	function getQueryParam(name) {
@@ -36,6 +37,23 @@ window.addEventListener('load', () => {
 		for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
 		return btoa(binary);
 	}
+	function isSafeRedirectUrl(rawUrl) {
+		if (!rawUrl || typeof rawUrl !== "string") return false;
+
+		try {
+			const url = new URL(rawUrl);
+			if (url.protocol !== "https:") return false;
+
+			const currentOrigin = window.location.origin;
+			if (url.origin === currentOrigin) return true;
+
+			const localHosts = new Set(["localhost", "127.0.0.1", "[::1]"]);
+			return localHosts.has(url.hostname.toLowerCase()) && url.port === window.location.port;
+		} catch {
+			return false;
+		}
+	}
+
 	const el = $("#authcodecallback");
 	if (!el) return;
 
@@ -44,6 +62,11 @@ window.addEventListener('load', () => {
 		//localStorage.setItem("authcodecallback", value);
 		// Remove all query params from the URL and reload without them
 		const acc = new URL(value);
+
+		if (acc.protocol !== "https:") {
+			$("#submitBtn").hide();
+			return;
+		}
 
 		// generate a UUID (use crypto.randomUUID)
 		const guid = crypto.randomUUID();
@@ -54,8 +77,18 @@ window.addEventListener('load', () => {
 		el.val(acc.href);
 		//add submitBtn click handler with jquery
 		$("#submitBtn").show().on("click", function () {
-			const el = $("#authcodecallback");
-			window.location.href = el.val();
+			const nextUrl = $("#authcodecallback").val();
+			if (!isSafeRedirectUrl(nextUrl)) {
+				console.warn("Blocked unsafe redirect URL.");
+				return;
+			}
+
+			try {
+				const parsedNextUrl = new URL(nextUrl);
+				window.location.assign(parsedNextUrl.href);
+			} catch {
+				console.warn("Blocked invalid redirect URL.");
+			}
 		});
 	} else {
 		$("#submitBtn").hide();
