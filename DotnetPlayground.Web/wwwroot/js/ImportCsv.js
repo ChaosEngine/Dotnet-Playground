@@ -3,8 +3,11 @@
 window.addEventListener('load', () => {
 
 	let globalData = null;
+	const dropZone = document.getElementById('dropZone');
+	const fileInput = document.getElementById('csvFile');
+	const delimiterInput = document.getElementById('delimiter');
 
-	document.getElementById('delimiter')?.addEventListener('focus', function () {
+	delimiterInput?.addEventListener('focus', function () {
 		this.select();
 	});
 
@@ -14,7 +17,7 @@ window.addEventListener('load', () => {
 	 * @see https://stackoverflow.com/a/1293163/1248177
 	 * @param {string} csvContent CSV content as a string
 	 * @param {string} delimiterCharacter Delimiter character
-	 * @returns {HTMLTableElement} HTML table element
+	 * @returns {{table: HTMLTableElement, rawData: string[][]}} HTML table element and raw data array
 	 */
 	const csvToTable = (csvContent, delimiterCharacter) => {
 		// Remove \r and \n inside double-quoted values
@@ -35,7 +38,7 @@ window.addEventListener('load', () => {
 		for (const line of lines) {
 			if (line.length === 0 || line.startsWith('#')) continue; // Skip empty lines
 
-			const polished = line.split(new RegExp(`${delimiterCharacter}(?=(?:[^"]*"[^"]*")*[^"]*$)`)); // Handle delimiters inside quotes
+			const polished = line.split(new RegExp(`${RegExp.escape(delimiterCharacter)}(?=(?:[^"]*"[^"]*")*[^"]*$)`)); // Handle delimiters inside quotes
 			const values = polished.map(value => value.replace(/^"|"$/g, '').trim());
 
 			if (!section) {
@@ -88,26 +91,22 @@ window.addEventListener('load', () => {
 		reader.onload = function (e) {
 			const csv_file = e.target.result;
 
-			let delimiter = document.getElementById('delimiter').value;
-			if (delimiter === '' || delimiter.length === 0) {
+			//if delimiter is empty, try to detect it
+			//Count how many occurrences of "semicolon", "comma", "tab", "pipe", "colon" are in the file
+			//and sort those character by count by most common
+			const most_common_field_separator = [
+				[';', (csv_file.match(/;/g) || []).length],
+				[',', (csv_file.match(/,/g) || []).length],
+				['\t', (csv_file.match(/\t/g) || []).length],
+				['|', (csv_file.match(/\|/g) || []).length],
+				[':', (csv_file.match(/:/g) || []).length]
+			].sort(([, a_count], [, b_count]) => b_count - a_count);
+			const delimiterCharacter = most_common_field_separator[0][0];//get the most common delimiter character
 
-				//if delimiter is empty, try to detect it
-				//Count how many occurrences of "semicolon", "comma", "tab", "pipe", "colon" are in the file
-				//and sort those character by count by most common
-				const most_common_field_separator = [
-					[';', (csv_file.match(/;/g) || []).length],
-					[',', (csv_file.match(/,/g) || []).length],
-					['\t', (csv_file.match(/\t/g) || []).length],
-					['|', (csv_file.match(/\|/g) || []).length],
-					[':', (csv_file.match(/:/g) || []).length]
-				].sort(([, a_count], [, b_count]) => b_count - a_count);
-				delimiter = most_common_field_separator[0][0];//get the most common delimiter character
+			//set the delimiter in the input field
+			delimiterInput.value = delimiterCharacter;
 
-				//set the delimiter in the input field
-				document.getElementById('delimiter').value = delimiter;
-
-			}
-			const { table: table_element, rawData } = csvToTable(csv_file, delimiter);
+			const { table: table_element, rawData } = csvToTable(csv_file, delimiterCharacter);
 			globalData = rawData;
 			if (table_element) {
 				const tableContainer = document.getElementById('tableContainer');
@@ -123,9 +122,6 @@ window.addEventListener('load', () => {
 		reader.readAsText(file);
 	};
 
-	const dropZone = document.getElementById('dropZone');
-	const fileInput = document.getElementById('csvFile');
-
 	const setDropZoneHighlight = (isHighlighted) => {
 		dropZone.classList.toggle('drop-zone-highlight', isHighlighted);
 	};
@@ -133,16 +129,6 @@ window.addEventListener('load', () => {
 	const setFileInputDragState = (isDragging) => {
 		fileInput.style.pointerEvents = isDragging ? 'none' : 'auto';
 	};
-
-	document.addEventListener('dragenter', () => {
-		setFileInputDragState(true);
-	});
-	document.addEventListener('dragend', () => {
-		setFileInputDragState(false);
-	});
-	document.addEventListener('drop', () => {
-		setFileInputDragState(false);
-	});
 
 	// Unhighlight the drop zone when a file is dragged out of it.
 	// Guard against nested children firing dragleave while the pointer is still within the zone,
@@ -165,64 +151,12 @@ window.addEventListener('load', () => {
 			//get only 1st file
 			const dt = new DataTransfer();
 			dt.items.add(event.dataTransfer.files[0]);
-			
+
 			fileInput.files = dt.files;
 			fileInput.dispatchEvent(new Event('change'));
 		}
 	};
 
-	/**
-	 * Handle file input change event
-	 * @param {Event} event Event object
-	 */
-	fileInput.addEventListener('change', (event) => {
-		const file = event.target.files[0];
-
-		if (file)
-			ProcessFile(file);
-	});
-
-	['dragover', 'dragenter'].forEach(eventType => {
-		fileInput.addEventListener(eventType, (event) => {
-			event.preventDefault();
-			event.stopPropagation();
-			setDropZoneHighlight(true);
-		});
-	});
-
-	fileInput.addEventListener('dragleave', (event) => {
-		event.preventDefault();
-		event.stopPropagation();
-		unhighlightDropZone(event);
-	});
-
-	fileInput.addEventListener('drop', handleFileDrop);
-
-	/**
-	 * Add dragover and dragenter event listeners to the drop zone; same event handler, showing the drop zone highlight
-	 * @param {string} eventType Event type
-	 */
-	['dragover', 'dragenter'].forEach(eventType => {
-		dropZone.addEventListener(eventType, (event) => {
-			event.preventDefault();
-			setFileInputDragState(true);
-			setDropZoneHighlight(true);
-		});
-	});
-
-	/**
-	 * Remove highlight when leaving the drop zone
-	 * @param {Event} event Event object
-	 */
-	dropZone.addEventListener('dragleave', (event) => {
-		unhighlightDropZone(event); // Remove highlight only when leaving the whole drop zone
-	});
-
-	/**
-	 * Handle file drop event
-	 * @param {Event} event Event object
-	 */
-	dropZone.addEventListener('drop', handleFileDrop);
 
 	/**
 	 * Submit the CSV data to the server
@@ -307,9 +241,71 @@ window.addEventListener('load', () => {
 			}, 0);
 		}, 0);
 
-
 		myAlert(i18next.t('importCsv.goodResult', { rowsCount: rawData.length, nonEmptyCellsCount: counter }), i18next.t('importCsv.success'));
 	}
+
+	document.addEventListener('dragenter', () => {
+		setFileInputDragState(true);
+	});
+	document.addEventListener('dragend', () => {
+		setFileInputDragState(false);
+	});
+	document.addEventListener('drop', () => {
+		setFileInputDragState(false);
+	});
+
+	/**
+	 * Handle file input change event
+	 * @param {Event} event Event object
+	 */
+	fileInput.addEventListener('change', (event) => {
+		const file = event.target.files[0];
+
+		if (file)
+			ProcessFile(file);
+	});
+
+	['dragover', 'dragenter'].forEach(eventType => {
+		fileInput.addEventListener(eventType, (event) => {
+			event.preventDefault();
+			event.stopPropagation();
+			setDropZoneHighlight(true);
+		});
+	});
+
+	fileInput.addEventListener('dragleave', (event) => {
+		event.preventDefault();
+		event.stopPropagation();
+		unhighlightDropZone(event);
+	});
+
+	fileInput.addEventListener('drop', handleFileDrop);
+
+	/**
+	 * Add dragover and dragenter event listeners to the drop zone; same event handler, showing the drop zone highlight
+	 * @param {string} eventType Event type
+	 */
+	['dragover', 'dragenter'].forEach(eventType => {
+		dropZone.addEventListener(eventType, (event) => {
+			event.preventDefault();
+			setFileInputDragState(true);
+			setDropZoneHighlight(true);
+		});
+	});
+
+	/**
+	 * Remove highlight when leaving the drop zone
+	 * @param {Event} event Event object
+	 */
+	dropZone.addEventListener('dragleave', (event) => {
+		unhighlightDropZone(event); // Remove highlight only when leaving the whole drop zone
+	});
+
+	/**
+	 * Handle file drop event
+	 * @param {Event} event Event object
+	 */
+	dropZone.addEventListener('drop', handleFileDrop);
 
 	document.getElementById('csvForm').addEventListener('submit', async (event) => {
 		event.preventDefault();
