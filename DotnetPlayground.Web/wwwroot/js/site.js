@@ -146,7 +146,7 @@ window.addEventListener('DOMContentLoaded', function () {
 			// $('head,body').localize();
 		}
 
-		function loadPathFunc([lng], [namespace]) {
+		function loadPath([lng], [namespace]) {
 			const loadFromCDN = localStorage.getItem('loadFromCDN') === 'true' && !isDev;
 			switch (namespace) {
 				case 'ib':
@@ -196,7 +196,7 @@ window.addEventListener('DOMContentLoaded', function () {
 						}]),
 						{
 							//i18nextHttpBackend opts
-							loadPath: loadPathFunc
+							loadPath
 						}
 					]
 				}

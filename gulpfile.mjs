@@ -284,7 +284,7 @@ async function minifyJsFile(src, dest, toplevel = false) {
 			outfile: dest,
 			sourcemap: 'linked',
 			minify: true,
-			keepNames: !toplevel,
+			keepNames: toplevel,
 			legalComments: 'none',
 			sourcesContent: false,
 			write: false
@@ -526,8 +526,8 @@ async function minInkballJs() {
 	using _resource = new ExecutionTimePrinter();
 
 	await Promise.all([
-		minifyJsFile(paths.inkBallJsRelative + 'inkball.js', paths.inkBallJsRelative + 'inkball.min.js', true),
-		minifyJsFile(paths.inkBallJsRelative + 'shared.js', paths.inkBallJsRelative + 'shared.min.js', true)
+		minifyJsFile(paths.inkBallJsRelative + 'inkball.js', paths.inkBallJsRelative + 'inkball.min.js'),
+		minifyJsFile(paths.inkBallJsRelative + 'shared.js', paths.inkBallJsRelative + 'shared.min.js')
 	]);
 }
 
