@@ -13,10 +13,10 @@ window.addEventListener('load', () => {
 	 * @see https://stackoverflow.com/a/1293163/1248177
 	 * @see https://stackoverflow.com/a/1293163/1248177
 	 * @param {string} csvContent CSV content as a string
-	 * @param {string} delimiter Delimiter character
+	 * @param {string} delimiterCharacter Delimiter character
 	 * @returns {HTMLTableElement} HTML table element
 	 */
-	const csvToTable = (csvContent, delimiter) => {
+	const csvToTable = (csvContent, delimiterCharacter) => {
 		// Remove \r and \n inside double-quoted values
 		const csvData = csvContent.replace(/"(.*?)"/gs, (match) => {
 			return match.replace(/[\r\n]/g, ''); // Removes only within quotes
@@ -35,7 +35,7 @@ window.addEventListener('load', () => {
 		for (const line of lines) {
 			if (line.length === 0 || line.startsWith('#')) continue; // Skip empty lines
 
-			const polished = line.split(new RegExp(`${delimiter}(?=(?:[^"]*"[^"]*")*[^"]*$)`)); // Handle delimiters inside quotes
+			const polished = line.split(new RegExp(`${delimiterCharacter}(?=(?:[^"]*"[^"]*")*[^"]*$)`)); // Handle delimiters inside quotes
 			const values = polished.map(value => value.replace(/^"|"$/g, '').trim());
 
 			if (!section) {
@@ -123,31 +123,90 @@ window.addEventListener('load', () => {
 		reader.readAsText(file);
 	};
 
-	// Unhighlight the drop zone when a file is dragged out of it
+	const dropZone = document.getElementById('dropZone');
+	const fileInput = document.getElementById('csvFile');
+
+	const setDropZoneHighlight = (isHighlighted) => {
+		dropZone.classList.toggle('drop-zone-highlight', isHighlighted);
+	};
+
+	const setFileInputDragState = (isDragging) => {
+		fileInput.style.pointerEvents = isDragging ? 'none' : 'auto';
+	};
+
+	document.addEventListener('dragenter', () => {
+		setFileInputDragState(true);
+	});
+	document.addEventListener('dragend', () => {
+		setFileInputDragState(false);
+	});
+	document.addEventListener('drop', () => {
+		setFileInputDragState(false);
+	});
+
+	// Unhighlight the drop zone when a file is dragged out of it.
+	// Guard against nested children firing dragleave while the pointer is still within the zone,
+	// which causes the highlight to flicker while the user drags over the drop area.
 	const unhighlightDropZone = (event) => {
-		// document.getElementById('dropZone').classList.remove('drop-zone-highlight');
-		event.currentTarget.classList.remove('drop-zone-highlight');
+		const relatedTarget = event.relatedTarget;
+		if (!relatedTarget || !dropZone.contains(relatedTarget)) {
+			setDropZoneHighlight(false);
+			setFileInputDragState(false);
+		}
+	};
+
+	const handleFileDrop = (event) => {
+		event.preventDefault();
+		event.stopPropagation();
+		setDropZoneHighlight(false);
+		setFileInputDragState(false);
+
+		if (event.dataTransfer.files.length > 0) {
+			//get only 1st file
+			const dt = new DataTransfer();
+			dt.items.add(event.dataTransfer.files[0]);
+			
+			fileInput.files = dt.files;
+			fileInput.dispatchEvent(new Event('change'));
+		}
 	};
 
 	/**
 	 * Handle file input change event
 	 * @param {Event} event Event object
 	 */
-	document.getElementById('csvFile').addEventListener('change', (event) => {
+	fileInput.addEventListener('change', (event) => {
 		const file = event.target.files[0];
 
 		if (file)
 			ProcessFile(file);
 	});
 
+	['dragover', 'dragenter'].forEach(eventType => {
+		fileInput.addEventListener(eventType, (event) => {
+			event.preventDefault();
+			event.stopPropagation();
+			setDropZoneHighlight(true);
+		});
+	});
+
+	fileInput.addEventListener('dragleave', (event) => {
+		event.preventDefault();
+		event.stopPropagation();
+		unhighlightDropZone(event);
+	});
+
+	fileInput.addEventListener('drop', handleFileDrop);
+
 	/**
 	 * Add dragover and dragenter event listeners to the drop zone; same event handler, showing the drop zone highlight
 	 * @param {string} eventType Event type
 	 */
 	['dragover', 'dragenter'].forEach(eventType => {
-		document.getElementById('dropZone').addEventListener(eventType, (event) => {
+		dropZone.addEventListener(eventType, (event) => {
 			event.preventDefault();
-			event.currentTarget.classList.add('drop-zone-highlight');
+			setFileInputDragState(true);
+			setDropZoneHighlight(true);
 		});
 	});
 
@@ -155,25 +214,15 @@ window.addEventListener('load', () => {
 	 * Remove highlight when leaving the drop zone
 	 * @param {Event} event Event object
 	 */
-	document.getElementById('dropZone').addEventListener('dragleave', (event) => {
-		unhighlightDropZone(event); // Remove highlight when leaving the drop zone
+	dropZone.addEventListener('dragleave', (event) => {
+		unhighlightDropZone(event); // Remove highlight only when leaving the whole drop zone
 	});
 
 	/**
 	 * Handle file drop event
 	 * @param {Event} event Event object
 	 */
-	document.getElementById('dropZone').addEventListener('drop', (event) => {
-		event.preventDefault();
-		unhighlightDropZone(event);
-
-		if (event.dataTransfer.files.length > 0) {
-			const fileInput = document.getElementById('csvFile');
-			fileInput.files = event.dataTransfer.files;
-
-			fileInput.dispatchEvent(new Event('change')); // Trigger change event
-		}
-	});
+	dropZone.addEventListener('drop', handleFileDrop);
 
 	/**
 	 * Submit the CSV data to the server

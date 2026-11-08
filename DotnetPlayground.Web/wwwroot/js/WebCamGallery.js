@@ -148,7 +148,7 @@ function WebCamGalleryOnLoad(liveImageExpireTimeInSeconds) {
 		const el = event.currentTarget || event;
 		if (el.classList.contains('active')) return;
 
-		const thumb_url = el.parentNode.parentNode.href.replace(/\.[^.]*$/, "");
+		const thumb_url = el.parentNode.parentNode.href.replace(/\.[^.]*$/, "");//remove file extension
 		el.src = thumb_url + ".jpg";
 		el.alt = "thumbnail-" + thumb_url.split(/thumbnail-(\d+)/)[1];
 
