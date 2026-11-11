@@ -2,7 +2,8 @@
 
 DOCKER=/usr/bin/docker
 #DOCKER=echo
-image=''
+#image=''
+image='dotnet-11.'
 dockerfile_name=''
 dockerfile_suffix=''
 dockerfile_args=''
@@ -11,7 +12,7 @@ runtime_id=''
 
 case $1 in
     "latest"|"ubuntu"|"default"|"debian")
-				image="latest";
+				image="${image}latest";
 				dockerfile_name="Dockerfile";
 				base_image_variant="noble";
 				runtime_id="linux-x64";
@@ -19,7 +20,7 @@ case $1 in
 			;;
 
     "arm64"|"aarch64")
-				image="alpine";
+				image="${image}alpine";
 				dockerfile_name="Dockerfile.alpine";
 				base_image_variant="alpine-arm64v8";
 				runtime_id="linux-musl-arm64";
@@ -27,7 +28,7 @@ case $1 in
 			;;
 			
     "" | "alpine")
-				image="alpine";
+				image="${image}alpine";
 				dockerfile_name="Dockerfile.alpine";
 				base_image_variant="alpine";
 				runtime_id="linux-musl-x64";
