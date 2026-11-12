@@ -9,15 +9,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           submodules: true # 'recursive' 'true' or 'false'
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Build an image from Dockerfile
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: ./Dockerfile.alpine
@@ -27,7 +27,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Cache Trivy DB
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/trivy
           key: ${{ runner.os }}-trivy-${{ github.ref_name }}
@@ -35,7 +35,7 @@ jobs:
             ${{ runner.os }}-trivy-
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: 'docker.io/chaosengine/dotnetplayground:${{ github.sha }}'
           format: 'sarif'
