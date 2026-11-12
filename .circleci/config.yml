@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   Pomelo-tests:
     docker:
-      - image: mcr.microsoft.com/dotnet/sdk:10.0-noble
+      - image: mcr.microsoft.com/dotnet/sdk:11.0-noble
     # Steps for the job
     steps:
       - checkout
@@ -43,7 +43,7 @@ jobs:
 
   InkBall-tests:
     docker:
-      - image: mcr.microsoft.com/dotnet/sdk:10.0-noble
+      - image: mcr.microsoft.com/dotnet/sdk:11.0-noble
     # Steps for the job
     steps:
       - checkout
@@ -66,7 +66,7 @@ jobs:
       - run:
           name: Run Unit Tests
           command: |
-            export DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/Blogging.db"
+            export DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/net11.0/Blogging.db"
             dotnet test -v n --results-directory:"./test_coverage" --collect:"Code Coverage" --logger "trx" InkBall/test/InkBall.Tests
       - store_artifacts:
           path: ./test_coverage
@@ -83,7 +83,7 @@ jobs:
 
   DotnetPlayground-tests:
     docker:
-      - image: mcr.microsoft.com/dotnet/sdk:10.0-noble
+      - image: mcr.microsoft.com/dotnet/sdk:11.0-noble
     # Steps for the job
     steps:
       - checkout
@@ -106,7 +106,7 @@ jobs:
       - run:
           name: Run Unit Tests
           command: |
-            export DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/Blogging.db"
+            export DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/net11.0/Blogging.db"
             dotnet test -v m --results-directory:"./test_coverage" --collect:"Code Coverage" --logger "trx" DotnetPlayground.Tests
       - store_artifacts:
           path: ./test_coverage
@@ -136,7 +136,7 @@ jobs:
           name: Install framework
           command: |
             apt update;
-            apt install -y dotnet-sdk-10.0
+            apt install -y dotnet-sdk-11.0
             npm i -g bun
       - run:
           name: Show versions
@@ -155,7 +155,7 @@ jobs:
       - run:
           name: End-2-End Playwright browser tests
           command: |
-            export DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/Blogging.db"
+            export DBKind="sqlite" ConnectionStrings__Sqlite="Filename=./bin/Debug/net11.0/Blogging.db"
             bun x playwright test
       - store_artifacts:
           path: e2e/playwright-report
@@ -163,7 +163,7 @@ jobs:
 
   build:
     docker:
-      - image: mcr.microsoft.com/dotnet/sdk:10.0-noble
+      - image: mcr.microsoft.com/dotnet/sdk:11.0-noble
     # Steps for the job
     steps:
       - checkout
