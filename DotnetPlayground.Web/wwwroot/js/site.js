@@ -7,8 +7,8 @@ var g_AppRootPath = location.pathname.match(/\/([^/]+)\//)[0], g_isDevelopment =
 	g_gitBranch = "GIT_BRANCH", g_gitHash = "GIT_HASH", localize = null;
 
 (() => {
-	const theme = localStorage.getItem('bs-theme') || 'system';
-	if (theme !== 'system')
+	const system = 'system', theme = localStorage.getItem('bs-theme') || system;
+	if (theme !== system)
 		document.documentElement.setAttribute('data-bs-theme', theme);
 })();
 
@@ -43,7 +43,7 @@ const g_ttPolicy = window.trustedTypes.createPolicy('default', {
 			//<script src="/dotnet/lib/jquery/jquery.min.js" integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao=" crossorigin="anonymous"></script>
 			const srcUrl = input.match(/src="([^"]+)"/)?.[1];
 			const parsed = new URL(srcUrl, location.origin);
-			if(parsed.origin === location.origin) {
+			if (parsed.origin === location.origin) {
 				return input;// allow this specific fallback script
 			}
 		}
@@ -52,12 +52,12 @@ const g_ttPolicy = window.trustedTypes.createPolicy('default', {
 			//<link href="/dotnet/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" integrity="sha256-2FMn2Zx6PuH5tdBQDRNwrOo60ts5wWPC9R8jK67b3t4=" crossorigin="anonymous" />
 			const hrefUrl = input.match(/href="([^"]+)"/)?.[1];
 			const parsed = new URL(hrefUrl, location.origin);
-			if(parsed.origin === location.origin) {
+			if (parsed.origin === location.origin) {
 				return input;// allow this specific fallback script
 			}
 		}
 		//else...
-		
+
 		console.log(`Trusted Types Violation: bad HTML input ${input}`);
 		return null;
 	}
@@ -93,14 +93,13 @@ async function clientValidate(button) {
 	const md5sum = md5(key);
 	const sha = await getSHA256(key);
 
-	td.eq(1).css({
-		"color": (md5sum === orig_md5 ? "green" : "red"),
+	const generateGreenOrRedCssBolded = (isOKCondition) => ({
+		"color": (isOKCondition ? "green" : "red"),
 		'font-weight': 'bold'
 	});
-	td.eq(2).css({
-		"color": (sha === orig_sha ? "green" : "red"),
-		'font-weight': 'bold'
-	});
+
+	td.eq(1).css(generateGreenOrRedCssBolded(md5sum === orig_md5));
+	td.eq(2).css(generateGreenOrRedCssBolded(sha === orig_sha));
 }
 
 /**
@@ -308,13 +307,14 @@ window.addEventListener('load', function () {
 	}
 
 	function registerMyAlert(titleText = 'Modal title', bodyText = 'Content') {
-		const modalDialog = $('<div>', { class: 'modal-dialog' });
-		const modalContent = $('<div>', { class: 'modal-content' });
+		const divTag = '<div>', buttonTag = '<button>';//tag names used for creating jQuery elements
+		const modalDialog = $(divTag, { class: 'modal-dialog' });
+		const modalContent = $(divTag, { class: 'modal-content' });
 
 		// Header
-		const header = $('<div>', { class: 'modal-header' })
+		const header = $(divTag, { class: 'modal-header' })
 			.append($('<h5>', { class: 'modal-title text-break', id: 'divModalLabel', text: titleText }))
-			.append($('<button>', {
+			.append($(buttonTag, {
 				type: 'button',
 				class: 'btn-close',
 				'data-bs-dismiss': 'modal',
@@ -322,11 +322,11 @@ window.addEventListener('load', function () {
 			}));
 
 		// Body
-		const body = $('<div>', { class: 'modal-body text-break', text: bodyText });
+		const body = $(divTag, { class: 'modal-body text-break', text: bodyText });
 
 		// Footer
-		const footer = $('<div>', { class: 'modal-footer' })
-			.append($('<button>', {
+		const footer = $(divTag, { class: 'modal-footer' })
+			.append($(buttonTag, {
 				type: 'button',
 				class: 'btn btn-primary',
 				'data-bs-dismiss': 'modal',
@@ -337,7 +337,7 @@ window.addEventListener('load', function () {
 		modalContent.append(header, body, footer);
 		modalDialog.append(modalContent);
 
-		$('<div>', {
+		$(divTag, {
 			class: 'modal fade',
 			id: 'divModal',
 			tabindex: '-1',
@@ -349,24 +349,33 @@ window.addEventListener('load', function () {
 	}
 
 	function registerThemeChangeHandler() {
+		//const tag names for theme handling
+		const system = 'system', data_Bs_Theme = 'data-bs-theme', bs_Theme = 'bs-theme', prefersColorSchemeDark = 'prefers-color-scheme: dark', prefersColorSchemeLight = 'prefers-color-scheme: light', html_tag_name = 'html';
+
 		//Taken from https://anduin.aiursoft.com/post/2020/3/27/bootstrap-dark-theme-minimum-style
 		const initDarkTheme = function () {
-			if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+			if (window.matchMedia(prefersColorSchemeDark).matches) {
 				// dark mode
-				$('html').attr("data-bs-theme", "dark");
+				$(html_tag_name).attr(data_Bs_Theme, "dark");
 			}
 		};
 		const initLightTheme = function () {
-			if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+			if (window.matchMedia(prefersColorSchemeLight).matches) {
 				// light mode
-				$('html').attr("data-bs-theme", "light");
+				$(html_tag_name).attr(data_Bs_Theme, "light");
 			}
 		};
 		initDarkTheme();
-		window.matchMedia('(prefers-color-scheme: dark)').addEventListener("change", initDarkTheme);
-		window.matchMedia('(prefers-color-scheme: light)').addEventListener("change", initLightTheme);
+		window.matchMedia(prefersColorSchemeDark).addEventListener("change", initDarkTheme);
+		window.matchMedia(prefersColorSchemeLight).addEventListener("change", initLightTheme);
 
 
+		const updateThemeElementAttributes = (jqElem, classes, curTheme) => {
+			jqElem.attr({
+				'class': classes.join(" "),
+				'data-i18n': `[title]nav.themeSwitcher.${curTheme};[aria-label]nav.themeSwitcher.${curTheme}`
+			});
+		};
 
 		$('#themeSwitcher').on('click', function () {
 			const classes = $(this).attr('class').split(' ');
@@ -382,32 +391,29 @@ window.addEventListener('load', function () {
 
 				default:
 				case 'dark':
-					cur_theme = 'system';
+					cur_theme = system;
 					break;
 			}
 			classes.push(cur_theme);
-			$(this).attr({
-				'class': classes.join(" "),
-				'data-i18n': `[title]nav.themeSwitcher.${cur_theme};[aria-label]nav.themeSwitcher.${cur_theme}`
-			});
+			updateThemeElementAttributes($(this), classes, cur_theme);
 			localize('#themeSwitcher');
 
 
-			if (cur_theme === 'system') {
-				$('html').removeAttr('data-bs-theme');
-				localStorage.removeItem('bs-theme');
+			if (cur_theme === system) {
+				$(html_tag_name).removeAttr(data_Bs_Theme);
+				localStorage.removeItem(bs_Theme);
 			}
 			else {
-				$('html').attr('data-bs-theme', cur_theme);
-				localStorage.setItem('bs-theme', cur_theme);
+				$(html_tag_name).attr(data_Bs_Theme, cur_theme);
+				localStorage.setItem(bs_Theme, cur_theme);
 			}
 		});
 
-		const cur_theme = localStorage.getItem('bs-theme') || 'system';
-		if (cur_theme === 'system')
-			$('html').removeAttr('data-bs-theme');
+		const cur_theme = localStorage.getItem(bs_Theme) || system;
+		if (cur_theme === system)
+			$(html_tag_name).removeAttr(data_Bs_Theme);
 		else
-			$('html').attr('data-bs-theme', cur_theme);
+			$(html_tag_name).attr(data_Bs_Theme, cur_theme);
 
 
 
@@ -415,10 +421,7 @@ window.addEventListener('load', function () {
 		const classes = btn.attr('class').split(' ');
 		classes.pop();
 		classes.push(cur_theme);
-		btn.attr({
-			'class': classes.join(" "),
-			'data-i18n': `[title]nav.themeSwitcher.${cur_theme};[aria-label]nav.themeSwitcher.${cur_theme}`
-		});
+		updateThemeElementAttributes(btn, classes, cur_theme);
 		// localize('#themeSwitcher');
 	}
 
@@ -448,11 +451,11 @@ window.addEventListener('load', function () {
 		None: 6
 	};
 
-	var org_trace = console.trace;
-	var org_debug = console.debug;
-	var org_info = console.info;
-	var org_warn = console.warn;
-	var org_error = console.error;
+	const org_trace = console.trace;
+	const org_debug = console.debug;
+	const org_info = console.info;
+	const org_warn = console.warn;
+	const org_error = console.error;
 
 	console.trace = function (message) {
 		ajaxLog(logLevel.Trace, message);
@@ -494,10 +497,10 @@ window.addEventListener('load', function () {
 	//overriding window.alert with own implementation
 	window.alert = myAlert;
 
-	//if JQuery $ does not have parseJSON - add it. jquery.validate.unobtrusive depends on it.
-	if (typeof $.parseJSON !== "function") {
-		$.parseJSON = (data) => JSON.parse(data);
-	}
+	// //if JQuery $ does not have parseJSON - add it. jquery.validate.unobtrusive depends on it.
+	// if (typeof $.parseJSON !== "function") {
+	// 	$.parseJSON = (data) => JSON.parse(data);
+	// }
 });
 
 window.onerror = function (msg, url, line, col, error) {
